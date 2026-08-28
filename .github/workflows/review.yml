@@ -7,6 +7,12 @@ on:
   pull_request:
     paths-ignore: ["**.md"]
 
+# The caller must GRANT what the called workflow needs — permissions can
+# only be reduced (never elevated) through a uses: chain.
+permissions:
+  pull-requests: write
+  contents: read
+
 jobs:
   ai-review:
     if: ${{ !github.event.pull_request.head.repo.fork }}

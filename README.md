@@ -23,13 +23,17 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
 ### Integration (3 steps)
 
 1. Set an `LLM_API_KEY` secret (OpenRouter key) in your repo.
-2. Add a caller workflow:
+2. Add a caller workflow (the `permissions` block is required —
+   permissions cannot be elevated through a `uses:` chain):
 
    ```yaml
    # .github/workflows/ai-review.yml
    on:
      pull_request:
        paths-ignore: ["**.md"]
+   permissions:
+     pull-requests: write
+     contents: read
    jobs:
      ai-review:
        if: ${{ !github.event.pull_request.head.repo.fork }}
