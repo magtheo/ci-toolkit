@@ -1,0 +1,14 @@
+name: review
+
+# Dogfood caller: ci-toolkit reviews its own PRs.
+# Fork PRs run with a read-only token that cannot comment — skip them.
+
+on:
+  pull_request:
+    paths-ignore: ["**.md"]
+
+jobs:
+  ai-review:
+    if: ${{ !github.event.pull_request.head.repo.fork }}
+    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@main
+    secrets: inherit

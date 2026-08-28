@@ -1,0 +1,43 @@
+name: ai-review
+
+# Advisory AI PR review (ci-toolkit). Called via `uses:` — see README.
+# The review event is hard-coded to COMMENT inside review.sh; this
+# workflow cannot approve, and the PR head is never checked out.
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: Runner label — explicit, no automatic fallback.
+        type: string
+        default: ubuntu-latest
+      toolkit_ref:
+        description: ci-toolkit ref to execute.
+        type: string
+        default: main
+    secrets:
+      LLM_API_KEY:
+        description: OpenRouter API key (caller's secret).
+        required: true
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  review:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Check out ci-toolkit (logic only, never the PR head)
+        uses: actions/checkout@v4
+        with:
+          repository: magtheo/ci-toolkit
+          ref: ${{ inputs.toolkit_ref }}
+          path: ci-toolkit
+
+      - name: Run advisory review
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: bash ci-toolkit/review.sh
