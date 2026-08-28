@@ -23,23 +23,35 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
 ### Integration (3 steps)
 
 1. Set an `LLM_API_KEY` secret (OpenRouter key) in your repo.
-2. Add a caller workflow (the `permissions` block is required —
-   permissions cannot be elevated through a `uses:` chain):
+2. Add a caller workflow. Security posture: the `permissions` block is
+   required (permissions cannot be elevated through a `uses:` chain),
+   secrets are mapped EXPLICITLY (never `inherit` — least privilege:
+   this public toolkit should receive exactly one credential), and the
+   reusable-workflow ref + `toolkit_ref` are pinned to a full commit
+   SHA (immutable; reviewer upgrades become deliberate reviewed
+   changes instead of invisible `@main` drift):
 
    ```yaml
    # .github/workflows/ai-review.yml
    on:
      pull_request:
-       paths-ignore: ["**.md"]
+       paths-ignore: ["**.md", "docs/**", "plans/**"]
    permissions:
      pull-requests: write
      contents: read
    jobs:
      ai-review:
        if: ${{ !github.event.pull_request.head.repo.fork }}
-       uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@main
-       secrets: inherit
+       uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@<full-ci-toolkit-sha>
+       with:
+         toolkit_ref: <full-ci-toolkit-sha>
+       secrets:
+         LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
    ```
+
+   To upgrade the reviewer later: pick the reviewed ci-toolkit commit,
+   replace the SHA in both places, merge — that PR itself is reviewed
+   by the old pinned version first.
 
 3. Optional overrides: `with: runner: [self-hosted, ci]` (explicit
    runner label — there is no automatic fallback), `with:

@@ -2,13 +2,16 @@ name: review
 
 # Dogfood caller: ci-toolkit reviews its own PRs.
 # Fork PRs run with a read-only token that cannot comment — skip them.
+#
+# Security posture (external review round 4, 2026-08-28): secrets are
+# passed EXPLICITLY (never `inherit`), and both layers are pinned to
+# the immutable reviewed commit — upgrades to the reviewer are
+# deliberate reviewed changes, not @main drift.
 
 on:
   pull_request:
     paths-ignore: ["**.md"]
 
-# The caller must GRANT what the called workflow needs — permissions can
-# only be reduced (never elevated) through a uses: chain.
 permissions:
   pull-requests: write
   contents: read
@@ -16,5 +19,8 @@ permissions:
 jobs:
   ai-review:
     if: ${{ !github.event.pull_request.head.repo.fork }}
-    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@main
-    secrets: inherit
+    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@0fec0c41483f86d8514b596f3f200882d07322ec
+    with:
+      toolkit_ref: 0fec0c41483f86d8514b596f3f200882d07322ec
+    secrets:
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
