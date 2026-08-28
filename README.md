@@ -44,8 +44,21 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
 3. Optional overrides: `with: runner: [self-hosted, ci]` (explicit
    runner label — there is no automatic fallback), `with:
    toolkit_ref: <sha>` to pin; repo-local `.ai-review-rubric.md` to
-   replace the bundled rubric; `AI_REVIEW_MODEL` env in the caller for
-   a cheaper model.
+   replace the bundled rubric (resolved from the PR **base** ref —
+   it is trusted policy, so it must come from reviewed code, never
+   from the branch under review); `AI_REVIEW_MODEL` env in the caller
+   for a cheaper model.
+
+## Hardening (external review round 1, 2026-08-28)
+
+- rubric override resolves from the base sha (policy/data boundary);
+- HTTP timeouts everywhere; OpenRouter retry with backoff on
+  429/5xx; explicit error reporting with HTTP codes;
+- changed-file list capped (`AI_REVIEW_MAX_FILES`, default 200);
+- payload construction extracted to `parse_review.py` with an
+  invariant test suite (`tests/`, run by `.github/workflows/tests.yml`):
+  COMMENT-only event, diff-addressable inline lines, malformed-output
+  degradation.
 
 Origin: student-platform feature `ai-pr-review` (plan + validation
 history live there).
