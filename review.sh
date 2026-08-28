@@ -69,8 +69,10 @@ fi
 
 # ---- rubric: caller override, else bundled ------------------------------
 rubric=""
-if [ "$(curl_gh -o /dev/null -w '%{http_code}' \
-  "$REPO_API/contents/.ai-review-rubric.md?ref=$head_sha")" = "200" ]; then
+code=$(curl -sS -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/vnd.github+json" -o /dev/null -w '%{http_code}' \
+  "$REPO_API/contents/.ai-review-rubric.md?ref=$head_sha" || true)
+if [ "$code" = "200" ]; then
   rubric=$(curl_gh "$REPO_API/contents/.ai-review-rubric.md?ref=$head_sha" \
     | jq -r .content | base64 -d)
 else
