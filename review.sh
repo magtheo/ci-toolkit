@@ -83,17 +83,30 @@ if [ "${#diff_text}" -gt "$MAX_DIFF" ]; then
 fi
 
 # ---- rubric: override from BASE (trusted policy), else bundled -----------
+# Fail CLOSED: 200 -> repo policy from base; 404 -> genuinely absent,
+# bundled fallback; anything else (network, 403, 429, 5xx) -> hard fail.
+# A repo that declares policy must not be silently reviewed under a
+# weaker rubric because of a transient GitHub error.
 rubric=""
 code=$(curl -sS --connect-timeout 10 --max-time 60 \
   -H "Authorization: Bearer $TOKEN" \
   -H "Accept: application/vnd.github+json" -o /dev/null -w '%{http_code}' \
   "$REPO_API/contents/.ai-review-rubric.md?ref=$base_sha" || true)
-if [ "$code" = "200" ]; then
-  rubric=$(curl_gh "$REPO_API/contents/.ai-review-rubric.md?ref=$base_sha" \
-    | jq -r .content | base64 -d)
-else
-  rubric=$(<"$TOOLKIT_DIR/rubric.md")
-fi
+case "$code" in
+  200)
+    rubric=$(curl_gh "$REPO_API/contents/.ai-review-rubric.md?ref=$base_sha" \
+      | jq -r .content | base64 -d)
+    ;;
+  404)
+    rubric=$(<"$TOOLKIT_DIR/rubric.md")
+    ;;
+  *)
+    echo "FAIL CLOSED: rubric override probe returned http '$code'" \
+      "(expected 200 or 404) — refusing to review under the bundled" \
+      "rubric when repo policy may exist" >&2
+    exit 1
+    ;;
+esac
 
 # ---- prompt (jq --arg keeps every byte as data) --------------------------
 system_prompt="You are an advisory code reviewer. Follow this rubric exactly:
@@ -120,8 +133,9 @@ jq -n --arg model "$MODEL" \
     messages: [{role: "system", content: $system},
                {role: "user",   content: $user}]}' > prompt.json
 
-# ---- model call: retry transient failures (429/5xx/network) --------------
+# ---- model call: retry transient failures (network + 429/5xx) ------------
 http_code=000
+rc=0
 for attempt in 1 2 3; do
   set +e
   http_code=$(curl -sS --connect-timeout 10 --max-time 180 \
@@ -131,22 +145,26 @@ for attempt in 1 2 3; do
     https://openrouter.ai/api/v1/chat/completions)
   rc=$?
   set -e
-  [ "$rc" -eq 0 ] && [ "$http_code" = "200" ] && break
-  case "$http_code" in
-    429|500|502|503|504)
-      echo "OpenRouter attempt $attempt failed (http $http_code, curl rc $rc) — retrying after backoff" >&2
-      sleep $((attempt * 10))
-      ;;
-    *)
-      echo "OpenRouter call failed: http $http_code, curl rc $rc" >&2
-      jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
-      exit 1
-      ;;
-  esac
-  http_code=000
+  if [ "$rc" -eq 0 ] && [ "$http_code" = "200" ]; then
+    break
+  elif [ "$rc" -ne 0 ]; then
+    echo "network failure (curl rc $rc), attempt $attempt — retrying after backoff" >&2
+  else
+    case "$http_code" in
+      429|500|502|503|504)
+        echo "OpenRouter attempt $attempt failed (http $http_code) — retrying after backoff" >&2
+        ;;
+      *)
+        echo "OpenRouter call failed: http $http_code, curl rc $rc" >&2
+        jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
+        exit 1
+        ;;
+    esac
+  fi
+  sleep $((attempt * 10))
 done
 if [ "$http_code" != "200" ]; then
-  echo "OpenRouter retries exhausted (last http $http_code)" >&2
+  echo "OpenRouter retries exhausted (last http $http_code, curl rc $rc)" >&2
   jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
   exit 1
 fi
