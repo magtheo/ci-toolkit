@@ -23,18 +23,19 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
 ### Integration (3 steps)
 
 1. Set an `LLM_API_KEY` secret (OpenRouter key) in your repo.
-2. Add a caller workflow. Security posture: the `permissions` block is
-   required (permissions cannot be elevated through a `uses:` chain),
-   secrets are mapped EXPLICITLY (never `inherit` — least privilege:
-   this public toolkit should receive exactly one credential), and the
-   reusable-workflow ref + `toolkit_ref` are pinned to a full commit
-   SHA (immutable; reviewer upgrades become deliberate reviewed
-   changes instead of invisible `@main` drift):
+2. Add a caller workflow. Security posture: trigger with
+   `pull_request_target` so the secret-receiving workflow file always
+   comes from your trusted default branch (a PR cannot rewrite its own
+   reviewer); the `permissions` block is required (permissions cannot
+   be elevated through a `uses:` chain); secrets are mapped
+   EXPLICITLY (never `inherit`); the reusable-workflow ref and
+   `toolkit_ref` are both pinned to the same full commit SHA
+   (`toolkit_ref` is required — no floating default):
 
    ```yaml
    # .github/workflows/ai-review.yml
    on:
-     pull_request:
+     pull_request_target:
        paths-ignore: ["**.md", "docs/**", "plans/**"]
    permissions:
      pull-requests: write
@@ -49,9 +50,19 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
    ```
 
+   Why `pull_request_target` is safe HERE (and only here): the
+   reviewer never checks out or executes PR-head code — it fetches the
+   diff as data via the GitHub API and takes policy from the base
+   revision. If you add any step that runs or checks out untrusted PR
+   content into this workflow, you create the classic
+   `pull_request_target` exfiltration footgun — don't.
+
+   Fork PRs are skipped (no AI review): with `pull_request_target` the
+   token could act on forks, so the guard is load-bearing.
+
    To upgrade the reviewer later: pick the reviewed ci-toolkit commit,
-   replace the SHA in both places, merge — that PR itself is reviewed
-   by the old pinned version first.
+   replace the SHA in both places, merge — the upgrade PR itself was
+   reviewed by the previously pinned version first.
 
 3. Optional overrides: `with: runner: [self-hosted, ci]` (explicit
    runner label — there is no automatic fallback), `with:
