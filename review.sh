@@ -105,7 +105,7 @@ Respond with the rubric's STRICT JSON object and nothing else."
 
 jq -n --arg model "$MODEL" \
   --arg system "$system_prompt" --arg user "$user_prompt" \
-  '{model: $model, temperature: 0.2, max_tokens: 3000,
+  '{model: $model, temperature: 0.2, max_tokens: 2000,
     messages: [{role: "system", content: $system},
                {role: "user",   content: $user}]}' > prompt.json
 
