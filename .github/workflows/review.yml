@@ -1,14 +1,24 @@
 name: review
 
 # Dogfood caller: ci-toolkit reviews its own PRs.
-# Fork PRs run with a read-only token that cannot comment — skip them.
+#
+# Trust model (external review round 5, 2026-08-28):
+#   - trigger is `pull_request_target`, so THIS workflow file always
+#     comes from the trusted base branch — a PR cannot rewrite its own
+#     reviewer to exfiltrate the secret. This is safe here because the
+#     reviewer NEVER checks out or executes the PR head; it fetches the
+#     diff as API data only (GitHub's documented safe pattern for
+#     pull_request_target).
+#   - fork PRs are skipped at the job level: with pull_request_target
+#     the token CAN act on forks, so the guard is load-bearing, not
+#     decorative.
+#   - secrets are mapped EXPLICITLY (never `inherit`), and both layers
+#     are pinned to the immutable reviewed commit.
 
 on:
-  pull_request:
+  pull_request_target:
     paths-ignore: ["**.md"]
 
-# The caller must GRANT what the called workflow needs — permissions can
-# only be reduced (never elevated) through a uses: chain.
 permissions:
   pull-requests: write
   contents: read
@@ -16,5 +26,8 @@ permissions:
 jobs:
   ai-review:
     if: ${{ !github.event.pull_request.head.repo.fork }}
-    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@main
-    secrets: inherit
+    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@0fec0c41483f86d8514b596f3f200882d07322ec
+    with:
+      toolkit_ref: 0fec0c41483f86d8514b596f3f200882d07322ec
+    secrets:
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}

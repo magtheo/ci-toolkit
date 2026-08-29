@@ -3,6 +3,11 @@ name: ai-review
 # Advisory AI PR review (ci-toolkit). Called via `uses:` — see README.
 # The review event is hard-coded to COMMENT inside review.sh; this
 # workflow cannot approve, and the PR head is never checked out.
+#
+# Callers are expected to trigger via pull_request_target (trusted-base
+# workflow file) and to pin BOTH this workflow's ref and toolkit_ref to
+# the same full commit SHA. toolkit_ref has NO default on purpose: a
+# pinned wrapper over a floating implementation would be fake immutability.
 
 on:
   workflow_call:
@@ -12,9 +17,9 @@ on:
         type: string
         default: ubuntu-latest
       toolkit_ref:
-        description: ci-toolkit ref to execute.
+        description: Full 40-char ci-toolkit commit SHA to execute.
         type: string
-        default: main
+        required: true
     secrets:
       LLM_API_KEY:
         description: OpenRouter API key (caller's secret).
@@ -28,8 +33,18 @@ jobs:
   review:
     runs-on: ${{ inputs.runner }}
     steps:
+      - name: Validate toolkit_ref is a full commit SHA
+        env:
+          REF: ${{ inputs.toolkit_ref }}
+        run: |
+          if ! echo "$REF" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "toolkit_ref must be a full 40-char commit SHA (got: '$REF')." >&2
+            echo "A pinned workflow over a floating ref is fake immutability." >&2
+            exit 1
+          fi
+
       - name: Check out ci-toolkit (logic only, never the PR head)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: magtheo/ci-toolkit
           ref: ${{ inputs.toolkit_ref }}
