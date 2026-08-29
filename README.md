@@ -78,6 +78,17 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
    `toolkit_ref` is **not** optional: it is mandatory and must be the
    same full SHA used in `uses:`.
 
+## Governance templates
+
+`templates/` holds copy-templates for the repo-governance practice
+(branch model, phase discipline, Review Model, agent rules, plans,
+PR template, roadmap + freshness guard). **Copy into your repo and
+adapt — never reference governance across repos.** Source of truth is
+student-platform's lived-in AGENTS.md; the template generalizes it and
+adds the lifecycle invariants (branch from verified `main`, never from
+an unmerged PR head; no phase PRs into a feature branch whose parent
+has landed).
+
 ## Review output vocabulary
 
 The reviewer produces an **assessment** — it has no authority and

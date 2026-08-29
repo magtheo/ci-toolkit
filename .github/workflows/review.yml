@@ -17,7 +17,9 @@ name: review
 
 on:
   pull_request_target:
-    paths-ignore: ["**.md"]
+    # no blanket "**.md" ignore — rubric.md and templates/ are policy
+    # and governance; their changes must be reviewable
+    paths-ignore: ["docs/**", "plans/**"]
 
 permissions:
   pull-requests: write
