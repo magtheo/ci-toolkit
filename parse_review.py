@@ -8,10 +8,11 @@ Semantic model (2026-08-28, interface-vocabulary redesign):
 - the model may only return CLEAR or ISSUES_FOUND; INCONCLUSIVE is
   produced HERE, deterministically, when the response cannot be
   trusted (malformed, missing, or self-contradictory);
-- deterministic consistency rules: CLEAR with a blocking finding
-  normalizes to ISSUES_FOUND; ISSUES_FOUND with zero findings is
-  INCONCLUSIVE (claims issues, provides none); parser failure can
-  never result in CLEAR;
+- deterministic consistency rules are ASYMMETRIC and fail-closed:
+  blocking evidence overrides an optimistic label (CLEAR + blocking
+  finding -> Issues found), but a contradictory ISSUES_FOUND label
+  with no validated blocking finding is INCONCLUSIVE — never Clear;
+  parser failure can never result in CLEAR;
 - user-facing language: Clear / Issues found / Inconclusive,
   Blocking / Advisory. No LGTM, no approval vocabulary;
 - the review event is the literal "COMMENT" — never derived from
@@ -98,12 +99,16 @@ def _validate_findings(obj):
 
 
 def assess(obj):
-    """Deterministic classification from validated evidence.
+    """Asymmetric, fail-closed classification from validated evidence.
 
-    The model's assessment label is a required schema field and a
-    consistency check — it does NOT decide the user-facing status.
-    The findings decide: any blocking finding -> ISSUES_FOUND;
-    otherwise -> CLEAR (advisory findings are compatible with CLEAR).
+    - concrete blocking evidence overrides an optimistic label
+      (CLEAR + blocking -> ISSUES_FOUND);
+    - but contradictory negative intent never normalizes downward:
+      an ISSUES_FOUND label with no validated blocking finding is
+      INCONCLUSIVE (the model reports issues that did not survive
+      validation — possibly truncation or schema failure — and that
+      must never become the strongest positive state);
+    - advisory findings are compatible with CLEAR.
 
     Returns (assessment, findings); findings is [] on the
     INCONCLUSIVE path (untrusted output carries no usable evidence).
@@ -115,6 +120,8 @@ def assess(obj):
         return INCONCLUSIVE, []
     if any(f["severity"] == "blocking" for f in findings):
         return "ISSUES_FOUND", findings
+    if str(obj.get("assessment", "")).strip().upper() == "ISSUES_FOUND":
+        return INCONCLUSIVE, []
     return "CLEAR", findings
 
 

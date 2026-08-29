@@ -138,12 +138,29 @@ def test_unknown_severity_is_inconclusive():
     assert "AI review · Inconclusive" in p["body"]
 
 
-# ---- classification is deterministic from findings --------------------------
+# ---- classification is asymmetric + fail-closed -----------------------------
 
-def test_issues_found_label_with_advisory_only_becomes_clear():
-    # the findings are the evidence; the label is a consistency field
+def test_contradictory_issues_found_label_with_advisory_only_is_inconclusive():
+    # the model reports issues, but no blocking finding survived
+    # validation — contradictory output must never become Clear
     p = build_payload(
         _content(assessment="ISSUES_FOUND", summary="s",
+                 findings=[{"file": "a.py", "line": 2,
+                            "severity": "non-blocking", "comment": "c"}]),
+        FILES, "sha", "m")
+    assert "AI review · Inconclusive" in p["body"]
+    assert "AI review · Clear" not in p["body"]
+
+
+def test_contradictory_issues_found_label_with_zero_findings_is_inconclusive():
+    p = build_payload(_content(assessment="ISSUES_FOUND", findings=[]),
+                      [], "sha", "m")
+    assert "AI review · Inconclusive" in p["body"]
+
+
+def test_clear_label_with_advisory_only_stays_clear():
+    p = build_payload(
+        _content(assessment="CLEAR", summary="s",
                  findings=[{"file": "a.py", "line": 2,
                             "severity": "non-blocking", "comment": "c"}]),
         FILES, "sha", "m")
@@ -151,13 +168,7 @@ def test_issues_found_label_with_advisory_only_becomes_clear():
     assert "0 blocking · 1 advisory" in p["body"]
 
 
-def test_issues_found_label_with_zero_findings_becomes_clear():
-    p = build_payload(_content(assessment="ISSUES_FOUND", findings=[]),
-                      [], "sha", "m")
-    assert "AI review · Clear" in p["body"]
-
-
-def test_blocking_decides_regardless_of_label():
+def test_blocking_evidence_overrides_optimistic_label():
     for label in ("CLEAR", "ISSUES_FOUND"):
         p = build_payload(
             _content(assessment=label,
@@ -194,8 +205,9 @@ def test_no_lgtm_or_verdict_vocabulary():
 
 
 def test_advisory_terminology_not_non_blocking():
+    # advisory-only + CLEAR label renders advisories under details
     p = build_payload(
-        _content(assessment="ISSUES_FOUND", summary="s",
+        _content(assessment="CLEAR", summary="s",
                  findings=[{"file": "a.py", "line": 2,
                             "severity": "non-blocking", "comment": "c"}]),
         FILES, "sha", "m")
