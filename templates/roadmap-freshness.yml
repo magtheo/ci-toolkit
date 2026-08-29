@@ -1,0 +1,25 @@
+name: roadmap-freshness
+
+# ci-toolkit governance copy-template. COPY both this workflow AND
+# templates/roadmap-freshness.sh (e.g. to .github/scripts/) into your
+# repo; adjust the script path below. The LOGIC lives in the script so
+# it is unit-testable — see ci-toolkit's tests/test_roadmap_freshness.py.
+
+on:
+  schedule:
+    - cron: "37 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check roadmap freshness
+        run: bash .github/scripts/roadmap-freshness.sh
