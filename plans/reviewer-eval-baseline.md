@@ -1,10 +1,9 @@
 # Reviewer Eval Baseline
 
-Status: rev 4 — APPROVED 2026-08-29 (maintainer merge of PR #8;
-four external review rounds, final approval relayed via external
-review of the chain #8/#37/#40/#41). Implementation may begin under
-the phase workflow: phase branches target
-feature/reviewer-eval-baseline.
+Status: rev 4 — APPROVED 2026-08-29: reviewed across four external
+rounds and approved by maintainer merge of PR #8 (the authority
+event). Implementation may begin under the phase workflow: phase
+branches target feature/reviewer-eval-baseline.
 
 Revision history: rev 4 — engine/oracle phase separation, engine vs
 consumer-profile qualification levels, current-oracle deployment
