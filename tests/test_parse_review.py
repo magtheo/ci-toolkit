@@ -93,11 +93,78 @@ def test_clear_with_advisory_only_stays_clear():
     assert "0 blocking · 1 advisory" in p["body"]
 
 
-def test_issues_found_without_findings_is_inconclusive():
-    assessment, findings = assess({"assessment": "ISSUES_FOUND",
-                                   "findings": []})
-    assert assessment == "INCONCLUSIVE"
-    assert findings == []
+# ---- strict schema validation (fail closed) --------------------------------
+
+def test_clear_with_findings_not_a_list_is_inconclusive():
+    p = build_payload(_content(assessment="CLEAR", findings="oops"),
+                      [], "sha", "m")
+    assert "AI review · Inconclusive" in p["body"]
+    assert "AI review · Clear" not in p["body"]
+
+
+def test_clear_with_findings_missing_is_inconclusive():
+    p = build_payload(_content(assessment="CLEAR"), [], "sha", "m")
+    assert "AI review · Inconclusive" in p["body"]
+
+
+def test_malformed_finding_is_inconclusive():
+    for bad in (
+        [{"comment": "no file"}],
+        [{"file": "a.py", "severity": "blocking"}],  # no comment
+        [{"file": "", "severity": "blocking", "comment": "c"}],
+        ["not-a-dict"],
+    ):
+        p = build_payload(_content(assessment="CLEAR", findings=bad),
+                          [], "sha", "m")
+        assert "AI review · Inconclusive" in p["body"], bad
+
+
+def test_severity_case_whitespace_normalized():
+    p = build_payload(
+        _content(assessment="CLEAR", summary="s",
+                 findings=[{"file": "a.py", "line": 1,
+                            "severity": " BLOCKING ", "comment": "c"}]),
+        FILES, "sha", "m")
+    assert "AI review · Issues found" in p["body"]
+    assert "1 blocking issue" in p["body"]
+
+
+def test_unknown_severity_is_inconclusive():
+    p = build_payload(
+        _content(assessment="ISSUES_FOUND",
+                 findings=[{"file": "a.py", "severity": "critical",
+                            "comment": "c"}]),
+        FILES, "sha", "m")
+    assert "AI review · Inconclusive" in p["body"]
+
+
+# ---- classification is deterministic from findings --------------------------
+
+def test_issues_found_label_with_advisory_only_becomes_clear():
+    # the findings are the evidence; the label is a consistency field
+    p = build_payload(
+        _content(assessment="ISSUES_FOUND", summary="s",
+                 findings=[{"file": "a.py", "line": 2,
+                            "severity": "non-blocking", "comment": "c"}]),
+        FILES, "sha", "m")
+    assert "AI review · Clear" in p["body"]
+    assert "0 blocking · 1 advisory" in p["body"]
+
+
+def test_issues_found_label_with_zero_findings_becomes_clear():
+    p = build_payload(_content(assessment="ISSUES_FOUND", findings=[]),
+                      [], "sha", "m")
+    assert "AI review · Clear" in p["body"]
+
+
+def test_blocking_decides_regardless_of_label():
+    for label in ("CLEAR", "ISSUES_FOUND"):
+        p = build_payload(
+            _content(assessment=label,
+                     findings=[{"file": "a.py", "line": 1,
+                                "severity": "blocking", "comment": "c"}]),
+            FILES, "sha", "m")
+        assert "AI review · Issues found" in p["body"], label
 
 
 def test_parser_failure_never_clear():

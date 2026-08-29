@@ -92,11 +92,15 @@ makes no decisions (the GitHub event is always `COMMENT`):
   failures (network, API) surface as a red failed job instead — no
   fabricated assessment.
 
-Deterministic consistency rules (the parser, never the model):
-CLEAR + a blocking finding normalizes to Issues found; Issues found
-with zero findings is Inconclusive; parser failure can never yield
-Clear. Details, praise, and metadata (model, commit, assessment) sit
-behind `<details>` progressive disclosure.
+Deterministic consistency rules (the parser, never the model): the
+user-facing assessment is classified from the validated findings —
+any blocking finding → Issues found, otherwise Clear (advisories are
+compatible with Clear); the model's label is a consistency field, not
+a decision. Structurally invalid output (missing/malformed findings,
+invalid severity, unknown assessment) is INCONCLUSIVE — bad output can
+never become Clear. Parser failure can never yield Clear. Details,
+praise, and metadata (model, commit, assessment) sit behind
+`<details>` progressive disclosure.
 
 ## Hardening (external review round 1, 2026-08-28)
 

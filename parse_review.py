@@ -30,6 +30,7 @@ import re
 import sys
 
 MODEL_ASSESSMENTS = ("CLEAR", "ISSUES_FOUND")
+SEVERITIES = ("blocking", "non-blocking")
 INCONCLUSIVE = "INCONCLUSIVE"
 
 
@@ -65,40 +66,56 @@ def parse_model_output(content):
     return obj if isinstance(obj, dict) else {}
 
 
-def _usable_findings(obj):
+def _validate_findings(obj):
+    """Strict schema validation of the findings list.
+
+    Returns cleaned findings, or None when the response is structurally
+    invalid (bad output must never become Clear — it becomes
+    INCONCLUSIVE instead). Severity is normalized case/whitespace;
+    anything still outside the enum invalidates the whole response
+    rather than silently downgrading evidence to advisory.
+    """
+    if not isinstance(obj, dict):
+        return None
+    if str(obj.get("assessment", "")).strip().upper() not in MODEL_ASSESSMENTS:
+        return None
     findings = obj.get("findings")
     if not isinstance(findings, list):
-        return []
-    return [f for f in findings
-            if isinstance(f, dict) and str(f.get("comment", "")).strip()]
+        return None
+    cleaned = []
+    for f in findings:
+        if not isinstance(f, dict):
+            return None
+        comment = str(f.get("comment", "")).strip()
+        fname = str(f.get("file", "")).strip()
+        severity = str(f.get("severity", "")).strip().lower()
+        if not comment or not fname or severity not in SEVERITIES:
+            return None
+        cleaned.append({"file": fname, "comment": comment,
+                        "severity": severity, "line": f.get("line"),
+                        "suggestion": f.get("suggestion")})
+    return cleaned
 
 
 def assess(obj):
-    """Deterministic assessment with consistency normalization.
+    """Deterministic classification from validated evidence.
 
-    Returns (assessment, findings) where findings is [] for the
+    The model's assessment label is a required schema field and a
+    consistency check — it does NOT decide the user-facing status.
+    The findings decide: any blocking finding -> ISSUES_FOUND;
+    otherwise -> CLEAR (advisory findings are compatible with CLEAR).
+
+    Returns (assessment, findings); findings is [] on the
     INCONCLUSIVE path (untrusted output carries no usable evidence).
     """
     if not obj:
         return INCONCLUSIVE, []
-    raw = str(obj.get("assessment", "")).upper()
-    findings = _usable_findings(obj)
-    has_blocking = any(str(f.get("severity")) == "blocking"
-                       for f in findings)
-    if raw not in MODEL_ASSESSMENTS:
+    findings = _validate_findings(obj)
+    if findings is None:
         return INCONCLUSIVE, []
-    if raw == "CLEAR":
-        if has_blocking:
-            # deterministic normalization: model says clear, evidence
-            # says otherwise — trust the evidence
-            return "ISSUES_FOUND", findings
-        return "CLEAR", findings
-    # ISSUES_FOUND
-    if not findings:
-        # claims issues but provides none: cannot fabricate findings,
-        # cannot declare clear
-        return INCONCLUSIVE, []
-    return "ISSUES_FOUND", findings
+    if any(f["severity"] == "blocking" for f in findings):
+        return "ISSUES_FOUND", findings
+    return "CLEAR", findings
 
 
 def _ref(entry):
@@ -217,14 +234,12 @@ def build_payload(content, files, head_sha, model):
 
     blocking, advisory, inline = [], [], []
     for fd in findings:
-        fname = str(fd.get("file", ""))
-        comment = str(fd.get("comment", "")).strip()
-        sev = ("blocking"
-               if str(fd.get("severity")) == "blocking" else "non-blocking")
+        fname, comment = fd["file"], fd["comment"]
+        sev = fd["severity"]
         entry = {"sev": sev, "file": fname, "comment": comment,
                  "line": fd.get("line")}
         (blocking if sev == "blocking" else advisory).append(entry)
-        sug = str(fd.get("suggestion", "")).strip()
+        sug = str(fd.get("suggestion") or "").strip()
         ln = fd.get("line")
         if fname in valid and isinstance(ln, int) and ln in valid[fname]:
             body = "**{0}**: {1}".format(

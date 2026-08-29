@@ -6,7 +6,9 @@
 #     never checked out or executed;
 #   - the review event is hard-coded to COMMENT in parse_review.py —
 #     approvals are impossible by construction and covered by tests;
-#   - fork PRs are skipped silently (their token cannot comment);
+#   - fork PRs are skipped: the pull_request_target caller is a
+#     privileged trusted-base workflow carrying the secret, and
+#     fork-authored diffs get no AI review (policy decision);
 #   - the repo rubric override (.ai-review-rubric.md) resolves from the
 #     PR BASE sha — it is trusted POLICY, so it must come from reviewed
 #     code, not from the branch under review;
@@ -36,7 +38,7 @@ curl_gh() { curl -sS -f --connect-timeout 10 --max-time 60 \
 pr=$(curl_gh "$REPO_API/pulls/$PR_NUMBER")
 
 if [ "$(jq -r '.head.repo.fork // false' <<<"$pr")" = "true" ]; then
-  echo "fork PR: no AI review (token is read-only on forks)" \
+  echo "fork PR: no AI review (privileged trusted-base workflow; fork policy: skip)" \
     | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
   exit 0
 fi
@@ -187,6 +189,6 @@ posted=$(curl_gh -X POST "$REPO_API/pulls/$PR_NUMBER/reviews" \
 {
   echo "### AI review posted"
   echo "- model: \`$MODEL\`"
-  echo "- verdict: $(jq -r .body <<<"$posted" | head -1)"
+  echo "- assessment: $(jq -r .body <<<"$posted" | head -1 | sed 's/^## AI review · //')"
   echo "- inline comments: $(jq '.comments | length' <<<"$posted")"
 } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"

@@ -32,12 +32,14 @@ never to rubber-stamp, never to nitpick style the CI already covers.
 
 Your `assessment` must be exactly one of `CLEAR` or `ISSUES_FOUND`:
 
-- `CLEAR` — you examined the evidence and found no blocking issues.
-  It does not mean approved, safe, or merge-ready — only that this
-  review found nothing blocking.
-- `ISSUES_FOUND` — you found one or more findings worth surfacing
-  (blocking or advisory). Every finding must be evidence you can point
-  at; do not claim issues you cannot show.
+- `CLEAR` — no blocking findings. Advisory findings are allowed and
+  still count as CLEAR (they surface as details, not as the status).
+- `ISSUES_FOUND` — you have **at least one blocking finding**. Use
+  this only when something would stop a careful human from merging.
+
+The deterministic parser reclassifies from your findings if they
+contradict your label — report findings faithfully; do not optimize
+the label.
 
 ```json
 {
