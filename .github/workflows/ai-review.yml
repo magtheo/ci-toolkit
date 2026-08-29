@@ -20,6 +20,11 @@ on:
         description: Full 40-char ci-toolkit commit SHA to execute.
         type: string
         required: true
+      model:
+        description: OpenRouter model id (thin exposure of the
+          AI_REVIEW_MODEL default; no routing or fallback logic).
+        type: string
+        default: anthropic/claude-haiku-4.5
     secrets:
       LLM_API_KEY:
         description: OpenRouter API key (caller's secret).
@@ -55,4 +60,5 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.LLM_API_KEY }}
+          AI_REVIEW_MODEL: ${{ inputs.model }}
         run: bash ci-toolkit/review.sh

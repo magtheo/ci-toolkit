@@ -68,17 +68,35 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
    reviewed by the previously pinned version first.
 
 3. Optional overrides: `with: runner: [self-hosted, ci]` (explicit
-   runner label — there is no automatic fallback) and a repo-local
-   `.ai-review-rubric.md` to replace the bundled rubric (resolved from
-   the PR **base** ref — it is trusted policy, so it must come from
-   reviewed code, never from the branch under review).
+   runner label — there is no automatic fallback), `with: model:
+   <openrouter-id>` (thin exposure of the default model; no routing
+   or fallback logic), and a repo-local `.ai-review-rubric.md` to
+   replace the bundled rubric (resolved from the PR **base** ref —
+   it is trusted policy, so it must come from reviewed code, never
+   from the branch under review).
 
    `toolkit_ref` is **not** optional: it is mandatory and must be the
    same full SHA used in `uses:`.
 
-   Model override is not currently available (a plain caller `env`
-   does not cross the reusable-workflow boundary — recorded as a
-   follow-up: an explicit `model` workflow input).
+## Review output vocabulary
+
+The reviewer produces an **assessment** — it has no authority and
+makes no decisions (the GitHub event is always `COMMENT`):
+
+- **AI review · Clear** — the review completed and found no blocking
+  issues. Not an approval, not merge-readiness.
+- **AI review · Issues found** — blocking and/or advisory findings,
+  attention-weighted (blocking first).
+- **AI review · Inconclusive** — the response was malformed or
+  self-contradictory; do not treat it as clear. Infrastructure
+  failures (network, API) surface as a red failed job instead — no
+  fabricated assessment.
+
+Deterministic consistency rules (the parser, never the model):
+CLEAR + a blocking finding normalizes to Issues found; Issues found
+with zero findings is Inconclusive; parser failure can never yield
+Clear. Details, praise, and metadata (model, commit, assessment) sit
+behind `<details>` progressive disclosure.
 
 ## Hardening (external review round 1, 2026-08-28)
 
