@@ -1,11 +1,15 @@
 # Reviewer Eval Baseline
 
-Status: DRAFT rev 4 — revised 2026-08-29 across four external review
-rounds. Rev 4: engine/oracle phase separation, engine vs consumer-
-profile qualification levels, current-oracle deployment invariant,
-subject/oracle record separation, machine-verifiable promotion,
-ReviewResult purity (no GitHub rendering), duplicate M5 step removed.
-Awaiting maintainer approval — no implementation before approval.
+Status: rev 4 — APPROVED 2026-08-29: reviewed across four external
+rounds and approved by maintainer merge of PR #8 (the authority
+event). Implementation may begin under the phase workflow: phase
+branches target feature/reviewer-eval-baseline.
+
+Revision history: rev 4 — engine/oracle phase separation, engine vs
+consumer-profile qualification levels, current-oracle deployment
+invariant, subject/oracle record separation, machine-verifiable
+promotion, ReviewResult purity (no GitHub rendering), duplicate M5
+step removed.
 
 ## Goal
 
