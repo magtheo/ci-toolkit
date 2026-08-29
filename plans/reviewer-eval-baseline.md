@@ -162,7 +162,8 @@ and Stage 2 diff budgeting wait behind this feature).
 
 ## Phase 1 — Engine contract
 
-Status: NOT STARTED
+Status: IN PROGRESS (phase branch:
+phase/reviewer-eval-baseline/01-engine-contract)
 
 ### Scope
 
