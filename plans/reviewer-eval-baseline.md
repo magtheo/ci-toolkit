@@ -151,6 +151,10 @@ and Stage 2 diff budgeting wait behind this feature).
 3. Promotion to GATING is permanent (ratchet).
 4. A PR description that contradicts its contents is a defect —
    keep PR bodies current.
+5. Qualification PASS means: preserved the capabilities encoded by
+   the current oracle, under this profile. It NEVER means "the
+   reviewer is correct." No corpus size proves general review
+   correctness.
 
 ## Phase 1 — Engine contract
 
