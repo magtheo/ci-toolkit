@@ -122,14 +122,15 @@ flat and carry no relationship.
 A change qualifies as **small** only if ALL of these hold:
 
 - no data model, schema, or migration changes;
-- no cross-client contract changes (API shapes shared by mobile/web/ai-server);
+- no cross-component contract changes (API/config shapes shared between
+  parts of the repo — adapt to your topology);
 - no security or permissions behavior;
 - no CI/workflow or build-config changes;
 - no new runtime dependencies;
 - touches one app or service plus its tests.
 
 Small-change workflow: branch `fix/<slug>`, `chore/<slug>`, or `docs/<slug>` →
-single PR to `main` → validation via `./dev/run <app>` and/or CI →
+single PR to `main` → validation via <VALIDATION_COMMAND> and/or CI →
 AI review + one human read, then the directing human merges.
 
 Escalation rule: if implementation reveals any criterion no longer holds,
@@ -418,23 +419,23 @@ The feature PR should normally be merged with a **merge commit** so the feature'
 
 ## Review Model
 
-Verification is layered (validated during the local-ci-and-workflow
-feature, 2026-08):
+Verification is layered (cite your own repo's evidence here when you
+adopt this model — e.g. "validated during <FEATURE>, <DATE>:"):
 
 1. **CI gates** — mechanical truth; every mechanical failure in that
    feature's history was caught here (inherited dependency rot,
    syntax errors, gate semantics).
-2. **AI first-pass review** — design-level findings (the review rounds
-   on PRs #17/#19/#23 caught gate-skips, premature docs, filter
-   mismatches). The standing implementation lives in `ci-toolkit`;
-   until it exists, relay the diff through an AI reviewer manually.
+2. **AI first-pass review** — design-level findings. The standing
+   implementation lives in `ci-toolkit` (reusable advisory reviewer);
+   until a repo installs it, relay the diff through an AI reviewer
+   manually.
 3. **Human judgment** — plan approval, deviation decisions, and the
    merge decision itself.
 
 Approving reviews are NOT required by branch protection. The
 expectation before any merge: AI review pass + one human read by the
 directing human, who clicks merge. Agents never approve or merge.
-Collaborator reviews (Lukas) are welcome contributions, fresh-eyes
+Collaborator reviews are welcome contributions, fresh-eyes
 value — never a tollbooth.
 
 ## Agent Roles
@@ -604,7 +605,7 @@ git pull
 git checkout -b fix/<slug>   # or chore/<slug> | docs/<slug>
 ```
 
-Implement, validate (`./dev/run <app>`), open one PR to `main`, review, merge.
+Implement, validate (<VALIDATION_COMMAND>), open one PR to `main`, review, merge.
 
 ### Finish feature
 
@@ -643,7 +644,9 @@ Lessons from real failures, 2026-08:
 
 1. **Branch from verified `main`** (or from the feature branch, for
    phases) — never from an unmerged PR head. Before branching, fetch
-   and confirm the base's merge state (`gh pr view <n> --json state`).
+   and confirm the base actually landed:
+   `gh pr view <n> --json state,mergedAt` — require `mergedAt` to be
+   non-null (`state` alone says OPEN/CLOSED; closed is not merged).
    Branching off an unmerged PR head silently drags unrelated work
    into your PR's diff.
 2. **A phase PR must never merge into a feature branch whose parent

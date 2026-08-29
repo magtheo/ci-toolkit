@@ -1,14 +1,9 @@
-# Roadmap freshness guard (optional companion to templates/ROADMAP.md)
-# COPY into your repo's .github/workflows/ and ADAPT the branch check.
-#
-# Three-gate logic (validated live in student-platform, 2026-08):
-#   - roadmap fresh (< 28 days since "Last reviewed") -> green, silent
-#   - roadmap stale + no commits since last review     -> green, silent
-#     (nothing happened; there is nothing to reconsider)
-#   - roadmap stale + commits since last review        -> RED
-#     (work moved without the roadmap being reconsidered)
-
 name: roadmap-freshness
+
+# ci-toolkit governance copy-template. COPY both this workflow AND
+# templates/roadmap-freshness.sh (e.g. to .github/scripts/) into your
+# repo; adjust the script path below. The LOGIC lives in the script so
+# it is unit-testable — see ci-toolkit's tests/test_roadmap_freshness.py.
 
 on:
   schedule:
@@ -27,24 +22,4 @@ jobs:
           fetch-depth: 0
 
       - name: Check roadmap freshness
-        run: |
-          set -euo pipefail
-          ROADMAP="plans/ROADMAP.md"
-          MAX_AGE_DAYS=28
-
-          last=$(grep -m1 '^Last reviewed:' "$ROADMAP" | sed 's/^Last reviewed: *//')
-          [ -n "$last" ] || { echo "::error::no 'Last reviewed:' date in $ROADMAP"; exit 1; }
-          last_ts=$(date -d "$last" +%s)
-          now_ts=$(date +%s)
-          age_days=$(( (now_ts - last_ts) / 86400 ))
-
-          if [ "$age_days" -lt "$MAX_AGE_DAYS" ]; then
-            echo "roadmap reviewed ${age_days}d ago — fresh"; exit 0
-          fi
-
-          # stale: red only when work happened since the last review
-          if git rev-list -n1 --count "HEAD" --since="$MAX_AGE_DAYS days" | grep -qv '^0$'; then
-            echo "::error::roadmap stale (${age_days}d) while commits landed since — reconsider and bump 'Last reviewed:'"
-            exit 1
-          fi
-          echo "roadmap stale (${age_days}d) but no commits since last review — quiet green"
+        run: bash .github/scripts/roadmap-freshness.sh
