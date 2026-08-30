@@ -277,3 +277,34 @@ def test_local_reusable_reference_in_target_workflow():
     # trusted base — same commit as review.yml itself
     src = REVIEW_YML.read_text()
     assert "uses: ./.github/workflows/verify-qualification.yml" in src
+
+
+def test_oracle_version_rejects_empty_corpus(tmp_path):
+    base = tmp_path / "t"
+    (base / "eval" / "fixtures").mkdir(parents=True)
+    shutil.copy(TOOLKIT_ROOT / "eval" / "run_corpus.py",
+                base / "eval" / "run_corpus.py")
+    with pytest.raises(AssertionError, match="empty corpus"):
+        rc.oracle_version(base)
+
+
+def test_rubric_hash_comes_from_the_subject(tmp_path, monkeypatch):
+    # the record's rubric_hash must reflect the SUBJECT's rubric, not
+    # the oracle checkout's (regression for the malformed-expression
+    # debris caught in review)
+    import types
+    fake = types.ModuleType("fake_engine")
+    fake.run_review = lambda ri: dict(_CLEAR)
+    monkeypatch.setattr(rc, "load_engine", lambda d: fake)
+    subj = tmp_path / "subject"
+    subj.mkdir()
+    (subj / "rubric.md").write_text("SUBJECT RUBRIC")
+    record_path = tmp_path / "record.json"
+    rc.main(["--n", "1", "--subject-dir", str(subj),
+             "--subject-sha", "e" * 40,
+             "--record-out", str(record_path),
+             "--out", str(tmp_path / "report.json")])
+    rep = json.loads((tmp_path / "report.json").read_text())
+    import hashlib
+    assert rep["profile"]["rubric_hash"] == hashlib.sha256(
+        b"SUBJECT RUBRIC").hexdigest()[:16]

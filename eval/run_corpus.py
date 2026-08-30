@@ -46,9 +46,12 @@ def oracle_version(base=None):
     what lets an old trusted subject be re-qualified against a new
     oracle without a new toolkit commit."""
     root = pathlib.Path(base) if base else ROOT
+    fixtures = sorted((root / "eval" / "fixtures").glob("*.json"))
+    assert fixtures, "oracle with an empty corpus is a configuration " \
+        "error, not a valid oracle version"
     h = hashlib.sha256()
     h.update((root / "eval" / "run_corpus.py").read_bytes())
-    for path in sorted((root / "eval" / "fixtures").glob("*.json")):
+    for path in fixtures:
         h.update(path.name.encode())
         h.update(path.read_bytes())
     return h.hexdigest()[:16]
@@ -330,9 +333,7 @@ def main(argv=None):
     profile = {
         "toolkit_sha": subject_sha,
         "rubric_hash": hashlib.sha256(
-            (pathlib.Path(rubric_dir) if rubric_dir else ROOT,
-             "rubric.md") and pathlib.Path(
-                 rubric_dir or ROOT, "rubric.md").read_bytes()
+            pathlib.Path(rubric_dir or ROOT, "rubric.md").read_bytes()
             ).hexdigest()[:16],
         "corpus_hash": corpus_hash(fixtures),
         "model": args.model,
