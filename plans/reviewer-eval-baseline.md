@@ -290,7 +290,7 @@ ACTIVATION gate for the deployment contract.
 
 ## Phase 4 — M5 consistency rule (behavior change only)
 
-Status: NOT STARTED
+Status: IN PROGRESS
 
 ### Scope
 
