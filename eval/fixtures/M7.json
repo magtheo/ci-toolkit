@@ -21,12 +21,14 @@
         "severity": "blocking",
         "comment_any": [
           "timeout",
+          "socket",
+          "connect",
+          "wall clock",
           "urllib",
-          "curl",
-          "connect"
+          "curl"
         ]
       }
     ]
   },
-  "note": "Miss #7: urllib's timeout is a socket timeout \u2014 neither curl's 10s connect bound nor its 180s total deadline; 'behavior-preserving' claim is false operationally."
+  "note": "Isolated defect: urllib's socket timeout replaces curl's connect bound (10s) + total deadline (180s); the behavior-preserving claim is false operationally."
 }

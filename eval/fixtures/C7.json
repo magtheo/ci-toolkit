@@ -10,7 +10,7 @@
       {
         "path": "engine.py",
         "status": "modified",
-        "patch": "--- a/engine.py\n+++ b/engine.py\n@@ -2,8 +2,8 @@\n # Behavior-preserving extraction: the model call keeps the same\n # bounded HTTP semantics as the shell version.\n-import subprocess\n-def _post_chat(payload):\n-    subprocess.run([\"curl\", \"-sS\", \"--connect-timeout\", \"10\",\n-                    \"--max-time\", \"180\", ...], ...)\n+import subprocess\n+def _post_chat(payload):\n+    subprocess.run([\"curl\", \"-sS\", \"--connect-timeout\", \"10\",\n+                    \"--max-time\", \"180\", ...], ...)\n"
+        "patch": "--- a/engine.py\n+++ b/engine.py\n@@ -2,8 +2,8 @@\n # Behavior-preserving extraction: the model call keeps the same\n # bounded HTTP semantics as the shell version.\n-HTTP = \"curl\"\n-def _post_chat(payload):\n-    subprocess.run([HTTP, \"-sS\", \"--connect-timeout\", \"10\",\n-                    \"--max-time\", \"180\", ...], ...)\n+import subprocess\n+def _post_chat(payload):\n+    subprocess.run([\"curl\", \"-sS\", \"--connect-timeout\", \"10\",\n+                    \"--max-time\", \"180\", ...], ...)\n"
       }
     ]
   },
@@ -18,5 +18,5 @@
     "assessment": "CLEAR",
     "findings": []
   },
-  "note": "Minimally different: the restructure retains curl with the same bounds, so the claim holds."
+  "note": "Globally clean: the restructure retains curl with identical bounds \u2014 the claim holds."
 }

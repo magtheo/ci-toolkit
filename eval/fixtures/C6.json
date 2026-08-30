@@ -18,5 +18,5 @@
     "assessment": "CLEAR",
     "findings": []
   },
-  "note": "Minimally different: -se slurps the JSONL into one array."
+  "note": "Globally clean: -se slurps the JSONL into one array."
 }

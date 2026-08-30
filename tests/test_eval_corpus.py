@@ -62,8 +62,11 @@ def test_corpus_hash_is_stable_and_content_sensitive():
 
 def _fx(kind="positive"):
     return {"id": "X1", "kind": kind,
-            "expected": {"findings": [
-                {"severity": "blocking", "comment_any": ["inherit"]}]}}
+            "expected": {
+                "assessment": "CLEAR" if kind == "control"
+                else "ISSUES_FOUND",
+                "findings": [] if kind == "control" else [
+                    {"severity": "blocking", "comment_any": ["inherit"]}]}}
 
 
 def test_positive_passes_at_two_of_three_detection():
@@ -160,3 +163,126 @@ def test_spend_accumulates_usage():
     assert spend == {"calls": 3, "prompt_tokens": 30,
                      "completion_tokens": 15}
     assert per[0]["runs"] == 3
+
+
+# ---- oracle-validity regressions (external review of #12) --------------------
+
+def test_positive_with_missed_finding_is_known_gap_not_pass():
+    # the M4-inversion regression: a positive whose expected finding
+    # never appears must FAIL policy (proposal KNOWN_GAP) — never
+    # auto-pass via an empty-expectations hack
+    fx = {"id": "X1", "kind": "positive",
+          "expected": {"assessment": "ISSUES_FOUND",
+                       "findings": [{"severity": "blocking",
+                                     "comment_all": ["inherit"]}]}}
+    runs = [_result("CLEAR")] * 3
+    r = rc.evaluate(fx, runs)
+    assert not r["passes_policy"]
+    assert r["proposal"] == "KNOWN_GAP"
+
+
+def test_control_fails_when_reviewer_is_inconclusive():
+    # a reviewer answering INCONCLUSIVE on everything cannot pass a
+    # clean control — expected assessment is enforced, not decorative
+    fx = {"id": "C1", "kind": "control",
+          "expected": {"assessment": "CLEAR", "findings": []}}
+    runs = [_result("INCONCLUSIVE")] * 3
+    r = rc.evaluate(fx, runs)
+    assert not r["passes_policy"]
+    assert r["assessment_stability"]["INCONCLUSIVE"] == 3
+
+
+def test_control_passes_only_when_all_runs_clear():
+    fx = {"id": "C1", "kind": "control",
+          "expected": {"assessment": "CLEAR", "findings": []}}
+    ok = rc.evaluate(fx, [_result("CLEAR", [dict(ADV)])] * 3)
+    assert ok["passes_policy"]          # advisories are compatible
+    assert ok["advisory_noise"] == 3
+    mixed = rc.evaluate(fx, [_result("CLEAR"), _result("CLEAR"),
+                             _result("INCONCLUSIVE")])
+    assert not mixed["passes_policy"]
+
+
+def test_positive_requires_assessment_stability_too():
+    fx = {"id": "X1", "kind": "positive",
+          "expected": {"assessment": "ISSUES_FOUND",
+                       "findings": [{"severity": "blocking",
+                                     "comment_all": ["inherit"]}]}}
+    # detection 2/3 ok, but one INCONCLUSIVE run is a miss only if
+    # it pushes assessment below threshold: 2 ISSUES_FOUND of 3 -> ok
+    runs = [_result("ISSUES_FOUND", [dict(BLOCK)]),
+            _result("ISSUES_FOUND", [dict(BLOCK)]),
+            _result("INCONCLUSIVE")]
+    r = rc.evaluate(fx, runs)
+    assert r["passes_policy"]
+
+
+def test_matcher_all_and_any_semantics():
+    entry = {"severity": "blocking",
+             "comment_all": ["jq"], "comment_any": ["slurp", "jsonl"]}
+    hit = {"severity": "blocking", "file": "a",
+           "comment": "the jq call needs -s to slurp the stream", "line": 1}
+    missing_all = dict(hit, comment="the loop needs -s to slurp")
+    missing_any = dict(hit, comment="the jq call needs -s")
+    assert rc._finding_matches(entry, hit)
+    assert not rc._finding_matches(entry, missing_all)
+    assert not rc._finding_matches(entry, missing_any)
+    assert not rc._finding_matches(entry, dict(hit, severity="non-blocking"))
+
+
+def _loader_case(kind, expected):
+    # self-pairing: pairing validity is not what these cases test
+    return {"id": "X1", "kind": kind, "paired_with": "X1",
+            "expected": expected}
+
+
+def test_loader_rejects_positive_without_expected_findings(tmp_path):
+    bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
+                                    "findings": []})
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(bad))
+    with pytest.raises(AssertionError, match="expected finding"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_control_with_findings_or_non_clear(tmp_path):
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(_loader_case(
+        "control", {"assessment": "ISSUES_FOUND", "findings": []})))
+    with pytest.raises(AssertionError, match="CLEAR"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_matcher_without_all_or_any(tmp_path):
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(_loader_case(
+        "positive", {"assessment": "ISSUES_FOUND",
+                     "findings": [{"severity": "blocking"}]})))
+    with pytest.raises(AssertionError, match="comment_all"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_any_assessment_sentinel(tmp_path):
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(_loader_case(
+        "positive", {"assessment": "ANY",
+                     "findings": [{"severity": "blocking",
+                                   "comment_any": ["x"]}]})))
+    with pytest.raises(AssertionError, match="assessment"):
+        rc.load_corpus(d)
+
+
+def test_real_corpus_passes_strict_validation():
+    fixtures = rc.load_corpus(FIXTURES)
+    for f in fixtures:
+        if f["kind"] == "control":
+            assert f["expected"]["assessment"] == "CLEAR"
+            assert f["expected"]["findings"] == []
+        else:
+            assert f["expected"]["findings"]
+            for e in f["expected"]["findings"]:
+                assert e.get("comment_all") or e.get("comment_any")

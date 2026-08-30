@@ -1,16 +1,16 @@
 {
   "id": "M1",
   "kind": "positive",
-  "origin": "synthetic replica (student-platform caller rounds, 2026-08)",
+  "origin": "synthetic replica (caller review rounds, miss #1)",
   "paired_with": "C1",
   "input": {
-    "title": "ci: add ai-review caller workflow",
-    "body": "Wires the advisory AI reviewer onto PRs.",
+    "title": "ci: wire up the ai-review caller",
+    "body": "Adds the reusable reviewer workflow.",
     "files": [
       {
-        "path": ".github/workflows/review.yml",
+        "path": ".github/workflows/ai-review.yml",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/.github/workflows/review.yml\n@@ -0,0 +1,14 @@\n+name: review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    runs-on: ubuntu-latest\n+    permissions:\n+      pull-requests: write\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: some-org/ai-review@main\n+        with:\n+          toolkit_ref: main\n+        secrets: inherit"
+        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,9 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@0123456789abcdef0123456789abcdef01234567\n+    with:\n+    secrets: inherit\n"
       }
     ]
   },
@@ -19,11 +19,11 @@
     "findings": [
       {
         "severity": "blocking",
-        "comment_any": [
+        "comment_all": [
           "inherit"
         ]
       }
     ]
   },
-  "note": "Miss #1: secrets:inherit grants the reusable workflow every secret; praised as proper handling originally."
+  "note": "Isolated defect: secrets: inherit hands every repo secret to the reusable workflow instead of the single key it needs. Everything else (trigger, full-SHA pins) is already hardened so only this defect can block."
 }

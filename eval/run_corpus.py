@@ -45,6 +45,45 @@ TEMPERATURE = 0.2
 MAX_TOKENS = 2000
 
 
+SEVERITIES = ("blocking", "non-blocking")
+ASSESSMENTS = ("CLEAR", "ISSUES_FOUND")
+
+
+def _validate_fixture(f, ids):
+    assert f["id"] in ids
+    pair = f["paired_with"]
+    assert pair in ids, "{0} paired with unknown {1}".format(f["id"], pair)
+    assert f["kind"] in ("positive", "control")
+    exp = f["expected"]
+    assert exp["assessment"] in ASSESSMENTS, \
+        "{0}: expected.assessment must be CLEAR or ISSUES_FOUND "
+    "({1!r})".format(f["id"], exp.get("assessment"))
+    findings = exp["findings"]
+    if f["kind"] == "positive":
+        # a positive with no expected finding would be auto-detected
+        # by the old `or [n]` hack — inverting the fixture (a miss
+        # would look like a pass). Positives MUST encode the intended
+        # defect(s); misses then measure as KNOWN_GAP.
+        assert findings, "{0}: positive fixture needs >= 1 expected " \
+            "finding".format(f["id"])
+    else:
+        assert findings == [], \
+            "{0}: control must expect zero findings".format(f["id"])
+        assert exp["assessment"] == "CLEAR", \
+            "{0}: control must expect CLEAR".format(f["id"])
+    for e in findings:
+        assert e["severity"] in SEVERITIES, e
+        has_all = bool(e.get("comment_all"))
+        has_any = bool(e.get("comment_any"))
+        assert has_all or has_any, \
+            "{0}: matcher needs comment_all and/or comment_any".format(
+                f["id"])
+        for k in ("comment_all", "comment_any"):
+            for needle in e.get(k, []):
+                assert isinstance(needle, str) and needle.strip(), \
+                    "{0}: empty matcher needle in {1}".format(f["id"], k)
+
+
 def load_corpus(fixtures_dir):
     fixtures = []
     for path in sorted(fixtures_dir.glob("*.json")):
@@ -52,9 +91,7 @@ def load_corpus(fixtures_dir):
     ids = [f["id"] for f in fixtures]
     assert len(ids) == len(set(ids)), "duplicate fixture ids"
     for f in fixtures:
-        pair = f["paired_with"]
-        assert pair in ids, "{0} paired with unknown {1}".format(f["id"], pair)
-        assert f["kind"] in ("positive", "control")
+        _validate_fixture(f, set(ids))
     return fixtures
 
 
@@ -76,27 +113,49 @@ def _review_input(fixture, model_id):
 
 
 def _finding_matches(expected_entry, finding):
-    """A finding satisfies an expected entry when severity matches and
-    every comment_any needle appears in its comment (case-insensitive)."""
+    """A finding satisfies an expected entry when:
+
+    - severity matches, AND
+    - every comment_all needle appears in the comment
+      (case-insensitive) — essential concepts, AND
+    - at least one comment_any needle appears — alternative
+      vocabulary, one is enough.
+
+    Sparse, mechanism-level needles only: matchers test engineering
+    understanding, not phrasing."""
     if finding.get("severity") != expected_entry["severity"]:
         return False
     comment = finding.get("comment", "").lower()
-    return all(n.lower() in comment for n in expected_entry["comment_any"])
+    for needle in expected_entry.get("comment_all", []):
+        if needle.lower() not in comment:
+            return False
+    any_of = expected_entry.get("comment_any")
+    if any_of and not any(n.lower() in comment for n in any_of):
+        return False
+    return True
 
 
 def evaluate(fixture, results):
     """results: list of ReviewResult dicts (one per run)."""
     n = len(results)
+    expected_assessment = fixture["expected"]["assessment"]
     expected = fixture["expected"]["findings"]
+    threshold = (n + 2) // 2  # ceil((n+1)/2): N=3 -> 2
+
     per_expected = []
     for entry in expected:
         hits = sum(
             1 for r in results
             if any(_finding_matches(entry, f) for f in r.get("findings", [])))
         per_expected.append({"entry": entry, "hits": hits})
-    detections = [p["hits"] for p in per_expected] or [n]
-    threshold = (n + 2) // 2  # ceil((n+1)/2): N=3 -> 2
-    detected_ok = all(h >= threshold for h in detections)
+    detected_ok = all(p["hits"] >= threshold for p in per_expected)
+
+    # expected assessment is ENFORCED, not just recorded: a control
+    # answered INCONCLUSIVE on every run is a reviewer that cannot
+    # review clean code — it must not pass the clean control.
+    assessment_stability = {
+        a: sum(1 for r in results if r["assessment"] == a)
+        for a in ("CLEAR", "ISSUES_FOUND", "INCONCLUSIVE")}
 
     false_blockers = []
     noise = 0
@@ -110,12 +169,15 @@ def evaluate(fixture, results):
                 noise += 1
 
     if fixture["kind"] == "positive":
-        passes = detected_ok and not false_blockers
-    else:  # control: zero blocking findings, zero tolerance
-        passes = not false_blockers
+        assessment_ok = assessment_stability[expected_assessment] >= threshold
+        passes = detected_ok and assessment_ok and not false_blockers
+    else:  # control: every run CLEAR, zero blocking findings
+        passes = (assessment_stability["CLEAR"] == n
+                  and not false_blockers)
     return {
         "id": fixture["id"], "kind": fixture["kind"], "runs": n,
         "assessments": [r["assessment"] for r in results],
+        "assessment_stability": assessment_stability,
         "expected_detection": per_expected,
         "false_blockers": len(false_blockers),
         "advisory_noise": noise,

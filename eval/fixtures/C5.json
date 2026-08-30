@@ -10,7 +10,7 @@
       {
         "path": "docs/review.md",
         "status": "added",
-        "patch": "--- a/docs/review.md\n+++ b/docs/review.md\n@@ -0,0 +1,9 @@\n+# AI PR review\n+\n+Eligible pull requests get an automatic advisory AI review before a\n+human looks at them; docs/plans-only and fork pull requests are\n+skipped: a structured assessment with blocking-first\n+findings, inline comments and committable suggestions.\n+\n+## Wiring\n+Path skips: docs/**, plans/**; fork pull requests are skipped.\n+"
+        "patch": "--- /dev/null\n+++ b/docs/review.md\n@@ -0,0 +1,9 @@\n+# AI PR review\n+\n++Eligible pull requests get an automatic advisory AI review before\n+a human looks at them; docs/plans-only and fork pull requests are\n+skipped: a structured assessment with blocking-first\n+findings, inline comments and committable suggestions.\n+\n+## Wiring\n+Path skips: docs/**, plans/**; fork pull requests are skipped.\n+"
       }
     ]
   },
@@ -18,5 +18,5 @@
     "assessment": "CLEAR",
     "findings": []
   },
-  "note": "Minimally different: the claim is qualified up front."
+  "note": "Globally clean: claim qualified up front, consistent with Wiring."
 }

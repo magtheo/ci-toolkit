@@ -15,8 +15,21 @@
     ]
   },
   "expected": {
-    "assessment": "ANY",
-    "findings": []
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "cannot verify",
+          "unverifiable",
+          "not visible in the diff",
+          "outside the diff",
+          "cross-file",
+          "no evidence in the diff",
+          "isn't in the diff"
+        ]
+      }
+    ]
   },
-  "note": "Expected capability (post Stage 3): a cross-file contract claim ('no other signal') unverifiable from the diff should be flagged or caveated. Baseline measures whether it is. KNOWN_GAP candidate, owner Stage 3 \u2014 do NOT pre-classify as GATING."
+  "note": "Desired capability (Stage 3 owner): a cross-file contract claim ('no other signal') unverifiable from the diff is flagged or caveated. Encoded NOW; if the current reviewer misses it, the measured result is simply KNOWN_GAP \u2014 that is the mechanism working, not the fixture failing."
 }

@@ -10,7 +10,7 @@
       {
         "path": "lib/chat/sheet.dart",
         "status": "modified",
-        "patch": "--- a/lib/chat/sheet.dart\n+++ b/lib/chat/sheet.dart\n@@ -12,6 +12,16 @@ class ChatSheet extends ConsumerStatefulWidget {\n   void initState() {\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      // resume any requested thread; legacy null-course threads\n+      // resume into the selected course (PR promise)\n+      // consume the resume target only once a course exists:\n+      // CourseSelector auto-selects in a later frame; reacting\n+      // here would drop legacy null-course resumes.\n+      ref.listenManual(chatCourseIdProvider, (prev, course) {\n+        final target = ref.read(chatResumeTargetProvider);\n+        if (target == null || course == null) return;\n+        ref.read(chatResumeTargetProvider.notifier).state = null;\n+        _resume(target.threadId, course);\n+      });\n       _restoreOrResume();\n     });\n   }"
+        "patch": "--- a/lib/chat/sheet.dart\n+++ b/lib/chat/sheet.dart\n@@ -12,6 +12,16 @@ class ChatSheet extends ConsumerStatefulWidget {\n   void initState() {\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      // legacy null-course threads resume into the selected course\n+      // (this PR's promised behavior)\n+      // consume the resume target only once a course exists;\n+      // CourseSelector auto-selects in a later frame\n+      ref.listenManual(chatCourseIdProvider, (prev, course) {\n+        final target = ref.read(chatResumeTargetProvider);\n+        if (target == null || course == null) return;\n+        ref.read(chatResumeTargetProvider.notifier).state = null;\n+        _resume(target.threadId, course);\n+      });\n       _restoreOrResume();\n     });\n   }"
       }
     ]
   },
@@ -18,5 +18,5 @@
     "assessment": "CLEAR",
     "findings": []
   },
-  "note": "Minimally different: resume reacts to course selection."
+  "note": "Globally clean: resume reacts to course selection."
 }
