@@ -32,10 +32,10 @@ data — it flows into JSON payloads, never through shell evaluation.
 
 import json
 import os
+import subprocess
 import sys
+import tempfile
 import time
-import urllib.error
-import urllib.request
 
 from parse_review import RESULT_SCHEMA_VERSION, normalize
 
@@ -48,6 +48,14 @@ RETRYABLE_HTTP = (429, 500, 502, 503, 504)
 
 class _NetworkFailure(Exception):
     """Transport-level failure (connection, timeout) — retryable."""
+
+
+_CONNECT_TIMEOUT = "10"   # seconds, connection establishment
+_MAX_TIME = "180"         # seconds, entire HTTP operation (wall clock)
+# These are the legacy curl bounds the extraction must preserve:
+# urllib's socket timeout is NOT equivalent (no separate connect
+# bound, no total deadline), so the engine keeps curl as its HTTP
+# transport — same runtime dependency review.sh always had.
 
 
 def _load_review_input(path):
@@ -116,26 +124,35 @@ def _build_prompts(review_input):
 
 
 def _post_chat(payload):
-    """One OpenRouter HTTP attempt. Returns (http_status, body_bytes).
+    """One OpenRouter HTTP attempt via curl. Returns (http_status, body_bytes).
 
-    Transport-level failures raise _NetworkFailure (retryable); HTTP
-    error statuses are returned as data for the retry policy to judge.
+    Bounds are the legacy contract: connection <= 10s, entire
+    operation <= 180s wall clock. Transport-level failures (curl rc
+    nonzero: network down, timeouts) raise _NetworkFailure
+    (retryable); HTTP error statuses are returned as data for the
+    retry policy to judge. The payload travels via stdin
+    (--data-binary @-), argv list only — never shell evaluation.
     """
-    req = urllib.request.Request(
-        OPENROUTER_URL,
-        data=json.dumps(payload).encode(),
-        headers={
-            "Authorization": "Bearer " + os.environ["OPENROUTER_API_KEY"],
-            "Content-Type": "application/json",
-        },
-        method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=180) as resp:
-            return resp.status, resp.read()
-    except urllib.error.HTTPError as e:
-        return e.code, e.read()
-    except (urllib.error.URLError, TimeoutError, OSError) as e:
-        raise _NetworkFailure(str(e))
+    with tempfile.NamedTemporaryFile() as out:
+        proc = subprocess.run(
+            ["curl", "-sS",
+             "--connect-timeout", _CONNECT_TIMEOUT,
+             "--max-time", _MAX_TIME,
+             "-o", out.name, "-w", "%{http_code}",
+             "-H", "Authorization: Bearer "
+             + os.environ["OPENROUTER_API_KEY"],
+             "-H", "Content-Type: application/json",
+             "--data-binary", "@-", OPENROUTER_URL],
+            input=json.dumps(payload).encode(),
+            capture_output=True,
+            timeout=int(_MAX_TIME) + 20)  # guard; curl's own deadline governs
+        if proc.returncode != 0:
+            raise _NetworkFailure("curl rc {0}: {1}".format(
+                proc.returncode,
+                proc.stderr.decode("utf-8", "replace").strip()))
+        status = int(proc.stdout.strip() or 0)
+        out.seek(0)
+        return status, out.read()
 
 
 def _call_model(review_input):

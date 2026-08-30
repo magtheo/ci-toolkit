@@ -387,3 +387,59 @@ def test_renderer_rejects_future_schema_version():
 def test_renderer_accepts_v1_result():
     p = render.build_payload(json.loads(_RESULT), [], "sha", "m")
     assert p["event"] == "COMMENT"
+
+
+# ---- regression: legacy timeout semantics are preserved ----------------------
+# urllib(timeout=N) is a socket timeout — NOT curl's connect<=10s plus
+# total<=180s wall clock. The extraction must keep the original bounds;
+# these tests pin the contract (source flags + functional curl handling).
+
+def test_engine_pins_legacy_curl_timeout_flags():
+    src = (TOOLKIT_ROOT / "engine.py").read_text()
+    assert '"--connect-timeout", _CONNECT_TIMEOUT' in src
+    assert '"--max-time", _MAX_TIME' in src
+    assert '_CONNECT_TIMEOUT = "10"' in src
+    assert '_MAX_TIME = "180"' in src
+    # no socket-timeout stand-in may sneak back in
+    assert "import urllib" not in src
+    assert "urlopen" not in src
+    assert "timeout=180)" not in src
+
+
+def test_post_chat_parses_curl_output(monkeypatch):
+    calls = {}
+
+    def fake_run(args, input=None, capture_output=False, timeout=None):
+        calls["args"] = args
+        calls["payload"] = input
+        out = args[args.index("-o") + 1]
+        with open(out, "wb") as fh:
+            fh.write(b'{"choices": []}')
+        import subprocess as sp
+        return sp.CompletedProcess(args, 0, stdout=b"200", stderr=b"")
+
+    monkeypatch.setattr(engine.subprocess, "run", fake_run)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
+    status, body = engine._post_chat({"model": "m"})
+    assert status == 200
+    assert body == b'{"choices": []}'
+    # legacy bounds present on the curl argv
+    a = calls["args"]
+    assert a[a.index("--connect-timeout") + 1] == "10"
+    assert a[a.index("--max-time") + 1] == "180"
+    # payload travels as stdin data, never as a shell string
+    assert a[a.index("--data-binary") + 1] == "@-"
+    assert b'"model": "m"' in calls["payload"]
+
+
+def test_post_chat_curl_failure_is_network_failure(monkeypatch):
+    import subprocess as sp
+
+    def fake_run(args, **kw):
+        return sp.CompletedProcess(args, 28, stdout=b"",
+                                   stderr=b"curl: (28) timed out")
+
+    monkeypatch.setattr(engine.subprocess, "run", fake_run)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
+    with pytest.raises(engine._NetworkFailure, match="curl rc 28"):
+        engine._post_chat({"model": "m"})
