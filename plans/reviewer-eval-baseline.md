@@ -155,7 +155,10 @@ and Stage 2 diff budgeting wait behind this feature).
 3. Promotion to GATING is permanent (ratchet).
 4. A PR description that contradicts its contents is a defect —
    keep PR bodies current.
-5. Qualification PASS means: preserved the capabilities encoded by
+5. Pair integrity: a positive fixture is only promotable to GATING
+   while its paired control passes (detection indistinguishable from
+   over-triggering is not a capability). Controls may gate alone.
+6. Qualification PASS means: preserved the capabilities encoded by
    the current oracle, under this profile. It NEVER means "the
    reviewer is correct." No corpus size proves general review
    correctness.
@@ -188,7 +191,11 @@ behavior-preservation catches converted into regression coverage)
 
 ## Phase 2 — Independent oracle (fixtures, controls, harness, baseline)
 
-Status: IN PROGRESS (phase branch:
+Status: COMPLETE (2026-08-30; phase PR #12 merged after two oracle-
+validity review rounds + one hygiene pass; measured baseline
+eval/baseline-2026-08-30.json, 48 calls; states recorded in
+eval/states.json with rationale in eval/state-log.md — C4/C5/C7
+GATING, all others KNOWN_GAP incl. M8 via pair integrity) (phase branch:
 phase/reviewer-eval-baseline/02-independent-oracle; corpus grown to
 M1–M8/C1–C8 per ledger misses #6–#8)
 
