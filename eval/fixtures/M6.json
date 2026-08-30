@@ -1,0 +1,37 @@
+{
+  "id": "M6",
+  "kind": "positive",
+  "origin": "synthetic replica (ci-toolkit PR #11, miss #6)",
+  "paired_with": "C6",
+  "input": {
+    "title": "review: skip patchless PRs early",
+    "body": "Skips PRs with no textual changes before fetching the rubric.",
+    "files": [
+      {
+        "path": "review.sh",
+        "status": "modified",
+        "patch": "--- a/review.sh\n+++ b/review.sh\n@@ -1,5 +1,12 @@\n # changed files were collected as JSONL (one object per line):\n #   jq -c '.[]' <<<\"$batch\" >>\"$files_jsonl\"\n+if ! jq -e 'any(.[]; .patch != null)' <\"$files_jsonl\" >/dev/null; then\n+  echo \"no textual changes to review (docs/binary-only?)\"\n+  exit 0\n+fi"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "jq"
+        ],
+        "comment_any": [
+          "jsonl",
+          "per-line",
+          "each line",
+          "one object per line",
+          "slurp",
+          "line by line"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: without -s, jq reads each JSONL line as its own input; .[] iterates one object's values, .patch on a string errors, and 'if !' turns the error into skipping every PR."
+}

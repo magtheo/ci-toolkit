@@ -1,0 +1,22 @@
+{
+  "id": "C2",
+  "kind": "control",
+  "origin": "synthetic (hardened canonical caller)",
+  "paired_with": "M2",
+  "input": {
+    "title": "ci: wire up the ai-review caller",
+    "body": "Adds the reusable reviewer workflow.",
+    "files": [
+      {
+        "path": ".github/workflows/ai-review.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,11 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@0123456789abcdef0123456789abcdef01234567\n+    with:\n+      toolkit_ref: 0123456789abcdef0123456789abcdef01234567\n+    secrets:\n+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: trusted-base trigger, full-SHA pins both layers, explicit secret."
+}

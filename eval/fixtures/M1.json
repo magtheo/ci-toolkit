@@ -1,0 +1,29 @@
+{
+  "id": "M1",
+  "kind": "positive",
+  "origin": "synthetic replica (caller review rounds, miss #1)",
+  "paired_with": "C1",
+  "input": {
+    "title": "ci: wire up the ai-review caller",
+    "body": "Adds the reusable reviewer workflow.",
+    "files": [
+      {
+        "path": ".github/workflows/ai-review.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,9 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@0123456789abcdef0123456789abcdef01234567\n+    with:\n+      toolkit_ref: 0123456789abcdef0123456789abcdef01234567\n+    secrets: inherit\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "inherit"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: secrets: inherit hands every repo secret to the reusable workflow instead of the single key it needs. Everything else (trigger, full-SHA pins) is already hardened so only this defect can block."
+}

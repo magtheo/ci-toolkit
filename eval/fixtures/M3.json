@@ -1,0 +1,36 @@
+{
+  "id": "M3",
+  "kind": "positive",
+  "origin": "real (ci-toolkit PR #7, miss #3)",
+  "paired_with": "C3",
+  "input": {
+    "title": "tooling: add roadmap freshness guard",
+    "body": "Adds the anti-rot guard.",
+    "files": [
+      {
+        "path": "roadmap-freshness.sh",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/roadmap-freshness.sh\n@@ -0,0 +1,13 @@\n+#!/usr/bin/env bash\n+# Flags repositories whose ROADMAP 'Last reviewed:' date is\n+# older than 30 days, judged from the PARSED DATE (so a repo\n+# reviewed yesterday but dated last month is still flagged).\n+set -euo pipefail\n+for repo in \"$@\"; do\n+  if [ -f \"$repo/plans/ROADMAP.md\" ]; then\n+    # freshness check per the contract above\n+    if find \"$repo/plans/ROADMAP.md\" -mtime -30 | grep -q .; then\n+      echo \"OK: $repo\"\n+    else\n+      echo \"STALE: $repo\"\n+    fi\n+  fi\n+done\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "mtime"
+        ],
+        "comment_any": [
+          "contract",
+          "document",
+          "comment",
+          "invariant",
+          "date"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: implementation (rolling mtime window) contradicts the file's own documented invariant (parsed date)."
+}

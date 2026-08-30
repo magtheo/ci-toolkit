@@ -1,0 +1,34 @@
+{
+  "id": "M8",
+  "kind": "positive",
+  "origin": "synthetic replica (student-platform PR #50, miss #8)",
+  "paired_with": "C8",
+  "input": {
+    "title": "chat: resume requested thread on open",
+    "body": "Legacy null-course threads resume into the selected course.",
+    "files": [
+      {
+        "path": "lib/chat/sheet.dart",
+        "status": "modified",
+        "patch": "--- a/lib/chat/sheet.dart\n+++ b/lib/chat/sheet.dart\n@@ -12,6 +12,16 @@ class ChatSheet extends ConsumerStatefulWidget {\n   void initState() {\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      // legacy null-course threads resume into the selected course\n+      // (this PR's promised behavior)\n+      final target = ref.read(chatResumeTargetProvider);\n+      if (target == null) return;\n+      ref.read(chatResumeTargetProvider.notifier).state = null;\n+      final courseId = ref.read(chatCourseIdProvider);\n+      if (courseId == null) return; // course not selected yet\n+      _resume(target.threadId, courseId);\n       _restoreOrResume();\n     });\n   }"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "course",
+          "resume",
+          "frame",
+          "order",
+          "lifecycle",
+          "listen"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: the resume target is consumed and dropped before course auto-selection can run in its later frame \u2014 contradicting the PR's own promise for legacy null-course threads."
+}
