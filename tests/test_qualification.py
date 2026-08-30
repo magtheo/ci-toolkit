@@ -456,3 +456,20 @@ def test_explicit_allow_model_replaces_the_default(tmp_path, monkeypatch):
         capture_output=True, text=True)
     assert r.returncode == 1
     assert "not in allowed" in r.stdout
+
+
+def test_oracle_input_set_is_exactly_harness_fixtures_states(tmp_path):
+    # Phase 4 guard (AGENTS.md separation rule): the rubric is SUBJECT,
+    # never oracle — a rubric change must not move oracle_version, and
+    # none of the subject files may enter the hash. Pins the exact
+    # input set in both directions.
+    base = _seed_oracle_tree(tmp_path)
+    v = rc.oracle_version(base)
+    # subject-side change leaves the oracle identity untouched
+    (base / "rubric.md").write_text("amended rubric — Phase 4")
+    (base / "engine.py").write_text("# changed")
+    assert rc.oracle_version(base) == v
+    # every oracle input is load-bearing: harness change moves it too
+    src = (base / "eval" / "run_corpus.py").read_text() + "\n# touched\n"
+    (base / "eval" / "run_corpus.py").write_text(src)
+    assert rc.oracle_version(base) != v

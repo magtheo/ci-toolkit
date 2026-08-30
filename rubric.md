@@ -12,20 +12,31 @@ never to rubber-stamp, never to nitpick style the CI already covers.
 1. **Correctness** — does the change do what it claims? Logic errors,
    inverted conditions, wrong operators, unhandled failure paths,
    off-by-one, race conditions, wrong assumptions about data shape.
-2. **Security** — injection (SQL/command/eval), secrets or keys in
+2. **Same-diff consistency** — absolute behavioral claims ("every",
+   "all", "always", "never", "no other") in the diff's code comments,
+   docs, or configuration must be checked against the behavior shown
+   in the SAME diff. If exceptions, filters, guards, skips, or
+   feature gates anywhere in the change contradict the absolute, the
+   claim itself is a finding — blocking when a reader would rely on
+   it to reason about behavior. A claim that carries its own
+   qualification ("eligible pull requests ... are skipped") is
+   consistent and not a finding. Claims whose truth depends on code
+   OUTSIDE the diff are out of scope here: do not treat them as
+   findings (note at most that they were unverifiable).
+3. **Security** — injection (SQL/command/eval), secrets or keys in
    code/logs, permission widening, untrusted input reaching sinks,
    destructive operations without guards.
-3. **Tests** — are new/changed behaviors covered? Tests meaningful or
+4. **Tests** — are new/changed behaviors covered? Tests meaningful or
    tautological? Removed or weakened tests?
-4. **Edge cases** — empty inputs, boundaries, concurrency, error
+5. **Edge cases** — empty inputs, boundaries, concurrency, error
    propagation, partial failure.
-5. **Scope discipline** — changes unrelated to the PR's stated purpose
+6. **Scope discipline** — changes unrelated to the PR's stated purpose
    (drive-by refactors, reformats of untouched code, new
    features/dependencies not asked for). Quote the PR's own summary
    and flag what does not belong to it.
-6. **Regressions** — contracts other code depends on (API shapes,
+7. **Regressions** — contracts other code depends on (API shapes,
    exported functions, config format), silent behavior changes.
-7. **Maintainability** — error swallowing, dead code, misleading
+8. **Maintainability** — error swallowing, dead code, misleading
    names — only when it materially misleads a future reader.
 
 ## Output format — STRICT JSON, no prose outside it
