@@ -286,3 +286,56 @@ def test_real_corpus_passes_strict_validation():
             assert f["expected"]["findings"]
             for e in f["expected"]["findings"]:
                 assert e.get("comment_all") or e.get("comment_any")
+
+
+# ---- fixture-hygiene invariants (external review pass 3 of #12) --------------
+
+def _patch(fid):
+    return json.loads((FIXTURES / (fid + ".json")).read_text()) \
+        ["input"]["files"][0]["patch"]
+
+
+def test_M1_C1_differ_only_in_the_secrets_block():
+    a, b = _patch("M1").splitlines(), _patch("C1").splitlines()
+    i = 0
+    while i < min(len(a), len(b)) and a[i] == b[i]:
+        i += 1
+    j = 0
+    while j < min(len(a), len(b)) - i and a[-1 - j] == b[-1 - j]:
+        j += 1
+    assert a[i:len(a) - j] == ["+    secrets: inherit"]
+    assert b[i:len(b) - j] == ["+    secrets:",
+                               "+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}"]
+    # both sides fully hardened otherwise
+    for p in (a, b):
+        assert "pull_request_target" in "\n".join(p)
+        assert "toolkit_ref: 0123456789abcdef0123456789abcdef01234567" \
+            in "\n".join(p)
+
+
+def test_M2_secret_expression_well_formed():
+    p = _patch("M2")
+    assert "LLM_API_KEY: ${{ secrets.LLM_API_KEY }}" in p
+    assert "${ secrets" not in p          # the format() artifact is gone
+    assert "+  pull_request:" in p        # intended defect 1
+    assert "@main" in p                   # intended defect 2 (floating)
+
+
+def test_M7_urllib_hunk_is_mechanically_valid():
+    p = _patch("M7")
+    assert "+    req = urllib.request.Request(OPENROUTER_URL," in p
+    # the presented function defines everything it uses
+
+
+def test_C4_claim_is_self_contained():
+    c4, m4 = _patch("C4"), _patch("M4")
+    assert "RetryHandler" not in c4
+    assert "no other signal" not in c4   # no external-code claims
+    assert "no other signal" in m4       # M4 keeps the cross-file claim
+
+
+def test_no_accidental_double_diff_markers():
+    for f in sorted(FIXTURES.glob("*.json")):
+        for line in _patch(f.stem).splitlines():
+            assert not (line.startswith("++") and
+                        not line.startswith("+++ ")), (f.stem, line)

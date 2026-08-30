@@ -10,7 +10,7 @@
       {
         "path": ".github/workflows/ai-review.yml",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,9 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@0123456789abcdef0123456789abcdef01234567\n+    with:\n+    secrets:\n+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}\n"
+        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,9 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@0123456789abcdef0123456789abcdef01234567\n+    with:\n+      toolkit_ref: 0123456789abcdef0123456789abcdef01234567\n+    secrets:\n+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}\n"
       }
     ]
   },

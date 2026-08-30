@@ -10,7 +10,7 @@
       {
         "path": "apps/worker/exceptions.py",
         "status": "modified",
-        "patch": "--- a/apps/worker/exceptions.py\n+++ b/apps/worker/exceptions.py\n@@ -1,3 +1,14 @@\n+\"\"\"Worker exceptions.\n+\n+The retryable flag is consumer metadata; the orchestrator's\n+RetryHandler.is_retryable_error remains the authoritative decision\n+point and may consult error codes beyond this flag.\n+\"\"\"\n+\n+class ProcessingError(Exception):\n+    def __init__(self, message, retryable=False):\n+        super().__init__(message)\n+        self.retryable = retryable"
+        "patch": "--- a/apps/worker/exceptions.py\n+++ b/apps/worker/exceptions.py\n@@ -1,3 +1,14 @@\n+\"\"\"Worker exceptions.\n+\n+The retryable flag is metadata for consumers of this module.\n+This module does not define how consumers combine it with other\n+signals when deciding whether to retry.\n+\"\"\"\n+\n+class ProcessingError(Exception):\n+    def __init__(self, message, retryable=False):\n+        super().__init__(message)\n+        self.retryable = retryable"
       }
     ]
   },
@@ -18,5 +18,5 @@
     "assessment": "CLEAR",
     "findings": []
   },
-  "note": "Globally clean: the claim is accurate to what the diff itself shows."
+  "note": "Globally clean: the claim is strictly self-scoped \u2014 it asserts nothing about code outside the diff."
 }
