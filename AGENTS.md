@@ -26,7 +26,8 @@ Goals:
 ## Working in this repo
 
 Shared CI patterns for magtheo's repos. Logic only — no secrets, no
-project code. Primary consumers: student-platform (and future repos).
+project code. Primary consumers: student-platform, platform-core,
+and future repos.
 
 (`engine.py`, `render.py`, and `eval/` reach `main` with the
 umbrella `feature/reviewer-eval-baseline` merge; until then they live
@@ -132,11 +133,13 @@ expanded through measured evidence, never ad-hoc rubric stuffing.
 
 Consumer repos pin reviewer commits; the pin is the deployment
 surface. A pinned SHA should have a PASS qualification record against
-the current oracle on the `qualifications` branch (contract is
+the current oracle on the `qualifications` branch. The contract is
 **PENDING ACTIVATION** until the umbrella
-`feature/reviewer-eval-baseline` merge — see the plan's Deviation 1
-and README). Dogfood pin changes in this repo's `review.yml` are
-verified by the fail-closed `verify-pin` job.
+`feature/reviewer-eval-baseline` merge and the live activation-gate
+demonstrations (see the plan's Deviation 1 and README). After
+activation, dogfood pin changes in this repo's `review.yml` are
+verified by the fail-closed `verify-pin` job; until then, the
+legacy review-only procedure remains in force.
 
 ---
 

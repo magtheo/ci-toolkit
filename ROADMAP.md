@@ -55,7 +55,7 @@ anti-pattern this roadmap exists to prevent.
 | 5 | State / lifecycle / concurrency reasoning | M8; publisher bug (human-caught) | identified; fixture family needed |
 | 6 | External-contract reasoning | `/pulls/{n}` vs `/files` bug; M7 | identified; deterministic-first |
 | 7 | Architectural invariant reasoning | states.json-not-in-oracle_version (human-caught) | identified |
-| 8 | Acceptance / process truth | Phase-3/#10 circularity (human-caught) | identified |
+| 8 | Acceptance / process truth | Phase-3/#10 circularity; #15 CLEAR-miss (both human-caught) | identified |
 | — | Deterministic gate expansion (supporting track) | repeated LLM attention on machine-checkable facts | first candidate: actionlint |
 
 Tracks 2, then 1, are sequenced (Phases 4–5, then discrimination).
@@ -187,8 +187,11 @@ thereafter is chosen from measured evidence, not this table's number.
 ## 8. Acceptance / process truth
 
 - **Evidence:** the Phase-3/#10 completion circularity (a process-state
-  contradiction, not a code bug); methodology rule 5 (PR bodies must
-  match contents) already exists but is enforced by humans.
+  contradiction, not a code bug); the #15 CLEAR-miss — the AI reviewer
+  passed a governance doc that described a not-yet-active control
+  (`verify-pin` on `main`) as already in force (human-caught);
+  methodology rule 5 (PR bodies must match contents) already exists
+  but is enforced by humans.
 - **Current state:** rule exists; no enforcement capability.
 - **Candidate mechanism:** consistency pass over PR description, plan
   status, acceptance criteria, and dependency state — can the declared
