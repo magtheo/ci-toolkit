@@ -441,3 +441,18 @@ def test_qualify_publishes_via_script_and_is_serialized():
     assert "publish_record.sh" in src
     assert "concurrency:" in src
     assert "qualifications-branch" in src
+
+
+def test_explicit_allow_model_replaces_the_default(tmp_path, monkeypatch):
+    # caller-specified allowlists are AUTHORITATIVE: providing
+    # --allow-model must not sneak the default profile back in
+    import subprocess as sp2
+    rec = tmp_path / "rec.json"
+    rec.write_text(json.dumps(_record()))
+    r = sp2.run(
+        [sys.executable, str(TOOLKIT_ROOT / "eval" / "verify.py"),
+         str(rec), "--oracle-version", "0" * 16,
+         "--subject", "c" * 40, "--allow-model", "some/other-model"],
+        capture_output=True, text=True)
+    assert r.returncode == 1
+    assert "not in allowed" in r.stdout

@@ -79,15 +79,18 @@ def main(argv=None):
     ap.add_argument("--subject", required=True,
                     help="SHA the pin-bump PR proposes to deploy")
     ap.add_argument("--allow-model", action="append",
-                    default=[DEFAULT_ALLOWED_MODELS],
-                    help="acceptable model profile (repeatable)")
+                    help="acceptable model profile (repeatable); when "
+                         "given, the list is AUTHORITATIVE and replaces "
+                         "the default — a caller restricting profiles "
+                         "must be able to exclude the default too")
     args = ap.parse_args(argv)
+    allowed = args.allow_model or [DEFAULT_ALLOWED_MODELS]
 
     with open(args.record) as fh:
         record = json.load(fh)
 
     verdict = verify(record, args.oracle_version, args.subject,
-                     set(args.allow_model))
+                     set(allowed))
     print(json.dumps(verdict, indent=2))
     return 0 if verdict["verdict"] == "PASS" else 1
 
