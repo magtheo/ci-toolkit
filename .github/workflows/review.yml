@@ -33,3 +33,39 @@ jobs:
       toolkit_ref: c328fee8c3dc8704fa1f2b84fbfab1ead0860c44
     secrets:
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+
+  # Secretless, machine-verified pin promotion (plan phase 3): when a
+  # PR proposes new toolkit pins, the proposed SHA must carry a PASS
+  # qualification record against the CURRENT oracle. Runs from the
+  # trusted base (pull_request_target) like the review job above;
+  # verifies the PR's OWN pins when they change, and any
+  # explicit `qualify <sha>` PR title line on request.
+  verify-pin:
+    if: ${{ !github.event.pull_request.head.repo.fork }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: extract proposed SHA from the PR diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DIFF=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" \
+            --jq '.files[] | select(.filename == ".github/workflows/review.yml") | .patch' || true)
+          if [ -z "$DIFF" ]; then
+            echo "no review.yml changes in this PR — nothing to verify"
+            echo "SKIP=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          SHA=$(grep '^+' <<<"$DIFF" | grep -oE '[0-9a-f]{40}' | head -1 || true)
+          if [ -z "$SHA" ]; then
+            echo "review.yml changed but no full SHA pin proposed — nothing to verify"
+            echo "SKIP=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "proposed toolkit pin: $SHA"
+          echo "PROPOSED=$SHA" >> "$GITHUB_ENV"
+
+      - name: verify qualification record (secretless)
+        if: env.PROPOSED != '' && env.SKIP != 'true'
+        uses: ./.github/workflows/verify-qualification.yml
+        with:
+          subject_sha: ${{ env.PROPOSED }}

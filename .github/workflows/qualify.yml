@@ -1,0 +1,125 @@
+# Qualification: run the CURRENT oracle's corpus against a TRUSTED
+# MERGED subject, and publish the machine-verifiable record.
+#
+# Trust model (plan phase 3, hard invariants):
+#   - this workflow runs ONLY from main (push or dispatch guarded
+#     below); PR-head code never executes with the LLM secret;
+#   - the secret is mapped ONLY inside the run step, AFTER the
+#     main-ancestry guard has passed;
+#   - the subject must be merged into main (verified before use);
+#   - the oracle (harness + corpus) always comes from THIS checkout
+#     (main), never from the subject — that separation is what makes
+#     old-subject x new-oracle requalification possible without a new
+#     toolkit commit.
+#
+# Records are published to the `qualifications` branch
+# (records/by-subject/<sha>.json = latest record per subject) plus a
+# commit status on the subject SHA (context: "qualification / oracle").
+
+name: qualification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - engine.py
+      - parse_review.py
+      - render.py
+      - review.sh
+      - rubric.md
+      - .github/workflows/ai-review.yml
+      - .github/workflows/qualify.yml
+      - "eval/**"
+  workflow_dispatch:
+    inputs:
+      subject_sha:
+        description: "merged subject SHA (default: HEAD of main)"
+        required: false
+        default: ""
+      n:
+        description: "runs per fixture"
+        type: number
+        default: 3
+      force_red:
+        description: "forced-red demonstration (labeled FAIL record)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  statuses: write
+
+jobs:
+  qualify:
+    # main-only: dispatch on any other ref must refuse before secrets
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: guard — subject must be merged into main
+        run: |
+          SUBJECT="${{ inputs.subject_sha || github.sha }}"
+          if ! git merge-base --is-ancestor "$SUBJECT" origin/main; then
+            echo "::error::subject $SUBJECT is not merged into main — refusing to qualify untrusted code"
+            exit 1
+          fi
+          echo "SUBJECT=$SUBJECT" >> "$GITHUB_ENV"
+
+      - name: subject worktree (engine + rubric from the subject; oracle stays on main)
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/subject" "$SUBJECT"
+
+      # secret mapping comes AFTER the guard; nothing above this line
+      # reads secrets, and a guard failure aborts the job before here
+      - name: run corpus (oracle @main x subject)
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: |
+          ARGS=(--subject-dir "$RUNNER_TEMP/subject" --subject-sha "$SUBJECT"
+                --n "${{ inputs.n || 3 }}"
+                --out "$RUNNER_TEMP/report.json"
+                --record-out "$RUNNER_TEMP/record.json")
+          if [ "${{ inputs.force_red }}" = "true" ]; then
+            ARGS+=(--force-red)
+          fi
+          python3 eval/run_corpus.py "${ARGS[@]}"
+
+      - name: publish record to the qualifications branch
+        if: always()
+        run: |
+          ORACLE=$(python3 eval/run_corpus.py --print-oracle-version)
+          mkdir -p records/by-subject
+          cp "$RUNNER_TEMP/record.json" "records/by-subject/$SUBJECT.json"
+          cp "$RUNNER_TEMP/record.json" "records/$SUBJECT-$ORACLE.json"
+          git config user.name "qualification-bot"
+          git config user.email "noreply@users.noreply.github.com"
+          git fetch origin qualifications || true
+          if git rev-parse --verify origin/qualifications >/dev/null 2>&1; then
+            git switch qualifications
+          else
+            git switch --orphan qualifications
+          fi
+          git add records
+          git commit -m "qualification: $SUBJECT @ oracle $ORACLE" || true
+          git push origin qualifications
+
+      - name: commit status on the subject
+        if: always()
+        run: |
+          if grep -q '"result": "PASS"' "$RUNNER_TEMP/record.json"; then STATE=success; else STATE=failure; fi
+          curl -sS -f -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/$SUBJECT" \
+            -d "{\"state\": \"$STATE\", \"context\": \"qualification / oracle\", \"description\": \"qualification record on the qualifications branch\", \"target_url\": \"https://github.com/${{ github.repository }}/blob/qualifications/records/by-subject/$SUBJECT.json\"}"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qualification-report
+          path: |
+            ${{ runner.temp }}/report.json
+            ${{ runner.temp }}/record.json

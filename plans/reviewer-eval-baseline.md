@@ -246,7 +246,12 @@ M1–M8/C1–C8 per ledger misses #6–#8)
 
 ## Phase 3 — Qualification infrastructure
 
-Status: NOT STARTED
+Status: IN PROGRESS (phase branch:
+phase/reviewer-eval-baseline/03-qualification). Sequencing note:
+the engine lives on the feature branch until the umbrella lands, so
+the live green/red/requalification demonstrations execute as the
+first acts after #10 merges to main; machinery + deterministic
+validation are this phase's deliverable.
 
 ### Scope
 

@@ -33,12 +33,34 @@ import hashlib
 import json
 import os
 import pathlib
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
 
-import engine  # noqa: E402
+
+def oracle_version(base=None):
+    """Identity of the CURRENT oracle: eval implementation + corpus.
+
+    The subject under test contributes neither — that separation is
+    what lets an old trusted subject be re-qualified against a new
+    oracle without a new toolkit commit."""
+    root = pathlib.Path(base) if base else ROOT
+    h = hashlib.sha256()
+    h.update((root / "eval" / "run_corpus.py").read_bytes())
+    for path in sorted((root / "eval" / "fixtures").glob("*.json")):
+        h.update(path.name.encode())
+        h.update(path.read_bytes())
+    return h.hexdigest()[:16]
+
+
+def load_engine(subject_dir):
+    """Import the SUBJECT's engine (default: this checkout). The eval
+    harness itself always comes from the current checkout — the oracle
+    is never supplied by the subject."""
+    sys.path.insert(0, str(pathlib.Path(subject_dir or ROOT).resolve()))
+    import engine  # noqa: F811 — resolves from subject_dir first
+    return engine
 
 DEFAULT_MODEL = "anthropic/claude-haiku-4.5"
 TEMPERATURE = 0.2
@@ -100,13 +122,14 @@ def corpus_hash(fixtures):
     return hashlib.sha256(blob.encode()).hexdigest()[:16]
 
 
-def _review_input(fixture, model_id):
+def _review_input(fixture, model_id, subject_dir=None):
+    base = pathlib.Path(subject_dir) if subject_dir else ROOT
     return {
         "schema_version": 1,
         "title": fixture["input"]["title"],
         "body": fixture["input"]["body"],
         "files": fixture["input"]["files"],
-        "policy": (ROOT / "rubric.md").read_text(),
+        "policy": (base / "rubric.md").read_text(),
         "model": {"id": model_id, "temperature": TEMPERATURE,
                   "max_tokens": MAX_TOKENS},
     }
@@ -174,8 +197,10 @@ def evaluate(fixture, results):
     else:  # control: every run CLEAR, zero blocking findings
         passes = (assessment_stability["CLEAR"] == n
                   and not false_blockers)
+    pair = fixture.get("paired_with")
     return {
         "id": fixture["id"], "kind": fixture["kind"], "runs": n,
+        "pair": pair,
         "assessments": [r["assessment"] for r in results],
         "runs_detail": [
             {"assessment": r["assessment"],
@@ -190,6 +215,29 @@ def evaluate(fixture, results):
         "passes_policy": passes,
         "proposal": "GATING-capable" if passes else "KNOWN_GAP",
     }
+
+
+def pair_integrity(per_fixture):
+    """Mechanical enforcement of permanent methodology rule 5:
+    a positive is promotable only when it passes AND its paired
+    control passes (detection indistinguishable from over-triggering
+    is not a capability). Controls may gate alone."""
+    by_id = {r["id"]: r for r in per_fixture}
+    violations = []
+    eligible = []
+    for r in per_fixture:
+        if r["kind"] != "positive":
+            continue
+        ctl = by_id.get(r["pair"])
+        r["pair_passes"] = bool(ctl and ctl["passes_policy"])
+        if r["passes_policy"] and not r["pair_passes"]:
+            violations.append({
+                "positive": r["id"], "control": r.get("pair"),
+                "reason": "control fails — detection indistinguishable "
+                          "from over-triggering"})
+        if r["passes_policy"] and r["pair_passes"]:
+            eligible.append(r["id"])
+    return violations, eligible
 
 
 def run_corpus(fixtures, model_id, n, run_once):
@@ -216,24 +264,53 @@ def main(argv=None):
     ap.add_argument("--n", type=int, default=3)
     ap.add_argument("--only", help="comma-separated fixture ids")
     ap.add_argument("--out", help="write the full report JSON here")
+    ap.add_argument("--print-oracle-version", action="store_true",
+                    help="print the current oracle version and exit "
+                         "(secretless; used by verification consumers)")
+    ap.add_argument("--subject-dir",
+                    help="checkout of the SUBJECT under qualification; "
+                         "its engine + rubric are used, the oracle stays "
+                         "in this checkout")
+    ap.add_argument("--subject-sha",
+                    help="recorded subject SHA (the workflow verifies "
+                         "main-ancestry before invoking this)")
+    ap.add_argument("--force-red", action="store_true",
+                    help="demonstration mode: emit a FAIL record without "
+                         "model calls (acceptance validation only, "
+                         "labeled in the record)")
+    ap.add_argument("--record-out",
+                    help="write the Qualification record JSON here")
     args = ap.parse_args(argv)
+
+    if args.print_oracle_version:
+        print(oracle_version())
+        return 0
 
     fixtures = load_corpus(pathlib.Path(args.fixtures))
     if args.only:
         keep = {s.strip() for s in args.only.split(",")}
         fixtures = [f for f in fixtures if f["id"] in keep]
 
+    subject_engine = load_engine(args.subject_dir)
+    rubric_dir = args.subject_dir
+
     def run_once(fixture):
-        return engine.run_review(_review_input(fixture, args.model))
+        return subject_engine.run_review(
+            _review_input(fixture, args.model, rubric_dir))
 
     print("corpus: {0} fixtures ({1} positive / {2} control), N={3}, "
-          "model={4}".format(
+          "model={4}, oracle={5}".format(
               len(fixtures),
               sum(1 for f in fixtures if f["kind"] == "positive"),
               sum(1 for f in fixtures if f["kind"] == "control"),
-              args.n, args.model), file=sys.stderr)
+              args.n, args.model, oracle_version()), file=sys.stderr)
 
-    per_fixture, spend = run_corpus(fixtures, args.model, args.n, run_once)
+    if args.force_red:
+        per_fixture, spend = [], {"calls": 0, "prompt_tokens": 0,
+                                  "completion_tokens": 0}
+    else:
+        per_fixture, spend = run_corpus(fixtures, args.model, args.n,
+                                        run_once)
 
     states_path = ROOT / "eval" / "states.json"
     states = json.loads(states_path.read_text()) if states_path.exists() else {}
@@ -241,12 +318,22 @@ def main(argv=None):
     gating_violations = [r["id"] for r in per_fixture
                          if states.get(r["id"]) == "GATING"
                          and not r["passes_policy"]]
+    if args.force_red:
+        gating_violations = ["FORCED-RED-DEMONSTRATION"]
+
+    pi_violations, promotion_eligible = pair_integrity(per_fixture)
+
+    subject_sha = args.subject_sha or subprocess.run(
+        ["git", "-C", str(args.subject_dir or ROOT), "rev-parse", "HEAD"],
+        capture_output=True, text=True).stdout.strip() or "unknown"
 
     profile = {
-        "toolkit_sha": os.popen("git -C {0} rev-parse HEAD"
-                                .format(ROOT)).read().strip() or "unknown",
+        "toolkit_sha": subject_sha,
         "rubric_hash": hashlib.sha256(
-            (ROOT / "rubric.md").read_bytes()).hexdigest()[:16],
+            (pathlib.Path(rubric_dir) if rubric_dir else ROOT,
+             "rubric.md") and pathlib.Path(
+                 rubric_dir or ROOT, "rubric.md").read_bytes()
+            ).hexdigest()[:16],
         "corpus_hash": corpus_hash(fixtures),
         "model": args.model,
         "temperature": TEMPERATURE,
@@ -257,7 +344,30 @@ def main(argv=None):
     report = {"profile": profile, "per_fixture": per_fixture,
               "spend": spend,
               "gating_violations": gating_violations,
+              "pair_integrity_violations": pi_violations,
               "states_in_force": states}
+
+    record = None
+    if args.record_out:
+        record = {
+            "schema_version": 1,
+            "subject_sha": subject_sha,
+            "oracle_version": oracle_version(),
+            "corpus_hash": corpus_hash(fixtures),
+            "model_profile": {"model": args.model,
+                              "temperature": TEMPERATURE,
+                              "max_tokens": MAX_TOKENS},
+            "n": args.n,
+            "result": "FAIL" if gating_violations else "PASS",
+            "gating_violations": gating_violations,
+            "pair_integrity_violations": pi_violations,
+            "promotion_eligible_positives": promotion_eligible,
+            "forced_red": bool(args.force_red),
+            "timestamp": profile["generated"],
+        }
+        pathlib.Path(args.record_out).write_text(
+            json.dumps(record, indent=2) + "\n")
+        print("record: {0}".format(args.record_out), file=sys.stderr)
 
     for r in per_fixture:
         print("{0:4s} {1:9s} detect={2} false-blockers={3} noise={4} "
