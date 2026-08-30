@@ -119,10 +119,15 @@ praise, and metadata (model, commit, assessment) sit behind
 - HTTP timeouts everywhere; OpenRouter retry with backoff on
   429/5xx; explicit error reporting with HTTP codes;
 - changed-file list capped (`AI_REVIEW_MAX_FILES`, default 200);
-- payload construction extracted to `parse_review.py` with an
-  invariant test suite (`tests/`, run by `.github/workflows/tests.yml`):
-  COMMENT-only event, diff-addressable inline lines, malformed-output
-  degradation.
+- payload construction extracted with an invariant test suite
+  (`tests/`, run by `.github/workflows/tests.yml`): COMMENT-only
+  event, diff-addressable inline lines, malformed-output
+  degradation. Since the engine-boundary extraction
+  (reviewer-eval-baseline Phase 1) the pipeline is
+  `review.sh` (thin GitHub transport) → `engine.py`
+  (ReviewInput v1 → prompt/model call/normalization → ReviewResult
+  v1, shared with the eval harness) → `render.py` (GitHub renderer);
+  `parse_review.py` is the deterministic normalization stage.
 
 Origin: student-platform feature `ai-pr-review` (plan + validation
 history live there).

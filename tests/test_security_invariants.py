@@ -45,23 +45,30 @@ def test_rubric_fails_closed_on_non_200_non_404():
     assert "FAIL CLOSED" in sec
 
 
+# Model-call retry invariants live in the engine since the Phase 1
+# boundary extraction (reviewer-eval-baseline); same semantics.
+
+ENGINE_PY = REVIEW_SH.parent / "engine.py"
+ESRC = ENGINE_PY.read_text()
+
+
 def test_network_failures_retry_not_exit():
-    sec = _section("# ---- model call:")
-    # rc != 0 (transport failure) must be a retry path, distinct from the
-    # http-status case statement
-    assert '[ "$rc" -ne 0 ]' in sec
-    retry_idx = sec.index("network failure")
-    case_idx = sec.index("case \"$http_code\" in")
-    assert retry_idx < case_idx or "elif" in sec[:case_idx]
+    # transport failures (_NetworkFailure) must be a retry path inside
+    # the retry loop, distinct from the HTTP-status branches
+    assert "except _NetworkFailure" in ESRC
+    assert "retrying after backoff" in ESRC
+    retry_idx = ESRC.index('"network failure (')
+    loop_idx = ESRC.index("for attempt in")
+    exhausted_idx = ESRC.index("retries exhausted")
+    assert loop_idx < retry_idx < exhausted_idx
 
 
 def test_retry_reports_last_status_not_reset():
-    sec = _section("# ---- model call:")
-    # http_code=000 may appear exactly once, as the pre-loop init; a
+    # status = 0 may appear exactly once, as the pre-loop init; a
     # reset inside/after the loop would clobber the final reported status
-    assert sec.count("http_code=000") == 1
-    assert sec.index("http_code=000") < sec.index("for attempt")
-    assert "retries exhausted (last http $http_code" in sec
+    assert ESRC.count("status = 0") == 1
+    assert ESRC.index("status = 0") < ESRC.index("for attempt in")
+    assert "retries exhausted (last http {0})\".format(status)" in ESRC
 
 
 def test_gitignore_covers_python_artifacts():
