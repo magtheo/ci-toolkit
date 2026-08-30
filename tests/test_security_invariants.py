@@ -99,8 +99,11 @@ def test_secret_bearing_caller_never_inherits_secrets():
 
 def test_caller_pins_both_layers_to_full_sha():
     src = REVIEW_YML.read_text()
-    uses = re.findall(r"ai-review\.yml@(\S+)", src)
-    refs = re.findall(r"toolkit_ref:\s*(\S+)", src)
+    # only the caller job carries pins; the verify-pin job's bash
+    # extraction patterns mention the same keywords as data
+    caller = src[:src.index("verify-pin:")]
+    uses = re.findall(r"ai-review\.yml@(\S+)", caller)
+    refs = re.findall(r"toolkit_ref:\s*(\S+)", caller)
     assert uses and refs
     for ref in uses + refs:
         assert re.fullmatch(r"[0-9a-f]{40}", ref), ref

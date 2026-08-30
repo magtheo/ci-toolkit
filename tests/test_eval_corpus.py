@@ -61,7 +61,7 @@ def test_corpus_hash_is_stable_and_content_sensitive():
 # ---- pass policy ------------------------------------------------------------
 
 def _fx(kind="positive"):
-    return {"id": "X1", "kind": kind,
+    return {"id": "X1", "kind": kind, "paired_with": "X2",
             "expected": {
                 "assessment": "CLEAR" if kind == "control"
                 else "ISSUES_FOUND",

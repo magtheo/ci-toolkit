@@ -131,3 +131,42 @@ praise, and metadata (model, commit, assessment) sit behind
 
 Origin: student-platform feature `ai-pr-review` (plan + validation
 history live there).
+
+## Qualification & pin promotion (deployment contract)
+
+**Status: PENDING ACTIVATION** — the contract becomes ACTIVE only after the live post-merge demonstrations (first qualification on main, forced-red, old-subject requalification, dogfood pin-bump verification) pass; until then the review-only pin procedure governs.
+
+Merging to `main` is not deployment. A reviewer version is deployed
+only when a consumer pin references it, and pins may only be promoted
+to SHAs with machine-verifiable qualification evidence:
+
+```text
+qualification run (trusted main x current oracle)
+        ↓
+record: records/by-subject/<sha>.json  (qualifications branch)
+        ↓
+consumer pin-bump PR → verify-qualification check (secretless)
+        ↓
+merge = deploy
+```
+
+- **Qualification** (`.github/workflows/qualify.yml`) runs the current
+  oracle's corpus against a trusted merged subject (main-ancestry
+  verified before any secret is mapped; the subject's engine+rubric,
+  main's harness+corpus). Records land on the `qualifications` branch
+  with a commit status on the subject.
+- **Requalification**: any merged subject can be re-qualified against
+  a newer oracle via workflow dispatch — no new toolkit commit needed.
+- **Pair integrity is enforced by the machinery**: a positive fixture
+  is promotion-eligible only if it passes AND its paired control
+  passes (detection indistinguishable from over-triggering is not a
+  capability).
+- **Verification** (`.github/workflows/verify-qualification.yml`,
+  reusable + secretless) checks subject match, PASS, current oracle,
+  and model allowlist. Consumers wire it onto their pin-bump PRs (see
+  this repo's `review.yml` `verify-pin` job for the pattern). A PR
+  description citing qualification is documentation; the check is the
+  control.
+- Forced-red demonstrations exist for acceptance validation and are
+  labeled `forced_red` in records — they can never authorize a
+  promotion.

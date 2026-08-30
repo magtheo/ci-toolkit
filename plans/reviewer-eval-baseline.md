@@ -246,7 +246,11 @@ M1–M8/C1–C8 per ledger misses #6–#8)
 
 ## Phase 3 — Qualification infrastructure
 
-Status: NOT STARTED
+Status: IN PROGRESS (phase branch:
+phase/reviewer-eval-baseline/03-qualification). Acceptance per
+Deviation 1: implementation acceptance (deterministic + local E2E)
+completes the phase; live demonstrations are the post-umbrella
+ACTIVATION gate for the deployment contract.
 
 ### Scope
 
@@ -351,8 +355,31 @@ Status: NOT STARTED
 
 ## Plan deviations
 
-(none — rev 2/3/4 revisions were pre-approval review feedback on a
-draft, not deviations from an approved plan)
+### Deviation 1 — Phase 3 acceptance split into implementation
+acceptance and post-merge activation (approved by directing human,
+2026-08-30)
+
+Original Phase 3 acceptance required observing live workflow runs:
+a good green qualification, a forced red, an old-subject ×
+new-oracle requalification, and consumer verification. Those
+workflows do not exist on `main` until the umbrella PR (#10)
+merges, and the umbrella must stay draft until all phases are
+complete — a circular dependency that could not be resolved by
+sequencing alone.
+
+Resolution (explicit, not a weakening): Phase 3 may be marked
+COMPLETE on *implementation acceptance* — deterministic tests plus
+local end-to-end proof (including real `publish_record.sh` runs
+against a bare origin covering bootstrap, same-subject
+requalification, and second-subject-from-second-clone). The
+deployment contract remains **PENDING ACTIVATION** (README) until
+the post-merge *activation gate* passes on `main`: the four live
+demonstrations above. Until then, no reviewer SHA may deploy under
+the qualification contract, and the dogfood pin-bump continues
+under the legacy review-only procedure.
+
+The acceptance criteria are not weakened — they are split across
+two lifecycle points, each with its own evidence.
 
 ## Notes
 
