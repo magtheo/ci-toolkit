@@ -162,8 +162,10 @@ and Stage 2 diff budgeting wait behind this feature).
 
 ## Phase 1 — Engine contract
 
-Status: IN PROGRESS (phase branch:
-phase/reviewer-eval-baseline/01-engine-contract)
+Status: COMPLETE (2026-08-29; phase PR #11 merged as 40a6bb1 into
+this feature branch. 72 tests — contract, regression, timeout
+pinning; payload byte-equivalence verified; three external-review
+behavior-preservation catches converted into regression coverage)
 
 ### Scope
 
