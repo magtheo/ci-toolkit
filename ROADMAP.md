@@ -4,6 +4,9 @@ Authoritative direction for maturing the AI reviewer. Companion to
 `plans/reviewer-eval-baseline.md` (measurement & qualification
 machinery — Phase 1–6) and `AGENTS.md` (governance).
 
+Last reviewed: 2026-08-30
+
+
 ## Philosophy
 
 **We are not trying to "make the AI smarter" in an ad-hoc way. We are
