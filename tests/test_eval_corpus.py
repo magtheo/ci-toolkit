@@ -339,3 +339,15 @@ def test_no_accidental_double_diff_markers():
         for line in _patch(f.stem).splitlines():
             assert not (line.startswith("++") and
                         not line.startswith("+++ ")), (f.stem, line)
+
+
+def test_report_captures_raw_findings_for_analysis():
+    # the baseline's key question is WHAT the reviewer said, not just
+    # how often — false blockers must be inspectable post-hoc
+    fx = {"id": "X1", "kind": "control",
+          "expected": {"assessment": "CLEAR", "findings": []}}
+    runs = [_result("ISSUES_FOUND", [dict(BLOCK)])]
+    r = rc.evaluate(fx, runs)
+    assert r["runs_detail"][0]["findings"][0]["comment"] == \
+        "uses inherit here"
+    assert "raw_output" in r["runs_detail"][0]

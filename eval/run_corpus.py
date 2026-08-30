@@ -177,6 +177,12 @@ def evaluate(fixture, results):
     return {
         "id": fixture["id"], "kind": fixture["kind"], "runs": n,
         "assessments": [r["assessment"] for r in results],
+        "runs_detail": [
+            {"assessment": r["assessment"],
+             "findings": r.get("findings", []),
+             "summary": r.get("summary", ""),
+             "raw_output": r.get("raw_output", "")}
+            for r in results],
         "assessment_stability": assessment_stability,
         "expected_detection": per_expected,
         "false_blockers": len(false_blockers),
