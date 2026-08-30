@@ -1,0 +1,29 @@
+{
+  "id": "M2",
+  "kind": "positive",
+  "origin": "real (ci-toolkit PR #3 round 1)",
+  "paired_with": "C2",
+  "input": {
+    "title": "review: simplify trigger and reference",
+    "body": "Use a normal pull_request trigger and track main for the toolkit.",
+    "files": [
+      {
+        "path": ".github/workflows/review.yml",
+        "status": "modified",
+        "patch": "--- a/.github/workflows/review.yml\n+++ b/.github/workflows/review.yml\n@@ -1,7 +1,7 @@\n name: review\n on:\n-  pull_request_target:\n+  pull_request:\n     branches: [main]\n jobs:\n   review:\n@@ -9,7 +9,7 @@ jobs:\n     steps:\n-      - uses: some-org/ai-review@c0ffee1111111111111111111111111111111111\n+      - uses: some-org/ai-review@main\n         with:\n-          toolkit_ref: c0ffee1111111111111111111111111111111111\n+          toolkit_ref: main\n         secrets:\n           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "pull_request"
+        ]
+      }
+    ]
+  },
+  "note": "Miss #2: pull_request + secret executes PR-head workflow code with the credential; floating ref defeats immutable-supply-chain review."
+}

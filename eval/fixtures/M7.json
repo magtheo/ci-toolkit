@@ -1,0 +1,32 @@
+{
+  "id": "M7",
+  "kind": "positive",
+  "origin": "synthetic replica (ci-toolkit PR #11 rerun, miss #7)",
+  "paired_with": "C7",
+  "input": {
+    "title": "engine: switch model call to urllib",
+    "body": "Purely mechanical port; behavior-preserving.",
+    "files": [
+      {
+        "path": "engine.py",
+        "status": "modified",
+        "patch": "--- a/engine.py\n+++ b/engine.py\n@@ -2,8 +2,8 @@\n # Behavior-preserving extraction: the model call keeps the same\n # bounded HTTP semantics as the shell version.\n-import subprocess\n-def _post_chat(payload):\n-    subprocess.run([\"curl\", \"-sS\", \"--connect-timeout\", \"10\",\n-                    \"--max-time\", \"180\", ...], ...)\n+import urllib.request\n+def _post_chat(payload):\n+    urllib.request.urlopen(req, timeout=180)\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "timeout",
+          "urllib",
+          "curl",
+          "connect"
+        ]
+      }
+    ]
+  },
+  "note": "Miss #7: urllib's timeout is a socket timeout \u2014 neither curl's 10s connect bound nor its 180s total deadline; 'behavior-preserving' claim is false operationally."
+}

@@ -1,0 +1,22 @@
+{
+  "id": "C1",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M1",
+  "input": {
+    "title": "ci: add ai-review caller workflow",
+    "body": "Wires the advisory AI reviewer onto PRs.",
+    "files": [
+      {
+        "path": ".github/workflows/review.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/review.yml\n@@ -0,0 +1,14 @@\n+name: review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    runs-on: ubuntu-latest\n+    permissions:\n+      pull-requests: write\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: some-org/ai-review@main\n+        with:\n+          toolkit_ref: main\n+        secrets:\n          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Minimally different: explicit single-secret mapping."
+}

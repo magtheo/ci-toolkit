@@ -1,0 +1,22 @@
+{
+  "id": "C4",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M4",
+  "input": {
+    "title": "worker: document retry contract",
+    "body": "Documents how retries are decided.",
+    "files": [
+      {
+        "path": "apps/worker/exceptions.py",
+        "status": "modified",
+        "patch": "--- a/apps/worker/exceptions.py\n+++ b/apps/worker/exceptions.py\n@@ -1,3 +1,14 @@\n+\"\"\"Worker exceptions.\n+\n+The retryable flag is consumer METADATA: the orchestrator's\n+RetryHandler.is_retryable_error remains the authoritative decision\n+point and may consult error codes beyond this flag.\n+\"\"\"\n+\n+class ProcessingError(Exception):\n+    def __init__(self, message, retryable=False):\n+        super().__init__(message)\n+        self.retryable = retryable"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Minimally different: the claim is accurate to what the diff shows (metadata + external decision point named)."
+}

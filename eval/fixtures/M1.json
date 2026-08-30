@@ -1,0 +1,29 @@
+{
+  "id": "M1",
+  "kind": "positive",
+  "origin": "synthetic replica (student-platform caller rounds, 2026-08)",
+  "paired_with": "C1",
+  "input": {
+    "title": "ci: add ai-review caller workflow",
+    "body": "Wires the advisory AI reviewer onto PRs.",
+    "files": [
+      {
+        "path": ".github/workflows/review.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/review.yml\n@@ -0,0 +1,14 @@\n+name: review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    runs-on: ubuntu-latest\n+    permissions:\n+      pull-requests: write\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: some-org/ai-review@main\n+        with:\n+          toolkit_ref: main\n+        secrets: inherit"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "inherit"
+        ]
+      }
+    ]
+  },
+  "note": "Miss #1: secrets:inherit grants the reusable workflow every secret; praised as proper handling originally."
+}
