@@ -71,7 +71,7 @@ Secondary findings recorded for Track 1:
   target**, with this bundle as baseline evidence.
 
 Spend: 400 model calls (5 × 80), all against the directing human's
-OpenRouter key, authorized for this qualification sequence.
+OpenRouter key, authorized for this probe.
 
 This bundle is evidence only — not an oracle input (pinned by
 `test_oracle_input_set_is_exactly_harness_fixtures_states`).

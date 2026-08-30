@@ -248,11 +248,8 @@ M1–M8/C1–C8 per ledger misses #6–#8)
 
 Status: COMPLETE — implementation acceptance (deterministic + local
 E2E proof); deployment contract PENDING ACTIVATION per Deviation 1
-(post-#10 live demonstrations).
-phase/reviewer-eval-baseline/03-qualification). Acceptance per
-Deviation 1: implementation acceptance (deterministic + local E2E)
-completes the phase; live demonstrations are the post-umbrella
-ACTIVATION gate for the deployment contract.
+(post-#10 live demonstrations). Phase branch:
+phase/reviewer-eval-baseline/03-qualification.
 
 ### Scope
 
