@@ -1,0 +1,24 @@
+name: roadmap-freshness
+
+# Installed copy of templates/roadmap-freshness.yml (dogfood). Keep in
+# sync with the template. Our roadmap lives at the repo root, not
+# plans/ROADMAP.md, so the script gets ROADMAP.md as its argument.
+
+on:
+  schedule:
+    - cron: "37 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check roadmap freshness
+        run: bash .github/scripts/roadmap-freshness.sh ROADMAP.md
