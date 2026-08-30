@@ -331,7 +331,10 @@ def main(argv=None):
         capture_output=True, text=True).stdout.strip() or "unknown"
 
     profile = {
-        "toolkit_sha": subject_sha,
+        "subject_sha": subject_sha,
+        "oracle_checkout_sha": subprocess.run(
+            ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
+            capture_output=True, text=True).stdout.strip() or "unknown",
         "rubric_hash": hashlib.sha256(
             pathlib.Path(rubric_dir or ROOT, "rubric.md").read_bytes()
             ).hexdigest()[:16],

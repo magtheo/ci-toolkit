@@ -118,6 +118,12 @@ def test_record_written_with_expected_fields(tmp_path, monkeypatch):
              "--record-out", str(record_path),
              "--out", str(tmp_path / "report.json")])
     rec = json.loads(record_path.read_text())
+    # all-CLEAR stub: the GATING controls pass, nothing violates
+    assert rec["gating_violations"] == []
+    assert rec["result"] == "PASS"
+    # every promotion-eligible positive has a passing pair (none can
+    # pass here — no detections — so eligibility must be empty)
+    assert rec["promotion_eligible_positives"] == []
     assert rec["schema_version"] == 1
     assert rec["subject_sha"] == "a" * 40
     assert rec["result"] in ("PASS", "FAIL")
@@ -269,14 +275,17 @@ def test_dogfood_verify_pin_job_is_secretless_and_gated():
     src = REVIEW_YML.read_text()
     job = src[src.index("verify-pin:"):]
     assert "secrets:" not in job.split("verify-pin:")[1]
-    assert "verify-qualification.yml" in job
+    assert "records/by-subject/" in job
 
 
-def test_local_reusable_reference_in_target_workflow():
-    # `uses: ./...` inside pull_request_target resolves from the
-    # trusted base — same commit as review.yml itself
+def test_dogfood_verify_pin_inlines_the_consumer_checks():
+    # inlined so the dogfood check is self-contained; the reusable
+    # verify-qualification.yml remains the consumer interface
     src = REVIEW_YML.read_text()
-    assert "uses: ./.github/workflows/verify-qualification.yml" in src
+    job = src[src.index("verify-pin:"):]
+    assert "records/by-subject/" in job
+    assert "--print-oracle-version" in job
+    assert "eval/verify.py" in job
 
 
 def test_oracle_version_rejects_empty_corpus(tmp_path):
