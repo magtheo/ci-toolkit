@@ -290,7 +290,15 @@ ACTIVATION gate for the deployment contract.
 
 ## Phase 4 — M5 consistency rule (behavior change only)
 
-Status: IN PROGRESS
+Status: BLOCKED — by a newly measured discrimination prerequisite
+(Deviation 2, 2026-08-30). The rule successfully induced M5 detection
+(5/5, zero noise) but failed pair integrity in every tested
+formulation: paired control C5 was false-blocked 5/5 across three
+rubric wordings and two models; the stronger model increased broader
+false positives. Rubric reverted to pre-#16 text. Evidence:
+`eval/evidence/phase4-discrimination-probe-2026-08-30/`. Resumes only
+after Track 1 (discrimination) demonstrates capability — see
+ROADMAP.md.
 
 ### Scope
 
@@ -354,6 +362,26 @@ Status: NOT STARTED
 - Manual inspection of first two scheduled reports.
 
 ## Plan deviations
+
+### Deviation 2 — M5-first sequence falsified by measurement;
+Track 1 (discrimination) resequenced ahead (approved by directing
+human, 2026-08-30)
+
+The plan sequenced M5 (Phase 4) as the first capability stage on the
+assumption that a rubic amendment could pass its own paired control.
+Measurement falsified that assumption: five full-corpus N=5 runs
+(old rubric; three rule formulations; two models) show M5 detection
+is inducible but C5 separation is not — detection indistinguishable
+from over-triggering, exactly what pair integrity exists to reject.
+The stronger model profile worsened overall false-blocking,
+indicating a discrimination/grounding ceiling rather than a wording
+or model-selection problem.
+
+Response: rubric reverted (rollback PR), M5 remains KNOWN_GAP,
+Phase 4 BLOCKED, and Track 1 (discrimination / false-blocker
+reduction, ROADMAP.md) becomes the next active capability stage.
+M5 retries under Track 1's outcome. The acceptance criteria are
+unchanged — the sequencing was wrong, not the bar.
 
 ### Deviation 1 — Phase 3 acceptance split into implementation
 acceptance and post-merge activation (approved by directing human,
