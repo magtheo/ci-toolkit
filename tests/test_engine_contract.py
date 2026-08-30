@@ -267,3 +267,123 @@ def test_review_sh_invokes_engine_and_render():
     assert "DIFF_BEGIN" not in src
     # trusted-base rubric resolution unchanged
     assert "?ref=$base_sha" in src
+
+
+# ---- regression: transport textual-changes probe (execution-level) ----------
+# A previous version used `jq -e 'any(.[]; ...)' <file` on JSONL, which
+# errors per-line (iterating one object's VALUES) and — behind `if !` —
+# silently skipped EVERY PR as "no textual changes". These tests execute
+# the exact shipped expression against real JSONL fixtures.
+
+import re as _re
+import subprocess  # noqa: E402
+
+REVIEW_SH = TOOLKIT_ROOT / "review.sh"
+
+
+def _probe_line():
+    src = REVIEW_SH.read_text()
+    m = _re.search(r"if ! (jq -se '[^']+' \"\$files_jsonl\" >/dev/null)", src)
+    assert m, "textual-changes probe line not found in review.sh"
+    return m.group(1)
+
+
+def _probe_verdict(tmp_path, jsonl_text):
+    f = tmp_path / "files.jsonl"
+    f.write_text(jsonl_text)
+    return subprocess.run(
+        ["bash", "-c",
+         'files_jsonl={0!r}\nif ! {1}; then echo skip; else echo proceed; fi'
+         .format(str(f), _probe_line())],
+        capture_output=True, text=True, timeout=30).stdout.strip()
+
+
+def test_probe_textual_pr_proceeds(tmp_path):
+    assert _probe_verdict(tmp_path,
+        '{"filename":"a.py","patch":"@@ -0,0 +1 @@+x"}\n') == "proceed"
+
+
+def test_probe_mixed_binary_and_textual_proceeds(tmp_path):
+    assert _probe_verdict(tmp_path,
+        '{"filename":"x.png","patch":null}\n'
+        '{"filename":"a.py","patch":"@@ -0,0 +1 @@+x"}\n') == "proceed"
+
+
+def test_probe_binary_only_skips(tmp_path):
+    assert _probe_verdict(tmp_path,
+        '{"filename":"x.png","patch":null}\n') == "skip"
+
+
+def test_probe_empty_file_skips(tmp_path):
+    assert _probe_verdict(tmp_path, "") == "skip"
+
+
+# ---- regression: budget-aware skip cannot disagree with the model input -----
+
+def test_engine_skips_when_budgeted_diff_is_empty(tmp_path, monkeypatch):
+    monkeypatch.setenv("AI_REVIEW_MAX_FILES", "2")
+    files = [
+        {"path": "b1.bin", "status": "modified", "patch": None},
+        {"path": "b2.bin", "status": "modified", "patch": None},
+        {"path": "a.py", "status": "modified",
+         "patch": "@@ -0,0 +1 @@\n+x"},  # beyond the cap
+    ]
+    inp = tmp_path / "in.json"
+    inp.write_text(json.dumps(_input(files=files)))
+    # cap boundary: full set HAS a patch (transport fast path proceeds),
+    # budgeted set does not -> engine must skip (legacy pre-cap behavior)
+    rc = engine.main(["engine.py", str(inp)])
+    assert rc == 3
+
+
+def test_engine_runs_when_budgeted_diff_nonempty(tmp_path, monkeypatch):
+    _stub(monkeypatch, _or_response('{"assessment": "CLEAR", "findings": []}'))
+    monkeypatch.setenv("AI_REVIEW_MAX_FILES", "2")
+    files = [
+        {"path": "b1.bin", "status": "modified", "patch": None},
+        {"path": "a.py", "status": "modified",
+         "patch": "@@ -0,0 +1 @@\n+x"},
+        {"path": "z.py", "status": "modified",
+         "patch": "@@ -0,0 +1 @@+z"},  # beyond the cap
+    ]
+    inp = tmp_path / "in.json"
+    inp.write_text(json.dumps(_input(files=files)))
+    import io
+    import contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = engine.main(["engine.py", str(inp)])
+    assert rc == 0
+    assert json.loads(buf.getvalue())["assessment"] == "CLEAR"
+
+
+def test_transport_maps_engine_skip_to_clean_exit():
+    src = REVIEW_SH.read_text()
+    assert 'engine_rc" -eq 3' in src
+    assert '"$engine_rc" -ne 0 ]' in src
+
+
+# ---- regression: renderer enforces ReviewResult version at ingress ----------
+
+import render  # noqa: E402
+
+_RESULT = ('{"schema_version": 1, "assessment": "CLEAR", "findings": [],'
+           ' "summary": "", "good": []}')
+
+
+def test_renderer_rejects_missing_schema_version():
+    with pytest.raises(ValueError, match="schema_version"):
+        render.build_payload(
+            {"assessment": "CLEAR", "findings": []}, [], "sha", "m")
+
+
+def test_renderer_rejects_future_schema_version():
+    with pytest.raises(ValueError, match="version skew"):
+        render.build_payload(
+            {"schema_version": 2, "assessment": "CLEAR", "findings": []},
+            [], "sha", "m")
+
+
+def test_renderer_accepts_v1_result():
+    p = render.build_payload(json.loads(_RESULT), [], "sha", "m")
+    assert p["event"] == "COMMENT"

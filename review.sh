@@ -62,7 +62,13 @@ while :; do
   page=$((page + 1))
 done
 
-if ! jq -e 'any(.[]; .patch != null)' <"$files_jsonl" >/dev/null; then
+# Fast path on the FULL file set (strict superset of the engine's
+# budgeted set, so it can never disagree with the engine's final
+# skip decision): no file anywhere carries a patch -> skip now,
+# before the rubric probe. The budget-aware decision (cap boundary:
+# first N files patchless, N+1 textual) is the ENGINE's, signaled
+# via exit 3 below.
+if ! jq -se 'any(.[]; .patch != null)' "$files_jsonl" >/dev/null; then
   echo "no textual changes to review (docs/binary-only?)" \
     | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
   exit 0
@@ -108,7 +114,18 @@ jq -s --arg title "$pr_title" --arg body "$pr_body" \
   <"$files_jsonl" > review_input.json
 
 # ---- engine: ReviewInput -> ReviewResult (prompt, model call, normalize) ---
+# exit 3 = budgeted input has no textual changes (skip, old behavior)
+set +e
 python3 "$TOOLKIT_DIR/engine.py" review_input.json > review_result.json
+engine_rc=$?
+set -e
+if [ "$engine_rc" -eq 3 ]; then
+  echo "no textual changes to review (docs/binary-only?)" \
+    | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
+  exit 0
+elif [ "$engine_rc" -ne 0 ]; then
+  exit "$engine_rc"
+fi
 
 # ---- render: ReviewResult -> GitHub review payload -------------------------
 python3 "$TOOLKIT_DIR/render.py" review_result.json "$files_jsonl" \

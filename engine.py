@@ -37,10 +37,10 @@ import time
 import urllib.error
 import urllib.request
 
-from parse_review import normalize
+from parse_review import RESULT_SCHEMA_VERSION, normalize
 
 INPUT_SCHEMA_VERSION = 1
-RESULT_SCHEMA_VERSION = 1
+# RESULT_SCHEMA_VERSION: single source of truth in parse_review
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 RETRYABLE_HTTP = (429, 500, 502, 503, 504)
@@ -212,6 +212,15 @@ def main(argv):
         sys.stderr.write("usage: engine.py INPUT_JSON\n")
         return 2
     review_input = _load_review_input(argv[1])
+    # budget-aware reviewability: the decision must use the same
+    # budgeted input the model would see (cap boundary: a PR whose
+    # first N files are patchless but N+1 is textual skips, exactly
+    # like the legacy pre-cap diff check). exit 3 = skip, transport
+    # translates it to a clean no-review exit 0.
+    _, diff_text, _, _ = _budget(review_input)
+    if not diff_text:
+        sys.stderr.write("no textual changes to review (docs/binary-only?)\n")
+        return 3
     print(json.dumps(run_review(review_input)))
     return 0
 

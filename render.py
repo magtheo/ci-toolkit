@@ -22,7 +22,8 @@ content.
 import json
 import sys
 
-from parse_review import INCONCLUSIVE, valid_lines_from_patch
+from parse_review import (INCONCLUSIVE, RESULT_SCHEMA_VERSION,
+                          valid_lines_from_patch)
 
 
 def _ref(entry):
@@ -127,10 +128,17 @@ def build_payload(review_result, files, head_sha, model):
     """ReviewResult (schema v1) + diff file list -> GitHub review payload.
 
     review_result: dict from parse_review.normalize / engine.run_review
-    (assessment, findings, summary, good; schema_version ignored here —
-    the engine enforces the contract).
+    (schema_version, assessment, findings, summary, good). The version
+    is enforced HERE, at the consumer boundary: a v2 result against an
+    old renderer must fail closed, never render on field overlap.
     files: list of {"filename": str, "patch": str|None} dicts.
     """
+    version = review_result.get("schema_version")
+    if version != RESULT_SCHEMA_VERSION:
+        raise ValueError(
+            "render: ReviewResult schema_version must be {0}, got {1!r}"
+            " — refusing to render (consumer/renderer version skew)"
+            .format(RESULT_SCHEMA_VERSION, version))
     assessment = review_result["assessment"]
     findings = review_result.get("findings", [])
     summary = review_result.get("summary", "")
