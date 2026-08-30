@@ -1,8 +1,9 @@
 name: roadmap-freshness
 
-# Installed copy of templates/roadmap-freshness.yml (dogfood). Keep in
-# sync with the template. Our roadmap lives at the repo root, not
-# plans/ROADMAP.md, so the script gets ROADMAP.md as its argument.
+# Dogfood: runs the TESTED template script in place — no installed
+# copy, no sync invariant. templates/roadmap-freshness.sh is the
+# single implementation (unit-tested in tests/test_roadmap_freshness.py).
+# Our roadmap lives at the repo root, hence the ROADMAP.md argument.
 
 on:
   schedule:
@@ -16,9 +17,9 @@ jobs:
   freshness:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Check roadmap freshness
-        run: bash .github/scripts/roadmap-freshness.sh ROADMAP.md
+        run: bash templates/roadmap-freshness.sh ROADMAP.md

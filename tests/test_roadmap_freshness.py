@@ -94,3 +94,20 @@ def test_missing_review_date_fails_loudly():
     result = _guard(repo)
     assert result.returncode != 0
     assert "Last reviewed" in result.stderr or "Last reviewed" in result.stdout
+
+
+def test_installed_guard_runs_the_template_and_pins_checkout():
+    # dogfood invariant: no second copy of the script may appear —
+    # the workflow must execute the tested template in place, and CI
+    # actions must be immutable full SHAs (as in ai-review.yml)
+    import pathlib
+    wf = pathlib.Path(__file__).resolve().parents[1] / \
+        ".github" / "workflows" / "roadmap-freshness.yml"
+    src = wf.read_text()
+    assert "bash templates/roadmap-freshness.sh ROADMAP.md" in src
+    assert "@v4" not in src.replace("# v4", "")
+    import re
+    uses = re.findall(r"actions/checkout@(\S+)", src)
+    assert uses and all(re.fullmatch(r"[0-9a-f]{40}", u) for u in uses)
+    assert not (pathlib.Path(__file__).resolve().parents[1]
+                / ".github" / "scripts").exists()
