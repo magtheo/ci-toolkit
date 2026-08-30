@@ -49,6 +49,12 @@ permissions:
   contents: write
   statuses: write
 
+# serialize record publishing: concurrent qualifications racing the
+# qualifications branch would lose records
+concurrency:
+  group: qualifications-branch
+  cancel-in-progress: false
+
 jobs:
   qualify:
     # main-only: dispatch on any other ref must refuse before secrets
@@ -90,21 +96,7 @@ jobs:
       - name: publish record to the qualifications branch
         if: always()
         run: |
-          ORACLE=$(python3 eval/run_corpus.py --print-oracle-version)
-          mkdir -p records/by-subject
-          cp "$RUNNER_TEMP/record.json" "records/by-subject/$SUBJECT.json"
-          cp "$RUNNER_TEMP/record.json" "records/$SUBJECT-$ORACLE.json"
-          git config user.name "qualification-bot"
-          git config user.email "noreply@users.noreply.github.com"
-          git fetch origin qualifications || true
-          if git rev-parse --verify origin/qualifications >/dev/null 2>&1; then
-            git switch qualifications
-          else
-            git switch --orphan qualifications
-          fi
-          git add records
-          git commit -m "qualification: $SUBJECT @ oracle $ORACLE" || true
-          git push origin qualifications
+          bash eval/publish_record.sh "$SUBJECT" "$RUNNER_TEMP/record.json" "$GITHUB_WORKSPACE"
 
       - name: commit status on the subject
         if: always()

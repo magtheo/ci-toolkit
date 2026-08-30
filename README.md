@@ -134,6 +134,8 @@ history live there).
 
 ## Qualification & pin promotion (deployment contract)
 
+**Status: PENDING ACTIVATION** — the contract becomes ACTIVE only after the live post-merge demonstrations (first qualification on main, forced-red, old-subject requalification, dogfood pin-bump verification) pass; until then the review-only pin procedure governs.
+
 Merging to `main` is not deployment. A reviewer version is deployed
 only when a consumer pin references it, and pins may only be promoted
 to SHAs with machine-verifiable qualification evidence:

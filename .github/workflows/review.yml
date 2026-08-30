@@ -47,25 +47,42 @@ jobs:
     if: ${{ !github.event.pull_request.head.repo.fork }}
     runs-on: ubuntu-latest
     steps:
-      - name: extract proposed SHA from the PR diff
+      # Fail-closed pin verification invariant:
+      #   review.yml unchanged                          -> skip (ok)
+      #   changed, no toolkit-pin line touched          -> skip (ok)
+      #   any pin line touched but SHA unextractable    -> FAIL
+      #   pin changed                                    -> verify exactly
+      - name: extract proposed SHA from the PR diff (fail closed)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          DIFF=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" \
-            --jq '.files[] | select(.filename == ".github/workflows/review.yml") | .patch' || true)
+          DIFF=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[] | select(.filename == ".github/workflows/review.yml") | .patch' || true)
           if [ -z "$DIFF" ]; then
             echo "::notice::no review.yml changes — pin verification skipped"
             echo "SKIP=true" >> "$GITHUB_ENV"
             exit 0
           fi
-          SHA=$(grep '^+' <<<"$DIFF" | grep -oE '[0-9a-f]{40}' | head -1 || true)
-          if [ -z "$SHA" ]; then
-            echo "::notice::review.yml changed but no full-SHA pin proposed — pin verification skipped"
+          if ! grep -qE '^[+-].*(ai-review\.yml@|toolkit_ref:)' <<<"$DIFF"; then
+            echo "::notice::review.yml changed but no toolkit pin lines touched — pin verification skipped"
             echo "SKIP=true" >> "$GITHUB_ENV"
             exit 0
           fi
-          echo "proposed toolkit pin: $SHA"
-          echo "PROPOSED=$SHA" >> "$GITHUB_ENV"
+          # pin lines were touched: exact extraction is now MANDATORY
+          SHAS=$(grep '^+' <<<"$DIFF" \
+            | grep -oE '(ai-review\.yml@|toolkit_ref:[[:space:]]*)[0-9a-f]{40}' \
+            | grep -oE '[0-9a-f]{40}' | sort -u || true)
+          if [ -z "$SHAS" ]; then
+            echo "::error::toolkit pin lines changed but no valid full-SHA pin could be extracted — refusing to pass verification without evidence"
+            exit 1
+          fi
+          N=$(wc -l <<<"$SHAS")
+          if [ "$N" -ne 1 ]; then
+            echo "::error::multiple distinct proposed pins found ($SHAS) — pin verification requires exactly one; resolve manually"
+            exit 1
+          fi
+          echo "proposed toolkit pin: $SHAS"
+          echo "PROPOSED=$SHAS" >> "$GITHUB_ENV"
 
       - name: current oracle (toolkit main, public + secretless)
         if: env.SKIP != 'true'

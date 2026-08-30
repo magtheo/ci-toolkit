@@ -40,7 +40,15 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 def oracle_version(base=None):
-    """Identity of the CURRENT oracle: eval implementation + corpus.
+    """Identity of the CURRENT oracle: eval implementation + corpus
+    + GATING-state ratchet (states.json).
+
+    The states file is load-bearing: it defines which fixtures gate
+    deployment. Promoting a fixture (KNOWN_GAP -> GATING) without
+    changing the oracle identity would let stale PASS records
+    authorize deployment against an oracle the subject never faced —
+    so a state change MUST change the identity. Absent or malformed
+    states fail closed.
 
     The subject under test contributes neither — that separation is
     what lets an old trusted subject be re-qualified against a new
@@ -49,11 +57,21 @@ def oracle_version(base=None):
     fixtures = sorted((root / "eval" / "fixtures").glob("*.json"))
     assert fixtures, "oracle with an empty corpus is a configuration " \
         "error, not a valid oracle version"
+    states_path = root / "eval" / "states.json"
+    assert states_path.exists(), \
+        "states.json absent — GATING set unknown; refusing to compute " \
+        "an oracle identity without it (fail closed)"
+    states = json.loads(states_path.read_text())
+    assert isinstance(states, dict) and states, \
+        "states.json must be a non-empty id -> state mapping"
+    assert all(v in ("GATING", "KNOWN_GAP") for v in states.values()), \
+        "states.json carries unknown state values (fail closed)"
     h = hashlib.sha256()
     h.update((root / "eval" / "run_corpus.py").read_bytes())
     for path in fixtures:
         h.update(path.name.encode())
         h.update(path.read_bytes())
+    h.update(json.dumps(states, sort_keys=True).encode())
     return h.hexdigest()[:16]
 
 
@@ -353,6 +371,12 @@ def main(argv=None):
 
     record = None
     if args.record_out:
+        # NOTE: promotion_eligible_positives is DIAGNOSTIC at routine
+        # thresholds (ceil((n+1)/2) detection + pair integrity). An
+        # actual fixture promotion (phase 5) additionally requires
+        # N=5 with >=4/5 detection, zero false blockers on the paired
+        # control, and zero GATING regressions, evaluated at promotion
+        # time — this field alone is not promotion authority.
         record = {
             "schema_version": 1,
             "subject_sha": subject_sha,

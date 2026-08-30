@@ -166,13 +166,20 @@ def test_print_oracle_version_secretless(tmp_path):
 
 # ---- oracle versioning --------------------------------------------------------
 
-def test_oracle_version_stable_and_fixture_sensitive(tmp_path):
+def _seed_oracle_tree(tmp_path):
     base = tmp_path / "t"
     (base / "eval" / "fixtures").mkdir(parents=True)
     shutil.copy(TOOLKIT_ROOT / "eval" / "run_corpus.py",
                 base / "eval" / "run_corpus.py")
     for f in sorted((TOOLKIT_ROOT / "eval" / "fixtures").glob("*.json")):
         shutil.copy(f, base / "eval" / "fixtures" / f.name)
+    shutil.copy(TOOLKIT_ROOT / "eval" / "states.json",
+                base / "eval" / "states.json")
+    return base
+
+
+def test_oracle_version_stable_and_fixture_sensitive(tmp_path):
+    base = _seed_oracle_tree(tmp_path)
     v1 = rc.oracle_version(base)
     assert v1 == rc.oracle_version(base)
     # mutate one fixture
@@ -289,11 +296,38 @@ def test_dogfood_verify_pin_inlines_the_consumer_checks():
 
 
 def test_oracle_version_rejects_empty_corpus(tmp_path):
-    base = tmp_path / "t"
-    (base / "eval" / "fixtures").mkdir(parents=True)
-    shutil.copy(TOOLKIT_ROOT / "eval" / "run_corpus.py",
-                base / "eval" / "run_corpus.py")
+    base = _seed_oracle_tree(tmp_path)
+    for f in (base / "eval" / "fixtures").glob("*.json"):
+        f.unlink()
     with pytest.raises(AssertionError, match="empty corpus"):
+        rc.oracle_version(base)
+
+
+# ---- oracle identity includes the GATING ratchet (review blocker 1) -----
+
+def test_state_promotion_changes_oracle_version(tmp_path):
+    base = _seed_oracle_tree(tmp_path)
+    v_before = rc.oracle_version(base)
+    states = json.loads((base / "eval" / "states.json").read_text())
+    states["M5"] = "GATING"
+    (base / "eval" / "states.json").write_text(json.dumps(states))
+    assert rc.oracle_version(base) != v_before, \
+        "promoting a fixture to GATING without changing the oracle " \
+        "identity lets stale PASS records authorize deployment"
+
+
+def test_missing_states_fails_closed(tmp_path):
+    base = _seed_oracle_tree(tmp_path)
+    (base / "eval" / "states.json").unlink()
+    with pytest.raises(AssertionError, match="states.json absent"):
+        rc.oracle_version(base)
+
+
+def test_malformed_states_fails_closed(tmp_path):
+    base = _seed_oracle_tree(tmp_path)
+    (base / "eval" / "states.json").write_text(
+        json.dumps({"M1": "SUPER-GATING"}))
+    with pytest.raises(AssertionError, match="unknown state"):
         rc.oracle_version(base)
 
 
@@ -317,3 +351,93 @@ def test_rubric_hash_comes_from_the_subject(tmp_path, monkeypatch):
     import hashlib
     assert rep["profile"]["rubric_hash"] == hashlib.sha256(
         b"SUBJECT RUBRIC").hexdigest()[:16]
+
+
+# ---- publisher E2E incl. requalification (review blocker 3) -------------------
+
+import subprocess as sp
+
+
+def _run_publisher(repo, subject, record):
+    return sp.run(
+        ["bash", str(TOOLKIT_ROOT / "eval" / "publish_record.sh"),
+         subject, str(record), str(repo)],
+        capture_output=True, text=True, timeout=120)
+
+
+def _record_file(tmp_path, name):
+    rec = _record(subject_sha="f" * 40)
+    path = tmp_path / name
+    path.write_text(json.dumps(rec))
+    return path
+
+
+def test_publisher_bootstrap_and_requalification(tmp_path):
+    # bare origin + clone; the clone plays the workflow checkout
+    origin = tmp_path / "origin.git"
+    sp.run(["git", "clone", "--bare", str(TOOLKIT_ROOT), str(origin)],
+           check=True, capture_output=True)
+    repo = tmp_path / "repo"
+    sp.run(["git", "clone", str(origin), str(repo)],
+           check=True, capture_output=True)
+
+    rec1 = _record_file(tmp_path, "r1.json")
+    rec2 = _record_file(tmp_path, "r2.json")
+
+    # bootstrap: first qualification ever
+    r1 = _run_publisher(repo, "f" * 40, rec1)
+    assert r1.returncode == 0, r1.stderr
+    # requalification: same subject, record ALREADY tracked on the
+    # branch — the classic collision must not happen
+    r2 = _run_publisher(repo, "f" * 40, rec2)
+    assert r2.returncode == 0, r2.stderr
+
+    listing = sp.run(
+        ["git", "-C", str(repo), "ls-tree", "-r", "--name-only",
+         "origin/qualifications"], capture_output=True, text=True)
+    files = listing.stdout.split()
+    assert "records/by-subject/" + "f" * 40 + ".json" in files
+    # both the subject record and the per-oracle record exist
+    assert sum(1 for f in files if f.startswith("records/")) >= 2
+
+
+def test_publisher_second_subject_lands_on_existing_branch(tmp_path):
+    origin = tmp_path / "origin.git"
+    sp.run(["git", "clone", "--bare", str(TOOLKIT_ROOT), str(origin)],
+           check=True, capture_output=True)
+    repo = tmp_path / "repo"
+    sp.run(["git", "clone", str(origin), str(repo)],
+           check=True, capture_output=True)
+    assert _run_publisher(repo, "a" * 40, _record_file(tmp_path, "a.json")).returncode == 0
+    # a DIFFERENT clone qualifies a different subject concurrently-ish
+    repo2 = tmp_path / "repo2"
+    sp.run(["git", "clone", str(origin), str(repo2)],
+           check=True, capture_output=True)
+    r = _run_publisher(repo2, "b" * 40, _record_file(tmp_path, "b.json"))
+    assert r.returncode == 0, r.stderr
+    listing = sp.run(["git", "-C", str(repo), "fetch", "origin",
+                      "qualifications"], capture_output=True, text=True)
+    tree = sp.run(["git", "-C", str(repo), "ls-tree", "-r", "--name-only",
+                   "origin/qualifications"], capture_output=True, text=True)
+    files = tree.stdout.split()
+    assert "records/by-subject/" + "a" * 40 + ".json" in files
+    assert "records/by-subject/" + "b" * 40 + ".json" in files
+
+
+# ---- dogfood verifier source invariants (review blocker 2) --------------------
+
+def test_verify_pin_uses_the_files_endpoint_and_fails_closed():
+    src = REVIEW_YML.read_text()
+    job = src[src.index("verify-pin:"):]
+    assert "/files" in job and "--paginate" in job
+    # pin lines touched but no extractable SHA => hard failure
+    assert "refusing to pass verification without evidence" in job
+    # extraction is pin-specific, not any-40-hex
+    assert "ai-review\\.yml@" in job and "toolkit_ref:" in job
+
+
+def test_qualify_publishes_via_script_and_is_serialized():
+    src = QUALIFY_YML.read_text()
+    assert "publish_record.sh" in src
+    assert "concurrency:" in src
+    assert "qualifications-branch" in src
