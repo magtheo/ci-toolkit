@@ -188,7 +188,9 @@ behavior-preservation catches converted into regression coverage)
 
 ## Phase 2 — Independent oracle (fixtures, controls, harness, baseline)
 
-Status: NOT STARTED
+Status: IN PROGRESS (phase branch:
+phase/reviewer-eval-baseline/02-independent-oracle; corpus grown to
+M1–M8/C1–C8 per ledger misses #6–#8)
 
 ### Scope
 
