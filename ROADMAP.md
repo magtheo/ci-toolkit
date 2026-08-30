@@ -51,7 +51,7 @@ anti-pattern this roadmap exists to prevent.
 | 1 | Discrimination / false-blocker reduction | baseline controls; #14 self-review FPs | dominant weakness; first priority |
 | 2 | Same-diff consistency | M5 / miss #5 | planned — eval-baseline Phases 4–5 |
 | 3 | Targeted trusted-base context retrieval | M4 (0/3) | identified; design needed |
-| 4 | Cross-file contract reasoning | M2, M7 | identified |
+| 4 | Cross-file contract reasoning | M4 (0/3), shared w/ track 3 | identified |
 | 5 | State / lifecycle / concurrency reasoning | M8; publisher bug (human-caught) | identified; fixture family needed |
 | 6 | External-contract reasoning | `/pulls/{n}` vs `/files` bug; M7 | identified; deterministic-first |
 | 7 | Architectural invariant reasoning | states.json-not-in-oracle_version (human-caught) | identified |
@@ -118,9 +118,11 @@ thereafter is chosen from measured evidence, not this table's number.
 
 ## 4. Cross-file contract reasoning
 
-- **Evidence:** M2 (comment vs implementation), M7-adjacent classes —
-  verifying what something *claims* against what consumers/implementations
-  actually do.
+- **Evidence:** M4 / miss #4 — a cross-file contract claim ("no
+  other signal") whose truth lives in code outside the visible diff;
+  0/3 detected. Shares M4 with track 3 by design: track 3 is
+  *acquiring* the necessary trusted context; track 4 is *reasoning
+  correctly* over it.
 - **Current state:** partially covered by local reasoning when the
   consumer is in the diff; weak otherwise.
 - **Candidate mechanism:** builds on track 3 retrieval — check
@@ -132,9 +134,14 @@ thereafter is chosen from measured evidence, not this table's number.
 
 ## 5. State / lifecycle / concurrency reasoning
 
-- **Evidence:** M8 (resume lifecycle, 0/3 via pair integrity); the
-  qualification-publisher branch-switch collision and the
-  worktree-overwrite class of bugs — all human-caught.
+- **Evidence:** M8 — the intended resume-lifecycle defect WAS
+  detected 3/3, but the capability is unproven: paired control C8
+  false-blocked 3/3, so pair integrity correctly withheld promotion
+  (the baseline's canonical discrimination lesson). Plus the original
+  qualification-publisher branch-switch/untracked-record collision
+  (human-caught). NB: the later claim that overwriting the tracked
+  record inside the dedicated worktree was itself a bug is a reviewer
+  false positive — Appendix A, item 3.
 - **Current state:** fixture exists (M8); no capability stage.
 - **Candidate mechanism:** teach explicit transition questions —
   what state exists before/after; can execution exit midway; what

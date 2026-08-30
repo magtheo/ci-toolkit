@@ -28,10 +28,16 @@ Goals:
 Shared CI patterns for magtheo's repos. Logic only — no secrets, no
 project code. Primary consumers: student-platform (and future repos).
 
+(`engine.py`, `render.py`, and `eval/` reach `main` with the
+umbrella `feature/reviewer-eval-baseline` merge; until then they live
+on that branch.)
+
 ```
 engine.py        Reviewer kernel — ReviewInput v1 -> ReviewResult v1.
                  Semantically pure: no GitHub concepts, no transport.
-render.py        GitHub consumer — renders ReviewInput from a PR event.
+render.py        GitHub renderer — the presentation consumer of
+                 ReviewResult (review event, inline payloads,
+                 Markdown; no semantic decisions).
 parse_review.py  Pure normalization: model output -> ReviewResult.
                  Parser owns INCONCLUSIVE; never guesses.
 review.sh        Thin transport (curl -> engine -> post review).
@@ -111,8 +117,11 @@ These are the methodology invariants from
 4. Qualification PASS is scoped to the oracle, not a correctness
    claim about the subject (humility rule).
 5. PR descriptions must match contents (applies to our own PRs).
-6. Pair integrity: a positive passes only if its paired control also
-   passes — mechanically enforced.
+6. Pair integrity: a positive's own pass is necessary but not
+   sufficient — it is **promotion-eligible** only if its paired
+   control also passes (detection indistinguishable from
+   over-triggering is not a capability). Mechanically enforced;
+   controls may gate alone.
 
 Reviewer intelligence work follows ROADMAP.md: capabilities are
 expanded through measured evidence, never ad-hoc rubric stuffing.
