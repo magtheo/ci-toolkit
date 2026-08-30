@@ -3,7 +3,12 @@
 Question: can M5 (same-diff consistency) pass pair integrity via a
 rubric amendment at the current model profile?
 
-Five full-corpus qualification runs, N=5 each, oracle
+Five full-corpus **experimental evaluation runs** (discrimination
+probe), N=5 each — NOT qualification runs: runs 03/04 tested
+uncommitted working-tree rubric variants. Qualification, under the
+Phase-3 contract, means a merged trusted subject SHA against the
+current oracle; experimental evaluation is exploratory and carries
+no authorization meaning. Oracle
 `a34a938a0ba350af` (identical across all runs — harness, corpus, and
 GATING states unchanged throughout):
 
@@ -16,8 +21,14 @@ GATING states unchanged throughout):
 | 05 | r1 (same as 02) | sonnet-4.5 | 5/5 | 6 blockers | 4 blockers | **red** |
 
 Rubric fingerprints per run are in each report's
-`profile.rubric_hash`. The r1 text lives in git history (PR #16);
-r2/r3 were uncommitted formulations tested during the probe.
+`profile.rubric_hash`. The r1 text lives in git history (commit
+`3b783c8`, PR #16). The uncommitted r2/r3 formulations are preserved
+alongside (byte-exact, verified against the recorded hashes):
+
+- `rubric-r2-categorical-exemption.md` — sha256[:16]
+  `b68b5051d6d3c260` = run 03's `profile.rubric_hash`
+- `rubric-r3-falsification-by-case.md` — sha256[:16]
+  `b62861aa004b60be` = run 04's `profile.rubric_hash`
 
 ## Conclusion
 
@@ -41,7 +52,11 @@ Secondary findings recorded for Track 1:
   speculation guard (runs 03/04);
 - pair integrity and the GATING ratchet stopped every failing
   variant before promotion — the machinery worked exactly as
-  designed.
+  designed;
+- a recurring false-block class in the reports: immutable full-SHA
+  pinning flagged as a blocking security defect with floating
+  version refs recommended as the "fix" — prime Track-1 material
+  (controls C1/C2).
 
 ## Consequences
 

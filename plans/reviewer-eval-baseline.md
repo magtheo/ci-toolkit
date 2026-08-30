@@ -246,7 +246,9 @@ M1–M8/C1–C8 per ledger misses #6–#8)
 
 ## Phase 3 — Qualification infrastructure
 
-Status: IN PROGRESS (phase branch:
+Status: COMPLETE — implementation acceptance (deterministic + local
+E2E proof); deployment contract PENDING ACTIVATION per Deviation 1
+(post-#10 live demonstrations).
 phase/reviewer-eval-baseline/03-qualification). Acceptance per
 Deviation 1: implementation acceptance (deterministic + local E2E)
 completes the phase; live demonstrations are the post-umbrella
@@ -368,7 +370,7 @@ Track 1 (discrimination) resequenced ahead (approved by directing
 human, 2026-08-30)
 
 The plan sequenced M5 (Phase 4) as the first capability stage on the
-assumption that a rubic amendment could pass its own paired control.
+assumption that a rubric amendment could pass its own paired control.
 Measurement falsified that assumption: five full-corpus N=5 runs
 (old rubric; three rule formulations; two models) show M5 detection
 is inducible but C5 separation is not — detection indistinguishable
