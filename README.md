@@ -126,3 +126,39 @@ praise, and metadata (model, commit, assessment) sit behind
 
 Origin: student-platform feature `ai-pr-review` (plan + validation
 history live there).
+
+## Roadmap freshness guard
+
+Anti-rot guard for a repo's `ROADMAP.md` (or `plans/ROADMAP.md`):
+the direction document must be re-reviewed at least every 28 days
+WHENEVER the repo is being worked on. Shipped as
+`templates/roadmap-freshness.sh` (unit-tested; the behavioral
+contract) plus `templates/roadmap-freshness.yml` (weekly cron).
+ci-toolkit dogfoods it on its own root `ROADMAP.md`.
+
+### What happens when
+
+| condition | result |
+|---|---|
+| `Last reviewed:` < 28 days old | green, silent (every Monday 10:37 UTC + manual dispatch) |
+| >= 28 days old, no commits after the review date | green, silent — an untouched repo is not rotting |
+| >= 28 days old, commits landed after it | **run fails** — work happened, the roadmap didn't follow |
+
+Never a rolling window: any commit newer than the review date counts
+once the review goes stale, no matter how old that commit is.
+
+### Remedy for a red run
+
+Open a PR that actually re-reads the roadmap, updates it where
+direction changed, and bumps `Last reviewed:` to the review date
+(same-day commits count as reviewed). Clears on the next scheduled
+run or a manual `workflow_dispatch`.
+
+### Installing in a consumer repo
+
+Copy BOTH `templates/roadmap-freshness.yml` (to
+`.github/workflows/`) and `templates/roadmap-freshness.sh` (e.g. to
+`.github/scripts/`, adjusting the path), or run the script from the
+pinned toolkit ref. Ensure the roadmap carries a parseable
+`Last reviewed: YYYY-MM-DD` line — the guard fails closed on a
+missing or malformed date.
