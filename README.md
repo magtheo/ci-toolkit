@@ -67,7 +67,7 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
    replace the SHA in both places, merge — the upgrade PR itself was
    reviewed by the previously pinned version first.
 
-3. Optional overrides: `with: runner: [self-hosted, ci]` (explicit
+3. Optional overrides: `with: runner: <label>` (explicit
    runner label — there is no automatic fallback), `with: model:
    <openrouter-id>` (thin exposure of the default model; no routing
    or fallback logic), and a repo-local `.ai-review-rubric.md` to
@@ -77,6 +77,34 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
 
    `toolkit_ref` is **not** optional: it is mandatory and must be the
    same full SHA used in `uses:`.
+
+   **Trust class when overriding `runner`:** the review job is a
+   privileged `pull_request_target` workflow carrying your
+   `LLM_API_KEY`. If you route it to self-hosted runners, it must
+   NOT share persistent runners with PR-controlled test code (state
+   planted by a test job — toolcache, PATH, dotfiles — would be
+   inherited by the privileged job). Route it to an isolated,
+   preferably ephemeral lane; reference implementation:
+   student-platform `infra/ai-review-lane/` and runbook
+   `self-hosted-runner-setup.md` Part 9 (one disposable container
+   per job, hostile-user acceptance tests included).
+
+### Pin governance (incident 2026-08-31)
+
+Pinned SHAs must remain **fetchable by SHA**. GitHub serves
+sha-wants only for ref tips and non-merge descendants; a merge
+commit can become permanently un-fetchable after the branches that
+reached it are deleted — observed with `c328fee8`, which silently
+broke checkout for every consumer after routine branch cleanup,
+with no error until a job actually ran. Rules:
+
+- verify at bump time: `git fetch origin <full-sha>` must succeed;
+- if a pin dies, bump to a **non-merge descendant** — precedent
+  `3003cb9`, a direct child whose only delta was the toolkit's own
+  dogfood pin text (reviewer byte-identical, zero behavior change);
+- maintain `pins/<sha>` archive branches for long-lived pins;
+- API-resolvable but not `git fetch`-able = dead, regardless of
+  "existence".
 
 ## Governance templates
 

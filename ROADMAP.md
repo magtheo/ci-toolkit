@@ -248,3 +248,29 @@ Working classification: 2/3 are assertion-without-verification
 (grounding); 1/3 is conclusion calibration. Both fold into capability
 1, but the grounding subtype may warrant its own fixture family —
 decide when capability 1 work starts, with fresh measurement.
+
+Additional evidence (2026-08-31, ci-local-runners reviews — the
+external reviewer caught all three; ai-review was inoperative on
+the affected repos):
+
+4. **Runtime-dependency reasoning:** a lane image shipped without
+   python3 while the pinned reviewer executes python — nothing asked
+   "can the workload actually run here?" until a smoke job existed.
+   Classification candidate: external-contract/runtime (tracks 5/6
+   adjacent).
+5. **Test self-defeat:** the acceptance script verifying "no token
+   in argv" passed the live token to `grep`, placing it in a
+   world-readable argv during its own scan. Classification
+   candidate: reasoning about one's own mechanism (track 5 subtype).
+6. **Infrastructure trust reasoning:** `config.sh --token`
+   forwarding into world-readable `/proc/*/cmdline` on a shared
+   host — required crossing the container/host boundary with an
+   adversary model. Classification candidate: architectural
+   invariant (track 7).
+
+Side observation: while ai-review was inoperative (billing, then
+the dead pin), the external human reviewer carried the entire
+semantic review layer — consistent with the Review Model ordering
+(deterministic gates → AI evidence → human judgment), and a live
+reminder that the AI layer is evidence, not authority.
+
