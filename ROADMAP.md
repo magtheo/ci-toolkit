@@ -11,7 +11,7 @@ contracts, operations, and fleet management).
 semantic capability. Platform maturity work belongs in
 `MATURITY_ROADMAP.md`; do not duplicate the same backlog in both.
 
-Last reviewed: 2026-08-31
+Last reviewed: 2026-08-30
 
 
 ## Philosophy
@@ -66,7 +66,6 @@ anti-pattern this roadmap exists to prevent.
 | 6 | External-contract reasoning | `/pulls/{n}` vs `/files` bug; M7 | identified; deterministic-first |
 | 7 | Architectural invariant reasoning | states.json-not-in-oracle_version (human-caught) | identified |
 | 8 | Acceptance / process truth | Phase-3/#10 circularity; #15 CLEAR-miss (both human-caught) | identified |
-| — | Deterministic gate expansion (supporting track) | repeated LLM attention on machine-checkable facts | first candidate: actionlint |
 
 Tracks 2, then 1, are sequenced (Phases 4–5, then discrimination).
 Tracks 3–8 start after the eval-baseline plan completes; ordering
@@ -170,10 +169,10 @@ thereafter is chosen from measured evidence, not this table's number.
   human-caught; M7 (curl/HTTP semantics).
 - **Current state:** not systematically planned.
 - **Candidate mechanism:** deterministic-first: wherever an exact
-  validator can prove correctness (actionlint, schema validators,
-  API-shape checks), it belongs BELOW the AI layer; the AI reasons
-  only where no exact validator exists, and should flag
-  externally-dependent assumptions explicitly.
+  validator can prove correctness, that failure class should be handed
+  off to the deterministic-CI ownership in `MATURITY_ROADMAP.md` Stage
+  3.2; the AI reasons only where no exact validator exists, and should
+  flag externally-dependent assumptions explicitly.
 - **Acceptance criteria:** fixture family of wrong-endpoint /
   wrong-semantic-argument defects with clean paired usage; ≥2/3 with
   controls clean.
@@ -212,25 +211,21 @@ thereafter is chosen from measured evidence, not this table's number.
 
 ---
 
-## Deterministic gate expansion (permanent supporting track)
+## Deterministic validation handoff
 
-Tests, type checking, linters, schema validators, `actionlint`, and
-other exact project-specific checks.
+Deterministic validation supporting reviewer capabilities is governed by
+`MATURITY_ROADMAP.md` Stage 3.2. Capability tracks may identify an exact check
+that would eliminate a semantic failure class, but implementation and ongoing
+maintenance of deterministic CI belongs there.
 
-**Principle: never spend LLM reasoning on something a deterministic
-tool can prove cheaply and exactly.**
-
-First candidate: `actionlint` on all workflows (pinned supply chain,
-CI-only surface). Lands only as a tiny independent change that does
-not derail the phase sequence — existing workflow patterns must be
-verified clean (or explicitly waived) first.
+**Principle:** never spend LLM reasoning on something a deterministic tool can
+prove cheaply and exactly.
 
 ---
 
 ## Appendix A — evidence: #14 self-review false positives (2026-08-30)
 
-Preserved per directive; to be classified against existing miss
-classes BEFORE any are frozen as fixtures.
+Preserved per directive; to be classified against existing miss classes BEFORE any are frozen as fixtures.
 
 1. **Hallucinated absence:** claimed `hashlib` was never imported
    while it was (line 32), contradicted by a passing test on the same
