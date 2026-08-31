@@ -28,8 +28,8 @@ permissions:
 jobs:
   ai-review:
     if: ${{ !github.event.pull_request.head.repo.fork }}
-    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@c328fee8c3dc8704fa1f2b84fbfab1ead0860c44
+    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@3003cb9bdb1b5433bcc59b5d7ad2eedd01eb586e
     with:
-      toolkit_ref: c328fee8c3dc8704fa1f2b84fbfab1ead0860c44
+      toolkit_ref: 3003cb9bdb1b5433bcc59b5d7ad2eedd01eb586e
     secrets:
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
