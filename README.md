@@ -115,9 +115,6 @@ Explicitly:
    # .github/workflows/ai-review.yml
    on:
      pull_request_target:
-       paths-ignore:
-         - "docs/**"
-         - "plans/**"
    permissions:
      pull-requests: write
      contents: read
@@ -131,13 +128,23 @@ Explicitly:
          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
    ```
 
-   Path skipping is an **optional cost/noise optimization**, not a
-   security control — the safe default is to review everything. Do
-   NOT blanket-ignore `**.md`: `.ai-review-rubric.md` is trusted
+   The example above is the safe default: **review everything** —
+   the reviewer is advisory and cheap relative to what it catches.
+   If cost/noise genuinely demands skipping, that is an optional
+   optimization (NOT a security control), added deliberately:
+
+   ```yaml
+   # Optional cost/noise optimization — a deliberate choice, not a
+   # default:
+   #   paths-ignore:
+   #     - "docs/**"
+   #     - "plans/**"
+   ```
+
+   Do NOT blanket-ignore `**.md`: `.ai-review-rubric.md` is trusted
    policy, and `AGENTS.md` / security docs / governance templates can
-   carry meaningful trust-model changes. (If you do skip `docs/**` or
-   `plans/**`, policy files living there lose AI review — make that
-   choice deliberately.)
+   carry meaningful trust-model changes. If you do skip `docs/**` or
+   `plans/**`, policy files living there lose AI review.
 
    Why **this** `pull_request_target` usage is safe (the event itself
    never is): the reviewer never checks out or executes PR-head code —
@@ -226,8 +233,9 @@ The reviewer produces an **assessment** — evidence, never authority:
 - **AI review · Clear** — the review completed and found no blocking
   issues **in the material it reviewed** (see
   [Limitations](#limitations)). Not an approval, not merge-readiness.
-- **AI review · Issues found** — validated blocking and/or advisory
-  findings, attention-weighted (blocking first).
+- **AI review · Issues found** — one or more validated blocking
+  findings, plus any advisory findings, attention-weighted
+  (blocking first).
 - **AI review · Inconclusive** — no usable assessment; do not treat
   it as clear.
 
