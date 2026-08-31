@@ -89,22 +89,37 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
    `self-hosted-runner-setup.md` Part 9 (one disposable container
    per job, hostile-user acceptance tests included).
 
-### Pin governance (incident 2026-08-31)
+### Pin governance (incident 2026-08-31 — evidence-based)
 
-Pinned SHAs must remain **fetchable by SHA**. GitHub serves
-sha-wants only for ref tips and non-merge descendants; a merge
-commit can become permanently un-fetchable after the branches that
-reached it are deleted — observed with `c328fee8`, which silently
-broke checkout for every consumer after routine branch cleanup,
-with no error until a job actually ran. Rules:
+Observed, same day, for the pinned merge commit `c328fee8` after
+branch deletions removed its reachability:
 
-- verify at bump time: `git fetch origin <full-sha>` must succeed;
-- if a pin dies, bump to a **non-merge descendant** — precedent
-  `3003cb9`, a direct child whose only delta was the toolkit's own
-  dogfood pin text (reviewer byte-identical, zero behavior change);
-- maintain `pins/<sha>` archive branches for long-lived pins;
-- API-resolvable but not `git fetch`-able = dead, regardless of
-  "existence".
+- in-job `actions/checkout` at the SHA failed on a self-hosted lane
+  container with `upload-pack: not our ref` (three runs, 08:14–08:20Z);
+- local `git fetch origin <sha>` refused consistently from clean
+  clones, before and after republishing the commit via
+  `archive/pin-c328fee8` / `pins/c328fee8` ref tips;
+- a hosted `pull_request_target` ai-review run checked out the SAME
+  SHA successfully at 09:20Z (run 33377170635) — the production
+  consumption path worked.
+
+Conclusion: SHA-want fetchability for that commit was **divergent
+across contexts**; the exact server semantics are UNCONFIRMED, and
+this incident alone does not establish them. Rules that hold
+regardless:
+
+- anchor long-lived pins with explicit refs (`pins/<sha>` archive
+  branches) so reachability never depends on PR branch lifecycles;
+- verify a pin's health via a clean clone AND the actual consumer
+  path — a single vantage (including local fetch) is not
+  authoritative;
+- if a pin misbehaves in any context, roll forward to a maintained
+  non-merge descendant — precedent `3003cb9` (direct child, only
+  delta the toolkit's own dogfood pin text; reviewer
+  byte-identical);
+- do not generalize GitHub object-serving semantics from one
+  incident; if it recurs, capture both failing and succeeding runs
+  and escalate to GitHub support.
 
 ## Governance templates
 

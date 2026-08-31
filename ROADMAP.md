@@ -274,3 +274,12 @@ semantic review layer — consistent with the Review Model ordering
 (deterministic gates → AI evidence → human judgment), and a live
 reminder that the AI layer is evidence, not authority.
 
+7. **Premise acceptance against own-infrastructure evidence:** the
+   AI reviewer CLEAR'd the pin-governance docs and praised the
+   "dead pin" diagnosis — while the reviewer's own successful run
+   that same day (ci-toolkit 33377170635) had checked out that
+   exact SHA. Classification candidate: grounding/evidence-integrity
+   (track 1 subtype — a checkable contradiction with the system's
+   own observable record). The diagnosis itself was also
+   overgeneralized by the implementing agent; corrected in #20.
+
