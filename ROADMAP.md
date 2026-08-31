@@ -2,9 +2,16 @@
 
 Authoritative direction for maturing the AI reviewer. Companion to
 `plans/reviewer-eval-baseline.md` (measurement & qualification
-machinery — Phase 1–6) and `AGENTS.md` (governance).
+machinery — Phase 1–6), `AGENTS.md` (governance), and
+[`MATURITY_ROADMAP.md`](MATURITY_ROADMAP.md) (ci-toolkit platform
+maturity: releases, compatibility, deterministic CI, consumer
+contracts, operations, and fleet management).
 
-Last reviewed: 2026-08-30
+**Scope:** this roadmap is authoritative for reviewer intelligence and
+semantic capability. Platform maturity work belongs in
+`MATURITY_ROADMAP.md`; do not duplicate the same backlog in both.
+
+Last reviewed: 2026-08-31
 
 
 ## Philosophy
