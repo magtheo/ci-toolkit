@@ -127,4 +127,13 @@ def test_reviewer_credentials_never_in_curl_argv():
     assert '-H "Authorization: Bearer $' not in src, \
         "Authorization header passed as argv (observable via /proc)"
     assert src.count("-H @") >= 3, "expected header-file curl usage"
-    assert 'rm -rf "$HDR_DIR"' in src, "header files must be cleaned up"
+    # cleanup must be EFFECTIVE, not merely present: bash EXIT traps
+    # REPLACE, they do not append — a second `trap ... EXIT` anywhere
+    # would silently drop credential-file removal. Exactly one EXIT
+    # trap, installed on a cleanup() that removes the header dir.
+    import re
+    exit_traps = re.findall(r"^trap .*EXIT", src, re.M)
+    assert exit_traps == ["trap cleanup EXIT"], exit_traps
+    body = src[src.index("cleanup() {"):src.index("trap cleanup EXIT")]
+    assert 'rm -rf "$HDR_DIR"' in body, \
+        "cleanup() must remove the credential header dir"

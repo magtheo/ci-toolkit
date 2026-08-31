@@ -36,7 +36,16 @@ TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # observable by co-located users on self-hosted runners (the same
 # /proc/<pid>/cmdline threat the ephemeral-lane design addresses).
 HDR_DIR="$(mktemp -d)"
-trap 'rm -rf "$HDR_DIR"' EXIT
+
+# ONE cleanup for everything: a second `trap ... EXIT` would silently
+# REPLACE this one (bash traps do not append) — add new artifacts to
+# cleanup(), never a new trap. Unset-safe for early exits.
+cleanup() {
+    rm -rf "$HDR_DIR"
+    rm -f "${files_jsonl:-}" "${content_file:-}" "${or_resp:-}" \
+          prompt.json review.json
+}
+trap cleanup EXIT
 ( umask 077
   printf 'Authorization: Bearer %s' "$TOKEN" > "$HDR_DIR/gh"
   printf 'Authorization: Bearer %s' "$OPENROUTER_API_KEY" > "$HDR_DIR/llm" )
@@ -62,7 +71,6 @@ pr_body=$(jq -r '(.body // "")[0:2000]' <<<"$pr")
 files_jsonl=$(mktemp)
 content_file=$(mktemp)
 or_resp=$(mktemp)
-trap 'rm -f "$files_jsonl" "$content_file" "$or_resp" prompt.json review.json' EXIT
 page=1
 while :; do
   batch=$(curl_gh "$REPO_API/pulls/$PR_NUMBER/files?per_page=100&page=$page")
