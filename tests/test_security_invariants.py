@@ -117,3 +117,23 @@ def test_checkout_pinned_to_full_sha():
     m = re.search(r"actions/checkout@([0-9a-f]{40})", src)
     assert m, "actions/checkout must be pinned to a full commit SHA"
     assert "actions/checkout@v4\n" not in src
+
+
+def test_reviewer_credentials_never_in_curl_argv():
+    # Credential transport invariant: Authorization headers reach curl
+    # via private files (-H @file), never argv — /proc/<pid>/cmdline is
+    # observable by co-located users on self-hosted runners.
+    src = (TOOLKIT_ROOT / "review.sh").read_text()
+    assert '-H "Authorization: Bearer $' not in src, \
+        "Authorization header passed as argv (observable via /proc)"
+    assert src.count("-H @") >= 3, "expected header-file curl usage"
+    # cleanup must be EFFECTIVE, not merely present: bash EXIT traps
+    # REPLACE, they do not append — a second `trap ... EXIT` anywhere
+    # would silently drop credential-file removal. Exactly one EXIT
+    # trap, installed on a cleanup() that removes the header dir.
+    import re
+    exit_traps = re.findall(r"^trap .*EXIT", src, re.M)
+    assert exit_traps == ["trap cleanup EXIT"], exit_traps
+    body = src[src.index("cleanup() {"):src.index("trap cleanup EXIT")]
+    assert 'rm -rf "$HDR_DIR"' in body, \
+        "cleanup() must remove the credential header dir"

@@ -31,8 +31,27 @@ MAX_FILES="${AI_REVIEW_MAX_FILES:-200}"
 REPO_API="$API/repos/$GITHUB_REPOSITORY"
 TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Credential transport: Authorization headers are passed to curl via
+# private files (-H @file), never via argv — process command lines are
+# observable by co-located users on self-hosted runners (the same
+# /proc/<pid>/cmdline threat the ephemeral-lane design addresses).
+HDR_DIR="$(mktemp -d)"
+
+# ONE cleanup for everything: a second `trap ... EXIT` would silently
+# REPLACE this one (bash traps do not append) — add new artifacts to
+# cleanup(), never a new trap. Unset-safe for early exits.
+cleanup() {
+    rm -rf "$HDR_DIR"
+    rm -f "${files_jsonl:-}" "${content_file:-}" "${or_resp:-}" \
+          prompt.json review.json
+}
+trap cleanup EXIT
+( umask 077
+  printf 'Authorization: Bearer %s' "$TOKEN" > "$HDR_DIR/gh"
+  printf 'Authorization: Bearer %s' "$OPENROUTER_API_KEY" > "$HDR_DIR/llm" )
+
 curl_gh() { curl -sS -f --connect-timeout 10 --max-time 60 \
-  -H "Authorization: Bearer $TOKEN" \
+  -H @"$HDR_DIR/gh" \
   -H "Accept: application/vnd.github+json" "$@"; }
 
 pr=$(curl_gh "$REPO_API/pulls/$PR_NUMBER")
@@ -52,7 +71,6 @@ pr_body=$(jq -r '(.body // "")[0:2000]' <<<"$pr")
 files_jsonl=$(mktemp)
 content_file=$(mktemp)
 or_resp=$(mktemp)
-trap 'rm -f "$files_jsonl" "$content_file" "$or_resp" prompt.json review.json' EXIT
 page=1
 while :; do
   batch=$(curl_gh "$REPO_API/pulls/$PR_NUMBER/files?per_page=100&page=$page")
@@ -91,7 +109,7 @@ fi
 # weaker rubric because of a transient GitHub error.
 rubric=""
 code=$(curl -sS --connect-timeout 10 --max-time 60 \
-  -H "Authorization: Bearer $TOKEN" \
+  -H @"$HDR_DIR/gh" \
   -H "Accept: application/vnd.github+json" -o /dev/null -w '%{http_code}' \
   "$REPO_API/contents/.ai-review-rubric.md?ref=$base_sha" || true)
 case "$code" in
@@ -142,7 +160,7 @@ for attempt in 1 2 3; do
   set +e
   http_code=$(curl -sS --connect-timeout 10 --max-time 180 \
     -o "$or_resp" -w '%{http_code}' \
-    -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+    -H @"$HDR_DIR/llm" \
     -H "Content-Type: application/json" -d @prompt.json \
     https://openrouter.ai/api/v1/chat/completions)
   rc=$?
