@@ -269,8 +269,8 @@ the affected repos):
    invariant (track 7).
 
 Side observation: while ai-review was inoperative (billing, then
-the dead pin), the external human reviewer carried the entire
-semantic review layer — consistent with the Review Model ordering
+the pin-fetchability investigation), the external human reviewer
+carried the entire semantic review layer — consistent with the Review Model ordering
 (deterministic gates → AI evidence → human judgment), and a live
 reminder that the AI layer is evidence, not authority.
 
@@ -282,4 +282,11 @@ reminder that the AI layer is evidence, not authority.
    (track 1 subtype — a checkable contradiction with the system's
    own observable record). The diagnosis itself was also
    overgeneralized by the implementing agent; corrected in #20.
+
+8. **Praising nonfunctional code:** on PR #22 the AI reviewer
+   explicitly praised the credential-cleanup trap as reliable while
+   a second EXIT trap silently disabled it (bash traps replace, not
+   append) — functionality contradicted by reading the rest of the
+   same file. Classification candidate: grounding (asserting a
+   behavior checkable in-context), same subtype as (1)/(3).
 
