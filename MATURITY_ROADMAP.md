@@ -62,7 +62,9 @@ around basic reviewer safety:
    privileged reviewer path;
 5. integration/consumer contract testing is limited;
 6. operational health across multiple consumers is not yet observable;
-7. upgrade/fleet management is manual.
+7. upgrade/fleet management is manual;
+8. the existing roadmap freshness guard covers `ROADMAP.md` only, so this new
+   authoritative roadmap is not yet mechanically freshness-checked.
 
 ## Maturity stages
 
@@ -93,7 +95,9 @@ provider abstraction, or broad productization.
 ### Evidence / gap
 
 `AGENTS.md` requires reviewed PRs and deterministic validation before changes
-reach `main`, but repository settings do not yet enforce that contract.
+reach `main`, but repository settings do not yet enforce that contract. The
+roadmap freshness guard also monitors only `ROADMAP.md`; after this split there
+are two authoritative roadmap documents.
 
 ### Target
 
@@ -105,12 +109,15 @@ Protect `main` mechanically:
 - review conversations resolved where useful;
 - AI review remains advisory and is **not** a merge gate;
 - qualification may become a required gate only for the specific change classes
-  whose deployment contract actually depends on it.
+  whose deployment contract actually depends on it;
+- extend the existing freshness guard to all authoritative roadmap documents,
+  including `MATURITY_ROADMAP.md`.
 
 ### Acceptance
 
 A direct or insufficiently validated change cannot reach `main` through the
-normal GitHub path.
+normal GitHub path, and no authoritative roadmap can silently fall outside the
+repository's freshness mechanism.
 
 ### Non-goal
 
@@ -513,7 +520,8 @@ Unless new evidence changes priority, the recommended order is:
 
 1. **Finish and activate the reviewer-eval/deployment baseline** already in
    progress; do not derail it with broad platform work.
-2. **Repository protection + deterministic CI hygiene** (small, independent
+2. **Repository protection + deterministic CI hygiene**, including extending
+   freshness checks across all authoritative roadmaps (small, independent
    changes).
 3. **Consumer Contract v1** documentation.
 4. **First human-readable release** after the deployment/qualification contract
