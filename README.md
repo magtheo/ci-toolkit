@@ -67,7 +67,7 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
    replace the SHA in both places, merge — the upgrade PR itself was
    reviewed by the previously pinned version first.
 
-3. Optional overrides: `with: runner: [self-hosted, ci]` (explicit
+3. Optional overrides: `with: runner: <label>` (explicit
    runner label — there is no automatic fallback), `with: model:
    <openrouter-id>` (thin exposure of the default model; no routing
    or fallback logic), and a repo-local `.ai-review-rubric.md` to
@@ -77,6 +77,49 @@ Safety model (from `plans/ai-pr-review.md` in student-platform):
 
    `toolkit_ref` is **not** optional: it is mandatory and must be the
    same full SHA used in `uses:`.
+
+   **Trust class when overriding `runner`:** the review job is a
+   privileged `pull_request_target` workflow carrying your
+   `LLM_API_KEY`. If you route it to self-hosted runners, it must
+   NOT share persistent runners with PR-controlled test code (state
+   planted by a test job — toolcache, PATH, dotfiles — would be
+   inherited by the privileged job). Route it to an isolated,
+   preferably ephemeral lane; reference implementation:
+   student-platform `infra/ai-review-lane/` and runbook
+   `self-hosted-runner-setup.md` Part 9 (one disposable container
+   per job, hostile-user acceptance tests included).
+
+### Pin governance (incident 2026-08-31 — evidence-based)
+
+Observed, same day, for the pinned merge commit `c328fee8` after
+branch deletions removed its reachability:
+
+- in-job `actions/checkout` at the SHA failed on a self-hosted lane
+  container with `upload-pack: not our ref` (three runs, 08:14–08:20Z);
+- local `git fetch origin <sha>` refused consistently from clean
+  clones, before and after republishing the commit via
+  `archive/pin-c328fee8` / `pins/c328fee8` ref tips;
+- a hosted `pull_request_target` ai-review run checked out the SAME
+  SHA successfully at 09:20Z (run 33377170635) — the production
+  consumption path worked.
+
+Conclusion: SHA-want fetchability for that commit was **divergent
+across contexts**; the exact server semantics are UNCONFIRMED, and
+this incident alone does not establish them. Rules that hold
+regardless:
+
+- anchor long-lived pins with explicit refs (`pins/<sha>` archive
+  branches) so reachability never depends on PR branch lifecycles;
+- verify a pin's health via a clean clone AND the actual consumer
+  path — a single vantage (including local fetch) is not
+  authoritative;
+- if a pin misbehaves in any context, roll forward to a maintained
+  non-merge descendant — precedent `3003cb9` (direct child, only
+  delta the toolkit's own dogfood pin text; reviewer
+  byte-identical);
+- do not generalize GitHub object-serving semantics from one
+  incident; if it recurs, capture both failing and succeeding runs
+  and escalate to GitHub support.
 
 ## Governance templates
 
