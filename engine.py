@@ -26,8 +26,11 @@ no inline-comment payload, no commit id, no Markdown rendering).
 GitHub presentation is render.py, a separate consumer.
 
 Security model: the OPENROUTER_API_KEY arrives from the caller's
-secrets at run time, never stored here; all PR-derived text stays
-data — it flows into JSON payloads, never through shell evaluation.
+secrets at run time, never stored here; the Authorization header
+reaches curl via a private file (curl -H @file), never via argv —
+process command lines are observable by co-located users on
+self-hosted runners. All PR-derived text stays data — it flows into
+JSON payloads, never through shell evaluation.
 """
 
 import json
@@ -131,16 +134,24 @@ def _post_chat(payload):
     nonzero: network down, timeouts) raise _NetworkFailure
     (retryable); HTTP error statuses are returned as data for the
     retry policy to judge. The payload travels via stdin
-    (--data-binary @-), argv list only — never shell evaluation.
+    (--data-binary @-), argv list only — never shell evaluation. The
+    Authorization header travels via a private file (-H @file,
+    created 0600 by tempfile and removed when the with-block exits,
+    success or failure) — never argv, matching the review.sh
+    credential-transport invariant (/proc/<pid>/cmdline observable
+    on self-hosted runners).
     """
-    with tempfile.NamedTemporaryFile() as out:
+    with tempfile.NamedTemporaryFile("w") as hdr, \
+            tempfile.NamedTemporaryFile() as out:
+        hdr.write("Authorization: Bearer "
+                  + os.environ["OPENROUTER_API_KEY"])
+        hdr.flush()
         proc = subprocess.run(
             ["curl", "-sS",
              "--connect-timeout", _CONNECT_TIMEOUT,
              "--max-time", _MAX_TIME,
              "-o", out.name, "-w", "%{http_code}",
-             "-H", "Authorization: Bearer "
-             + os.environ["OPENROUTER_API_KEY"],
+             "-H", "@" + hdr.name,
              "-H", "Content-Type: application/json",
              "--data-binary", "@-", OPENROUTER_URL],
             input=json.dumps(payload).encode(),

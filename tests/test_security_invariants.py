@@ -45,6 +45,37 @@ def test_rubric_fails_closed_on_non_200_non_404():
     assert "FAIL CLOSED" in sec
 
 
+# ---- credential transport: never curl argv (main #22 hardening, ----
+# ---- ported to the engine architecture) ------------------------------------
+
+def test_credentials_never_in_curl_argv():
+    # Credential transport invariant: Authorization headers reach
+    # curl via private files (-H @file), never argv — /proc/<pid>/cmdline
+    # is observable by co-located users on self-hosted runners.
+    # TWO transports carry credentials: review.sh (GitHub API) and
+    # engine.py (OpenRouter model call) — both are pinned here.
+    assert '-H "Authorization: Bearer $' not in SRC, \
+        "Authorization header passed as argv (observable via /proc)"
+    assert SRC.count("-H @") >= 2, "expected header-file curl usage"
+    assert '"-H", "Authorization' not in ESRC, \
+        "engine passes Authorization as curl argv (observable via /proc)"
+    assert "'-H', 'Authorization" not in ESRC
+    assert '"-H", "@"' in ESRC, \
+        "engine model call must use header-file transport (-H @file)"
+
+
+def test_credential_cleanup_is_effective_single_trap():
+    # cleanup must be EFFECTIVE, not merely present: bash EXIT traps
+    # REPLACE, they do not append — a second `trap ... EXIT` anywhere
+    # would silently drop credential-file removal. Exactly one EXIT
+    # trap, installed on a cleanup() that removes the header dir.
+    exit_traps = re.findall(r"^trap .*EXIT", SRC, re.M)
+    assert exit_traps == ["trap cleanup EXIT"], exit_traps
+    body = SRC[SRC.index("cleanup() {"):SRC.index("trap cleanup EXIT")]
+    assert 'rm -rf "$HDR_DIR"' in body, \
+        "cleanup() must remove the credential header dir"
+
+
 # Model-call retry invariants live in the engine since the Phase 1
 # boundary extraction (reviewer-eval-baseline); same semantics.
 
