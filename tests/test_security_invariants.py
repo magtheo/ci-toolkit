@@ -56,7 +56,11 @@ def test_credentials_never_in_curl_argv():
     # engine.py (OpenRouter model call) — both are pinned here.
     assert '-H "Authorization: Bearer $' not in SRC, \
         "Authorization header passed as argv (observable via /proc)"
-    assert SRC.count("-H @") >= 2, "expected header-file curl usage"
+    # pin the actual transport sites, not the substring "-H @"
+    # (which comments also contain): both GitHub-token curl call
+    # sites must pass the private header file by literal path
+    assert SRC.count('-H @"$HDR_DIR/gh"') >= 2, \
+        "expected GitHub-token curl sites to use the header file"
     assert '"-H", "Authorization' not in ESRC, \
         "engine passes Authorization as curl argv (observable via /proc)"
     assert "'-H', 'Authorization" not in ESRC

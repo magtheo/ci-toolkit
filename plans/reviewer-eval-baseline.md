@@ -354,10 +354,11 @@ Status: NOT STARTED
 ### Acceptance criteria
 
 - One scheduled run observed; drift artifact carries full metadata.
-  (Per Deviation 3: the *scheduled* observation is a post-merge
-  activation criterion; implementation acceptance observes one
-  manually dispatched run on the feature branch, where schedules
-  never run.)
+  (Per Deviation 3: pre-merge implementation acceptance observes a
+  LOCAL end-to-end drift run with the full-metadata artifact;
+  dispatched + scheduled observations are post-merge activation
+  criteria — dispatch, like schedules, only fires for workflows on
+  the default branch.)
 - Stage 3 plan (when written) references stats by subject+oracle.
 
 ### Validation
@@ -374,21 +375,31 @@ Original Phase 6 acceptance requires "one scheduled run observed".
 Scheduled workflows run only on the default branch, and the
 scheduled drift machinery reaches `main` only through the umbrella
 PR (#10) — which cannot complete while a phase requires evidence
-only obtainable after the umbrella merges. This is the same class
-of lifecycle circularity Deviation 1 resolved for Phase 3.
+only obtainable after the umbrella merges. A manual
+`workflow_dispatch` is no escape: GitHub fires dispatch events only
+for workflow files present on the default branch, so a pre-merge
+dispatch on the feature branch is equally impossible. This is the
+same class of lifecycle circularity Deviation 1 resolved for
+Phase 3.
 
-Resolution (explicit split, not a weakening): Phase 6 may be marked
-COMPLETE on *implementation acceptance* — deterministic tests plus
-one **manually dispatched** drift run observed on the feature
-branch, producing the full-metadata drift artifact. The *scheduled*
-cadence then becomes part of the post-merge **activation gate**
-alongside Phase 3's live demonstrations: the first scheduled run on
-`main` must be observed (and its first two reports manually
-inspected) before the deployment contract is declared fully active.
+Resolution (three lifecycle-feasible layers, not a weakening):
 
-The acceptance criteria are not weakened — the observed-run
-requirement stands; only its lifecycle point is split, each side
-with its own evidence.
+1. **Before the umbrella merge — implementation acceptance:**
+   deterministic tests plus a LOCAL end-to-end execution of the
+   drift logic, following the Deviation 1 pattern (drive the
+   machinery against a local bare origin, exactly as Phase 3's
+   acceptance did), with the resulting full-metadata drift artifact
+   inspected. No GitHub event of any kind is required.
+2. **Post-merge activation gate** (alongside Phase 3's live
+   demonstrations): one manually dispatched drift run observed on
+   `main`, then the first scheduled run observed.
+3. **Production cadence:** the first two scheduled reports manually
+   inspected before the deployment contract is declared fully
+   active.
+
+The observed-run requirements are not weakened — the local layer
+adds machine-checkable evidence before the merge, and both the
+dispatched and scheduled observations remain mandatory on `main`.
 
 ### Deviation 2 — M5-first sequence falsified by measurement;
 Track 1 (discrimination) resequenced ahead (approved by directing

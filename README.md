@@ -42,7 +42,11 @@ GitHub PR
    └── base-revision rubric (bundled, or your .ai-review-rubric.md)
           │
           ▼
-   ci-toolkit reviewer (API fetch; PR head never checked out)
+   review.sh — GitHub transport (API fetch; PR head never
+   checked out; trusted-base policy fetch) → ReviewInput v1
+          │
+          ▼
+   engine.py — prompt construction + model call
           │
           ▼
       OpenRouter  ← authenticated with the caller's LLM_API_KEY
@@ -51,7 +55,12 @@ GitHub PR
       model output
           │
           ▼
-   deterministic parser (parse_review.py)
+   parse_review.py — deterministic semantic normalization
+   (engine-internal; transport-free)
+          │
+          ▼
+   ReviewResult v1 → render.py — GitHub presentation;
+   the review event is the literal COMMENT
           │
           ▼
    GitHub COMMENT review  ← authenticated with GITHUB_TOKEN
@@ -75,7 +84,7 @@ Explicitly:
   downloaded as a git object, or executed. Only API metadata and diff
   text are fetched, via `jq`-safe data channels.
 - **Approvals impossible via this path.** The review event is the
-  literal string `COMMENT` in `parse_review.py` — not derived from
+  literal string `COMMENT` in `render.py` — not derived from
   model output, inputs, or environment.
 - **Explicit secret mapping.** Callers map `LLM_API_KEY` explicitly
   (never `secrets: inherit`); the reusable workflow's `permissions`
