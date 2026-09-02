@@ -354,6 +354,10 @@ Status: NOT STARTED
 ### Acceptance criteria
 
 - One scheduled run observed; drift artifact carries full metadata.
+  (Per Deviation 3: the *scheduled* observation is a post-merge
+  activation criterion; implementation acceptance observes one
+  manually dispatched run on the feature branch, where schedules
+  never run.)
 - Stage 3 plan (when written) references stats by subject+oracle.
 
 ### Validation
@@ -361,6 +365,30 @@ Status: NOT STARTED
 - Manual inspection of first two scheduled reports.
 
 ## Plan deviations
+
+### Deviation 3 — Phase 6 acceptance split across the umbrella merge
+boundary (PROPOSED in the reconciliation PR; maintainer review of
+that PR is the approval)
+
+Original Phase 6 acceptance requires "one scheduled run observed".
+Scheduled workflows run only on the default branch, and the
+scheduled drift machinery reaches `main` only through the umbrella
+PR (#10) — which cannot complete while a phase requires evidence
+only obtainable after the umbrella merges. This is the same class
+of lifecycle circularity Deviation 1 resolved for Phase 3.
+
+Resolution (explicit split, not a weakening): Phase 6 may be marked
+COMPLETE on *implementation acceptance* — deterministic tests plus
+one **manually dispatched** drift run observed on the feature
+branch, producing the full-metadata drift artifact. The *scheduled*
+cadence then becomes part of the post-merge **activation gate**
+alongside Phase 3's live demonstrations: the first scheduled run on
+`main` must be observed (and its first two reports manually
+inspected) before the deployment contract is declared fully active.
+
+The acceptance criteria are not weakened — the observed-run
+requirement stands; only its lifecycle point is split, each side
+with its own evidence.
 
 ### Deviation 2 — M5-first sequence falsified by measurement;
 Track 1 (discrimination) resequenced ahead (approved by directing
