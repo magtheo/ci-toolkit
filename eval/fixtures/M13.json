@@ -1,0 +1,50 @@
+{
+  "id": "M13",
+  "kind": "positive",
+  "origin": "synthetic",
+  "paired_with": "C13",
+  "family": "risk-boilerplate",
+  "input": {
+    "title": "ci: publish images on merge",
+    "body": "Wires the docker publish workflow.",
+    "files": [
+      {
+        "path": ".github/workflows/publish.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/publish.yml\n@@ -0,0 +1,10 @@\n+name: publish\n+on:\n+  pull_request_target:\n+    branches: [main]\n+permissions: write-all\n+jobs:\n+  publish:\n+    uses: some-org/release-tools/.github/workflows/docker-publish.yml@v4\n+    with:\n+      image_name: core-api\n+    secrets: inherit\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "pin"
+        ],
+        "comment_any": [
+          "floating",
+          "tag",
+          "SHA",
+          "immutable",
+          "v4"
+        ]
+      },
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "inherit"
+        ],
+        "comment_any": [
+          "secret",
+          "least privilege",
+          "least-privilege",
+          "write-all",
+          "all secrets"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defects: floating v4 tag (mutable, not a pinned SHA); secrets: inherit exposes every secret; plus write-all permissions and no fork guard."
+}

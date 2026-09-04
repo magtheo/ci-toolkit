@@ -3,6 +3,7 @@
   "kind": "positive",
   "origin": "real (ci-toolkit PR #3, miss #2)",
   "paired_with": "C2",
+  "family": "risk-boilerplate",
   "input": {
     "title": "review: simplify trigger and references",
     "body": "Use a plain pull_request trigger and track main.",

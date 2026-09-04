@@ -3,6 +3,7 @@
   "kind": "control",
   "origin": "synthetic",
   "paired_with": "M8",
+  "family": "hallucinated-fact",
   "input": {
     "title": "chat: resume requested thread on open",
     "body": "Legacy null-course threads resume into the selected course.",

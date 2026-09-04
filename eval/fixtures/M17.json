@@ -1,0 +1,34 @@
+{
+  "id": "M17",
+  "kind": "positive",
+  "origin": "synthetic",
+  "paired_with": "C17",
+  "family": "absolute-consistency",
+  "input": {
+    "title": "docs: describe response caching",
+    "body": "Documents the caching layer.",
+    "files": [
+      {
+        "path": "docs/caching.md",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/docs/caching.md\n@@ -0,0 +1,9 @@\n+# Response caching\n+\n+All API responses are served from the cache; the origin is only\n+contacted to repopulate it on expiry.\n+\n+## Probe wiring\n+\n+/health and /metrics bypass the cache and always hit origin\n+services, so probes reflect live state.\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "all api responses",
+          "every response",
+          "absolute",
+          "unqualif",
+          "contradict"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: unqualified absolute ('All API responses') contradicts the probe bypass documented in the same file."
+}

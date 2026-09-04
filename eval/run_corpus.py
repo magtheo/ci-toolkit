@@ -87,6 +87,21 @@ DEFAULT_MODEL = "anthropic/claude-haiku-4.5"
 TEMPERATURE = 0.2
 MAX_TOKENS = 2000
 
+# Track 1 failure-family registry (plan rev 5, T1.1). Declared HERE —
+# inside the oracle-hashed harness file — so family semantics are part
+# of the oracle identity (fail closed): a family rename/redefinition
+# is an oracle change, not a silent relabeling. A fixture's `family`
+# tags the discrimination axis its PAIR probes (both members share
+# it). See eval/evidence/track1-taxonomy-<date>.md for definitions,
+# provenance, and the classification of every baseline false blocker.
+FAMILIES = (
+    "hallucinated-fact",          # asserted falsehood about semantics/content
+    "speculative-consequence",    # conditional harm chain as blocking grounds
+    "risk-boilerplate",           # guard-blind security-vocabulary recital
+    "severity-inflation",         # advisory-grade material marked blocking
+    "absolute-consistency",       # unqualified-absolute claim vs same diff
+)
+
 
 SEVERITIES = ("blocking", "non-blocking")
 ASSESSMENTS = ("CLEAR", "ISSUES_FOUND")
@@ -97,6 +112,10 @@ def _validate_fixture(f, ids):
     pair = f["paired_with"]
     assert pair in ids, "{0} paired with unknown {1}".format(f["id"], pair)
     assert f["kind"] in ("positive", "control")
+    fam = f.get("family")
+    assert fam is None or fam in FAMILIES, \
+        "{0}: unknown family {1!r} (declared: {2})".format(
+            f["id"], fam, ", ".join(FAMILIES))
     exp = f["expected"]
     assert exp["assessment"] in ASSESSMENTS, \
         "{0}: expected.assessment must be CLEAR or ISSUES_FOUND "
@@ -135,6 +154,15 @@ def load_corpus(fixtures_dir):
     assert len(ids) == len(set(ids)), "duplicate fixture ids"
     for f in fixtures:
         _validate_fixture(f, set(ids))
+    # family tags the discrimination axis a PAIR probes: both members
+    # carry it or neither does (absent counts as a value).
+    by_id = {f["id"]: f for f in fixtures}
+    for f in fixtures:
+        mate = by_id[f["paired_with"]]
+        assert f.get("family") == mate.get("family"), \
+            "{0}/{1}: pair family mismatch ({2!r} vs {3!r})".format(
+                f["id"], mate["id"],
+                f.get("family"), mate.get("family"))
     return fixtures
 
 

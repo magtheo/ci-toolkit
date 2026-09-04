@@ -34,11 +34,63 @@ ADV = {"severity": "non-blocking", "file": "a", "comment": "nit",
 
 # ---- corpus ----------------------------------------------------------------
 
-def test_corpus_loads_all_sixteen_fixtures():
+def test_corpus_loads_all_thirty_six_fixtures():
     fixtures = rc.load_corpus(FIXTURES)
     ids = {f["id"] for f in fixtures}
-    assert ids == {"M{0}".format(i) for i in range(1, 9)} | \
-        {"C{0}".format(i) for i in range(1, 9)}
+    assert ids == {"M{0}".format(i) for i in range(1, 19)} | \
+        {"C{0}".format(i) for i in range(1, 19)}
+
+
+# ---- Track 1 family semantics (T1.1) ----------------------------------------
+
+def test_family_field_must_be_a_declared_family(tmp_path):
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    ctrl["family"] = "not-a-family"
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="unknown family"):
+        rc.load_corpus(tmp_path)
+
+
+def test_family_must_be_pair_consistent(tmp_path):
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    pos["family"] = "risk-boilerplate"  # control stays hallucinated-fact
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="pair family mismatch"):
+        rc.load_corpus(tmp_path)
+
+
+def test_family_absent_on_both_pair_members_is_valid(tmp_path):
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    for d in (ctrl, pos):
+        d.pop("family")
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    assert len(rc.load_corpus(tmp_path)) == 2
+
+
+def test_every_declared_family_has_two_new_frozen_pairs():
+    # plan rev 5, T1.1 acceptance: >=2 NEW frozen pairs per confirmed
+    # family beyond baseline coverage (baseline ids are M1-M8/C1-C8)
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    for family in rc.FAMILIES:
+        new_pairs = [fid for fid, f in fixtures.items()
+                     if f["kind"] == "positive" and f.get("family") == family
+                     and int(fid[1:]) >= 9]
+        assert len(new_pairs) >= 2, \
+            "{0}: expected >=2 new pairs, found {1}".format(family, new_pairs)
+
+
+def test_states_cover_every_fixture():
+    states = json.loads(
+        (FIXTURES.parent / "states.json").read_text())
+    fixtures = rc.load_corpus(FIXTURES)
+    assert {f["id"] for f in fixtures} == set(states), \
+        "states.json and corpus fixture ids must stay in lockstep"
 
 
 def test_every_positive_has_control_and_vice_versa():

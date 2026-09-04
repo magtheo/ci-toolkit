@@ -1,0 +1,37 @@
+{
+  "id": "M16",
+  "kind": "positive",
+  "origin": "synthetic",
+  "paired_with": "C16",
+  "family": "severity-inflation",
+  "input": {
+    "title": "core: best-effort label sync",
+    "body": "Adds label sync to the repo bootstrap.",
+    "files": [
+      {
+        "path": "core/sync.py",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/core/sync.py\n@@ -0,0 +1,9 @@\n+\n+\n+def sync_labels(session, repo):\n+    try:\n+        return session.put(\"{0}/labels\".format(repo), json=LABELS)\n+    except Exception:\n+        pass\n+    # fall through: report the summary the caller expects\n+    return {\"ok\": True, \"updated\": len(LABELS)}\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "except"
+        ],
+        "comment_any": [
+          "swallow",
+          "silently",
+          "ignor",
+          "fabricat",
+          "false success"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defects: bare except swallows every failure and the fall-through fabricates an ok summary \u2014 callers believe labels updated."
+}

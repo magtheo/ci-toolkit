@@ -1,0 +1,23 @@
+{
+  "id": "C17",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M17",
+  "family": "absolute-consistency",
+  "input": {
+    "title": "docs: describe response caching",
+    "body": "Documents the caching layer.",
+    "files": [
+      {
+        "path": "docs/caching.md",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/docs/caching.md\n@@ -0,0 +1,9 @@\n+# Response caching\n+\n+All API responses are served from the cache; the origin is only\n+contacted to repopulate it on expiry.\n+\n+## Probe wiring\n+\n+/health and /metrics bypass the cache and always hit origin\n+services, so probes reflect live state.\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: claim qualified up front, consistent with the Probe wiring section."
+}

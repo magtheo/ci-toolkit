@@ -3,6 +3,7 @@
   "kind": "positive",
   "origin": "synthetic replica (student-platform PR #36, miss #5)",
   "paired_with": "C5",
+  "family": "absolute-consistency",
   "input": {
     "title": "docs: describe the AI reviewer",
     "body": "Adds the reviewer documentation page.",
