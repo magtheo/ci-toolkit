@@ -256,18 +256,21 @@ Required sequence:
 3. Add `plans/<feature-slug>.md` and commit it.
 4. Create a milestone titled `<feature-slug>` (one-line goal + plan
    link) for the whole PR family.
-5. Have a human maintainer review the initial plan.
-6. Open a **draft umbrella pull request**:
+5. Open a **draft umbrella pull request** immediately:
 
 ```text
 feature/<feature-slug> -> main
 ```
 
+6. Have a human maintainer review the initial plan through the
+   umbrella PR.
+
 The umbrella PR is the home for the overall feature: it links the plan,
 carries the feature goal, and stays draft until every phase has merged
 and final validation is complete.
 
-Do not begin implementation before the plan has been reviewed.
+**Hard gate: implementation must not begin until the plan has been
+human-approved** (via the umbrella review).
 
 ---
 
@@ -612,9 +615,12 @@ Lessons from real failures, 2026-08:
    Branching off an unmerged PR head silently drags unrelated work
    into your PR's diff.
 2. **A phase PR must never merge into a feature branch whose parent
-   feature PR has already landed.** If the parent merges early, close
-   the feature branch and target `main` directly with the remaining
-   work.
+   feature PR has already landed.** If the umbrella lands while phase
+   work is still open, stop: re-evaluate the remaining work from
+   current `main` and route it correctly — the small-change path if
+   it genuinely qualifies, or a **new** feature branch (new plan, new
+   umbrella) if it does not. Never retarget an old phase branch
+   directly at `main`: it was never reviewed as a complete feature.
 3. **Verify what your PR actually carries** before declaring it ready:
    `gh pr diff <n> --name-only` must match the intended scope. A PR
    description that contradicts its diff is a defect.
