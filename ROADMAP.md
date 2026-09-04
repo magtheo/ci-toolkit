@@ -96,8 +96,10 @@ table's number.
   consistency rule, the reviewer blocked its own paired control 5/5
   under three wordings and two models — the blocking *narrative*
   changed with each wording while the blocking *verdict* never did.
-- **Current state:** ACTIVE — the next capability stage (Deviation 2).
-  First sharp target: M5/C5 separation. Scope guard: Track 1 must
+- **Current state:** ACTIVE — staged sub-plan T1.1–T1.5 lives in
+  `plans/reviewer-eval-baseline.md` (plan Deviation 4; plan-approval
+  phase PR pending). First sharp target: M5/C5 separation. Scope
+  guard: Track 1 must
   address the broader measured false-blocker problem (5/8 controls;
   stronger models make it worse), NOT special-case C5 — C5 passing
   while C1/C2/C3/C6/C8 still fail would be benchmark gaming, not
@@ -105,7 +107,9 @@ table's number.
 - **Candidate mechanism:** a discrimination requirement on every
   blocking finding — state the invariant violated, the concrete
   failing execution path, and the diff/context evidence; anything
-  that cannot be argued concretely is downgraded to advisory. Possibly
+  that cannot be argued concretely is downgraded to advisory
+  (candidate layer b in the Track 1 sub-plan; wording-only changes
+  admissible only with measured separation). Possibly
   a dedicated pass, but only if measurement shows the single-pass
   form insufficient (a layer must earn its existence — no big-bang
   pipeline redesign).
