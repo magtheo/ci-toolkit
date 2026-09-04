@@ -2,7 +2,17 @@
 
 Authoritative direction for maturing the AI reviewer. Companion to
 `plans/reviewer-eval-baseline.md` (measurement & qualification
-machinery — Phase 1–6) and `AGENTS.md` (governance).
+machinery — Phase 1–6), `AGENTS.md` (governance), and
+[`MATURITY_ROADMAP.md`](MATURITY_ROADMAP.md) (ci-toolkit platform
+maturity: releases, compatibility, deterministic CI, consumer
+contracts, operations, and fleet management).
+
+**Scope:** this roadmap is authoritative for reviewer intelligence and
+semantic capability. Platform maturity work belongs in
+`MATURITY_ROADMAP.md`; do not duplicate the same backlog in both.
+
+Last reviewed: 2026-08-30
+
 
 ## Philosophy
 
@@ -64,7 +74,6 @@ anti-pattern this roadmap exists to prevent.
 | 6 | External-contract reasoning | `/pulls/{n}` vs `/files` bug; M7 | identified; deterministic-first |
 | 7 | Architectural invariant reasoning | states.json-not-in-oracle_version (human-caught) | identified |
 | 8 | Acceptance / process truth | Phase-3/#10 circularity; #15 CLEAR-miss (both human-caught) | identified |
-| — | Deterministic gate expansion (supporting track) | repeated LLM attention on machine-checkable facts | first candidate: actionlint |
 
 Track 1 is the next active stage (resequenced ahead of the M5
 retry by plan Deviation 2, after the Phase 4 probe falsified the
@@ -179,10 +188,10 @@ table's number.
   human-caught; M7 (curl/HTTP semantics).
 - **Current state:** not systematically planned.
 - **Candidate mechanism:** deterministic-first: wherever an exact
-  validator can prove correctness (actionlint, schema validators,
-  API-shape checks), it belongs BELOW the AI layer; the AI reasons
-  only where no exact validator exists, and should flag
-  externally-dependent assumptions explicitly.
+  validator can prove correctness, that failure class should be handed
+  off to the deterministic-CI ownership in `MATURITY_ROADMAP.md` Stage
+  3.2; the AI reasons only where no exact validator exists, and should
+  flag externally-dependent assumptions explicitly.
 - **Acceptance criteria:** fixture family of wrong-endpoint /
   wrong-semantic-argument defects with clean paired usage; ≥2/3 with
   controls clean.
@@ -221,18 +230,15 @@ table's number.
 
 ---
 
-## Deterministic gate expansion (permanent supporting track)
+## Deterministic validation handoff
 
-Tests, type checking, linters, schema validators, `actionlint`, and
-other exact project-specific checks.
+Deterministic validation supporting reviewer capabilities is governed by
+`MATURITY_ROADMAP.md` Stage 3.2. Capability tracks may identify an exact check
+that would eliminate a semantic failure class, but implementation and ongoing
+maintenance of deterministic CI belongs there.
 
-**Principle: never spend LLM reasoning on something a deterministic
-tool can prove cheaply and exactly.**
-
-First candidate: `actionlint` on all workflows (pinned supply chain,
-CI-only surface). Lands only as a tiny independent change that does
-not derail the phase sequence — existing workflow patterns must be
-verified clean (or explicitly waived) first.
+**Principle:** never spend LLM reasoning on something a deterministic tool can
+prove cheaply and exactly.
 
 ---
 
@@ -264,3 +270,45 @@ Working classification: 2/3 are assertion-without-verification
 (grounding); 1/3 is conclusion calibration. Both fold into capability
 1, but the grounding subtype may warrant its own fixture family —
 decide when capability 1 work starts, with fresh measurement.
+
+Additional evidence (2026-08-31, ci-local-runners reviews — the
+external reviewer caught all three; ai-review was inoperative on
+the affected repos):
+
+4. **Runtime-dependency reasoning:** a lane image shipped without
+   python3 while the pinned reviewer executes python — nothing asked
+   "can the workload actually run here?" until a smoke job existed.
+   Classification candidate: external-contract/runtime (tracks 5/6
+   adjacent).
+5. **Test self-defeat:** the acceptance script verifying "no token
+   in argv" passed the live token to `grep`, placing it in a
+   world-readable argv during its own scan. Classification
+   candidate: reasoning about one's own mechanism (track 5 subtype).
+6. **Infrastructure trust reasoning:** `config.sh --token`
+   forwarding into world-readable `/proc/*/cmdline` on a shared
+   host — required crossing the container/host boundary with an
+   adversary model. Classification candidate: architectural
+   invariant (track 7).
+
+Side observation: while ai-review was inoperative (billing, then
+the pin-fetchability investigation), the external human reviewer
+carried the entire semantic review layer — consistent with the Review Model ordering
+(deterministic gates → AI evidence → human judgment), and a live
+reminder that the AI layer is evidence, not authority.
+
+7. **Premise acceptance against own-infrastructure evidence:** the
+   AI reviewer CLEAR'd the pin-governance docs and praised the
+   "dead pin" diagnosis — while the reviewer's own successful run
+   that same day (ci-toolkit 33377170635) had checked out that
+   exact SHA. Classification candidate: grounding/evidence-integrity
+   (track 1 subtype — a checkable contradiction with the system's
+   own observable record). The diagnosis itself was also
+   overgeneralized by the implementing agent; corrected in #20.
+
+8. **Praising nonfunctional code:** on PR #22 the AI reviewer
+   explicitly praised the credential-cleanup trap as reliable while
+   a second EXIT trap silently disabled it (bash traps replace, not
+   append) — functionality contradicted by reading the rest of the
+   same file. Classification candidate: grounding (asserting a
+   behavior checkable in-context), same subtype as (1)/(3).
+

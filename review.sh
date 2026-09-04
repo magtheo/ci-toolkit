@@ -20,6 +20,11 @@
 #     code, not from the branch under review;
 #   - OPENROUTER_API_KEY arrives from the caller's secrets at run time,
 #     never stored in this repo;
+#   - credentials reach curl via private header files (-H @file),
+#     never argv — process command lines are observable by
+#     co-located users on self-hosted runners. The GitHub token's
+#     header file lives here; the OpenRouter key's header file is
+#     created inside engine.py (same invariant);
 #   - all PR-derived text stays data: it is passed through jq --arg /
 #     temp files into JSON payloads, never through shell evaluation.
 
@@ -35,8 +40,28 @@ MODEL="${AI_REVIEW_MODEL:-anthropic/claude-haiku-4.5}"
 REPO_API="$API/repos/$GITHUB_REPOSITORY"
 TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Credential transport: Authorization headers are passed to curl via
+# private files (-H @file), never via argv — process command lines are
+# observable by co-located users on self-hosted runners (the same
+# /proc/<pid>/cmdline threat the ephemeral-lane design addresses).
+# The OpenRouter header file is created inside engine.py, under the
+# same invariant.
+HDR_DIR="$(mktemp -d)"
+
+# ONE cleanup for everything: a second `trap ... EXIT` would silently
+# REPLACE this one (bash traps do not append) — add new artifacts to
+# cleanup(), never a new trap. Unset-safe for early exits.
+cleanup() {
+    rm -rf "$HDR_DIR"
+    rm -f "${files_jsonl:-}" review_input.json review_result.json \
+          review.json
+}
+trap cleanup EXIT
+( umask 077
+  printf 'Authorization: Bearer %s' "$TOKEN" > "$HDR_DIR/gh" )
+
 curl_gh() { curl -sS -f --connect-timeout 10 --max-time 60 \
-  -H "Authorization: Bearer $TOKEN" \
+  -H @"$HDR_DIR/gh" \
   -H "Accept: application/vnd.github+json" "$@"; }
 
 pr=$(curl_gh "$REPO_API/pulls/$PR_NUMBER")
@@ -53,7 +78,6 @@ pr_title=$(jq -r .title <<<"$pr")
 
 # ---- changed files, paginated, capped ------------------------------------
 files_jsonl=$(mktemp)
-trap 'rm -f "$files_jsonl" review_input.json review_result.json review.json' EXIT
 page=1
 while :; do
   batch=$(curl_gh "$REPO_API/pulls/$PR_NUMBER/files?per_page=100&page=$page")
@@ -81,7 +105,7 @@ fi
 # weaker rubric because of a transient GitHub error.
 rubric=""
 code=$(curl -sS --connect-timeout 10 --max-time 60 \
-  -H "Authorization: Bearer $TOKEN" \
+  -H @"$HDR_DIR/gh" \
   -H "Accept: application/vnd.github+json" -o /dev/null -w '%{http_code}' \
   "$REPO_API/contents/.ai-review-rubric.md?ref=$base_sha" || true)
 case "$code" in
