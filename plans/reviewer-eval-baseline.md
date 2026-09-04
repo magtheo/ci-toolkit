@@ -370,9 +370,12 @@ not success, and clearing C5 while missing M5 is not success.
 ### Hard invariants (bind every T1 stage)
 
 1. **Sensitivity floor:** specificity may improve only without
-   materially reducing sensitivity — no positive fixture's
-   expected-finding detection may drop below its T1.2 baseline hits
-   at the same N.
+   reducing sensitivity — at any gate run (N=5, both required model
+   profiles), no positive fixture's expected-finding detection may
+   fall below its **frozen T1.2 N=5 reference hits** on that profile.
+   Positives with zero reference hits (out-of-scope known misses:
+   M4 → Stage 3, M6 → future rule) are covered by the floor
+   trivially and impose **no acquisition obligation** on Track 1.
 2. **M1–M8 non-regression:** existing defect detection must not
    regress (invariant 1 applied to the full positive set).
 3. **M5 and C5 must both classify correctly** at gate runs (M5
@@ -436,10 +439,17 @@ N=1 smoke run (spend-recorded).
 ### Stage T1.2 — Measured discrimination baseline (evidence only)
 
 Scope: full-corpus runs on the T1.1 corpus with the unchanged
-reviewer (feature-branch subject; exploratory N=3, or N=5 if the
-result will be cited as a gate reference), plus human narrative
-coding of blocking findings into taxonomy families. Metrics
-recorded per fixture and aggregated per family:
+reviewer (feature-branch subject), plus human narrative coding of
+blocking findings into taxonomy families. Two run tiers:
+
+- **exploratory** (N=3, either profile): iteration fuel, never cited
+  as a gate reference;
+- **the frozen non-regression reference**: full corpus, N=5, on BOTH
+  required model profiles (haiku-4.5 + sonnet-4.5), with the
+  unchanged reviewer. This — and only this — is the baseline the
+  T1.3/T1.5 sensitivity floors compare against.
+
+Metrics recorded per fixture and per profile, aggregated per family:
 
 - defect detection / recall (expected-finding hits; existing
   policy);
@@ -453,9 +463,10 @@ recorded per fixture and aggregated per family:
   bundle; a machine proxy becomes available only if T1.3 introduces
   structured evidence fields.
 
-Acceptance criteria: report bundle frozen under
-`eval/evidence/track1-baseline-<date>/` with the per-family table;
-this bundle is the non-regression reference for T1.3.
+Acceptance criteria: the frozen N=5 dual-profile reference bundle
+lands under `eval/evidence/track1-baseline-<date>/` with the
+per-family table AND per-positive, per-profile expected-finding
+hits — the explicit floor values T1.3/T1.5 compare against.
 
 ### Stage T1.3 — Smallest general mechanism (reviewer change only)
 
@@ -491,13 +502,24 @@ generalizes beyond one fixture):
 - d. dedicated discrimination pass — only if the single-pass form is
   measured insufficient; a layer must earn its existence.
 
-Acceptance criteria (stage exit):
+Acceptance criteria (stage exit — this is also the T1.4 entry gate):
 
-- at least one mechanism addressing the dominant measured family,
-  generalizing across ≥2 families (not M5/C5 alone);
-- M5 detected and C5 clean at N=5 with zero C5 false blockers —
-  necessary, explicitly not sufficient;
-- all hard invariants hold against the T1.2 reference.
+- **the complete development corpus (baseline + T1.1 seeds,
+  excluding holdout) satisfies the Track-1 criteria across EVERY
+  confirmed in-scope family**: zero false blockers on all in-scope
+  controls, per-family separation demonstrated, M5 detected ≥4/5
+  with C5 clean, and every sensitivity floor holds against the
+  frozen T1.2 N=5 reference, on both model profiles;
+- entering T1.4 on less — e.g. one mechanism generalizing across
+  two families while another family still fails — is forbidden:
+  the holdout must test generalization, not serve as another
+  development iteration;
+- mid-loop milestone (necessary, not sufficient): at least one
+  mechanism addressing the dominant measured family, generalizing
+  across ≥2 families (not M5/C5 alone);
+- all hard invariants hold against the T1.2 reference at every
+  recorded iteration; negative results are frozen with the same
+  discipline as positive ones.
 
 ### Stage T1.4 — Generalization gate (holdout corpus)
 
@@ -511,17 +533,32 @@ Freeze before the first run; evaluate once and record; re-authoring
 after a failure is a recorded deviation, not a quiet retry.
 
 Acceptance criteria: the frozen holdout passes the same gates as
-T1.5 (below) in a single recorded pass — all controls clean, all
-positives detected, no sensitivity loss, on the full matrix.
+T1.5 (below) in a single recorded pass, on the full matrix. Holdout
+fixtures are authored for confirmed families, so they are in-scope
+by construction: every holdout control clean (zero false blockers),
+every holdout positive ≥4/5 severity-matched detection. Corpus
+positives included in the same run follow the scope-aware positive
+gate (T1.5 criterion 1) — the holdout never becomes an obligation
+to solve out-of-scope known misses.
 
 ### Stage T1.5 — Qualification gate + Phase 5 handoff
 
 Track 1 is complete when ALL hold:
 
 1. full corpus (baseline + T1.1 seeds + T1.4 holdout) at N=5 on both
-   model profiles: every control zero false blockers; every positive
-   ≥4/5 expected-finding detection (severity-matched); zero GATING
-   regressions;
+   model profiles, with a **scope-aware positive gate**:
+   - **controls (all of them, baseline + seeds + holdout):** zero
+     false blockers — the discrimination obligation is universal;
+   - **M5:** ≥4/5 severity-matched detection — this track's own
+     target and the Phase 4/5 path;
+   - **positives with existing detection in the T1.2 reference:**
+     at least their frozen reference hits (the sensitivity floor);
+   - **out-of-scope known misses (M4 → Stage 3, M6 → future rule):**
+     preserve their recorded KNOWN_GAP/baseline state — Track 1 is
+     NOT required to acquire them and must not silently absorb
+     their ownership;
+   - **zero GATING regressions** (C4/C5/C7, plus anything promoted
+     later);
 2. per-family table green — every confirmed family shows separation;
 3. evidence bundles frozen (taxonomy, T1.2 baseline, T1.3 iterations
    incl. negative results, T1.4 holdout);
