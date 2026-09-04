@@ -16,6 +16,13 @@ plans/<feature-slug>.md
 The plan is the source of truth for feature scope. Implementation must not
 begin until the initial plan has been reviewed by a human maintainer.
 
+While a feature is open, the authoritative copy of its plan lives **on the
+feature branch** — main's copy may be stale until the umbrella PR merges.
+
+Phases are sequential by default. If any phases are intended to run in
+parallel from the same feature head, the plan must explicitly declare them
+independent (see AGENTS.md, "Branch Architecture").
+
 Small changes (see `AGENTS.md`, "Which Path: Small Change or Feature?") do
 **not** need a feature plan — they go directly to a single PR against `main`
 using the small-change checklist in the PR template.
@@ -98,6 +105,27 @@ information. The relationship is made visible two ways:
 ---
 
 ## PR description templates
+
+### Umbrella PR (`feature/*` -> `main`, draft until complete)
+
+```md
+## Plan
+
+`plans/<feature-slug>.md` (on this branch)
+
+## Goal
+
+One or two sentences.
+
+## Current state
+
+<!-- At each review boundary: phases complete / in flight / blocked,
+     drift assessment vs current `main`, known limitations. -->
+```
+
+Keep the umbrella description short — the plan and the milestone
+already know the family. Refresh "Current state" at every review
+boundary; a description that contradicts the diff is a defect.
 
 ### Phase PR (targets the feature branch)
 

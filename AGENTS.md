@@ -1,6 +1,7 @@
-<!-- Adapted from ci-toolkit templates/AGENTS.md (which generalized
-     student-platform's lived-in version) — this repo now dogs its own
-     food. -->
+<!-- Adapted from ci-toolkit templates/AGENTS.md (the canonical baseline
+     this repo maintains) — this repo dogs its own food. Repo-specific
+     additions: reviewer-eval standing rules, deployment contract, and
+     the pin-reachability branch exception. -->
 
 # AGENTS.md
 
@@ -11,15 +12,11 @@ repos — currently the **advisory AI pull-request reviewer** and the
 **reviewer evaluation / qualification infrastructure** — under a
 two-level branch workflow for human + coding-agent collaboration.
 
-Goals:
-
-- keep `main` stable;
-- make every risky change start from an explicit written plan;
-- give coding agents small, bounded implementation tasks;
-- review each implementation phase independently;
-- review the completed feature as a whole before it reaches `main`;
-- prevent agents from silently expanding scope or merging unreviewed
-  work.
+Goals: keep `main` stable; make every risky change start from an
+explicit written plan; give coding agents small, bounded tasks; review
+each phase independently; review the completed feature as a whole
+before it reaches `main`; prevent agents from silently expanding scope
+or merging unreviewed work.
 
 ---
 
@@ -31,7 +28,7 @@ and future repos.
 
 (`engine.py`, `render.py`, and `eval/` reach `main` with the
 umbrella `feature/reviewer-eval-baseline` merge; until then they live
-on that branch.)
+on that branch — read the plan from the feature branch, not `main`.)
 
 ```
 engine.py        Reviewer kernel — ReviewInput v1 -> ReviewResult v1.
@@ -49,8 +46,7 @@ eval/            Reviewer evaluation: fixtures (misses + paired
 tests/           Deterministic suite (engine contract, corpus,
                  qualification, security invariants).
 templates/       Governance copy-templates for consumer repos.
-plans/           Feature plans (see plans/ + plans/README.md pattern
-                 from student-platform).
+plans/           Feature plans (plans/README.md pattern).
 ROADMAP.md       The reviewer capability roadmap — authoritative
                  direction for reviewer intelligence work.
 ```
@@ -70,10 +66,7 @@ appendix), and never let it gate a merge by itself.
 
 ---
 
-## Branch Model
-
-Three change paths (same model as student-platform; full detail lives
-in `templates/AGENTS.md`, which this file adapts):
+## Branch Architecture
 
 ```text
 main
@@ -82,10 +75,44 @@ main
     └── phase/<feature-slug>/<nn>-<phase-slug>       (planned features)
 ```
 
+Full detail lives in `templates/AGENTS.md` (the canonical baseline this
+file adapts). The invariants, in short:
+
+- `main` is the **only permanent integration branch**. No permanent
+  middle layers (develop/staging/team/product-area) between `main` and
+  `feature/*`; a temporary integration or release branch is an explicit
+  human exception with a deletion condition. Deployment environments
+  are not Git branches.
+- One `feature/*` = one independently mergeable outcome. If two
+  outcomes can reach `main` independently, they are two features.
+- Phases are **sequential by default**: one unmerged phase per feature;
+  parallel phases from the same feature head only when the approved
+  plan declares them independent; phase-on-phase stacking only by
+  explicit human exception.
+- **Branch ownership:** agents write only branches they created for the
+  current task or branches the directing human explicitly assigned.
+  Every other branch is foreign. Ownership is about writing, not about
+  who owes integration — integration of `main` into a feature branch
+  happens by explicit assignment (e.g. the #26 reconciliation merge).
 - Never commit or push implementation work directly to `main`; work
-  reaches `main` only through a reviewed PR. Agents never merge.
-- Phase branches target their feature branch, never `main`.
-- One phase = one PR. No unrelated cleanup inside a phase PR.
+  reaches `main` only through a reviewed PR. Phase branches target
+  their feature branch, never `main`. One phase = one PR, no unrelated
+  cleanup inside a phase PR.
+- **Repo-specific exception — do not rely on automatic branch
+  deletion:** consumer pins reference merge SHAs whose reachability
+  must not depend on PR-branch lifecycles (2026-08-31 pin incident).
+  Long-lived pins are anchored under `pins/<sha>` refs.
+
+### Keeping current with `main` (drift triage)
+
+Synchronize the feature branch by **relevance**, never by commit
+count: unrelated changes → ignore during the current phase; shared
+code without contract overlap → integrate at the next phase boundary;
+same files or an engine/eval/deployment-contract dependency →
+coordinate and integrate before continuing. Before any whole-feature
+review, assess against current `main` — integrate if relevant, or
+**record the assessment** ("drift unrelated: docs + consumer README")
+and proceed.
 
 ### What counts as small here
 
@@ -99,6 +126,20 @@ touches the toolkit plus its tests only.
 Everything else is a feature and needs a plan first. **When in doubt,
 use the feature path.** If implementation reveals a small-change
 criterion no longer holds, stop and escalate to the feature workflow.
+A human maintainer may explicitly authorize the small path for a
+narrow failed criterion with recorded rationale; agents may never
+grant that exception to themselves.
+
+---
+
+## Source-of-truth hierarchy
+
+GitHub owns live state (open/merged/CI — derive it, never duplicate
+it). This file owns workflow rules. The open feature's plan, on the
+**feature branch**, owns feature intent. ROADMAP.md owns capability
+priorities, not PR state. PR descriptions must describe their exact
+current head at every review boundary — a description that
+contradicts its diff is a defect.
 
 ---
 
@@ -160,14 +201,14 @@ Before making code changes, answer from repository state: which
 branch am I on (small change or which feature/phase)? Where is the
 plan? Which phase? What are the acceptance criteria? What is out of
 scope? What validation is required? Which branch does the PR target?
+Is the branch mine for this task or explicitly assigned?
 
 If any cannot be determined reliably, stop and ask.
 
 Stop conditions and prohibited actions: as in `templates/AGENTS.md`
-(no direct commits/merges to `main`, no silent scope expansion, no
-silently rewriting approved plans, no hiding failures, no force-push
-to shared branches). One addition specific to this repo: **never
-change eval semantics (fixtures, states, harness thresholds) and
-reviewer intelligence (rubric, engine) in the same PR** — that
-combination is exactly what the oracle/subject separation exists to
-prevent.
+(no direct commits/merges to `main`, no writing to foreign branches,
+no silent scope expansion, no silently rewriting approved plans, no
+hiding failures). One addition specific to this repo: **never change
+eval semantics (fixtures, states, harness thresholds) and reviewer
+intelligence (rubric, engine) in the same PR** — that combination is
+exactly what the oracle/subject separation exists to prevent.
