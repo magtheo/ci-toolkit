@@ -163,6 +163,16 @@ def load_corpus(fixtures_dir):
             "{0}/{1}: pair family mismatch ({2!r} vs {3!r})".format(
                 f["id"], mate["id"],
                 f.get("family"), mate.get("family"))
+    # a pair must actually be a pair: identical inputs mean the
+    # "control" carries the defect (or the positive lost it) — the
+    # corpus would measure nothing. Caught M10/M12/C17/C18-style
+    # silent template failures in T1.1 review.
+    for f in fixtures:
+        if f["kind"] == "positive":
+            mate = by_id[f["paired_with"]]
+            assert f["input"] != mate["input"], \
+                "{0}/{1}: identical inputs — positive and control must " \
+                "differ".format(f["id"], mate["id"])
     return fixtures
 
 

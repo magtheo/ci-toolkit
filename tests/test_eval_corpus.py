@@ -73,6 +73,27 @@ def test_family_absent_on_both_pair_members_is_valid(tmp_path):
     assert len(rc.load_corpus(tmp_path)) == 2
 
 
+def test_identical_pair_inputs_are_rejected(tmp_path):
+    # a control identical to its positive carries the defect too —
+    # the pair measures nothing. This guard caught the T1.1 silent
+    # template failures (M10/M12/C17/C18).
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    pos["input"] = dict(ctrl["input"])  # positive now identical to control
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="identical inputs"):
+        rc.load_corpus(tmp_path)
+
+
+def test_real_corpus_pairs_all_diverge():
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    for fid, f in fixtures.items():
+        if f["kind"] == "positive":
+            mate = fixtures[f["paired_with"]]
+            assert f["input"] != mate["input"], fid
+
+
 def test_every_declared_family_has_two_new_frozen_pairs():
     # plan rev 5, T1.1 acceptance: >=2 NEW frozen pairs per confirmed
     # family beyond baseline coverage (baseline ids are M1-M8/C1-C8)

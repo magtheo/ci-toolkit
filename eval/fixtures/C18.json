@@ -11,7 +11,7 @@
       {
         "path": "docs/deployment.md",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/docs/deployment.md\n@@ -0,0 +1,10 @@\n+# Deployment\n+\n+Every commit merged to main is deployed to production\n+automatically; no human action is involved.\n+\n+## Environments\n+\n+Production deploys require approval from the release team \u2014 the\n+production environment carries required reviewers; staging deploys\n+are fully automatic.\n"
+        "patch": "--- /dev/null\n+++ b/docs/deployment.md\n@@ -0,0 +1,10 @@\n+# Deployment\n+\n+Every commit merged to main is deployed to production\n+automatically once the required production approval is granted.\n+\n+## Environments\n+\n+Production deploys require approval from the release team \u2014 the\n+production environment carries required reviewers; staging deploys\n+are fully automatic.\n"
       }
     ]
   },

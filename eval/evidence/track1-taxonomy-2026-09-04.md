@@ -135,7 +135,13 @@ authoring must do the same.
 Deterministic enforcement: `FAMILIES` is declared in
 `eval/run_corpus.py` (inside the oracle hash — a family change is
 an oracle change); fixtures carry a pair-consistent `family` field;
-tests pin ≥2 new pairs per family.
+tests pin ≥2 new pairs per family; and paired inputs MUST differ
+(loader guard) — identical positive/control inputs mean the pair
+measures nothing. That last guard was added after T1.1 review
+caught four silent template failures (M10/M12 lost their defects,
+C17/C18 carried them); M13 was likewise reduced to a single
+semantic delta vs C13 (floating tag vs pinned SHA) so reviewers are
+not scored against unmodeled blockers.
 
 Oracle consequence: corpus + states growth changes `oracle_version`
 (fail closed, per plan Deviation 4). New fixtures enter as

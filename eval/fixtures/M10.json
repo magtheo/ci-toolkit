@@ -11,7 +11,7 @@
       {
         "path": "core/branch_rules.py",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/core/branch_rules.py\n@@ -0,0 +1,8 @@\n+import re\n+\n+\n+def is_feature_branch(ref: str) -> bool:\n+    \"\"\"Only refs under feature/ may run the privileged lane.\"\"\"\n+    # match anchors at the start of the string; only feature/ refs pass\n+    return re.match(r\"feature/\", ref) is not None\n"
+        "patch": "--- /dev/null\n+++ b/core/branch_rules.py\n@@ -0,0 +1,8 @@\n+import re\n+\n+\n+def is_feature_branch(ref: str) -> bool:\n+    \"\"\"Only refs under feature/ may run the privileged lane.\"\"\"\n+    # only feature/ refs should pass\n+    return re.search(r\"feature/\", ref) is not None\n"
       }
     ]
   },

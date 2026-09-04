@@ -11,7 +11,7 @@
       {
         "path": "core/config.py",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/core/config.py\n@@ -0,0 +1,15 @@\n+import parse\n+\n+_cache = {}\n+\n+\n+async def load_config(session):\n+    \"\"\"Resilience contract: on origin failure serve the last-good\n+    cached config. An empty cache raises \u2014 a fresh origin error must\n+    not be silently masked when there is nothing valid to serve.\"\"\"\n+    try:\n+        raw = await session.get(CONFIG_URL)\n+        cfg = parse.parse(raw)\n+        _cache[\"last_good\"] = cfg\n+        return cfg\n+    except OriginError:\n+        return _cache[\"last_good\"]\n"
+        "patch": "--- /dev/null\n+++ b/core/config.py\n@@ -0,0 +1,15 @@\n+import parse\n+\n+_cache = {}\n+\n+\n+async def load_config(session):\n+    \"\"\"Resilience contract: on origin failure serve the last-good\n+    cached config. An empty cache raises \u2014 a fresh origin error must\n+    not be silently masked when there is nothing valid to serve.\"\"\"\n+    try:\n+        raw = await session.get(CONFIG_URL)\n+        cfg = parse.parse(raw)\n+        _cache[\"last_good\"] = cfg\n+        return cfg\n+    except (OriginError, ParseError):\n+        return _cache.get(\"last_good\", {})\n"
       }
     ]
   },

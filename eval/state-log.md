@@ -30,7 +30,7 @@ corpus 3dbfbfcf8c0ffc33 · rubric 415d8a38cfed9d3a · haiku-4.5 · N=3 ·
 
 ## 2026-09-04 — Track 1 T1.1 corpus growth (oracle change, not a measurement)
 
-corpus ad212335a1c37d6e · 36 fixtures (16 baseline + 20 new) · no run
+corpus 92683f53fb1f7e30 · 36 fixtures (16 baseline + 20 new) · no run
 
 - T1.1 (plan rev 5): failure taxonomy frozen at
   `eval/evidence/track1-taxonomy-2026-09-04.md`; five families
