@@ -1,15 +1,18 @@
 # Reviewer Eval Baseline
 
-Status: rev 4 — APPROVED 2026-08-29: reviewed across four external
-rounds and approved by maintainer merge of PR #8 (the authority
-event). Implementation may begin under the phase workflow: phase
-branches target feature/reviewer-eval-baseline.
+Status: rev 5 — APPROVED through rev 4 (2026-08-29, maintainer merge
+of PR #8); rev 5 adds the Track 1 staged sub-plan (T1.1–T1.5,
+Deviation 4) — PROPOSED, approval = maintainer review of the T1
+plan phase PR. Implementation may continue under the phase
+workflow: phase branches target feature/reviewer-eval-baseline.
 
-Revision history: rev 4 — engine/oracle phase separation, engine vs
-consumer-profile qualification levels, current-oracle deployment
-invariant, subject/oracle record separation, machine-verifiable
-promotion, ReviewResult purity (no GitHub rendering), duplicate M5
-step removed.
+Revision history: rev 5 — Track 1 discrimination sub-plan (stages,
+invariants, gates, lifecycle boundaries; Deviation 4). rev 4 —
+engine/oracle phase separation, engine vs consumer-profile
+qualification levels, current-oracle deployment invariant,
+subject/oracle record separation, machine-verifiable promotion,
+ReviewResult purity (no GitHub rendering), duplicate M5 step
+removed.
 
 ## Goal
 
@@ -296,8 +299,8 @@ formulation: paired control C5 was false-blocked 5/5 across three
 rubric wordings and two models; the stronger model increased broader
 false positives. Rubric reverted to pre-#16 text. Evidence:
 `eval/evidence/phase4-discrimination-probe-2026-08-30/`. Resumes only
-after Track 1 (discrimination) demonstrates capability — see
-ROADMAP.md.
+after the Track 1 exit criteria are met (T1.5, below; see also
+ROADMAP.md).
 
 ### Scope
 
@@ -313,6 +316,232 @@ ROADMAP.md.
 ### Validation
 
 - Qualification run on the merged SHA shows the M5 delta.
+
+## Track 1 — Reviewer discrimination (staged sub-plan)
+
+Status: PLANNED — this section IS the Track 1 implementation plan;
+no T1 implementation exists yet. Elaborates Deviation 2 (recorded as
+Deviation 4). Stages T1.1–T1.5 are sequential: each is one phase PR
+targeting the feature branch, and stage N must be merged before
+stage N+1 begins.
+
+### Goal / capability statement
+
+Improve the reviewer's ability to distinguish:
+
+- **real, actionable defects supported by repository/diff evidence**
+  from
+- **plausible-sounding but insufficiently supported concerns**,
+
+while **preserving defect detection**. The capability is paired
+discrimination, not attenuation: detecting M5 while blocking C5 is
+not success, and clearing C5 while missing M5 is not success.
+
+### Non-goals
+
+- No fixture-specific, lexical, path-keyed, or special-case rules.
+  M5/C5 is the first sharp diagnostic pair; the scope is the measured
+  false-blocker population (baseline: C1/C2/C3/C6/C8; contaminated
+  positives M1/M2/M3/M7; probe collateral on C7).
+- Not "make the reviewer less willing to block": the corpus makes
+  that structurally visible — expected findings are severity-matched,
+  so downgrading an intended blocking defect to advisory registers as
+  a detection failure, not a fix.
+- No reviewer-intelligence change and eval-semantics change in the
+  same PR (AGENTS.md standing rule; T1 stage boundaries enforce it).
+
+### Grounding evidence (frozen)
+
+- Baseline `eval/baseline-2026-08-30.json` + state-log: 5/8 controls
+  false-blocked; M1/M2/M3/M7 detected but contaminated by unexpected
+  blockers; M8 withheld by pair integrity (C8).
+- Phase-4 probe
+  `eval/evidence/phase4-discrimination-probe-2026-08-30/`: M5
+  detection inducible, C5 separation not, across three rubric
+  wordings × two models; wording steers the blocking narrative, not
+  the blocking verdict; rubric edits have global collateral effects
+  (C7 0 → 8 blockers); recurring false-block class — immutable
+  full-SHA pinning flagged as a blocking security defect with
+  floating refs recommended as the "fix" (C1/C2).
+- ROADMAP appendix A (#14 self-review false positives): hallucinated
+  absence; inverted conclusion from a true premise; asserted test
+  gap without reading the tests.
+
+### Hard invariants (bind every T1 stage)
+
+1. **Sensitivity floor:** specificity may improve only without
+   materially reducing sensitivity — no positive fixture's
+   expected-finding detection may drop below its T1.2 baseline hits
+   at the same N.
+2. **M1–M8 non-regression:** existing defect detection must not
+   regress (invariant 1 applied to the full positive set).
+3. **M5 and C5 must both classify correctly** at gate runs (M5
+   detected at threshold, C5 zero false blockers).
+4. **C1/C2/C3/C6/C8 are inside the no-regression/discrimination
+   gate** — a mechanism that separates only M5/C5 does not exit T1.
+5. **No special-casing:** no fixture name, lexical pattern keyed to
+   a fixture, path-specific rule, or equivalent gaming.
+6. **New adversarial examples for the discovered failure families
+   must pass** (T1.1 seeds, T1.4 holdout).
+7. **Matrix reproduction:** gate runs use N=5 on the model matrix
+   haiku-4.5 + one stronger profile (sonnet-4.5 per probe
+   precedent), matching the qualification contract's shape.
+8. **Evidence frozen before promotion:** every gate run's report +
+   raw narratives land under `eval/evidence/track1-*/` before any
+   state or promotion decision cites it.
+9. **Promotion only after the generalization gate (T1.4) passes** —
+   never on development-corpus results alone.
+
+### Stage T1.1 — Failure taxonomy + frozen discrimination corpus
+(eval semantics only; no reviewer change in this PR)
+
+Scope:
+
+- Code **every** false blocker in the frozen evidence (baseline
+  per-fixture detail, probe runs, appendix A) into failure families;
+  anything unclassifiable is bucketed `unclassified`, never forced.
+  Taxonomy is derived from evidence and recorded in
+  `eval/evidence/track1-taxonomy-<date>.md`, citing report + run for
+  each exemplar.
+- Family hypotheses to confirm or replace (from current evidence):
+  unsupported security boilerplate (risk vocabulary without an
+  invariant; C1/C2 pinning); unqualified-absolute consistency
+  reading (M5/C5 axis — hyper-literal doc matching without reading
+  the qualifiers present); speculative consequence (blocking on what
+  could happen, no concrete failing execution path); asserted
+  absence / hallucinated context (appendix A); severity inflation
+  (advisory-grade material marked blocking).
+- For each confirmed family: at least one control exemplar and one
+  near-miss positive exemplar, either cited from existing fixtures
+  or **newly frozen** adversarial pairs (transformed: renamed paths,
+  restructured files, semantically equivalent rewording, other
+  domains where the family applies).
+- New fixtures carry an additive `family` field; fixture validation
+  and deterministic tests extend accordingly. This intentionally
+  changes `oracle_version` (fail closed; see Deviation 4).
+
+Acceptance criteria:
+
+- every false blocker in the frozen evidence is classified or
+  explicitly bucketed `unclassified`;
+- ≥2 frozen pairs per confirmed family not already covered by the
+  baseline corpus;
+- taxonomy document cites report + run for every exemplar;
+- deterministic suite green (fixture validation, corpus loading,
+  oracle-input pinning updated to the new corpus).
+
+Validation: `python3 -m pytest tests/ -q`; corpus loads; optional
+N=1 smoke run (spend-recorded).
+
+### Stage T1.2 — Measured discrimination baseline (evidence only)
+
+Scope: full-corpus runs on the T1.1 corpus with the unchanged
+reviewer (feature-branch subject; exploratory N=3, or N=5 if the
+result will be cited as a gate reference), plus human narrative
+coding of blocking findings into taxonomy families. Metrics
+recorded per fixture and aggregated per family:
+
+- defect detection / recall (expected-finding hits; existing
+  policy);
+- control preservation: zero-tolerance false blockers per control;
+- false-block count and rate per control per run;
+- false-clear rate per positive (runs answered CLEAR or
+  INCONCLUSIVE while the defect is present);
+- paired Mx/Cx discrimination (pair-integrity eligibility);
+- grounding quality: human-coded basis for each blocking narrative
+  (cited-evidence / inferred / asserted), recorded in the evidence
+  bundle; a machine proxy becomes available only if T1.3 introduces
+  structured evidence fields.
+
+Acceptance criteria: report bundle frozen under
+`eval/evidence/track1-baseline-<date>/` with the per-family table;
+this bundle is the non-regression reference for T1.3.
+
+### Stage T1.3 — Smallest general mechanism (reviewer change only)
+
+Development loop, per iteration:
+
+```text
+pick failure family (dominant measured first)
+        ↓
+propose the SMALLEST mechanism, naming its layer
+        ↓
+implement on a phase branch (reviewer only — no eval files)
+        ↓
+measure on the T1.2 protocol; compare per family
+        ↓
+invariants hold?  ── no ──→ revert; record the negative result
+        ↓ yes
+next family / next mechanism
+```
+
+Candidate layers (a mechanism must name its layer and say why it
+generalizes beyond one fixture):
+
+- a. rubric / reasoning contract — probe evidence shows wording
+  alone steers narratives, not verdicts; a wording-only change is
+  admissible only with measured separation;
+- b. finding schema + deterministic support validation — blocking
+  findings must carry structured support (stated invariant, concrete
+  failing execution path, cited diff/context evidence); under-
+  supported blocking findings are downgraded to advisory by the
+  deterministic layer (parse/engine), keeping the decision auditable;
+- c. evidence representation — enrich ReviewInput context/budgeting
+  so the model can ground rather than guess;
+- d. dedicated discrimination pass — only if the single-pass form is
+  measured insufficient; a layer must earn its existence.
+
+Acceptance criteria (stage exit):
+
+- at least one mechanism addressing the dominant measured family,
+  generalizing across ≥2 families (not M5/C5 alone);
+- M5 detected and C5 clean at N=5 with zero C5 false blockers —
+  necessary, explicitly not sufficient;
+- all hard invariants hold against the T1.2 reference.
+
+### Stage T1.4 — Generalization gate (holdout corpus)
+
+Scope: author new holdout fixtures per confirmed family from the
+family definitions alone — **without reference to mechanism
+internals or failure outputs**. Per family: a true-defect variant
+(positive), a near-miss control, an ambiguous case (control-kind:
+advisory allowed, zero blocking expected), and at least one
+transformed variant (rename/restructure/reword/other domain).
+Freeze before the first run; evaluate once and record; re-authoring
+after a failure is a recorded deviation, not a quiet retry.
+
+Acceptance criteria: the frozen holdout passes the same gates as
+T1.5 (below) in a single recorded pass — all controls clean, all
+positives detected, no sensitivity loss, on the full matrix.
+
+### Stage T1.5 — Qualification gate + Phase 5 handoff
+
+Track 1 is complete when ALL hold:
+
+1. full corpus (baseline + T1.1 seeds + T1.4 holdout) at N=5 on both
+   model profiles: every control zero false blockers; every positive
+   ≥4/5 expected-finding detection (severity-matched); zero GATING
+   regressions;
+2. per-family table green — every confirmed family shows separation;
+3. evidence bundles frozen (taxonomy, T1.2 baseline, T1.3 iterations
+   incl. negative results, T1.4 holdout);
+4. the mechanism PR(s) are human-reviewed and merged into the
+   feature branch;
+5. boundary honesty: T1 gates are **experimental evaluations on
+   feature-branch SHAs** — they carry no deployment authorization;
+   deployment-relevant qualification runs on merged-main subjects
+   after the umbrella merges (activation gates; Deviations 1/3/4).
+
+Handoff: with T1.5 green, Phase 4 (M5 rule) resumes under its
+existing scope and Phase 5 promotion follows its existing criteria,
+unchanged.
+
+### Spend and authorization
+
+Model calls run against the directing human's OpenRouter key. Every
+evidence bundle records call count and token spend (probe
+precedent: 400 calls). Runs at probe scale are pre-authorized by
+approval of this plan; larger scales ask first.
 
 ## Phase 5 — M5 promotion
 
@@ -366,6 +595,43 @@ Status: NOT STARTED
 - Manual inspection of first two scheduled reports.
 
 ## Plan deviations
+
+### Deviation 4 — Track 1 elaborated into a staged sub-plan; oracle
+lifecycle bounded (PROPOSED in the T1 plan phase PR; maintainer
+review of that PR is the approval)
+
+Deviation 2 resequenced Track 1 ahead of the M5 retry with a
+one-line pointer to ROADMAP.md. This amendment carries the full
+Track 1 implementation plan (stages T1.1–T1.5) inside this document
+so the umbrella's lifecycle is self-describing:
+
+```text
+Track 1 plan (this section)
+  -> T1.1 taxonomy + corpus   -> T1.2 measured baseline
+  -> T1.3 smallest mechanism  -> T1.4 generalization holdout
+  -> T1.5 exit gate
+  -> Phase 4 (M5 retry)  -> Phase 5 (promotion)
+  -> Phase 6 (drift)     -> whole-feature review -> merge
+  -> post-merge activation gates
+```
+
+Two lifecycle boundaries made explicit:
+
+- **Experimental vs qualification:** T1 gates are full-corpus
+  experimental evaluations on feature-branch SHAs; under the
+  Phase-3 contract they carry no deployment authorization.
+  Deployment-relevant qualification runs on merged-main subjects
+  after the umbrella merges — the same split class as Deviations 1
+  and 3.
+- **Oracle identity:** T1.1/T1.4 grow the corpus, intentionally
+  changing `oracle_version` and invalidating prior PASS records
+  (fail closed). No consumer pin depends on a PASS record today
+  (contract PENDING ACTIVATION); Track 1 corpus growth must
+  therefore complete before activation.
+
+The acceptance bar is not lowered: T1.5 requires the N=5,
+dual-model, no-regression gates in the qualification contract's
+shape.
 
 ### Deviation 3 — Phase 6 acceptance split across the umbrella merge
 boundary (PROPOSED in the reconciliation PR; maintainer review of
