@@ -272,7 +272,7 @@ disclosure.
   and the diff at `AI_REVIEW_MAX_DIFF` (default 120000 characters);
   the model is told about the truncation, but the assessment can
   still be Clear. A Clear on a huge PR is not a claim about the parts
-  that didn't fit. (Open product question, recorded in ROADMAP.md:
+  that didn't fit. (Open product question, recorded in MATURITY_ROADMAP.md Stage 3.6:
   make truncation visibly degrade the assessment toward
   Inconclusive/Partial.)
 - **Binary and patch-less files are not semantically reviewed.**
