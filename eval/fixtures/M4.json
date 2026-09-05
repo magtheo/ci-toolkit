@@ -10,7 +10,7 @@
       {
         "path": "apps/worker/exceptions.py",
         "status": "modified",
-        "patch": "--- a/apps/worker/exceptions.py\n+++ b/apps/worker/exceptions.py\n@@ -1,3 +1,14 @@\n+\"\"\"Worker exceptions.\n+\n+All retry decisions flow through ProcessingError.retryable: the\n+orchestrator consults this flag and no other signal when deciding\n+whether to re-queue a failed job.\n+\"\"\"\n+\n+class ProcessingError(Exception):\n+    def __init__(self, message, retryable=False):\n+        super().__init__(message)\n+        self.retryable = retryable"
+        "patch": "--- a/apps/worker/exceptions.py\n+++ b/apps/worker/exceptions.py\n@@ -0,0 +1,11 @@\n+\"\"\"Worker exceptions.\n+\n+All retry decisions flow through ProcessingError.retryable: the\n+orchestrator consults this flag and no other signal when deciding\n+whether to re-queue a failed job.\n+\"\"\"\n+\n+class ProcessingError(Exception):\n+    def __init__(self, message, retryable=False):\n+        super().__init__(message)\n+        self.retryable = retryable\n"
       }
     ]
   },

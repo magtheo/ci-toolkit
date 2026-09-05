@@ -11,7 +11,7 @@
       {
         "path": "roadmap-freshness.sh",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/roadmap-freshness.sh\n@@ -0,0 +1,13 @@\n+#!/usr/bin/env bash\n+# Flags repositories whose ROADMAP 'Last reviewed:' date is\n+# older than 30 days, judged from the PARSED DATE (so a repo\n+# reviewed yesterday but dated last month is still flagged).\n+set -euo pipefail\n+for repo in \"$@\"; do\n+  if [ -f \"$repo/plans/ROADMAP.md\" ]; then\n+    # freshness check per the contract above\n+    if find \"$repo/plans/ROADMAP.md\" -mtime -30 | grep -q .; then\n+      echo \"OK: $repo\"\n+    else\n+      echo \"STALE: $repo\"\n+    fi\n+  fi\n+done\n"
+        "patch": "--- /dev/null\n+++ b/roadmap-freshness.sh\n@@ -0,0 +1,15 @@\n+#!/usr/bin/env bash\n+# Flags repositories whose ROADMAP 'Last reviewed:' date is\n+# older than 30 days, judged from the PARSED DATE (so a repo\n+# reviewed yesterday but dated last month is still flagged).\n+set -euo pipefail\n+for repo in \"$@\"; do\n+  if [ -f \"$repo/plans/ROADMAP.md\" ]; then\n+    # freshness check per the contract above\n+    if find \"$repo/plans/ROADMAP.md\" -mtime -30 | grep -q .; then\n+      echo \"OK: $repo\"\n+    else\n+      echo \"STALE: $repo\"\n+    fi\n+  fi\n+done\n"
       }
     ]
   },

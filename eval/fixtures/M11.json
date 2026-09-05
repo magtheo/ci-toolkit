@@ -11,7 +11,7 @@
       {
         "path": "scripts/check-migrations.sh",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/scripts/check-migrations.sh\n@@ -0,0 +1,9 @@\n+#!/usr/bin/env bash\n+# Wrapper contract: ALWAYS exit 0 and report the outcome as JSON \u2014\n+# callers compose on .status.\n+set -uo pipefail\n+status=ok\n+npx prisma migrate status --skip-generate >/dev/null 2>&1 || true\n+printf '{\"status\":\"%s\"}\\n' \"$status\"\n+exit 0\n"
+        "patch": "--- /dev/null\n+++ b/scripts/check-migrations.sh\n@@ -0,0 +1,8 @@\n+#!/usr/bin/env bash\n+# Wrapper contract: ALWAYS exit 0 and report the outcome as JSON \u2014\n+# callers compose on .status.\n+set -uo pipefail\n+status=ok\n+npx prisma migrate status --skip-generate >/dev/null 2>&1 || true\n+printf '{\"status\":\"%s\"}\\n' \"$status\"\n+exit 0\n"
       }
     ]
   },

@@ -32,6 +32,43 @@ original needles preserved; enforced by test):
 | M2 | 3 | `toolkit_ref: main` narratives genuinely express the SECOND frozen finding (floating ref): any-of extended with `toolkit_ref/supply/latest` (original `@main` needle missed the no-@ phrasing). |
 | M6 | 4 | **NOT extended.** The narratives claim an *inversion*; the frozen defect is per-line-vs-slurp semantics (`jq -e` without `-s`). They misattribute the mechanism — not genuine expressions. Remain false blockers. |
 
+## Round 2 (external review): embedded diff structure + witness-tested matchers
+
+**Unified-diff structure validator** (oracle-hashed, in
+`_validate_patch_structure`): every fixture patch's hunk headers are
+checked against the actual bodies — old-side = context + removed,
+new-side = context + added, canonical `-0,0` for added files, fail
+closed on malformed headers/body lines. Running it across the corpus
+revealed **19 fixtures with stale or non-canonical hunk metadata**
+(C1, C4–C7, C9, M1–M4, M6–M9, M10–M13, M15, M16 — including
+Phase-2-era headers like `-1,0`), all recomputed to their actual
+counts. The exact patch string is reviewer input; malformed diff
+metadata was itself a corpus-validity artifact. Tests prove wrong
+old-side and new-side counts are rejected.
+
+**Matcher-repair validation strengthened beyond lexical monotonicity.**
+The first repair's union-preservation test was judged insufficient:
+for M10/M12/M16 the required `comment_all` concepts had been moved
+into a broad `comment_any` pool, admitting generic-token matches
+(`search`/`parse`/`except` alone). The final design:
+
+- needles are semantically sufficient phrases; generic single tokens
+  dropped (M12 additionally drops bare `empty` — the witness set
+  showed test-requirement narratives saying "empty cache raising"
+  would false-accept);
+- the frozen #30 diagnostic evidence is used as a deterministic
+  **witness set** (`matcher-witnesses.json`, 122 witnesses: 69
+  `genuine_expected_expression`, 53 `not_expected_expression`, every
+  gap narrative ruled explicitly — including the rejected M9 chmod
+  pair, the M6 inversion narratives as negatives, and unrelated
+  blockers on every affected positive);
+- the enforced invariant: **all previously accepted genuine
+  detections remain accepted + every audited genuine gap becomes
+  accepted + every audited non-defect narrative stays rejected**
+  (test_matcher_repair_semantics_via_frozen_witnesses);
+- the existing matcher schema sufficed — no OR-of-conjunctions
+  complexity was needed.
+
 ## Deterministic guards added (authoring failure classes)
 
 In `eval/run_corpus.py` (inside the oracle hash), enforced by
@@ -51,7 +88,9 @@ In `eval/run_corpus.py` (inside the oracle hash), enforced by
 
 ## Identity
 
-- `oracle_version`: `92683f53fb1f7e30` → **`61380c91e84db0ef`**
+- `oracle_version`: `92683f53fb1f7e30` → **`9fae85b26ff45dc6`**
+  (round 1 `61380c91e84db0ef` superseded by the round-2
+  diff-structure repairs + witness-driven needle redesign)
   (corpus + harness lint changes; states untouched — all 36 fixtures
   remain KNOWN_GAP / GATING as before; family taxonomy unchanged).
 - Full human semantic audit of the repaired corpus:

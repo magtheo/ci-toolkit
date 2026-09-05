@@ -11,7 +11,7 @@
       {
         "path": "core/config.py",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/core/config.py\n@@ -0,0 +1,15 @@\n+import json\n+\n+CONFIG_URL = \"https://config.internal.example/v1/current\"\n+\n+_cache = {}\n+\n+\n+class OriginError(Exception):\n+    \"\"\"Origin unreachable (network / 5xx).\"\"\"\n+\n+\n+class ParseError(Exception):\n+    \"\"\"Origin returned a malformed config payload.\"\"\"\n+\n+\n+def _decode(raw):\n+    try:\n+        return json.loads(raw)\n+    except ValueError:\n+        raise ParseError(\"malformed config payload\")\n+\n+\n+async def load_config(session):\n+    \"\"\"Resilience contract: on origin failure serve the last-good\n+    cached config. An empty cache raises \u2014 a fresh origin error must\n+    not be silently masked when there is nothing valid to serve.\"\"\"\n+    try:\n+        raw = await session.get(CONFIG_URL)\n+        cfg = _decode(raw)\n+        _cache[\"last_good\"] = cfg\n+        return cfg\n+    except (OriginError, ParseError):\n+        return _cache.get(\"last_good\", {})\n"
+        "patch": "--- /dev/null\n+++ b/core/config.py\n@@ -0,0 +1,33 @@\n+import json\n+\n+CONFIG_URL = \"https://config.internal.example/v1/current\"\n+\n+_cache = {}\n+\n+\n+class OriginError(Exception):\n+    \"\"\"Origin unreachable (network / 5xx).\"\"\"\n+\n+\n+class ParseError(Exception):\n+    \"\"\"Origin returned a malformed config payload.\"\"\"\n+\n+\n+def _decode(raw):\n+    try:\n+        return json.loads(raw)\n+    except ValueError:\n+        raise ParseError(\"malformed config payload\")\n+\n+\n+async def load_config(session):\n+    \"\"\"Resilience contract: on origin failure serve the last-good\n+    cached config. An empty cache raises \u2014 a fresh origin error must\n+    not be silently masked when there is nothing valid to serve.\"\"\"\n+    try:\n+        raw = await session.get(CONFIG_URL)\n+        cfg = _decode(raw)\n+        _cache[\"last_good\"] = cfg\n+        return cfg\n+    except (OriginError, ParseError):\n+        return _cache.get(\"last_good\", {})\n"
       }
     ]
   },
@@ -24,14 +24,15 @@
         "comment_any": [
           "mask",
           "swallow",
-          "empty",
           "{}",
           "KeyError",
           "silently",
           "docstring",
-          "contradict",
           "instead of raising",
-          "parse"
+          "empty dict",
+          "contradicts the",
+          "returns {}",
+          "masks"
         ]
       }
     ]

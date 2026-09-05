@@ -2,7 +2,7 @@
   "_meta": {
     "purpose": "Human semantic audit of the REPAIRED 36-fixture corpus, frozen BEFORE any T1.2 remeasurement spend authorization (directing instruction). Judged strictly from the exact ReviewInput presented; modified files carry implied surrounding content, added files must be self-contained.",
     "repair_pr": "phase/reviewer-eval-baseline/08-oracle-repair",
-    "oracle_version_after_repair": "61380c91e84db0ef",
+    "oracle_version_after_repair": "9fae85b26ff45dc6",
     "model_calls": 0
   },
   "fixtures": {

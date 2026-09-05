@@ -127,3 +127,24 @@ corpus 92683f53fb1f7e30 -> 61380c91e84db0ef · 36 fixtures · 0 model calls
 - No GATING changes; family taxonomy unchanged; reviewer untouched.
   Binding T1.2 reference = the upcoming unchanged-reviewer N=5
   remeasurement (Deviation 5).
+
+## 2026-09-05 — Oracle repair round 2: diff-structure validation + witness-tested matchers
+
+corpus 61380c91e84db0ef -> 9fae85b26ff45dc6 · 0 model calls
+
+- Embedded unified-diff validator added (oracle-hashed): hunk
+  old/new counts must match bodies; canonical -0,0 added-file form;
+  fail closed on malformed metadata. 19 fixtures carried stale or
+  non-canonical headers (including Phase-2-era -1,0) — all
+  recomputed. The patch string is reviewer input; malformed diff
+  metadata was itself a corpus-validity artifact.
+- Matcher validation strengthened beyond lexical union preservation:
+  frozen #30 evidence frozen as a 122-witness set (69 genuine / 53
+  not_expected, every gap narrative ruled explicitly). Final needles
+  use semantically sufficient phrases; generic single tokens
+  (search/parse/except) and M12's bare 'empty' dropped after the
+  witness set showed false-acceptance. Enforced invariant: genuine
+  detections stay accepted, audited genuine gaps become accepted,
+  audited non-defect narratives stay rejected. Schema unchanged.
+- 148 tests pass; states and family taxonomy unchanged; reviewer
+  untouched.
