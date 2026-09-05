@@ -62,3 +62,20 @@ haiku-4.5 + sonnet-4.5 · N=5 each · 360 calls, 0 retries
   fixtures (M9/C9) induce structurally invalid JSON from haiku
   (9/10 INCONCLUSIVE; detection narrative present in raw output).
   Relevant to T1.3's mechanism menu; frozen unadapted.
+
+## 2026-09-05 — T1.2 derived-evidence pass (no model calls)
+
+- `narrative-coding.jsonl`: all 584 blocking findings across both
+  profiles human-coded (172 expected-defect, 412 false blockers;
+  family + grounding basis + rationale + report pointer).
+- `derived-metrics.json`: emitted-false-blocker aggregation and
+  false-clear metrics (CLEAR-or-INCONCLUSIVE on positives).
+- Recomputed conclusion: dominant EMITTED family is
+  speculative-consequence (46h/68s), NOT risk-boilerplate (15/20) —
+  the fixture-family table measures the tested axis, not the emitted
+  failure. unclassified mass (64/86) decomposes into corpus
+  artifacts (95: fragment symbols, placeholder SHA) and
+  matcher-vocabulary gaps (55: true detections phrased outside
+  frozen needles) — recorded for human triage, not T1.3 targets.
+- GATING wording corrected to the evidence-only formulation: the
+  prior N=3 pass was not stable at N=5.

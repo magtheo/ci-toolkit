@@ -62,20 +62,38 @@ runs may not fall below these on the same profile (invariant 1):
 
 ## Key findings (frozen, unadapted)
 
-1. **Dominant failure family: `risk-boilerplate`** on both profiles
-   (41/46 false blockers across C1/C2/C13/C14; M13 detection weak).
-   `hallucinated-fact` second (0/4 controls clean both profiles).
-2. **Profile asymmetry, not monotonic improvement**: sonnet detects
+1. **Dominant EMITTED failure family: `speculative-consequence`**
+   (46 haiku / 68 sonnet human-coded false blockers), followed by
+   the `unclassified` mass (64/86, decomposed below), then
+   `severity-inflation` (20/43), `hallucinated-fact` (26/24), and
+   `risk-boilerplate` (15/20). The fixture-family table above
+   (risk-boilerplate 41/46) measures the discrimination AXIS being
+   tested, not the failure actually emitted — the two are distinct
+   measurements (see `derived-metrics.json` +
+   `narrative-coding.jsonl`). **T1.3's "dominant measured first"
+   ordering follows the emitted-failure table.**
+2. **The `unclassified` mass decomposes into corpus artifacts, not
+   reviewer failures**: 95 fragment/placeholder artifacts (symbols
+   defined in the real module but absent from the self-contained
+   fixture fragment — C12/M12 CONFIG_URL/OriginError, C16/M16
+   LABELS, M7 imports; plus the placeholder-SHA class) and 55
+   matcher-vocabulary gaps (narratives that DO state the intended
+   defect — M9/M10/M12/M16/M6 — outside the frozen needles).
+   Recorded as eval/corpus observations for human triage; they are
+   NOT T1.3 targets.
+3. **Grounding basis is not the failure mode**: most false blockers
+   carry `cited-evidence` (93/110) or `inferred` (63/111) bases;
+   pure `asserted` recitals are minority (15/20). The reviewer
+   engages the diff — it grounds speculative and inflated claims.
+4. **Profile asymmetry, not monotonic improvement**: sonnet detects
    M9/M17/M18 at 5/5 where haiku scores 0 — but loses M4/M10/M13/M6
-   to 0 where haiku reaches 1–2. The probe's "stronger model made it
-   worse" refines to "stronger model shifts the failure surface."
-3. **GATING marginality (haiku)**: C4 and C7 violated zero-tolerance
+   to 0 where haiku reaches 1–2. The probe's "stronger model made
+   it worse" refines to "stronger model shifts the failure surface."
+5. **GATING marginality (haiku)**: C4 and C7 violated zero-tolerance
    with exactly 1 false blocker each (4/5 CLEAR). Sonnet: clean.
    Recorded as measured evidence; **no state change** in this stage.
-   The pass at the 2026-08-30 N=3 baseline reads as sample luck; the
-   T1.3 non-regression gate applies to zero-false-blockers on ALL
-   controls, which subsumes this.
-4. **Fail-closed parser robustness finding (M9/C9, haiku)**: 9/10
+   The prior N=3 pass was not stable at N=5.
+6. **Fail-closed parser robustness finding (M9/C9, haiku)**: 9/10
    runs INCONCLUSIVE. Root cause preserved in raw outputs: the model
    produces structurally invalid JSON on quoting-heavy bash content
    (the finding comment embeds jq/bash quoting and the JSON string is
@@ -84,9 +102,24 @@ runs may not fall below these on the same profile (invariant 1):
    correct behavior (malformed output must never become Clear), and
    this is reviewer robustness evidence directly relevant to T1.3's
    mechanism menu (output-format robustness), not a corpus defect.
-5. **Absolute-consistency is nearly inverted across profiles**:
+7. **Absolute-consistency is nearly inverted across profiles**:
    haiku clean-controls/zero-detection vs sonnet 2/3+2/3 detection
    with 3 false blockers — the M5/C5 axis remains the sharp target.
+
+## Derived artifacts (no model calls)
+
+- `narrative-coding.jsonl` — every normalized BLOCKING finding across
+  both profiles (584: 172 expected-defect, 412 false blockers),
+  human-coded with class, family (or `unclassified`), grounding
+  basis (`cited-evidence` / `inferred` / `asserted`), rationale,
+  and a deterministic pointer into the frozen reports.
+- `derived-metrics.json` — false-blocker aggregation by coded
+  family × profile and basis × family × profile; `unclassified`
+  decomposition; false-clear metrics per positive × profile.
+- False-clear definition (plan rev 5): a defect-containing run
+  whose normalized assessment is `CLEAR` **or** `INCONCLUSIVE`.
+  False-clear counts (/5): M5 5·5, M15/M17/M18 5·0 (haiku·sonnet),
+  M9 5·0, M4 0·5, M6 0·5 — the asymmetry signature again.
 
 ## Corpus-validity observations (recorded, NOT adapted)
 
@@ -94,11 +127,24 @@ Per the directing instruction, observations that might indicate
 corpus rather than reviewer issues are recorded here for human
 triage, with no changes made in this stage:
 
-- C12/M12 attracted the highest false-block counts in the corpus
-  (21 haiku / high sonnet) — the async/`ParseError` fixture may be
-  unusually provocative; keep under observation in T1.3 iterations.
+- **Fragment artifacts (95 coded FBs)**: self-contained fixture
+  fragments reference symbols defined in the real module
+  (C12/M12 `CONFIG_URL`/`OriginError`/`parse`, C16/M16 `LABELS`,
+  M7 imports) — the reviewer correctly reads the visible fragment.
+  Also the placeholder-SHA class (C1/C2 baseline fixtures).
+- **Matcher-vocabulary gaps (55 coded FBs)**: narratives that state
+  the intended defect in vocabulary outside the frozen needles
+  (M9 message-vs-branch phrasing, M10 'matches anywhere' without
+  'search', M12 docstring-violation without 'parse', M16
+  fabricated-success without the needles, M6). Semantically
+  detections; mechanically false blockers. Matcher needles are
+  oracle semantics — any change is a T1.4+ decision, not this
+  stage's.
+- C12/M12 attracted the highest false-block counts in the corpus —
+  the async/`ParseError` fixture may be unusually provocative; keep
+  under observation in T1.3 iterations.
 - M9/C9 quoting density correlates with malformed output on haiku
-  (see finding 4); classified as reviewer behavior, flagged here
+  (see finding 6); classified as reviewer behavior, flagged here
   because the fixture design amplifies it.
 
 ## Reproduction

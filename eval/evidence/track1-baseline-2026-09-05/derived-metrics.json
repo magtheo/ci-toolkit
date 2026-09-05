@@ -1,0 +1,362 @@
+{
+  "_meta": {
+    "derived_from": [
+      "haiku-n5.json",
+      "sonnet-n5.json",
+      "narrative-coding.jsonl"
+    ],
+    "no_model_calls": true,
+    "false_clear_definition": "defect-containing run whose normalized assessment is CLEAR or INCONCLUSIVE (plan rev 5, T1.2)"
+  },
+  "false_blockers_by_family_and_profile": {
+    "hallucinated-fact|haiku": 26,
+    "hallucinated-fact|sonnet": 24,
+    "risk-boilerplate|haiku": 15,
+    "risk-boilerplate|sonnet": 20,
+    "severity-inflation|haiku": 20,
+    "severity-inflation|sonnet": 43,
+    "speculative-consequence|haiku": 46,
+    "speculative-consequence|sonnet": 68,
+    "unclassified|haiku": 64,
+    "unclassified|sonnet": 86
+  },
+  "basis_by_family_and_profile": {
+    "asserted|risk-boilerplate|haiku": 15,
+    "asserted|risk-boilerplate|sonnet": 20,
+    "cited-evidence|hallucinated-fact|haiku": 26,
+    "cited-evidence|hallucinated-fact|sonnet": 24,
+    "cited-evidence|severity-inflation|haiku": 3,
+    "cited-evidence|unclassified|haiku": 64,
+    "cited-evidence|unclassified|sonnet": 86,
+    "inferred|severity-inflation|haiku": 17,
+    "inferred|severity-inflation|sonnet": 43,
+    "inferred|speculative-consequence|haiku": 46,
+    "inferred|speculative-consequence|sonnet": 68
+  },
+  "false_clear_by_positive_and_profile": {
+    "M1": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M10": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M11": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M12": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M13": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M14": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M15": {
+      "haiku": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 5,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M16": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M17": {
+      "haiku": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 5,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M18": {
+      "haiku": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 5,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M2": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M3": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M4": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 5,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M5": {
+      "haiku": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 5,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 5,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M6": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 5,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M7": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M8": {
+      "haiku": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    },
+    "M9": {
+      "haiku": {
+        "count": 5,
+        "rate": 1.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 5
+        }
+      },
+      "sonnet": {
+        "count": 0,
+        "rate": 0.0,
+        "detail": {
+          "CLEAR": 0,
+          "INCONCLUSIVE": 0
+        }
+      }
+    }
+  }
+}
