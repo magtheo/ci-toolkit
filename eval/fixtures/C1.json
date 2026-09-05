@@ -1,0 +1,23 @@
+{
+  "id": "C1",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M1",
+  "family": "risk-boilerplate",
+  "input": {
+    "title": "ci: wire up the ai-review caller",
+    "body": "Adds the reusable reviewer workflow.",
+    "files": [
+      {
+        "path": ".github/workflows/ai-review.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,15 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+permissions:\n+  pull-requests: write\n+  contents: read\n+jobs:\n+  review:\n+    if: ${{ !github.event.pull_request.head.repo.fork }}\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd\n+    with:\n+      toolkit_ref: 4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd\n+    secrets:\n+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: identical except the explicit single-secret mapping. Self-contained as presented: least-privilege permissions, fork guard, full-SHA pins both layers, explicit secret mapping."
+}

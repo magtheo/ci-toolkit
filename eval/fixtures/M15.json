@@ -1,0 +1,37 @@
+{
+  "id": "M15",
+  "kind": "positive",
+  "origin": "synthetic",
+  "paired_with": "C15",
+  "family": "severity-inflation",
+  "input": {
+    "title": "core: region validator",
+    "body": "Adds region input validation.",
+    "files": [
+      {
+        "path": "core/validators.py",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/core/validators.py\n@@ -0,0 +1,8 @@\n+def validate_region(region: str) -> str:\n+    # TODO: extract the region list into settings once a second\n+    # caller exists; keep the membership loop flat for now.\n+    allowed = (\"eu-nord-1\", \"eu-central-1\", \"us-east-1\")\n+    for r in allowed:\n+        if region == r:\n+            return region\n+    raise ValueError(\"unknown region: {0}\".format(region))\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "eu-nord"
+        ],
+        "comment_any": [
+          "typo",
+          "misspelled",
+          "wrong",
+          "invalid",
+          "rejects"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: allowed tuple misspells eu-north-1 as eu-nord-1 \u2014 valid regions are rejected with ValueError."
+}

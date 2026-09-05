@@ -1,0 +1,23 @@
+{
+  "id": "C15",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M15",
+  "family": "severity-inflation",
+  "input": {
+    "title": "core: region validator",
+    "body": "Adds region input validation.",
+    "files": [
+      {
+        "path": "core/validators.py",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/core/validators.py\n@@ -0,0 +1,8 @@\n+def validate_region(region: str) -> str:\n+    # TODO: extract the region list into settings once a second\n+    # caller exists; keep the membership loop flat for now.\n+    allowed = (\"eu-north-1\", \"eu-central-1\", \"us-east-1\")\n+    for r in allowed:\n+        if region == r:\n+            return region\n+    raise ValueError(\"unknown region: {0}\".format(region))\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: TODO note and naive loop are advisory-grade at most; the check is correct."
+}

@@ -1,0 +1,22 @@
+{
+  "id": "C7",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M7",
+  "input": {
+    "title": "engine: restructure model call",
+    "body": "Purely mechanical port; behavior-preserving.",
+    "files": [
+      {
+        "path": "engine.py",
+        "status": "modified",
+        "patch": "--- a/engine.py\n+++ b/engine.py\n@@ -2,6 +2,6 @@\n # Behavior-preserving extraction: the model call keeps the same\n # bounded HTTP semantics as the shell version.\n-HTTP = \"curl\"\n-def _post_chat(payload):\n-    subprocess.run([HTTP, \"-sS\", \"--connect-timeout\", \"10\",\n-                    \"--max-time\", \"180\", ...], ...)\n+import subprocess\n+def _post_chat(payload):\n+    subprocess.run([\"curl\", \"-sS\", \"--connect-timeout\", \"10\",\n+                    \"--max-time\", \"180\", ...], ...)\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: the restructure retains curl with identical bounds \u2014 the claim holds."
+}

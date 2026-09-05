@@ -1,0 +1,38 @@
+{
+  "id": "M11",
+  "kind": "positive",
+  "origin": "synthetic",
+  "paired_with": "C11",
+  "family": "speculative-consequence",
+  "input": {
+    "title": "ci: report migration state as JSON",
+    "body": "Wraps migrate status for the pipeline composer.",
+    "files": [
+      {
+        "path": "scripts/check-migrations.sh",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/scripts/check-migrations.sh\n@@ -0,0 +1,8 @@\n+#!/usr/bin/env bash\n+# Wrapper contract: ALWAYS exit 0 and report the outcome as JSON \u2014\n+# callers compose on .status.\n+set -uo pipefail\n+status=ok\n+npx prisma migrate status --skip-generate >/dev/null 2>&1 || true\n+printf '{\"status\":\"%s\"}\\n' \"$status\"\n+exit 0\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "status"
+        ],
+        "comment_any": [
+          "always",
+          "hardcoded",
+          "never",
+          "ignored",
+          "swallow",
+          "|| true"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: status is hardcoded ok \u2014 the check command's outcome is discarded (|| true), so failed/pending migrations report ok."
+}

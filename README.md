@@ -42,7 +42,11 @@ GitHub PR
    └── base-revision rubric (bundled, or your .ai-review-rubric.md)
           │
           ▼
-   ci-toolkit reviewer (API fetch; PR head never checked out)
+   review.sh — GitHub transport (API fetch; PR head never
+   checked out; trusted-base policy fetch) → ReviewInput v1
+          │
+          ▼
+   engine.py — prompt construction + model call
           │
           ▼
       OpenRouter  ← authenticated with the caller's LLM_API_KEY
@@ -51,7 +55,12 @@ GitHub PR
       model output
           │
           ▼
-   deterministic parser (parse_review.py)
+   parse_review.py — deterministic semantic normalization
+   (engine-internal; transport-free)
+          │
+          ▼
+   ReviewResult v1 → render.py — GitHub presentation;
+   the review event is the literal COMMENT
           │
           ▼
    GitHub COMMENT review  ← authenticated with GITHUB_TOKEN
@@ -75,7 +84,7 @@ Explicitly:
   downloaded as a git object, or executed. Only API metadata and diff
   text are fetched, via `jq`-safe data channels.
 - **Approvals impossible via this path.** The review event is the
-  literal string `COMMENT` in `parse_review.py` — not derived from
+  literal string `COMMENT` in `render.py` — not derived from
   model output, inputs, or environment.
 - **Explicit secret mapping.** Callers map `LLM_API_KEY` explicitly
   (never `secrets: inherit`); the reusable workflow's `permissions`
@@ -263,7 +272,7 @@ disclosure.
   and the diff at `AI_REVIEW_MAX_DIFF` (default 120000 characters);
   the model is told about the truncation, but the assessment can
   still be Clear. A Clear on a huge PR is not a claim about the parts
-  that didn't fit. (Open product question, recorded in ROADMAP.md:
+  that didn't fit. (Open product question, recorded in MATURITY_ROADMAP.md Stage 3.6:
   make truncation visibly degrade the assessment toward
   Inconclusive/Partial.)
 - **Binary and patch-less files are not semantically reviewed.**
@@ -328,14 +337,59 @@ has landed).
   (500/502/503/504) with backoff; explicit error reporting with HTTP
   codes;
 - changed-file list capped (`AI_REVIEW_MAX_FILES`, default 200);
-- payload construction extracted to `parse_review.py` with an
-  invariant test suite (`tests/`, run by `.github/workflows/tests.yml`):
-  COMMENT-only event, diff-addressable inline lines, malformed-output
-  degradation;
+- payload construction extracted with an invariant test suite
+  (`tests/`, run by `.github/workflows/tests.yml`): COMMENT-only
+  event, diff-addressable inline lines, malformed-output
+  degradation. Since the engine-boundary extraction
+  (reviewer-eval-baseline Phase 1) the pipeline is
+  `review.sh` (thin GitHub transport) → `engine.py`
+  (ReviewInput v1 → prompt/model call/normalization → ReviewResult
+  v1, shared with the eval harness) → `render.py` (GitHub renderer);
+  `parse_review.py` is the deterministic normalization stage.
 - credentials transported via private header files, never curl argv
-  (source-invariant tested).
+  (source-invariant tested) — in BOTH transports: `review.sh`
+  (GitHub token) and `engine.py` (OpenRouter key).
 
 Origin: student-platform feature `ai-pr-review` (plan + validation
 history live there). Later hardening rounds are documented in
 `plans/reviewer-eval-baseline.md`, `ROADMAP.md` (evidence appendix),
 and this repo's PR history.
+
+## Qualification & pin promotion (deployment contract)
+
+**Status: PENDING ACTIVATION** — the contract becomes ACTIVE only after the live post-merge demonstrations (first qualification on main, forced-red, old-subject requalification, dogfood pin-bump verification) pass; until then the review-only pin procedure governs.
+
+Merging to `main` is not deployment. A reviewer version is deployed
+only when a consumer pin references it, and pins may only be promoted
+to SHAs with machine-verifiable qualification evidence:
+
+```text
+qualification run (trusted main x current oracle)
+        ↓
+record: records/by-subject/<sha>.json  (qualifications branch)
+        ↓
+consumer pin-bump PR → verify-qualification check (secretless)
+        ↓
+merge = deploy
+```
+
+- **Qualification** (`.github/workflows/qualify.yml`) runs the current
+  oracle's corpus against a trusted merged subject (main-ancestry
+  verified before any secret is mapped; the subject's engine+rubric,
+  main's harness+corpus). Records land on the `qualifications` branch
+  with a commit status on the subject.
+- **Requalification**: any merged subject can be re-qualified against
+  a newer oracle via workflow dispatch — no new toolkit commit needed.
+- **Pair integrity is enforced by the machinery**: a positive fixture
+  is promotion-eligible only if it passes AND its paired control
+  passes (detection indistinguishable from over-triggering is not a
+  capability).
+- **Verification** (`.github/workflows/verify-qualification.yml`,
+  reusable + secretless) checks subject match, PASS, current oracle,
+  and model allowlist. Consumers wire it onto their pin-bump PRs (see
+  this repo's `review.yml` `verify-pin` job for the pattern). A PR
+  description citing qualification is documentation; the check is the
+  control.
+- Forced-red demonstrations exist for acceptance validation and are
+  labeled `forced_red` in records — they can never authorize a
+  promotion.

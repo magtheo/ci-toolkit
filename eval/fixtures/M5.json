@@ -1,0 +1,34 @@
+{
+  "id": "M5",
+  "kind": "positive",
+  "origin": "synthetic replica (student-platform PR #36, miss #5)",
+  "paired_with": "C5",
+  "family": "absolute-consistency",
+  "input": {
+    "title": "docs: describe the AI reviewer",
+    "body": "Adds the reviewer documentation page.",
+    "files": [
+      {
+        "path": "docs/review.md",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/docs/review.md\n@@ -0,0 +1,9 @@\n+# AI PR review\n+\n+Every pull request gets an automatic advisory AI review before a\n+human looks at it: a structured assessment with blocking-first\n+findings, inline comments and committable suggestions.\n+\n+## Wiring\n+Path skips: docs/**, plans/**; fork pull requests are skipped.\n+"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "every pull request",
+          "all pull requests",
+          "unqualif",
+          "absolute",
+          "contradict"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: unqualified absolute ('Every pull request') contradicts the exclusions documented in the same file."
+}

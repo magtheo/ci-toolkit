@@ -1,0 +1,35 @@
+{
+  "id": "M4",
+  "kind": "positive",
+  "origin": "synthetic replica (student-platform PR #35, miss #4)",
+  "paired_with": "C4",
+  "input": {
+    "title": "worker: document retry contract",
+    "body": "Documents how retries are decided.",
+    "files": [
+      {
+        "path": "apps/worker/exceptions.py",
+        "status": "modified",
+        "patch": "--- a/apps/worker/exceptions.py\n+++ b/apps/worker/exceptions.py\n@@ -0,0 +1,11 @@\n+\"\"\"Worker exceptions.\n+\n+All retry decisions flow through ProcessingError.retryable: the\n+orchestrator consults this flag and no other signal when deciding\n+whether to re-queue a failed job.\n+\"\"\"\n+\n+class ProcessingError(Exception):\n+    def __init__(self, message, retryable=False):\n+        super().__init__(message)\n+        self.retryable = retryable\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "cannot verify",
+          "unverifiable",
+          "not visible in the diff",
+          "outside the diff",
+          "cross-file",
+          "no evidence in the diff",
+          "isn't in the diff"
+        ]
+      }
+    ]
+  },
+  "note": "Desired capability (Stage 3 owner): a cross-file contract claim ('no other signal') unverifiable from the diff is flagged or caveated. Encoded NOW; if the current reviewer misses it, the measured result is simply KNOWN_GAP \u2014 that is the mechanism working, not the fixture failing."
+}
