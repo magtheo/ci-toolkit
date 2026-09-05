@@ -3,6 +3,7 @@
   "kind": "control",
   "origin": "synthetic",
   "paired_with": "M3",
+  "family": "hallucinated-fact",
   "input": {
     "title": "tooling: add roadmap freshness guard",
     "body": "Adds the anti-rot guard.",

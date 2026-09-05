@@ -1,0 +1,23 @@
+{
+  "id": "C13",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M13",
+  "family": "risk-boilerplate",
+  "input": {
+    "title": "ci: publish images on merge",
+    "body": "Wires the docker publish workflow.",
+    "files": [
+      {
+        "path": ".github/workflows/publish.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/publish.yml\n@@ -0,0 +1,14 @@\n+name: publish\n+on:\n+  pull_request_target:\n+    branches: [main]\n+permissions:\n+  contents: read\n+  packages: write\n+jobs:\n+  publish:\n+    if: ${{ !github.event.pull_request.head.repo.fork }}\n+    uses: some-org/release-tools/.github/workflows/docker-publish.yml@9f2a4c1e8b7d63a05c4e2f1b9d8a7c3e5f6021ab\n+    with:\n+      image_name: core-api\n+    secrets:\n+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: full-SHA pin, least-privilege permissions, fork guard, explicit single-secret mapping."
+}

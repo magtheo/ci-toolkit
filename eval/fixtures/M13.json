@@ -1,0 +1,37 @@
+{
+  "id": "M13",
+  "kind": "positive",
+  "origin": "synthetic",
+  "paired_with": "C13",
+  "family": "risk-boilerplate",
+  "input": {
+    "title": "ci: publish images on merge",
+    "body": "Wires the docker publish workflow.",
+    "files": [
+      {
+        "path": ".github/workflows/publish.yml",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/.github/workflows/publish.yml\n@@ -0,0 +1,14 @@\n+name: publish\n+on:\n+  pull_request_target:\n+    branches: [main]\n+permissions:\n+  contents: read\n+  packages: write\n+jobs:\n+  publish:\n+    if: ${{ !github.event.pull_request.head.repo.fork }}\n+    uses: some-org/release-tools/.github/workflows/docker-publish.yml@v4\n+    with:\n+      image_name: core-api\n+    secrets:\n+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "pin"
+        ],
+        "comment_any": [
+          "floating",
+          "tag",
+          "SHA",
+          "immutable",
+          "v4"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect (single delta vs C13): the reusable workflow is referenced by the floating tag v4 instead of the pinned full SHA \u2014 mutable, not verifiable."
+}

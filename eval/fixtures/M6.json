@@ -3,6 +3,7 @@
   "kind": "positive",
   "origin": "synthetic replica (ci-toolkit PR #11, miss #6)",
   "paired_with": "C6",
+  "family": "speculative-consequence",
   "input": {
     "title": "review: skip patchless PRs early",
     "body": "Skips PRs with no textual changes before fetching the rubric.",

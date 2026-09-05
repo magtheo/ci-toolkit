@@ -27,3 +27,19 @@ corpus 3dbfbfcf8c0ffc33 · rubric 415d8a38cfed9d3a · haiku-4.5 · N=3 ·
 - **M4, M5, M6 → KNOWN_GAP**: 0/3 detection — the three documented
   miss classes reproduce synthetically. Owners: M4 → Stage 3; M5 →
   phases 4–5; M6 → future rule (not yet planned).
+
+## 2026-09-04 — Track 1 T1.1 corpus growth (oracle change, not a measurement)
+
+corpus 92683f53fb1f7e30 · 36 fixtures (16 baseline + 20 new) · no run
+
+- T1.1 (plan rev 5): failure taxonomy frozen at
+  `eval/evidence/track1-taxonomy-2026-09-04.md`; five families
+  declared in `eval/run_corpus.py::FAMILIES`; existing pairs tagged
+  where classification is solid; 20 new adversarial fixtures
+  (M9-M18/C9-C18, >=2 new pairs per family).
+- New fixture states are INITIALIZED to KNOWN_GAP — not measured
+  classifications (the harness never writes states; these entries
+  exist so states.json and the corpus stay in lockstep and
+  `oracle_version` changes fail-closed per plan Deviation 4).
+- No GATING changes; no reviewer behavior change (eval-semantics-only
+  stage). T1.2 will measure the expanded corpus.

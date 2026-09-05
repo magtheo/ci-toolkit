@@ -3,6 +3,7 @@
   "kind": "positive",
   "origin": "synthetic replica (student-platform PR #50, miss #8)",
   "paired_with": "C8",
+  "family": "hallucinated-fact",
   "input": {
     "title": "chat: resume requested thread on open",
     "body": "Legacy null-course threads resume into the selected course.",

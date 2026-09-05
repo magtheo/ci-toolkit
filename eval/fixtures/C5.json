@@ -3,6 +3,7 @@
   "kind": "control",
   "origin": "synthetic",
   "paired_with": "M5",
+  "family": "absolute-consistency",
   "input": {
     "title": "docs: describe the AI reviewer",
     "body": "Adds the reviewer documentation page.",

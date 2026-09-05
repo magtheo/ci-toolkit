@@ -3,6 +3,7 @@
   "kind": "control",
   "origin": "synthetic (hardened canonical caller)",
   "paired_with": "M2",
+  "family": "risk-boilerplate",
   "input": {
     "title": "ci: wire up the ai-review caller",
     "body": "Adds the reusable reviewer workflow.",

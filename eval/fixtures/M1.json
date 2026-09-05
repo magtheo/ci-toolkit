@@ -3,6 +3,7 @@
   "kind": "positive",
   "origin": "synthetic replica (caller review rounds, miss #1)",
   "paired_with": "C1",
+  "family": "risk-boilerplate",
   "input": {
     "title": "ci: wire up the ai-review caller",
     "body": "Adds the reusable reviewer workflow.",

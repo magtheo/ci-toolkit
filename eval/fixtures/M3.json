@@ -3,6 +3,7 @@
   "kind": "positive",
   "origin": "real (ci-toolkit PR #7, miss #3)",
   "paired_with": "C3",
+  "family": "hallucinated-fact",
   "input": {
     "title": "tooling: add roadmap freshness guard",
     "body": "Adds the anti-rot guard.",

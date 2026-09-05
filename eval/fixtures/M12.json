@@ -1,0 +1,38 @@
+{
+  "id": "M12",
+  "kind": "positive",
+  "origin": "synthetic",
+  "paired_with": "C12",
+  "family": "speculative-consequence",
+  "input": {
+    "title": "core: last-good config fallback",
+    "body": "Adds resilience for origin outages.",
+    "files": [
+      {
+        "path": "core/config.py",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/core/config.py\n@@ -0,0 +1,15 @@\n+import parse\n+\n+_cache = {}\n+\n+\n+async def load_config(session):\n+    \"\"\"Resilience contract: on origin failure serve the last-good\n+    cached config. An empty cache raises \u2014 a fresh origin error must\n+    not be silently masked when there is nothing valid to serve.\"\"\"\n+    try:\n+        raw = await session.get(CONFIG_URL)\n+        cfg = parse.parse(raw)\n+        _cache[\"last_good\"] = cfg\n+        return cfg\n+    except (OriginError, ParseError):\n+        return _cache.get(\"last_good\", {})\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "parse"
+        ],
+        "comment_any": [
+          "mask",
+          "swallow",
+          "empty",
+          "{}",
+          "KeyError",
+          "silently"
+        ]
+      }
+    ]
+  },
+  "note": "Isolated defect: ParseError (a live origin bug) is masked as stale-good, and the empty fallback {} defers the failure to a distant KeyError."
+}
