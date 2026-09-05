@@ -11,7 +11,7 @@
       {
         "path": "core/sync.py",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/core/sync.py\n@@ -0,0 +1,9 @@\n+\n+\n+def sync_labels(session, repo):\n+    try:\n+        return session.put(\"{0}/labels\".format(repo), json=LABELS)\n+    except Exception:\n+        pass\n+    # fall through: report the summary the caller expects\n+    return {\"ok\": True, \"updated\": len(LABELS)}\n"
+        "patch": "--- /dev/null\n+++ b/core/sync.py\n@@ -0,0 +1,9 @@\n+import requests\n+\n+LABELS = {\"bug\": \"#d73a4a\", \"chore\": \"#cfd8dc\"}\n+\n+\n+def sync_labels(session, repo):\n+    try:\n+        return session.put(\"{0}/labels\".format(repo), json=LABELS)\n+    except Exception:\n+        pass\n+    # fall through: report the summary the caller expects\n+    return {\"ok\": True, \"updated\": len(LABELS)}\n"
       }
     ]
   },
@@ -20,15 +20,18 @@
     "findings": [
       {
         "severity": "blocking",
-        "comment_all": [
-          "except"
-        ],
+        "comment_all": [],
         "comment_any": [
+          "except",
           "swallow",
           "silently",
           "ignor",
           "fabricat",
-          "false success"
+          "false success",
+          "fake success",
+          "misleading",
+          "mask",
+          "returns {"
         ]
       }
     ]

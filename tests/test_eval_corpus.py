@@ -94,6 +94,72 @@ def test_real_corpus_pairs_all_diverge():
             assert f["input"] != mate["input"], fid
 
 
+# ---- oracle-repair validity guards (T1.2 diagnostic discoveries) -----------
+
+def _tmp_pair(tmp_path, fid="C9"):
+    ctrl = json.loads((FIXTURES / (fid + ".json")).read_text())
+    mate = fid.replace("C", "M", 1) if fid.startswith("C") else \
+        fid.replace("M", "C", 1)
+    pos = json.loads((FIXTURES / (mate + ".json")).read_text())
+    return ctrl, pos
+
+
+def test_placeholder_shas_are_rejected(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C13")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace(
+            "9f2a4c1e8b7d63a05c4e2f1b9d8a7c3e5f6021ab",
+            "0123456789abcdef0123456789abcdef01234567")
+    (tmp_path / "C13.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M13.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="placeholder"):
+        rc.load_corpus(tmp_path)
+
+
+def test_added_python_must_be_self_contained(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C12")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace("+CONFIG_URL =", "+OTHER_URL =")
+    (tmp_path / "C12.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M12.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="undefined names.*CONFIG_URL"):
+        rc.load_corpus(tmp_path)
+
+
+def test_added_shell_vars_must_be_guarded(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C14")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace(
+            '+: "${REGISTRY_URL:?REGISTRY_URL must be set}"\n', "")
+    (tmp_path / "C14.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M14.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="unguarded variables"):
+        rc.load_corpus(tmp_path)
+
+
+def test_matcher_extensions_are_monotonic():
+    # oracle-repair invariant: expected-finding matchers may only GAIN
+    # needles — every needle frozen before the repair survives in the
+    # repaired entry's union (pre-repair values snapshotted from the
+    # merged #30 tree, de57cd0).
+    original = {
+        ("M9", 0): (["merged"], ["inverted", "swapped", "reversed",
+                                 "wrong direction", "== null"]),
+        ("M10", 0): (["search"], ["anchor", "start", "beginning", "prefix"]),
+        ("M12", 0): (["parse"], ["mask", "swallow", "empty", "{}",
+                                 "KeyError", "silently"]),
+        ("M16", 0): (["except"], ["swallow", "silently", "ignor",
+                                  "fabricat", "false success"]),
+        ("M2", 1): ([], ["pin", "floating", "immutable", "@main", "mutable"]),
+    }
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    for (fid, idx), (all_, any_) in original.items():
+        e = fixtures[fid]["expected"]["findings"][idx]
+        union = set(e.get("comment_all", [])) | set(e.get("comment_any", []))
+        missing = (set(all_) | set(any_)) - union
+        assert not missing, (fid, idx, missing)
+
+
 def test_every_declared_family_has_two_new_frozen_pairs():
     # plan rev 5, T1.1 acceptance: >=2 NEW frozen pairs per confirmed
     # family beyond baseline coverage (baseline ids are M1-M8/C1-C8)
@@ -382,8 +448,10 @@ def test_M1_C1_differ_only_in_the_secrets_block():
     # both sides fully hardened otherwise
     for p in (a, b):
         assert "pull_request_target" in "\n".join(p)
-        assert "toolkit_ref: 0123456789abcdef0123456789abcdef01234567" \
+        assert "toolkit_ref: 4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd" \
             in "\n".join(p)
+        assert "permissions:" in "\n".join(p)
+        assert "head.repo.fork" in "\n".join(p)
 
 
 def test_M2_secret_expression_well_formed():

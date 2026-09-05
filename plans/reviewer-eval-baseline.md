@@ -1,12 +1,13 @@
 # Reviewer Eval Baseline
 
-Status: rev 5 — APPROVED through rev 4 (2026-08-29, maintainer merge
-of PR #8); rev 5 adds the Track 1 staged sub-plan (T1.1–T1.5,
-Deviation 4) — PROPOSED, approval = maintainer review of the T1
-plan phase PR. Implementation may continue under the phase
+Status: rev 6 — APPROVED through rev 4 (2026-08-29, maintainer merge
+of PR #8) and rev 5 (Track 1 staged sub-plan, merged #28); rev 6
+records Deviation 5 (T1.2 split by the oracle-validity discovery:
+repair precedes the binding remeasurement) — approval = maintainer
+review of the oracle-repair phase PR. Implementation may continue under the phase
 workflow: phase branches target feature/reviewer-eval-baseline.
 
-Revision history: rev 5 — Track 1 discrimination sub-plan (stages,
+Revision history: rev 6 — Deviation 5: T1.2 diagnostic run + oracle-repair insertion + binding remeasurement lifecycle. rev 5 — Track 1 discrimination sub-plan (stages,
 invariants, gates, lifecycle boundaries; Deviation 4). rev 4 —
 engine/oracle phase separation, engine vs consumer-profile
 qualification levels, current-oracle deployment invariant,
@@ -438,6 +439,15 @@ N=1 smoke run (spend-recorded).
 
 ### Stage T1.2 — Measured discrimination baseline (evidence only)
 
+Status: **INCOMPLETE** (Deviation 5) — the 2026-09-05 N=5 dual-profile
+run completed as a DIAGNOSTIC measurement and exposed corpus/oracle
+validity defects (added-file controls not self-contained; 55
+matcher-vocabulary gaps; placeholder SHAs); evidence preserved
+immutable at `eval/evidence/track1-baseline-2026-09-05/`. An
+oracle-repair phase (`eval/evidence/track1-oracle-repair-2026-09-05/`)
+precedes a fresh unchanged-reviewer remeasurement — THAT run is the
+binding non-regression reference and sensitivity floor.
+
 Scope: full-corpus runs on the T1.1 corpus with the unchanged
 reviewer (feature-branch subject), plus human narrative coding of
 blocking findings into taxonomy families. Two run tiers:
@@ -632,6 +642,39 @@ Status: NOT STARTED
 - Manual inspection of first two scheduled reports.
 
 ## Plan deviations
+
+### Deviation 5 — T1.2 split by an oracle-validity discovery: repair
+precedes the binding remeasurement (approved by directing human,
+2026-09-05)
+
+The first T1.2 execution (360 calls, N=5, both profiles) completed
+as a measurement but its derived-analysis pass exposed corpus/oracle
+validity defects rather than only reviewer behavior: added-file
+controls referencing symbols undefined as presented (C12/C16 class),
+placeholder SHAs, and 55 matcher-vocabulary gaps where emitted
+narratives genuinely state frozen expected defects outside the
+frozen needles. Per the evidence-first methodology the run was NOT
+adapted in place: it stands as immutable diagnostic evidence
+(`eval/evidence/track1-baseline-2026-09-05/`, PR #30, merged as
+historical), and the lifecycle inserts an eval-semantics-only
+oracle-repair phase before remeasurement:
+
+```text
+T1.2 diagnostic run (done, immutable)
+  -> oracle repair (eval semantics only; guards + self-contained
+     controls + minimal-delta positives + monotonic matcher
+     extension; PR #31-class phase)
+  -> fresh unchanged-reviewer T1.2 N=5 dual-profile remeasurement
+  -> THAT run is the binding sensitivity floor / non-regression
+     reference; T1.3 target family chosen only after it
+```
+
+The acceptance bar is unchanged — the binding reference must still
+satisfy everything the original T1.2 gate required. What changed is
+which run earns the name: the one measured against a repaired
+oracle. Oracle identity moves with the repair (fail closed); no
+GATING state changes occur in the repair; reviewer behavior is
+untouched throughout.
 
 ### Deviation 4 — Track 1 elaborated into a staged sub-plan; oracle
 lifecycle bounded (PROPOSED in the T1 plan phase PR; maintainer

@@ -20,14 +20,15 @@
     "findings": [
       {
         "severity": "blocking",
-        "comment_all": [
-          "search"
-        ],
+        "comment_all": [],
         "comment_any": [
           "anchor",
           "start",
           "beginning",
-          "prefix"
+          "prefix",
+          "search",
+          "anywhere",
+          "not anchored"
         ]
       }
     ]

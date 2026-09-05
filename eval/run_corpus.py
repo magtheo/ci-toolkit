@@ -33,6 +33,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -146,6 +147,103 @@ def _validate_fixture(f, ids):
                     "{0}: empty matcher needle in {1}".format(f["id"], k)
 
 
+def _added_lines(patch):
+    return [l[1:] for l in patch.splitlines()
+            if l.startswith("+") and not l.startswith("+++")]
+
+
+_BUILTIN_EXC = {"Exception", "ValueError", "TypeError", "KeyError",
+                "RuntimeError", "OSError", "StopIteration"}
+
+
+def _python_undefined_names(patch):
+    """Self-containment lint for ADDED python files: UPPER_CASE
+    constants and *Error exception names must be defined in the file
+    (assignment / def / class / import). Discovered as a general
+    fixture-authoring failure class by the T1.2 diagnostic run
+    (C12/M12 CONFIG_URL + OriginError, C16/M16 LABELS: for an added
+    file the reviewer cannot assume omitted module context, so those
+    blockers were valid against the fixture as presented)."""
+    code_lines, in_doc = [], False
+    for line in _added_lines(patch):
+        if line.lstrip().startswith("#"):
+            continue
+        if '"""' in line:
+            opens = line.count('"""')
+            if in_doc and opens >= 1:
+                in_doc = False
+                line = line.split('"""')[-1]
+            elif opens >= 2:
+                line = line.split('"""')[0] + line.split('"""')[-1]
+            else:
+                in_doc = True
+                line = line.split('"""')[0]
+        elif in_doc:
+            continue
+        if line.strip():
+            code_lines.append(line)
+    code = "\n".join(code_lines)
+    defined = set(re.findall(r"^(\w+)\s*=", code, re.M))
+    defined |= set(re.findall(r"^(?:def|class)\s+(\w+)", code, re.M))
+    defined |= set(re.findall(r"^import\s+(\w+)", code, re.M))
+    for group in re.findall(r"^from\s+\S+\s+import\s+([\w, ]+)", code, re.M):
+        defined |= {n.strip() for n in group.split(",") if n.strip()}
+    used = set(re.findall(r"\b([A-Z][A-Z0-9_]{2,})\b", code))
+    # bare exception/constant names only: dotted access
+    # (module.Name) is covered by the module's import
+    used |= {e for e in re.findall(r"(?<!\.)\b([A-Z]\w*Exception)\b", code)}
+    used |= {e for e in re.findall(r"(?<!\.)\b([A-Z]\w*Error)\b", code)}
+    return sorted(used - defined - _BUILTIN_EXC)
+
+
+def _shell_unguarded_vars(patch):
+    """Added shell scripts: every UPPER_CASE variable read must be
+    assigned in-script or guarded with : "${VAR:?...}" — an unguarded
+    read is a real 'not validated' blocker against the input as
+    presented (C14/M14 REGISTRY_URL class, T1.2 diagnostic)."""
+    code = "\n".join(_added_lines(patch))
+    guarded = set(re.findall(r'\$\{(\w+):\?', code))
+    guarded |= set(re.findall(r"^(\w+)=", code, re.M))
+    used = set(re.findall(r"\$\{?([A-Z][A-Z0-9_]+)\}?", code))
+    return sorted(used - guarded)
+
+
+def _placeholder_sha(patch):
+    """40-hex tokens that are placeholder patterns (all-same char or
+    the ascending 0-7 pattern) — sonnet blocked the placeholder class
+    outright in the T1.2 diagnostic run."""
+    for tok in set(re.findall(r"\b[0-9a-f]{40}\b", patch)):
+        if len(set(tok)) == 1 or "0123456789abcdef" in tok:
+            return tok
+    return None
+
+
+def _lint_corpus(fixtures):
+    """Deterministic fixture-validity guards for the authoring failure
+    classes discovered by the T1.2 diagnostic measurement."""
+    for f in fixtures:
+        for fobj in f["input"]["files"]:
+            patch, path, status = (fobj["patch"], fobj["path"],
+                                   fobj["status"])
+            bad = _placeholder_sha(patch)
+            assert not bad, \
+                "{0}: placeholder-looking SHA {1} in {2} — use a " \
+                "realistic 40-hex token".format(f["id"], bad, path)
+            if status != "added":
+                continue  # modified files carry implied surrounding content
+            if path.endswith(".py"):
+                undef = _python_undefined_names(patch)
+                assert not undef, \
+                    "{0}: added {1} uses undefined names {2} — an added " \
+                    "file must be self-contained as presented".format(
+                        f["id"], path, undef)
+            if path.endswith((".sh", ".bash")):
+                unguarded = _shell_unguarded_vars(patch)
+                assert not unguarded, \
+                    "{0}: added {1} reads unguarded variables {2} — guard " \
+                    "or assign them".format(f["id"], path, unguarded)
+
+
 def load_corpus(fixtures_dir):
     fixtures = []
     for path in sorted(fixtures_dir.glob("*.json")):
@@ -173,6 +271,7 @@ def load_corpus(fixtures_dir):
             assert f["input"] != mate["input"], \
                 "{0}/{1}: identical inputs — positive and control must " \
                 "differ".format(f["id"], mate["id"])
+    _lint_corpus(fixtures)
     return fixtures
 
 

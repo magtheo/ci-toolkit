@@ -28,7 +28,15 @@
           "swapped",
           "reversed",
           "wrong direction",
-          "== null"
+          "== null",
+          "contradict",
+          "message",
+          "opposite",
+          "branch",
+          "prints",
+          "claims",
+          "executes when",
+          "wrong branch"
         ]
       }
     ]
