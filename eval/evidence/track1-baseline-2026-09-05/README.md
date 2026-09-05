@@ -1,5 +1,27 @@
 # Track 1 measured discrimination baseline (T1.2) — 2026-09-05
 
+> **STATUS: DIAGNOSTIC MEASUREMENT — NOT THE BINDING T1.2 REFERENCE.**
+>
+> This 360-call run completed and is preserved immutable as evidence.
+> Its derived-analysis pass exposed **corpus/oracle validity defects**:
+> at least some controls are not genuinely self-contained or globally
+> clean as presented (e.g. added-file controls referencing undefined
+> symbols: C12 `CONFIG_URL`/`OriginError`, C16 `LABELS` — for an
+> `added` file the reviewer cannot assume omitted module context, so
+> those blockers are valid against the fixture input); and 55 coded
+> matcher-vocabulary gaps express already-frozen expected defects in
+> wording outside the frozen needles — they are not reviewer false
+> blockers either. Consequently:
+>
+> - **T1.2 remains INCOMPLETE** pending the oracle-repair phase and a
+>   fresh unchanged-reviewer N=5 dual-profile remeasurement; that
+>   later run is the binding sensitivity floor for T1.3/T1.5.
+> - The floors, per-family tables, and emitted-blocker aggregation
+>   below are **diagnostic** of both the reviewer and the oracle; no
+>   final T1.3 dominant-family target is named from this data.
+> - Repair happens in a separate eval-semantics-only phase PR after
+>   this bundle merges as historical evidence.
+
 Frozen non-regression reference for T1.3/T1.5 (plan rev 5). The
 unchanged reviewer (subject `46b9547` — merged T1.1 feature branch)
 against the full 36-fixture corpus, N=5, both required profiles.
@@ -70,8 +92,11 @@ runs may not fall below these on the same profile (invariant 1):
    (risk-boilerplate 41/46) measures the discrimination AXIS being
    tested, not the failure actually emitted — the two are distinct
    measurements (see `derived-metrics.json` +
-   `narrative-coding.jsonl`). **T1.3's "dominant measured first"
-   ordering follows the emitted-failure table.**
+   `narrative-coding.jsonl`). **Diagnostic only: no final T1.3
+   dominant-family target is named from this run — the emitted-failure
+   table is contaminated by the oracle-validity defects above and by
+   the corpus-artifact/matcher-gap mass; recompute after repair +
+   remeasurement.**
 2. **The `unclassified` mass decomposes into corpus artifacts, not
    reviewer failures**: 95 fragment/placeholder artifacts (symbols
    defined in the real module but absent from the self-contained

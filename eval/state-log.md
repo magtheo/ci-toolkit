@@ -79,3 +79,28 @@ haiku-4.5 + sonnet-4.5 · N=5 each · 360 calls, 0 retries
   frozen needles) — recorded for human triage, not T1.3 targets.
 - GATING wording corrected to the evidence-only formulation: the
   prior N=3 pass was not stable at N=5.
+
+## 2026-09-05 — T1.2 status correction: diagnostic, not binding (oracle-validity discovery)
+
+External review of the derived pass identified corpus/oracle
+validity defects the run exposed: added-file controls that are not
+genuinely self-contained (C12 CONFIG_URL/OriginError, C16 LABELS —
+for added files the reviewer cannot assume omitted module context,
+so those blockers are valid against the fixture input) and 55
+matcher-vocabulary gaps expressing frozen expected defects outside
+the frozen needles. Corrections of record:
+
+- the 2026-09-05 360-call T1.2 run is a COMPLETED DIAGNOSTIC
+  measurement, preserved immutable; it is NOT the final binding T1.2
+  non-regression reference;
+- T1.2 remains INCOMPLETE pending an eval-semantics-only oracle
+  repair phase (audit all 95 fragment/placeholder codings; make
+  controls self-contained and globally clean; keep positives
+  minimal-delta on intended axes; extend matchers only where the
+  narrative genuinely states the frozen expected defect;
+  deterministic guards for the discovered validity classes; oracle
+  bump; reviewer untouched) and a fresh unchanged-reviewer N=5
+  dual-profile remeasurement — that later run is the binding floor;
+- no final T1.3 dominant-family target is named from the current
+  data (the emitted-failure table is contaminated by the validity
+  defects).
