@@ -43,3 +43,22 @@ corpus 92683f53fb1f7e30 · 36 fixtures (16 baseline + 20 new) · no run
   `oracle_version` changes fail-closed per plan Deviation 4).
 - No GATING changes; no reviewer behavior change (eval-semantics-only
   stage). T1.2 will measure the expanded corpus.
+
+## 2026-09-05 — Track 1 T1.2 measured discrimination baseline
+
+corpus 92683f53fb1f7e30 · subject 46b9547 (feature branch) ·
+haiku-4.5 + sonnet-4.5 · N=5 each · 360 calls, 0 retries
+
+- Bundle frozen at `eval/evidence/track1-baseline-2026-09-05/`
+  (per-run raw outputs, per-fixture results, per-family aggregation,
+  false-block/false-clear, paired discrimination, spend, floors).
+- Sensitivity floors recorded per-positive per-profile
+  (`floors.json`) — the T1.3/T1.5 non-regression reference.
+- GATING violations measured (haiku: C4, C7 — 1 false blocker each,
+  4/5 CLEAR; sonnet: none). **No state changes**: T1.2 is
+  evidence-only; the marginality is recorded for T1.3's universal
+  zero-false-blocker gate, which subsumes it.
+- Fail-closed parser robustness evidence: quoting-heavy bash
+  fixtures (M9/C9) induce structurally invalid JSON from haiku
+  (9/10 INCONCLUSIVE; detection narrative present in raw output).
+  Relevant to T1.3's mechanism menu; frozen unadapted.

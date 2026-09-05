@@ -1,0 +1,3 @@
+corpus: 36 fixtures (18 positive / 18 control), N=5, model=anthropic/claude-sonnet-4.5, oracle=92683f53fb1f7e30
+spend: 180 calls, 241115 prompt tok, 74327 completion tok
+report: eval/evidence/track1-baseline-2026-09-05/sonnet-n5.json
