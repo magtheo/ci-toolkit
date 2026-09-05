@@ -22,9 +22,11 @@
 > - Repair happens in a separate eval-semantics-only phase PR after
 >   this bundle merges as historical evidence.
 
-Frozen non-regression reference for T1.3/T1.5 (plan rev 5). The
-unchanged reviewer (subject `46b9547` — merged T1.1 feature branch)
-against the full 36-fixture corpus, N=5, both required profiles.
+Diagnostic measurement (see status banner). The unchanged reviewer
+(subject `46b9547` — merged T1.1 feature branch) against the full
+36-fixture corpus, N=5, both required profiles. The **binding**
+non-regression reference for T1.3/T1.5 is the post-repair T1.2
+remeasurement, not this run.
 
 **Experimental feature-branch evaluation only — no deployment
 qualification claim** (plan Deviation 4). Evidence-only stage: no
@@ -50,10 +52,12 @@ reviewer changes, no corpus adaptation, no state changes.
   prompt construction (audit signal)
 - console logs: `*.stdout.log`, `*.stderr.log` (retry accounting)
 
-## Sensitivity floors (frozen) — `floors.json`
+## Sensitivity floors (diagnostic values from this run) — `floors.json`
 
-Per-positive minimum expected-finding hits out of 5. T1.3/T1.5 gate
-runs may not fall below these on the same profile (invariant 1):
+Per-positive minimum expected-finding hits out of 5, as measured
+against the pre-repair oracle. These values are diagnostic only:
+the post-repair T1.2 remeasurement establishes the binding floors
+that T1.3/T1.5 gate runs may not fall below (invariant 1):
 
 | id | haiku | sonnet | | id | haiku | sonnet |
 | -- | ----- | ------ |-| -- | ----- | ------ |
