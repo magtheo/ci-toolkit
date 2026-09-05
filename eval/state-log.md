@@ -104,3 +104,47 @@ the frozen needles. Corrections of record:
 - no final T1.3 dominant-family target is named from the current
   data (the emitted-failure table is contaminated by the validity
   defects).
+
+## 2026-09-05 — Track 1 oracle repair (eval semantics only; plan Deviation 5)
+
+corpus 92683f53fb1f7e30 -> 61380c91e84db0ef · 36 fixtures · 0 model calls
+
+- Audited all 96 fragment/placeholder codings and all 55
+  matcher-vocabulary gaps from the T1.2 diagnostic run
+  (eval/evidence/track1-oracle-repair-2026-09-05/README.md).
+- Repairs: C12/M12 + C16/M16 self-contained; C14/M14 env-var guards;
+  C1/M1 realistic SHA + permissions + fork guard; C2/M2 realistic
+  SHAs. M7 ruled valid as presented (modified-file context implied).
+- Matcher extensions (monotonic, originals preserved, test-enforced):
+  M9/M10/M12/M16/M2. M6 NOT extended (narratives misattribute the
+  mechanism). Frozen diagnostic coding remains immutable; refined
+  family judgments recorded in the repair README.
+- New deterministic guards: placeholder-SHA, added-python
+  self-containment, added-shell variable guards, matcher
+  monotonicity.
+- Human semantic audit of all 36 repaired fixtures frozen at
+  fixture-audit.json BEFORE any remeasurement spend authorization.
+- No GATING changes; family taxonomy unchanged; reviewer untouched.
+  Binding T1.2 reference = the upcoming unchanged-reviewer N=5
+  remeasurement (Deviation 5).
+
+## 2026-09-05 — Oracle repair round 2: diff-structure validation + witness-tested matchers
+
+corpus 61380c91e84db0ef -> 9fae85b26ff45dc6 · 0 model calls
+
+- Embedded unified-diff validator added (oracle-hashed): hunk
+  old/new counts must match bodies; canonical -0,0 added-file form;
+  fail closed on malformed metadata. 19 fixtures carried stale or
+  non-canonical headers (including Phase-2-era -1,0) — all
+  recomputed. The patch string is reviewer input; malformed diff
+  metadata was itself a corpus-validity artifact.
+- Matcher validation strengthened beyond lexical union preservation:
+  frozen #30 evidence frozen as a 122-witness set (69 genuine / 53
+  not_expected, every gap narrative ruled explicitly). Final needles
+  use semantically sufficient phrases; generic single tokens
+  (search/parse/except) and M12's bare 'empty' dropped after the
+  witness set showed false-acceptance. Enforced invariant: genuine
+  detections stay accepted, audited genuine gaps become accepted,
+  audited non-defect narratives stay rejected. Schema unchanged.
+- 148 tests pass; states and family taxonomy unchanged; reviewer
+  untouched.

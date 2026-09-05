@@ -11,7 +11,7 @@
       {
         "path": "lib/chat/sheet.dart",
         "status": "modified",
-        "patch": "--- a/lib/chat/sheet.dart\n+++ b/lib/chat/sheet.dart\n@@ -12,6 +12,16 @@ class ChatSheet extends ConsumerStatefulWidget {\n   void initState() {\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      // legacy null-course threads resume into the selected course\n+      // (this PR's promised behavior)\n+      final target = ref.read(chatResumeTargetProvider);\n+      if (target == null) return;\n+      ref.read(chatResumeTargetProvider.notifier).state = null;\n+      final courseId = ref.read(chatCourseIdProvider);\n+      if (courseId == null) return; // course not selected yet\n+      _resume(target.threadId, courseId);\n       _restoreOrResume();\n     });\n   }"
+        "patch": "--- a/lib/chat/sheet.dart\n+++ b/lib/chat/sheet.dart\n@@ -12,6 +12,14 @@\n   void initState() {\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      // legacy null-course threads resume into the selected course\n+      // (this PR's promised behavior)\n+      final target = ref.read(chatResumeTargetProvider);\n+      if (target == null) return;\n+      ref.read(chatResumeTargetProvider.notifier).state = null;\n+      final courseId = ref.read(chatCourseIdProvider);\n+      if (courseId == null) return; // course not selected yet\n+      _resume(target.threadId, courseId);\n       _restoreOrResume();\n     });\n   }\n"
       }
     ]
   },

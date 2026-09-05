@@ -11,7 +11,7 @@
       {
         "path": "scripts/deploy.sh",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/scripts/deploy.sh\n@@ -0,0 +1,13 @@\n+#!/usr/bin/env bash\n+set -euo pipefail\n+: \"${DEPLOY_TOKEN:?DEPLOY_TOKEN must be set}\"\n+# Credential transport: the token reaches curl via a private header\n+# file (0600), never argv \u2014 /proc/<pid>/cmdline is observable on\n+# shared runners.\n+HDR=\"$(mktemp)\"\n+trap 'rm -f \"$HDR\"' EXIT\n+( umask 077; printf 'Authorization: Bearer %s' \"$DEPLOY_TOKEN\" > \"$HDR\" )\n+curl -sS -f -H @\"$HDR\" -H \"Content-Type: application/json\" \\\n+  -d @payload.json \"$REGISTRY_URL/deploy\"\n"
+        "patch": "--- /dev/null\n+++ b/scripts/deploy.sh\n@@ -0,0 +1,12 @@\n+#!/usr/bin/env bash\n+set -euo pipefail\n+: \"${DEPLOY_TOKEN:?DEPLOY_TOKEN must be set}\"\n+: \"${REGISTRY_URL:?REGISTRY_URL must be set}\"\n+# Credential transport: the token reaches curl via a private header\n+# file (0600), never argv \u2014 /proc/<pid>/cmdline is observable on\n+# shared runners.\n+HDR=\"$(mktemp)\"\n+trap 'rm -f \"$HDR\"' EXIT\n+( umask 077; printf 'Authorization: Bearer %s' \"$DEPLOY_TOKEN\" > \"$HDR\" )\n+curl -sS -f -H @\"$HDR\" -H \"Content-Type: application/json\" \\\n+  -d @payload.json \"$REGISTRY_URL/deploy\"\n"
       }
     ]
   },

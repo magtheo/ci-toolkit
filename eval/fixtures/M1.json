@@ -11,7 +11,7 @@
       {
         "path": ".github/workflows/ai-review.yml",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,9 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+jobs:\n+  review:\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@0123456789abcdef0123456789abcdef01234567\n+    with:\n+      toolkit_ref: 0123456789abcdef0123456789abcdef01234567\n+    secrets: inherit\n"
+        "patch": "--- /dev/null\n+++ b/.github/workflows/ai-review.yml\n@@ -0,0 +1,14 @@\n+name: ai-review\n+on:\n+  pull_request_target:\n+    branches: [main]\n+permissions:\n+  pull-requests: write\n+  contents: read\n+jobs:\n+  review:\n+    if: ${{ !github.event.pull_request.head.repo.fork }}\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd\n+    with:\n+      toolkit_ref: 4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd\n+    secrets: inherit\n"
       }
     ]
   },
@@ -26,5 +26,5 @@
       }
     ]
   },
-  "note": "Isolated defect: secrets: inherit hands every repo secret to the reusable workflow instead of the single key it needs. Everything else (trigger, full-SHA pins) is already hardened so only this defect can block."
+  "note": "Isolated defect: secrets: inherit hands every repo secret to the reusable workflow instead of the single key it needs. Everything else (trigger, full-SHA pins) is already hardened so only this defect can block. Self-contained as presented: least-privilege permissions, fork guard, full-SHA pins both layers, explicit secret mapping."
 }

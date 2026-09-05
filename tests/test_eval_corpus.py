@@ -94,6 +94,108 @@ def test_real_corpus_pairs_all_diverge():
             assert f["input"] != mate["input"], fid
 
 
+# ---- oracle-repair validity guards (T1.2 diagnostic discoveries) -----------
+
+def _tmp_pair(tmp_path, fid="C9"):
+    ctrl = json.loads((FIXTURES / (fid + ".json")).read_text())
+    mate = fid.replace("C", "M", 1) if fid.startswith("C") else \
+        fid.replace("M", "C", 1)
+    pos = json.loads((FIXTURES / (mate + ".json")).read_text())
+    return ctrl, pos
+
+
+def test_placeholder_shas_are_rejected(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C13")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace(
+            "9f2a4c1e8b7d63a05c4e2f1b9d8a7c3e5f6021ab",
+            "0123456789abcdef0123456789abcdef01234567")
+    (tmp_path / "C13.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M13.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="placeholder"):
+        rc.load_corpus(tmp_path)
+
+
+def test_added_python_must_be_self_contained(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C12")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace("+CONFIG_URL =", "+OTHER_URL =")
+    (tmp_path / "C12.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M12.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="undefined names.*CONFIG_URL"):
+        rc.load_corpus(tmp_path)
+
+
+def test_added_shell_vars_must_be_guarded(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C14")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace(
+            '+: "${REGISTRY_URL:?REGISTRY_URL must be set}"\n', "") \
+        .replace("@@ -0,0 +1,12 @@", "@@ -0,0 +1,11 @@")
+    (tmp_path / "C14.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M14.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="unguarded variables"):
+        rc.load_corpus(tmp_path)
+
+
+def test_matcher_repair_semantics_via_frozen_witnesses():
+    # The matcher-repair invariant is NOT lexical union preservation:
+    # all previously accepted genuine detections remain accepted,
+    # every audited genuine gap narrative becomes accepted, and every
+    # audited non-defect narrative stays rejected — verified against
+    # the frozen #30 diagnostic evidence as a deterministic witness
+    # set (see eval/evidence/track1-oracle-repair-2026-09-05/).
+    witnesses = json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair-2026-09-05" /
+         "matcher-witnesses.json").read_text())["witnesses"]
+    assert len(witnesses) >= 100
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    genuine = rejected = 0
+    for w in witnesses:
+        entry = fixtures[w["fixture"]]["expected"]["findings"][
+            w["finding_index"]]
+        hit = rc._finding_matches(
+            entry, {"severity": "blocking", "comment": w["comment"]})
+        if w["ruling"] == "genuine_expected_expression":
+            assert hit, ("genuine witness rejected", w["fixture"],
+                         w["comment"][:80])
+            genuine += 1
+        else:
+            assert not hit, ("non-defect witness accepted", w["fixture"],
+                             w["comment"][:80])
+            rejected += 1
+    assert genuine >= 50 and rejected >= 40
+
+
+def test_diff_hunk_counts_are_validated(tmp_path):
+    # wrong NEW-side count rejected
+    ctrl, pos = _tmp_pair(tmp_path, "C9")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace("@@ -0,0 +1,11 @@", "@@ -0,0 +1,10 @@")
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="new-side count"):
+        rc.load_corpus(tmp_path)
+
+
+def test_diff_old_side_counts_are_validated(tmp_path):
+    # wrong OLD-side count rejected on a modified-file hunk
+    ctrl, pos = _tmp_pair(tmp_path, "C6")
+    lines = ctrl["input"]["files"][0]["patch"].splitlines()
+    hdr = next(i for i, l in enumerate(lines) if l.startswith("@@"))
+    # C6's real header is @@ -1,N +1,M @@ with context+removed on the
+    # old side; inflate the old count without changing the body
+    import re as _re
+    m = _re.match(r"@@ -(\d+),(\d+) \+(\d+),(\d+) @@", lines[hdr])
+    lines[hdr] = "@@ -{0},{1} +{2},{3} @@".format(
+        m.group(1), int(m.group(2)) + 1, m.group(3), m.group(4))
+    ctrl["input"]["files"][0]["patch"] = "\n".join(lines) + "\n"
+    (tmp_path / "C6.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M6.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="old-side count"):
+        rc.load_corpus(tmp_path)
+
+
 def test_every_declared_family_has_two_new_frozen_pairs():
     # plan rev 5, T1.1 acceptance: >=2 NEW frozen pairs per confirmed
     # family beyond baseline coverage (baseline ids are M1-M8/C1-C8)
@@ -369,7 +471,9 @@ def _patch(fid):
 
 
 def test_M1_C1_differ_only_in_the_secrets_block():
-    a, b = _patch("M1").splitlines(), _patch("C1").splitlines()
+    # compare hunk BODIES — the headers legitimately differ because
+    # the secrets delta changes the new-side line count
+    a, b = _patch("M1").splitlines()[3:], _patch("C1").splitlines()[3:]
     i = 0
     while i < min(len(a), len(b)) and a[i] == b[i]:
         i += 1
@@ -382,8 +486,10 @@ def test_M1_C1_differ_only_in_the_secrets_block():
     # both sides fully hardened otherwise
     for p in (a, b):
         assert "pull_request_target" in "\n".join(p)
-        assert "toolkit_ref: 0123456789abcdef0123456789abcdef01234567" \
+        assert "toolkit_ref: 4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd" \
             in "\n".join(p)
+        assert "permissions:" in "\n".join(p)
+        assert "head.repo.fork" in "\n".join(p)
 
 
 def test_M2_secret_expression_well_formed():

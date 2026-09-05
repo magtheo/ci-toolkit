@@ -33,6 +33,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -146,6 +147,155 @@ def _validate_fixture(f, ids):
                     "{0}: empty matcher needle in {1}".format(f["id"], k)
 
 
+def _added_lines(patch):
+    return [l[1:] for l in patch.splitlines()
+            if l.startswith("+") and not l.startswith("+++")]
+
+
+_BUILTIN_EXC = {"Exception", "ValueError", "TypeError", "KeyError",
+                "RuntimeError", "OSError", "StopIteration"}
+
+
+def _python_undefined_names(patch):
+    """Self-containment lint for ADDED python files: UPPER_CASE
+    constants and *Error exception names must be defined in the file
+    (assignment / def / class / import). Discovered as a general
+    fixture-authoring failure class by the T1.2 diagnostic run
+    (C12/M12 CONFIG_URL + OriginError, C16/M16 LABELS: for an added
+    file the reviewer cannot assume omitted module context, so those
+    blockers were valid against the fixture as presented)."""
+    code_lines, in_doc = [], False
+    for line in _added_lines(patch):
+        if line.lstrip().startswith("#"):
+            continue
+        if '"""' in line:
+            opens = line.count('"""')
+            if in_doc and opens >= 1:
+                in_doc = False
+                line = line.split('"""')[-1]
+            elif opens >= 2:
+                line = line.split('"""')[0] + line.split('"""')[-1]
+            else:
+                in_doc = True
+                line = line.split('"""')[0]
+        elif in_doc:
+            continue
+        if line.strip():
+            code_lines.append(line)
+    code = "\n".join(code_lines)
+    defined = set(re.findall(r"^(\w+)\s*=", code, re.M))
+    defined |= set(re.findall(r"^(?:def|class)\s+(\w+)", code, re.M))
+    defined |= set(re.findall(r"^import\s+(\w+)", code, re.M))
+    for group in re.findall(r"^from\s+\S+\s+import\s+([\w, ]+)", code, re.M):
+        defined |= {n.strip() for n in group.split(",") if n.strip()}
+    used = set(re.findall(r"\b([A-Z][A-Z0-9_]{2,})\b", code))
+    # bare exception/constant names only: dotted access
+    # (module.Name) is covered by the module's import
+    used |= {e for e in re.findall(r"(?<!\.)\b([A-Z]\w*Exception)\b", code)}
+    used |= {e for e in re.findall(r"(?<!\.)\b([A-Z]\w*Error)\b", code)}
+    return sorted(used - defined - _BUILTIN_EXC)
+
+
+def _shell_unguarded_vars(patch):
+    """Added shell scripts: every UPPER_CASE variable read must be
+    assigned in-script or guarded with : "${VAR:?...}" — an unguarded
+    read is a real 'not validated' blocker against the input as
+    presented (C14/M14 REGISTRY_URL class, T1.2 diagnostic)."""
+    code = "\n".join(_added_lines(patch))
+    guarded = set(re.findall(r'\$\{(\w+):\?', code))
+    guarded |= set(re.findall(r"^(\w+)=", code, re.M))
+    used = set(re.findall(r"\$\{?([A-Z][A-Z0-9_]+)\}?", code))
+    return sorted(used - guarded)
+
+
+def _placeholder_sha(patch):
+    """40-hex tokens that are placeholder patterns (all-same char or
+    the ascending 0-7 pattern) — sonnet blocked the placeholder class
+    outright in the T1.2 diagnostic run."""
+    for tok in set(re.findall(r"\b[0-9a-f]{40}\b", patch)):
+        if len(set(tok)) == 1 or "0123456789abcdef" in tok:
+            return tok
+    return None
+
+
+_HUNK_RE = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
+
+
+def _validate_patch_structure(fid, path, patch):
+    """The exact patch string is reviewer input, so malformed diff
+    metadata is itself a corpus-validity artifact (T1.2 oracle repair,
+    round 2): every hunk header's counts must match its body —
+    old-side = context + removed; new-side = context + added;
+    `0,0` added-file hunks carry zero old lines. Fail closed on
+    malformed headers or unparseable body lines."""
+    lines = patch.splitlines()
+    assert len(lines) >= 3 and lines[0].startswith("--- ") \
+        and lines[1].startswith("+++ "), \
+        "{0}/{1}: missing unified-diff file header".format(fid, path)
+    body = lines[2:]
+    starts = [i for i, l in enumerate(body) if l.startswith("@@")]
+    assert starts, "{0}/{1}: no hunk headers".format(fid, path)
+    for k, start in enumerate(starts):
+        end = starts[k + 1] if k + 1 < len(starts) else len(body)
+        m = _HUNK_RE.match(body[start])
+        assert m, \
+            "{0}/{1}: malformed hunk header {2!r}".format(
+                fid, path, body[start])
+        old_n = int(m.group(2)) if m.group(2) is not None else 1
+        new_n = int(m.group(4)) if m.group(4) is not None else 1
+        old_start, new_start = int(m.group(1)), int(m.group(3))
+        o = n = 0
+        for line in body[start + 1:end]:
+            if line.startswith("+"):
+                n += 1
+            elif line.startswith("-"):
+                o += 1
+            elif line.startswith(" ") or line == "":
+                o += 1
+                n += 1
+            else:
+                assert False, \
+                    "{0}/{1}: unparseable diff body line {2!r}".format(
+                        fid, path, line)
+        assert o == old_n, \
+            "{0}/{1}: hunk @{2} old-side count {3} != actual {4}".format(
+                fid, path, start, old_n, o)
+        assert n == new_n, \
+            "{0}/{1}: hunk @{2} new-side count {3} != actual {4}".format(
+                fid, path, start, new_n, n)
+        assert (old_start == 0) == (old_n == 0), \
+            "{0}/{1}: hunk @{2} start/count disagree (added-file hunks " \
+            "are -0,0)".format(fid, path, start)
+        assert (new_start == 0) == (new_n == 0)
+
+
+def _lint_corpus(fixtures):
+    """Deterministic fixture-validity guards for the authoring failure
+    classes discovered by the T1.2 diagnostic measurement."""
+    for f in fixtures:
+        for fobj in f["input"]["files"]:
+            patch, path, status = (fobj["patch"], fobj["path"],
+                                   fobj["status"])
+            _validate_patch_structure(f["id"], path, patch)
+            bad = _placeholder_sha(patch)
+            assert not bad, \
+                "{0}: placeholder-looking SHA {1} in {2} — use a " \
+                "realistic 40-hex token".format(f["id"], bad, path)
+            if status != "added":
+                continue  # modified files carry implied surrounding content
+            if path.endswith(".py"):
+                undef = _python_undefined_names(patch)
+                assert not undef, \
+                    "{0}: added {1} uses undefined names {2} — an added " \
+                    "file must be self-contained as presented".format(
+                        f["id"], path, undef)
+            if path.endswith((".sh", ".bash")):
+                unguarded = _shell_unguarded_vars(patch)
+                assert not unguarded, \
+                    "{0}: added {1} reads unguarded variables {2} — guard " \
+                    "or assign them".format(f["id"], path, unguarded)
+
+
 def load_corpus(fixtures_dir):
     fixtures = []
     for path in sorted(fixtures_dir.glob("*.json")):
@@ -173,6 +323,7 @@ def load_corpus(fixtures_dir):
             assert f["input"] != mate["input"], \
                 "{0}/{1}: identical inputs — positive and control must " \
                 "differ".format(f["id"], mate["id"])
+    _lint_corpus(fixtures)
     return fixtures
 
 

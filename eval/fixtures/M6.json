@@ -11,7 +11,7 @@
       {
         "path": "review.sh",
         "status": "modified",
-        "patch": "--- a/review.sh\n+++ b/review.sh\n@@ -1,5 +1,12 @@\n # changed files were collected as JSONL (one object per line):\n #   jq -c '.[]' <<<\"$batch\" >>\"$files_jsonl\"\n+if ! jq -e 'any(.[]; .patch != null)' <\"$files_jsonl\" >/dev/null; then\n+  echo \"no textual changes to review (docs/binary-only?)\"\n+  exit 0\n+fi"
+        "patch": "--- a/review.sh\n+++ b/review.sh\n@@ -1,2 +1,6 @@\n # changed files were collected as JSONL (one object per line):\n #   jq -c '.[]' <<<\"$batch\" >>\"$files_jsonl\"\n+if ! jq -e 'any(.[]; .patch != null)' <\"$files_jsonl\" >/dev/null; then\n+  echo \"no textual changes to review (docs/binary-only?)\"\n+  exit 0\n+fi\n"
       }
     ]
   },

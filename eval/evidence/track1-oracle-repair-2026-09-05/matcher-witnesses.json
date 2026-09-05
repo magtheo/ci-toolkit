@@ -1,0 +1,1107 @@
+{
+  "_meta": {
+    "source": "frozen #30 diagnostic reports (haiku-n5.json, sonnet-n5.json)",
+    "invariant": "every genuine_expected_expression MUST satisfy the repaired expected matcher; every not_expected_expression MUST NOT satisfy that specific finding entry",
+    "dedupe": "distinct comments per fixture/profile (normalized whitespace)"
+  },
+  "witnesses": [
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "The regex pattern `r\"feature/\"` uses `re.search()`, which matches the substring anywhere in the ref. This means refs like `bugfix/feature/malicious` or `refs/heads/feature/` would incorrectly pass the check. For a branch classification guarding a privileged lane, this is a security issue. The pattern should anchor to the start: `r\"^feature/\"` or use `re.match()` which anchors implicitly."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "The regex pattern 'feature/' will match anywhere in the ref string (e.g., 'refs/heads/bugfix-feature/foo' or 'refs/heads/main-feature/bar' would incorrectly pass). For a privileged lane guard, this is a security issue. The pattern should anchor to the start: r'^feature/' or r'^refs/heads/feature/' depending on the ref format expected."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "The regex pattern `r\"feature/\"` will match 'feature/' anywhere in the ref string (e.g., 'refs/heads/bugfix-feature/something' or 'refs/remotes/origin/feature/foo'). For a function controlling access to a privileged lane, this is a security issue: an attacker could craft a branch name containing 'feature/' in an unintended position to bypass intended restrictions. The pattern should anchor to the start: `r\"^feature/\"` or use `ref.startswith('feature/')` for clarity."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "The regex pattern `r\"feature/\"` matches 'feature/' anywhere in the ref string. A ref like 'refs/heads/bugfix/feature/something' or 'refs/heads/main-feature/test' would incorrectly pass this check and gain access to the privileged lane. The docstring says 'Only refs under feature/' should pass, implying a path-based check. The pattern should anchor to the start or use a more precise boundary."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "CONFIG_URL is undefined. This will raise NameError at runtime. Must be imported or defined."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "OriginError and ParseError are undefined. This will raise NameError at runtime. Must be imported from their source modules."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Docstring states 'An empty cache raises \u2014 a fresh origin error must not be silently masked when there is nothing valid to serve.' But line 16 returns an empty dict {} instead of raising when cache is empty. This contradicts the stated contract and masks the error silently."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement rule",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "No tests provided for this new core resilience logic. The fallback behavior and error handling paths must be covered by tests before merge."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "CONFIG_URL is undefined. This will raise NameError at runtime on every call. Must be imported or defined."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "OriginError and ParseError are undefined. These exception types are not imported and will raise NameError when an exception occurs, breaking the fallback mechanism entirely."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "parse module is imported but not defined in the codebase context. Unclear if this is an external dependency or a local module. If external, it must be declared in requirements/dependencies."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Fallback returns empty dict {} instead of raising when cache is empty. Docstring explicitly states 'An empty cache raises \u2014 a fresh origin error must not be silently masked when there is nothing valid to serve.' This contradicts the implementation and violates the stated resilience contract."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement rule",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "No test coverage provided for this new core resilience logic. Tests must cover: (1) successful config load and cache update, (2) origin failure with valid cache returns cached config, (3) origin failure with empty cache raises, (4) parse error handling."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement rule",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "No test coverage provided for this new core resilience function. The fallback behavior and error handling paths must be tested to verify the contract is met."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Fallback returns empty dict {} on cache miss, contradicting the docstring which states 'An empty cache raises \u2014 a fresh origin error must not be silently masked when there is nothing valid to serve.' The code should raise or re-raise the exception when cache is empty, not return {}."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement rule",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "No test coverage provided for this new core resilience logic. The fallback behavior and cache semantics must be tested, especially the distinction between cache hit and cache miss on first failure."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "parse module is imported but never verified to exist or be available. If this is a custom module, it should be relative-imported; if external, it needs to be in dependencies."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Docstring claims 'An empty cache raises' but code returns empty dict `{}` when cache is empty. This contradicts the stated contract and silently masks fresh origin errors with an empty config instead of raising, violating the documented resilience guarantee."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "`LABELS` is undefined. The function will crash with NameError on the happy path. This must be imported or defined before use."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Bare `except Exception` swallows all errors including programming bugs, timeouts, and network failures without logging or distinguishing recoverable from fatal failures. Callers cannot diagnose why sync failed. This violates observability and makes debugging impossible."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "The fallback return value `{\"ok\": True, \"updated\": len(LABELS)}` is misleading: it reports success and a count of updated labels when the actual sync failed. Callers will believe labels were synced when they were not. This is a silent data corruption risk."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "`LABELS` is undefined. The function references it but it is never imported, defined, or passed as a parameter. This will raise NameError at runtime."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Bare `except Exception` silently swallows all errors including network failures, authentication errors, and malformed responses. This defeats observability and makes debugging impossible. A best-effort sync should at minimum log failures or return a status indicating failure occurred."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "No validation of `session` or `repo` parameters. If either is None or invalid, the `session.put()` call will fail in unpredictable ways. At minimum, assert or validate these inputs."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "`LABELS` is undefined. The function will crash with NameError on any call. This must be imported or defined before use."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Bare `except Exception` swallows all errors silently, including programming bugs, network timeouts, and authentication failures. The caller cannot distinguish between success and failure. For best-effort sync, at minimum log the error so operators can diagnose issues."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "`session` is used without validation. If `session` is None or lacks a `put` method, the error will be caught and masked by the bare except, making debugging harder."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "`LABELS` is not defined anywhere in this file. The function will raise NameError on every call. Must be imported or defined."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Bare `except Exception` silently swallows all errors (network failures, auth errors, malformed responses, etc.) without logging or any indication to the caller that the sync failed. Caller cannot distinguish between success and silent failure since both return a dict with `ok: True`. This defeats the purpose of 'best-effort' \u2014 the caller has no way to know if labels were actually synced."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "`LABELS` is used but never defined in this file. It is not imported, not passed as a parameter, and not defined locally. This will raise `NameError` at runtime."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Bare `except Exception` silently swallows all exceptions (network errors, auth failures, malformed responses) with no logging, retry logic, or caller notification. The caller cannot distinguish between success and failure. This violates observability and makes debugging impossible."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "The fallback return `{\"ok\": True, \"updated\": len(LABELS)}` is misleading: it claims success and reports `len(LABELS)` items updated when the actual update failed. This is a silent failure that will corrupt the caller's understanding of sync state."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "not_expected_expression",
+      "note": "trigger/secrets narrative; not the floating-ref finding",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "Changing from pull_request_target to pull_request is a security downgrade. pull_request_target runs with repository secrets access but uses the base branch's workflow code (safe for untrusted PRs). pull_request runs the PR's own workflow code with secrets, allowing a fork contributor to exfiltrate LLM_API_KEY by modifying this workflow file. This is a known attack vector for workflows that handle secrets."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Pinning to @main instead of a commit SHA means the workflow will execute whatever code is currently on main, including potentially malicious changes pushed by compromised accounts or PRs merged without review. This removes the immutability guarantee that protects against supply-chain attacks on the toolkit itself."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Passing toolkit_ref: main compounds the risk: the toolkit code executed is now mutable and can change between workflow runs without audit trail or explicit approval."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Passing toolkit_ref: main to a workflow that receives secrets creates a mismatch: the workflow code (now from main) may not match the toolkit version it will invoke. This can cause unexpected behavior or security gaps if the toolkit and workflow versions diverge."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Pinning to @main instead of a commit SHA removes reproducibility and introduces a moving target. If the toolkit is compromised or changes unexpectedly, this workflow will silently adopt the new behavior. For a workflow that handles secrets, a specific commit SHA is required for auditability and safety."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Passing toolkit_ref: main to a workflow that uses secrets creates a compounding risk: the workflow version itself is now mutable, and the toolkit it invokes is also mutable. An attacker controlling the toolkit repo could modify both the workflow and the toolkit in lockstep to exfiltrate secrets."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Pinning to @main instead of a commit hash removes reproducibility and auditability. Any change to the upstream toolkit workflow (including malicious ones if that repo is compromised) will immediately affect all PRs. Commit hashes provide immutability; branches do not."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Same issue as line 7: toolkit_ref: main is not pinned to a specific commit, creating a moving target for the toolkit version. This breaks reproducibility and audit trails."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "haiku",
+      "comment": "Same as line 7: toolkit_ref: main is mutable and unauditable. If the ci-toolkit repository is compromised, all workflows using @main will immediately execute the malicious version."
+    },
+    {
+      "fixture": "M6",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "claims inversion; the frozen defect is per-line-vs-slurp \u2014 mechanism misattributed",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "The condition `! jq -e 'any(.[]; .patch != null)'` negates the test for 'any patch exists'. This causes the script to exit early when patches ARE present (the opposite of the stated intent). The PR claims to 'skip PRs with no textual changes', but this logic skips PRs that have textual changes. The `!` operator should be removed."
+    },
+    {
+      "fixture": "M6",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "claims inversion; the frozen defect is per-line-vs-slurp \u2014 mechanism misattributed",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "The condition `! jq -e 'any(.[]; .patch != null)'` inverts the logic. `jq -e 'any(...)'` returns exit code 0 (success) when the condition is true. The `!` negates this, so the script exits when there ARE patches with non-null content. The PR claims to 'skip PRs with no textual changes', but this does the opposite\u2014it skips when patches exist and continues when they don't. This will cause the review to be skipped on PRs that should be reviewed."
+    },
+    {
+      "fixture": "M6",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "claims inversion; the frozen defect is per-line-vs-slurp \u2014 mechanism misattributed",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "The condition `any(.[]; .patch != null)` returns true when at least one file HAS a patch (textual changes). The `if !` negates this, so the script exits when patches ARE present \u2014 the inverse of the PR's stated goal to 'skip PRs with no textual changes.' This will cause the review to be skipped for all substantive changes and proceed only for patchless PRs."
+    },
+    {
+      "fixture": "M6",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "claims inversion; the frozen defect is per-line-vs-slurp \u2014 mechanism misattributed",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "haiku",
+      "comment": "The jq condition `any(.[]; .patch != null)` returns true when at least one file HAS a patch. The `if !` negates this, so the script exits when patches exist \u2014 the opposite of the stated intent ('skip patchless PRs'). This will cause the script to skip review of PRs with actual changes and continue only for patchless PRs, inverting the desired behavior."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Security: The regex pattern 'feature/' matches anywhere in the string, not just at the expected position. This allows refs like 'refs/heads/malicious-feature/exploit' or 'something/feature/anything' to pass. For privileged lane access control, this must anchor to the expected ref structure."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement / naming nit; not the anchoring defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Missing tests: No tests are included for this security-critical function that gates privileged lane access. Must verify correct classification of valid feature branches, rejection of non-feature branches, and edge cases like partial matches."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Security: The regex pattern matches 'feature/' anywhere in the string. For privileged lane access control, this should anchor to the start of the ref path (e.g., 'refs/heads/feature/') to prevent bypass via refs like 'refs/heads/malicious-feature/x' or 'refs/tags/feature/y'. The current implementation allows any ref containing 'feature/' substring to access privileged operations."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement / naming nit; not the anchoring defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Missing tests: No test coverage provided for security-critical branch classification logic. At minimum, need tests for: valid feature branches (refs/heads/feature/foo), invalid branches (refs/heads/main, refs/heads/bugfix/x), and bypass attempts (refs/heads/not-feature/, refs/tags/feature/x)."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement / naming nit; not the anchoring defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Missing tests: No test coverage provided for security-critical access control logic. At minimum, need tests for: valid feature branches, non-feature branches, and malicious inputs containing 'feature/' as substring."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Security: The regex pattern matches 'feature/' anywhere in the string, not just as a proper branch prefix. This allows refs like 'refs/heads/exploit-feature/-attack' or 'refs/heads/main/feature/bypass' to incorrectly pass the check and gain privileged lane access. For security-critical branch classification, the pattern must be anchored."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement / naming nit; not the anchoring defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Missing tests: No tests are included for this security-critical function that controls privileged lane access. At minimum, tests should cover: valid feature branches, main/master branches (should reject), branches with 'feature/' in the middle of the name (should reject), and edge cases like empty strings."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "non-anchoring phrasing of the frozen re.search defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Security: The regex `r\"feature/\"` matches 'feature/' anywhere in the string. For privileged lane access control, this should anchor to the branch name structure. A ref like 'refs/heads/exploit-feature/-bypass' or 'refs/heads/main/feature/fake' would incorrectly pass. Use anchored pattern like `r\"^refs/heads/feature/\"` or `r\"/feature/[^/]+$\"` depending on your ref format."
+    },
+    {
+      "fixture": "M10",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement / naming nit; not the anchoring defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Missing tests: No tests provided for security-critical access control logic. At minimum, need tests for: valid feature branches, non-feature branches (main, develop, release/*), malicious patterns (feature/ embedded in middle/end of ref), empty/None input, and edge cases like 'feature/' alone or 'refs/heads/feature' without trailing slash."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "CONFIG_URL is undefined \u2014 this will raise NameError at runtime, breaking all config loading"
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Exception handler catches OriginError and ParseError but these are undefined \u2014 will not catch any actual exceptions, violating the resilience contract. Need imports or qualified names"
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Returning empty dict {} when cache is empty directly violates the stated contract ('An empty cache raises \u2014 a fresh origin error must not be silently masked'). Should raise instead"
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "parse.parse() is called but parse module has no such function in stdlib \u2014 likely needs parse_config() or similar, or wrong import"
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "concurrency/format hypothetical; not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Module-level mutable _cache dict is not thread-safe and will cause race conditions in concurrent async contexts \u2014 multiple tasks can interleave read/write to _cache['last_good']"
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "CONFIG_URL is undefined \u2014 this will raise NameError at runtime. Must be defined as a module constant or passed as a parameter."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "OriginError and ParseError are undefined \u2014 will raise NameError. These exceptions must be imported or defined."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Contract violation: docstring says 'An empty cache raises' but code returns empty dict {} on cache miss. This silently masks fresh origin errors, contradicting the stated resilience contract."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Overly broad exception handling: catches both origin and parse errors identically. A parse error on fresh data (cache empty) should likely propagate rather than return {}, since the origin responded but data is corrupt."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "concurrency/format hypothetical; not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Module-level mutable global _cache creates concurrency hazards in async code: simultaneous calls can race on cache updates. Consider using asyncio.Lock or a thread-safe cache structure."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement rule",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No tests included for the core resilience behavior: cache hit on origin failure, cache miss raising/returning empty, successful cache update. This is the entire purpose of the PR per the description."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Exception handling violates the stated contract. The docstring promises 'An empty cache raises' but line 16 returns {} when cache is empty, silently masking origin failures. This creates a dangerous silent-failure mode where callers receive an empty config and proceed as if everything is fine."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "OriginError and ParseError are undefined \u2014 will raise NameError if any exception occurs, defeating the entire fallback mechanism"
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Returning empty dict {} as fallback is dangerous: callers expecting config keys will either crash on KeyError or silently use wrong defaults. Should raise when cache is empty per the contract, or return None to force explicit handling."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Module 'parse' is imported but likely undefined or not the intended module. Need to verify this is the correct import for parse.parse() function."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement rule",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No tests included for the core resilience contract: empty cache raising, successful caching, fallback on origin failure, fallback on parse failure. This is the entire purpose of the PR per the description."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Returning empty dict {} when cache is empty directly contradicts the docstring contract ('An empty cache raises \u2014 a fresh origin error must not be silently masked'). Should raise instead"
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "CONFIG_URL is undefined. This will raise NameError at runtime, breaking all config loading."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment/import artifact (pre-repair); not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Exception handling catches OriginError and ParseError but these are undefined. This will raise NameError when any exception occurs, preventing both error handling and the fallback mechanism."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Violates the stated contract in the docstring. The docstring says 'An empty cache raises' but this returns {} when cache is empty, silently masking fresh origin errors. This is a logic inversion: the code does the opposite of what it claims."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "docstring/{}/fallback phrasing of the frozen masking defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Returning an empty dict {} as fallback is dangerous. Callers expecting config keys will get KeyError or incorrect defaults, making failures silent and hard to debug. If there's no valid config to serve, the function should raise."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "concurrency/format hypothetical; not the masking defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Module-level mutable dict as cache creates shared state without thread safety. In async contexts with concurrent calls, race conditions can occur where multiple coroutines update _cache simultaneously, potentially corrupting state or losing updates."
+    },
+    {
+      "fixture": "M12",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "test-requirement rule",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No tests included for the core resilience contract: cache hit on origin failure, raise on empty cache with origin failure, successful cache update on success. This is the entire purpose of the PR per the description."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "LABELS is undefined. This will raise NameError at runtime, making the function completely non-functional."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Bare except catches all exceptions including NameError, KeyboardInterrupt, SystemExit, masking the undefined LABELS and making debugging impossible. This violates correctness \u2014 failures are silently converted to fake success."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Returns fake success data after exception. Caller receives {\"ok\": True, \"updated\": <count>} even when the PUT never happened or LABELS is undefined. This is a correctness violation \u2014 the function lies about its outcome."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No tests included for new sync_labels function. Core behavior (successful sync, error handling, return value shape) is untested."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Returns fake success data after any exception. Caller receives {\"ok\": True, \"updated\": <count>} even when the PUT never happened or LABELS is undefined. This is misleading and prevents error detection."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No tests included for this new sync_labels function. Core functionality like label synchronization needs test coverage for success path, error handling, and the return value contract."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Bare except swallows all exceptions including NameError, KeyboardInterrupt, and SystemExit. This hides the undefined LABELS error and any legitimate failures (network errors, auth failures, malformed responses), making debugging impossible."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Returns fake success data when an exception occurred. Caller receives {\"ok\": True, \"updated\": N} even when the sync completely failed, violating the function's contract and misleading monitoring/logging."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No validation of session or repo parameters. If repo is None or contains format string syntax, this could fail unexpectedly or create malformed URLs."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No tests added for this new functionality. Core bootstrap behavior (per PR description) requires test coverage for success path, failure handling, and the undefined LABELS case."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "LABELS is undefined. This will raise NameError at runtime. The constant must be defined or imported before use."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Bare except swallows all exceptions including network failures, authentication errors, and programming errors. This hides critical failures and makes debugging impossible. At minimum, log the exception or narrow the catch to specific expected exceptions."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "fabricated-success / bare-except-masking phrasing of the frozen defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Fallback return value is misleading: returns {\"ok\": True, \"updated\": len(LABELS)} even when the PUT failed. Caller receives success indication for a failed operation, which is incorrect behavior."
+    },
+    {
+      "fixture": "M16",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "fragment artifact / test-requirement / parameter preference only",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "No tests provided for new sync_labels function. Core functionality like label synchronization requires test coverage for success cases, failure cases, and the exception handling path."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "not_expected_expression",
+      "note": "trigger/secrets narrative; not the floating-ref finding",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Changing from pull_request_target to pull_request is a security downgrade. pull_request_target runs in the context of the base repository with access to secrets, protecting against malicious code in PRs from forks. pull_request runs in the PR's context, which means untrusted code from a fork could access LLM_API_KEY and other secrets. This is especially critical for an AI review workflow that processes PR content."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Replacing the pinned commit SHA with @main introduces non-deterministic behavior and supply-chain risk. The workflow will now use whatever code is currently on main in the external repository, which could change at any time without your control or review. This violates the principle of immutable CI dependencies and makes the workflow unreproducible."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Changing toolkit_ref from a pinned SHA to 'main' has the same supply-chain risk as the @main reference above. The reusable workflow will now fetch toolkit code from an unpinned branch, allowing arbitrary code changes to affect your CI without explicit approval."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Switching from a pinned commit SHA (0123456789abcdef0123456789abcdef01234567) to @main removes reproducibility and introduces supply-chain risk. Any malicious or breaking change pushed to main in some-org/ci-toolkit will immediately affect this workflow without review. GitHub Actions best practice is to pin reusable workflows to immutable references (commit SHAs or signed tags)."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Changing toolkit_ref from a commit SHA to 'main' compounds the supply-chain risk. If the reusable workflow checks out code at this ref, it will pull the latest main on every run, making builds non-reproducible and vulnerable to upstream compromise."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "not_expected_expression",
+      "note": "trigger/secrets narrative; not the floating-ref finding",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Switching from pull_request_target to pull_request is a security downgrade. pull_request_target runs with the base repo's secrets and permissions even for PRs from forks, protecting against malicious workflow modifications. pull_request runs the workflow file from the PR branch itself, allowing an attacker to modify this workflow to exfiltrate LLM_API_KEY or perform other malicious actions. This is especially critical since the workflow has access to secrets.LLM_API_KEY."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Changing from a pinned commit SHA (0123456789abcdef0123456789abcdef01234567) to @main removes reproducibility and introduces supply-chain risk. The reusable workflow at some-org/ci-toolkit can now change without notice, potentially introducing breaking changes, security vulnerabilities, or malicious code. GitHub Actions best practice is to pin to immutable commit SHAs for security and stability."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Changing toolkit_ref from a pinned SHA to 'main' has the same supply-chain and reproducibility issues as the workflow reference. If this parameter controls what version of toolkit code is checked out or used during the review job, it should remain pinned to a specific commit."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Replacing commit SHA with @main removes reproducibility and stability. The workflow now tracks a moving target that could introduce breaking changes, behavior changes, or security issues without notice. GitHub Actions best practice is to pin reusable workflows to immutable commit SHAs."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Changing toolkit_ref from a commit SHA to 'main' has the same stability and security implications as line 7. This parameter likely controls which version of toolkit code is checked out or used, and tracking main means unpredictable behavior across workflow runs."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "not_expected_expression",
+      "note": "trigger/secrets narrative; not the floating-ref finding",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "Changing from pull_request_target to pull_request is a security downgrade for workflows that handle untrusted PR code. pull_request_target runs in the context of the base repository with access to secrets, which is necessary for AI review workflows that need LLM_API_KEY. pull_request runs in the context of the fork, which would either fail to access secrets or expose them to untrusted code if permissions are misconfigured."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Replacing immutable commit SHA (0123456789abcdef0123456789abcdef01234567) with @main creates supply chain risk. The main branch can change at any time, potentially introducing malicious code or breaking changes into your CI pipeline without review. Reusable workflows should be pinned to specific commits for reproducibility and security."
+    },
+    {
+      "fixture": "M2",
+      "finding_index": 1,
+      "ruling": "genuine_expected_expression",
+      "note": "floating-ref phrasing of the second frozen finding",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "toolkit_ref: main has the same issue as the workflow reference \u2014 using a moving target instead of an immutable commit. This parameter likely controls which version of toolkit code is checked out during the workflow, and should remain pinned to a specific SHA."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Inverted condition: `jq -e '.mergedAt == null'` exits 0 (success) when mergedAt IS null (PR not merged), causing the script to enter the 'then' branch and print 'PR merged \u2014 continuing' when the PR is actually still open. The logic should be `.mergedAt != null` to deploy only after merge."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Echo message claims 'PR merged' but this branch executes when mergedAt is null (PR NOT merged) due to the inverted condition on line 6."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Echo message claims 'PR still open' but this else branch executes when mergedAt is NOT null (PR IS merged) due to the inverted condition on line 6."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Message contradicts the condition: prints 'PR merged \u2014 continuing' when mergedAt is null (PR is NOT merged)."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "This 'else' branch runs when mergedAt is NOT null (PR IS merged), but aborts deployment \u2014 opposite of the PR's stated purpose."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Exit 1 in the wrong branch: this aborts when the PR IS merged, allowing deployment to proceed when it is NOT merged."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "advisory-grade process concern; not the inversion defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "New shell script lacks executable permission \u2014 will fail when invoked directly. Needs `chmod +x` or must be called via `bash scripts/deploy-guard.sh`."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Logic inverted: `jq -e '.mergedAt == null'` exits 0 (success) when mergedAt IS null (PR not merged), causing the script to enter the 'then' branch and print 'PR merged \u2014 continuing'. The condition should be `.mergedAt != null` to deploy only when merged."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Message claims 'PR merged' but this branch executes when mergedAt is null (PR NOT merged). Should say 'PR not merged \u2014 aborting'."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "This 'else' branch executes when mergedAt is NOT null (PR IS merged), but the message says 'PR still open'. Should say 'PR merged \u2014 continuing'."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Exit 1 happens when PR IS merged (mergedAt not null), aborting deployment exactly when it should proceed."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "not_expected_expression",
+      "note": "advisory-grade process concern; not the inversion defect",
+      "witness_origin": "false-blocker (diagnostic coding)",
+      "profile": "sonnet",
+      "comment": "New shell script lacks executable permission in the diff. CI or deployment pipeline will fail unless `chmod +x` is applied or the script is invoked via `bash scripts/deploy-guard.sh`."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Logic inverted: `jq -e '.mergedAt == null'` returns true (exit 0) when mergedAt IS null (PR not merged), causing the 'then' branch to execute. The echo says 'PR merged' but this runs when the PR is OPEN. The else branch runs when mergedAt is NOT null (PR IS merged) but aborts. This is backwards."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Message claims 'PR merged \u2014 continuing' but this branch executes when mergedAt is null (PR NOT merged). Should say 'PR still open \u2014 aborting'."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Message claims 'PR still open \u2014 aborting' but this branch executes when mergedAt is NOT null (PR IS merged). Should say 'PR merged \u2014 continuing'."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Exit 1 in the else branch aborts when the PR IS merged (mergedAt not null), preventing deploy of merged PRs \u2014 opposite of the guard's purpose."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Message contradicts the condition: this line executes when mergedAt IS null (PR not merged), but claims 'PR merged'. Should say 'PR still open \u2014 aborting' or match the corrected condition."
+    },
+    {
+      "fixture": "M9",
+      "finding_index": 0,
+      "ruling": "genuine_expected_expression",
+      "note": "message/branch/condition contradiction phrasing of the frozen inversion defect",
+      "witness_origin": "previously-accepted detection",
+      "profile": "sonnet",
+      "comment": "Message contradicts the condition: this line executes when mergedAt is NOT null (PR is merged), but claims 'PR still open'. Should say 'PR merged \u2014 continuing' or match the corrected condition."
+    }
+  ]
+}

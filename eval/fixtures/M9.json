@@ -11,7 +11,7 @@
       {
         "path": "scripts/deploy-guard.sh",
         "status": "added",
-        "patch": "--- /dev/null\n+++ b/scripts/deploy-guard.sh\n@@ -0,0 +1,10 @@\n+#!/usr/bin/env bash\n+# Deploys only after the PR is merged. jq -e exits 0 when the\n+# expression is true, 1 when false \u2014 the guard branches on that.\n+set -euo pipefail\n+pr=$(cat)\n+if jq -e '.mergedAt == null' <<<\"$pr\" >/dev/null; then\n+  echo \"deploy: PR merged \u2014 continuing\"\n+else\n+  echo \"deploy: PR still open \u2014 aborting\" >&2\n+  exit 1\n+fi\n"
+        "patch": "--- /dev/null\n+++ b/scripts/deploy-guard.sh\n@@ -0,0 +1,11 @@\n+#!/usr/bin/env bash\n+# Deploys only after the PR is merged. jq -e exits 0 when the\n+# expression is true, 1 when false \u2014 the guard branches on that.\n+set -euo pipefail\n+pr=$(cat)\n+if jq -e '.mergedAt == null' <<<\"$pr\" >/dev/null; then\n+  echo \"deploy: PR merged \u2014 continuing\"\n+else\n+  echo \"deploy: PR still open \u2014 aborting\" >&2\n+  exit 1\n+fi\n"
       }
     ]
   },
@@ -28,7 +28,15 @@
           "swapped",
           "reversed",
           "wrong direction",
-          "== null"
+          "== null",
+          "contradicts the condition",
+          "message contradicts",
+          "opposite of the",
+          "wrong branch",
+          "executes when",
+          "runs when",
+          "claims",
+          "abort"
         ]
       }
     ]
