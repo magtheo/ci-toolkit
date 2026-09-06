@@ -197,8 +197,8 @@ Status: NOT STARTED
     C2: hardened pull_request_target caller, pinned refs
   - M3 real (ci-toolkit #7): guard contradicting its documented
     contract | C3: guard honoring the contract
-  - M4 synthetic: docstring contract false of unseen code (PR #35
-    class) | C4: docstring claim consistent with code visible in
+  - M4 synthetic: docstring contract false of unseen code
+    (miss #4 class) | C4: docstring claim consistent with code visible in
     the same diff
   - M5 synthetic: "Every X" claim vs in-diff exclusions (miss #5
     class) | C5: properly qualified statement
