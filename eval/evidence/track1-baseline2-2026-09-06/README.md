@@ -1,4 +1,4 @@
-# Track 1 T1.2 remeasurement — BINDING CANDIDATE — 2026-09-06
+# Track 1 T1.2 DIAGNOSTIC REMEASUREMENT — 2026-09-06
 
 > **STATUS: COMPLETED DIAGNOSTIC T1.2 REMEASUREMENT — NOT the
 > binding reference.** The post-run human validity gate adjudicated
@@ -43,15 +43,18 @@ no deployment qualification claim.
 
 ## Repair validation (vs. the 2026-09-05 diagnostic)
 
-- **`unclassified` collapsed 64/86 → 4/6**: the fragment-artifact and
-  matcher-gap classes are gone. The repair did what it claimed.
+- **`unclassified` collapsed 64/86 → 4/6**: the previously known
+  fragment-artifact and matcher-gap classes were substantially
+  reduced — though the validity gate then confirmed a REMAINING
+  matcher gap (M16 novel phrasings; see adjudication below), so the
+  reduction claim is diagnostic, not complete.
 - Extended matchers work in the wild: M10 **2→5 / 0→5** (h/s), M12
   **1→5 / 2→5**, M16 held 5/5, M2 clean 5/5 both.
 - C4/C7 marginality: haiku **clean** this run (was 1 fb each); sonnet
   shows **1 C7 violation** — the marginality moved profiles rather
   than disappeared (GATING states unchanged; measurement recorded).
 
-## Emitted false blockers by family (coded; the T1.3 ordering input)
+## Emitted false blockers by family (coded; diagnostic ordering signal — not yet the T1.3 ordering)
 
 | family | haiku | sonnet |
 | --- | --- | --- |
@@ -65,7 +68,7 @@ Grounding basis (FBs): cited-evidence 45/44, inferred 68/133,
 asserted 14/35 — the reviewer engages the diff; it grounds
 speculative and inflated claims (confirmed from the diagnostic).
 
-## Binding-candidate sensitivity floors (`derived-metrics.json`)
+## Diagnostic sensitivity values (`derived-metrics.json` — NOT activating as floors)
 
 Per-positive minimum expected-finding hits / 5:
 

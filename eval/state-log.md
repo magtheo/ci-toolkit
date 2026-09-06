@@ -191,6 +191,6 @@ pending an oracle-only M16 matcher repair (witness-tested, smallest
 extension) and a fresh unchanged-reviewer N=5 dual-profile
 remeasurement; sensitivity values remain diagnostic and do NOT
 activate as T1.3/T1.5 floors; emitted-family ordering is informative
-but not yet the final T1.3 ordering. Oracle-semantic changes (PR
-#32's fixture-origin generalization and the M16 repair) land BEFORE
-the next oracle freeze and any further spend.
+but not yet the final T1.3 ordering. Oracle-semantic changes (the
+deferred fixture-origin generalization and the M16 repair) land
+BEFORE the next oracle freeze and any further spend.
