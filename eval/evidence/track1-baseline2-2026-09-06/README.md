@@ -1,10 +1,23 @@
 # Track 1 T1.2 remeasurement — BINDING CANDIDATE — 2026-09-06
 
-> **STATUS: binding candidate, pending the human validity check.**
-> The floors and tables below activate as the T1.3/T1.5
-> non-regression reference ONLY if that check finds no remaining
-> corpus defects or matcher misclassifications. See "Human validity
-> check" at the end.
+> **STATUS: COMPLETED DIAGNOSTIC T1.2 REMEASUREMENT — NOT the
+> binding reference.** The post-run human validity gate adjudicated
+> the three flags (2026-09-06): C12 and C7 are REVIEWER FAILURES
+> (the corpus remains valid); **M16 is a CONFIRMED MATCHER
+> MISCLASSIFICATION**, which fails the predeclared binding-validity
+> condition. Consequences:
+>
+> - T1.2 remains **INCOMPLETE** pending an oracle-only matcher
+>   repair and a fresh unchanged-reviewer N=5 dual-profile
+>   remeasurement — that later run is the binding reference.
+> - The sensitivity values below are **diagnostic** and do NOT
+>   activate as T1.3/T1.5 floors.
+> - The emitted-family ordering is informative but NOT yet the final
+>   T1.3 ordering.
+>
+> All raw artifacts (reports, logs, narrative coding, derived
+> metrics) are preserved byte-untouched as permanent historical
+> evidence of the discovery.
 
 Unchanged reviewer (subject `4b07246`) × repaired oracle
 `9fae85b26ff45dc6`, full 36-fixture corpus, N=5, both governed
@@ -73,30 +86,28 @@ misses), M15/M17/M18 5·0 on haiku, M6 0·5 on sonnet, M9 3·0 on
 haiku (3 of them fail-closed INCONCLUSIVE — the quoting-heavy
 malformed-JSON robustness finding persists, correctly never Clear).
 
-## Human validity check (required before binding)
+## Human validity adjudication (2026-09-06 — recorded post-run)
 
-Judgment calls coded during derivation, surfaced for human
-adjudication — each is flagged inline in `narrative-coding.jsonl`:
-
-1. **`c12-session-semantics`** — C12/M12 narratives disputing the
-   presented abstraction ("session.get never awaited / returns
-   Response / OriginError unreachable / KeyError violates the
-   docstring"). Coded as reviewer failures (the docstring contract
-   implies the session wrapper's semantics; "empty cache raises" IS
-   satisfied by the KeyError). **Question:** is the abstraction
-   under-specified as presented (corpus gap), or is the reviewer
-   contract-blind (as coded)?
-2. **`c7-scope-wording`** — the sonnet GATING violation on C7
-   ("scope violation — PR claims purely mechanical…"). Coded
-   severity-inflation: it disputes description wording, not diff
-   content. **Question:** acceptable wording, or does the fixture's
-   PR-body claim genuinely overstate?
-3. **`m16-novel-phrasing`** — M16 fabricated-success narratives in
-   phrasings the frozen needles miss ("Returns \`{\"ok\": …}"
-   behind a backtick; "falsely claiming success"; "a lie"). 4–6
-   coded unclassified (mechanically FB, semantically detections).
-   **Question:** matcher misclassification to fix in a future oracle
-   change, or acceptable conservative measurement?
+1. **`c12-session-semantics` → REVIEWER FAILURE; corpus valid.**
+   `session` is an abstract dependency — the fixture establishes no
+   aiohttp/requests semantics, so "must return a Response object /
+   cannot raise OriginError" is unsupported; the C12 contract's
+   "empty cache raises" IS satisfied by `_cache["last_good"]`
+   raising when absent; M12 remains the intended defect (masks
+   ParseError + substitutes the empty object). Coded families stand.
+2. **`c7-scope-wording` → REVIEWER FAILURE (severity inflation).**
+   The visible behavioral contract retains curl and identical
+   connect/total bounds; disputing "purely mechanical" without
+   demonstrating a behavioral regression is not valid blocking
+   evidence. C7 remains GATING; the observed sonnet violation is
+   preserved as measurement.
+3. **`m16-novel-phrasing` → CONFIRMED MATCHER MISCLASSIFICATION.**
+   "Falsely claiming success", "a lie", and the backticked
+   `Returns \\`{"ok": …}` formulations genuinely express M16's
+   frozen fabricated-success defect and miss the frozen needle
+   vocabulary — mechanically counted as false blockers while being
+   detections. This fails the predeclared binding-validity
+   condition, so this run is diagnostic.
 
 Also note (not flagged, recorded): M13 floating-tag detection 0/5 on
 both profiles — a real detection gap, not a corpus artifact; M1
