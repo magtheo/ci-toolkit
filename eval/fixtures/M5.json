@@ -1,7 +1,7 @@
 {
   "id": "M5",
   "kind": "positive",
-  "origin": "synthetic replica (student-platform PR #36, miss #5)",
+  "origin": "synthetic replica (miss #5 class)",
   "paired_with": "C5",
   "family": "absolute-consistency",
   "input": {

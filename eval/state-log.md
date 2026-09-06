@@ -194,3 +194,24 @@ activate as T1.3/T1.5 floors; emitted-family ordering is informative
 but not yet the final T1.3 ordering. Oracle-semantic changes (the
 deferred fixture-origin generalization and the M16 repair) land
 BEFORE the next oracle freeze and any further spend.
+
+## 2026-09-06 — Oracle repair 3: M16 matcher extension + fixture-origin generalization
+
+corpus 9fae85b26ff45dc6 -> 209278d55ed74c50 · 0 model calls
+
+- M16 matcher: smallest extension per the 2026-09-06 adjudication —
+  needles 'falsely claiming' and 'a lie' added; verified against the
+  frozen #33 witness set (m16-witnesses.json: 27 witnesses — 16
+  genuine all accepted, 11 known false blockers all rejected;
+  deterministic test added). No other matchers touched.
+- Deferred fixture-origin generalization (from #32, held per the
+  fail-closed rule while the T1.2 cycle ran): M4/M5/M8 origin
+  strings now use the #34-consistent taxonomy form
+  'synthetic replica (miss #N class)' — no private repo names or PR
+  numbers remain in fixture bytes.
+- Both changes are oracle inputs: oracle_version moves; states and
+  taxonomy unchanged; reviewer behavior untouched.
+- Next: freeze this oracle; the following unchanged-reviewer N=5
+  dual-profile run (360-call scale, spend-authorized) is the next
+  T1.2 binding candidate, subject to the same post-run human
+  validity check.

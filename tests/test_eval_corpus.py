@@ -530,3 +530,29 @@ def test_report_captures_raw_findings_for_analysis():
     assert r["runs_detail"][0]["findings"][0]["comment"] == \
         "uses inherit here"
     assert "raw_output" in r["runs_detail"][0]
+
+
+def test_m16_matcher_repair_via_adjudicated_witnesses():
+    # 2026-09-06 human adjudication: M16 novel phrasings ("falsely
+    # claiming success", "a lie", backticked Returns-{"ok" ...) are
+    # genuine expressions of the frozen fabricated-success defect.
+    # Smallest extension: two needles; verified against the frozen #33
+    # witness set (genuine accepted, known false blockers rejected).
+    witnesses = json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair2-2026-09-06" /
+         "m16-witnesses.json").read_text())["witnesses"]
+    entry = {f["id"]: f for f in rc.load_corpus(FIXTURES)}["M16"] \
+        ["expected"]["findings"][0]
+    assert "falsely claiming" in entry["comment_any"]
+    assert "a lie" in entry["comment_any"]
+    genuine = rejected = 0
+    for w in witnesses:
+        hit = rc._finding_matches(
+            entry, {"severity": "blocking", "comment": w["comment"]})
+        if w["ruling"] == "genuine_expected_expression":
+            assert hit, w["comment"][:80]
+            genuine += 1
+        else:
+            assert not hit, w["comment"][:80]
+            rejected += 1
+    assert genuine >= 15 and rejected >= 10
