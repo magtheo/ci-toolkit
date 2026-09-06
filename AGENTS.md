@@ -7,8 +7,8 @@
 
 ## Purpose
 
-This repository (ci-toolkit) provides shared CI patterns for magtheo's
-repos — currently the **advisory AI pull-request reviewer** and the
+This repository (ci-toolkit) provides provider-agnostic shared CI
+patterns — currently the **advisory AI pull-request reviewer** and the
 **reviewer evaluation / qualification infrastructure** — under a
 two-level branch workflow for human + coding-agent collaboration.
 
@@ -22,9 +22,9 @@ or merging unreviewed work.
 
 ## Working in this repo
 
-Shared CI patterns for magtheo's repos. Logic only — no secrets, no
-project code. Primary consumers: student-platform, platform-core,
-and future repos.
+Provider-agnostic shared CI patterns. Logic only — no secrets, no
+project code. Primary consumers: any repository adopting the reusable
+workflows and governance templates.
 
 (`engine.py`, `render.py`, and `eval/` reach `main` with the
 umbrella `feature/reviewer-eval-baseline` merge; until then they live

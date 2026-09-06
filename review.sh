@@ -7,7 +7,7 @@
 #   -> POST one COMMENT review. The engine is shared with the eval
 #   harness; this script owns ONLY fetch + post.
 #
-# Security model (plans/ai-pr-review.md, student-platform):
+# Security model:
 #   - the PR diff is fetched as DATA via the GitHub API; the PR head is
 #     never checked out or executed;
 #   - the review event is hard-coded to COMMENT in render.py —
