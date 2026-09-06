@@ -148,3 +148,49 @@ corpus 61380c91e84db0ef -> 9fae85b26ff45dc6 · 0 model calls
   audited non-defect narratives stay rejected. Schema unchanged.
 - 148 tests pass; states and family taxonomy unchanged; reviewer
   untouched.
+
+## 2026-09-06 — T1.2 remeasurement on the repaired oracle (BINDING CANDIDATE)
+
+corpus 9fae85b26ff45dc6 · subject 4b07246 (unchanged reviewer) ·
+haiku-4.5 + sonnet-4.5 · N=5 each · 360 calls, 0 retries
+
+- Bundle frozen at `eval/evidence/track1-baseline2-2026-09-06/`
+  (reports, narrative coding, derived metrics incl. floors).
+- Repair validated: unclassified FB mass collapsed 64/86 -> 4/6;
+  extended matchers accept genuine narratives in the wild
+  (M10 2->5/0->5, M12 1->5/2->5).
+- Emitted-FB ordering (the T1.3 input, pending validity check):
+  speculative-consequence 59h/81s dominant; severity-inflation
+  16h/60s; hallucinated-fact 34h/30s; risk-boilerplate 14h/35s.
+- GATING marginality moved profiles: haiku clean; sonnet 1 C7
+  violation (wording-dispute narrative — flagged for human
+  adjudication). No state changes.
+- BINDING activation of the floors requires the human validity
+  check (3 flags: c12-session-semantics, c7-scope-wording,
+  m16-novel-phrasing — see bundle README).
+
+## 2026-09-06 — T1.2 remeasurement adjudicated: DIAGNOSTIC, not binding
+
+Human validity gate decisions (directing human, 2026-09-06):
+
+- c12-session-semantics -> REVIEWER FAILURE; corpus valid (session
+  is an abstract dependency; "empty cache raises" IS satisfied;
+  M12 remains the intended defect). Coded families stand.
+- c7-scope-wording -> REVIEWER FAILURE (severity inflation; no
+  demonstrated behavioral regression). C7 remains GATING; the
+  observed sonnet violation preserved as measurement.
+- m16-novel-phrasing -> CONFIRMED MATCHER MISCLASSIFICATION:
+  novel phrasings ("falsely claiming success", "a lie", backticked
+  Returns-{"ok" formulations) genuinely express the frozen M16
+  defect but miss the frozen needles — fails the predeclared
+  binding-validity condition.
+
+Consequences of record: the 2026-09-06 remeasurement is a COMPLETED
+DIAGNOSTIC measurement (evidence immutable); T1.2 remains INCOMPLETE
+pending an oracle-only M16 matcher repair (witness-tested, smallest
+extension) and a fresh unchanged-reviewer N=5 dual-profile
+remeasurement; sensitivity values remain diagnostic and do NOT
+activate as T1.3/T1.5 floors; emitted-family ordering is informative
+but not yet the final T1.3 ordering. Oracle-semantic changes (the
+deferred fixture-origin generalization and the M16 repair) land
+BEFORE the next oracle freeze and any further spend.
