@@ -11,7 +11,7 @@ contracts, operations, and fleet management).
 semantic capability. Platform maturity work belongs in
 `MATURITY_ROADMAP.md`; do not duplicate the same backlog in both.
 
-Last reviewed: 2026-08-30
+Last reviewed: 2026-09-06
 
 
 ## Philosophy
@@ -114,7 +114,7 @@ thereafter is chosen from measured evidence, not this table's number.
 
 - **Evidence:** M4 — a claim whose truth depends on code outside the
   diff; 0/3 detected.
-- **Current state:** identified (student-platform plan already points
+- **Current state:** identified (the originating consumer plan already points
   at deeper context); no implementation design yet.
 - **Candidate mechanism:** diff → identify unresolved
   claims/references → retrieve only the relevant BASE paths/symbols

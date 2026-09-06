@@ -1,6 +1,6 @@
 """Contract tests for the roadmap freshness guard logic.
 
-The guard's contract (from real student-platform history): work that
+The guard's contract (from a real-world incident in a consumer repo): work that
 landed after a stale 'Last reviewed:' date must turn the guard red —
 no matter how old that work is. A rolling window (commits in the last
 N days) silently passes exactly that case, which is why these tests

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Advisory AI PR review — ci-toolkit.
 #
-# Security model (plans/ai-pr-review.md, student-platform):
+# Security model:
 #   - the PR diff is fetched as DATA via the GitHub API; the PR head is
 #     never checked out or executed;
 #   - the review event is hard-coded to COMMENT in parse_review.py —
