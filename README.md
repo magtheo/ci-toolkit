@@ -1,7 +1,7 @@
 # ci-toolkit
 
 **ci-toolkit** contains shared CI/review logic and governance templates
-for magtheo's repositories, starting with an **advisory AI pull-request
+for any repository, starting with an **advisory AI pull-request
 reviewer**.
 
 ci-toolkit **stores no consumer credentials and no application
@@ -228,9 +228,7 @@ interface. The reviewer needs at least:
 NOT share persistent runners with PR-controlled test code — state
 planted by a test job (toolcache, PATH, dotfiles) would be inherited
 by the privileged job. Route it to an isolated, preferably ephemeral
-lane; reference implementation: student-platform
-`infra/ai-review-lane/` and runbook `self-hosted-runner-setup.md`
-Part 9 (one disposable container per job, hostile-user acceptance
+lane (one disposable container per job, hostile-user acceptance
 tests that scan `/proc` for both credentials). Pin past the
 credential-transport fix so Authorization headers never appear in
 curl argv.
@@ -323,9 +321,8 @@ missing or malformed date.
 `templates/` holds copy-templates for the repo-governance practice
 (branch model, phase discipline, Review Model, agent rules, plans,
 PR template, roadmap + freshness guard). **Copy into your repo and
-adapt — never reference governance across repos.** Source of truth is
-student-platform's lived-in AGENTS.md; the template generalizes it and
-adds the lifecycle invariants (branch from verified `main`, never from
+adapt — never reference governance across repos.** The templates distill a lived-in production governance practice and
+add the lifecycle invariants (branch from verified `main`, never from
 an unmerged PR head; no phase PRs into a feature branch whose parent
 has landed).
 
@@ -350,8 +347,8 @@ has landed).
   (source-invariant tested) — in BOTH transports: `review.sh`
   (GitHub token) and `engine.py` (OpenRouter key).
 
-Origin: student-platform feature `ai-pr-review` (plan + validation
-history live there). Later hardening rounds are documented in
+Origin: extracted from a production advisory-review feature in a
+private consumer repository. Later hardening rounds are documented in
 `plans/reviewer-eval-baseline.md`, `ROADMAP.md` (evidence appendix),
 and this repo's PR history.
 

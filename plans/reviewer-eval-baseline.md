@@ -30,9 +30,9 @@ Turns "the reviewer seems better now" into qualification evidence,
 and makes "main is not deployment; the immutable consumer pin is
 deployment" the load-bearing rule.
 
-Origin: five confirmed miss classes (ledger in
-student-platform:plans/ai-pr-review.md, misses #4/#5 recorded in its
-PR #37); sequencing amendment to that plan's Deviation 2 — evaluation
+Origin: five confirmed miss classes (ledger in the originating
+private consumer repository's ai-pr-review plan, misses #4/#5 recorded
+in its post-incident review); sequencing amendment to that plan's Deviation 2 — evaluation
 baseline precedes intelligence changes (Stage 3 context retrieval
 and Stage 2 diff budgeting wait behind this feature).
 
@@ -59,8 +59,8 @@ and Stage 2 diff budgeting wait behind this feature).
 
 ## Constraints
 
-- **Fixture secrecy policy (hard)**: ci-toolkit is public;
-  student-platform is private. Fixtures derived from private-repo
+- **Fixture secrecy policy (hard)**: ci-toolkit is public; the
+  originating consumer repositories are private. Fixtures derived from private-repo
   misses (#1, #4, #5) MUST be synthetic replicas that reproduce the
   miss class without private content. Misses #2 (ci-toolkit #3) and
   #3 (ci-toolkit #7) may use the real public diffs.
@@ -213,12 +213,11 @@ M1–M8/C1–C8 per ledger misses #6–#8)
     C2: hardened pull_request_target caller, pinned refs
   - M3 real (ci-toolkit #7): guard contradicting its documented
     contract | C3: guard honoring the contract
-  - M4 synthetic: docstring contract false of unseen code (PR #35
-    class) | C4: docstring claim consistent with code visible in
+  - M4 synthetic: docstring contract false of unseen code
+    (miss #4 class) | C4: docstring claim consistent with code visible in
     the same diff
-  - M5 synthetic: "Every X" claim vs in-diff exclusions (PR #36
-    class; regression reference: student-platform PR #36 head
-    e51ee75e) | C5: properly qualified statement
+  - M5 synthetic: "Every X" claim vs in-diff exclusions (miss #5
+    class) | C5: properly qualified statement
   - fixture format: input diff, rubric in force, expected assessment
     + findings (+ matchers), miss class, origin/synthetic flag,
     pairing reference
@@ -795,7 +794,8 @@ two lifecycle points, each with its own evidence.
 
 ## Notes
 
-- Sequencing dependency: student-platform plans/ai-pr-review.md
+- Sequencing dependency: the originating consumer repository's
+  ai-pr-review plan
   Deviation 2 amendment (evaluation precedes intelligence) should
   land alongside this plan's approval; this plan implements it.
 - Governance dogfood gap: ci-toolkit ships governance templates but
