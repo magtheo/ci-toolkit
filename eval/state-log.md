@@ -197,10 +197,10 @@ BEFORE the next oracle freeze and any further spend.
 
 ## 2026-09-06 — Oracle repair 3: M16 matcher extension + fixture-origin generalization
 
-corpus 9fae85b26ff45dc6 -> 209278d55ed74c50 · 0 model calls
+corpus 9fae85b26ff45dc6 -> 8c34a74047ad0144 · 0 model calls
 
 - M16 matcher: smallest extension per the 2026-09-06 adjudication —
-  needles 'falsely claiming' and 'a lie' added; verified against the
+  precision needles 'falsely claiming success' and 'no labels were actually updated' added (semantically sufficient phrases, not broad rhetoric — review correction on the repair PR); verified against the
   frozen #33 witness set (m16-witnesses.json: 27 witnesses — 16
   genuine all accepted, 11 known false blockers all rejected;
   deterministic test added). No other matchers touched.

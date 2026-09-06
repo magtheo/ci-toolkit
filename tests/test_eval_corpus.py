@@ -534,25 +534,35 @@ def test_report_captures_raw_findings_for_analysis():
 
 def test_m16_matcher_repair_via_adjudicated_witnesses():
     # 2026-09-06 human adjudication: M16 novel phrasings ("falsely
-    # claiming success", "a lie", backticked Returns-{"ok" ...) are
-    # genuine expressions of the frozen fabricated-success defect.
-    # Smallest extension: two needles; verified against the frozen #33
-    # witness set (genuine accepted, known false blockers rejected).
+    # claiming success", "a lie -- no labels were actually updated",
+    # backticked Returns-{"ok" ...) are genuine expressions of the
+    # frozen fabricated-success defect. Precision rule: the added
+    # needles are semantically sufficient phrases, not broad rhetoric
+    # ("falsely claiming" / "a lie" alone could accept unrelated
+    # future blockers in the OR-only matcher).
     witnesses = json.loads(
-        (FIXTURES.parent / "evidence" / "track1-oracle-repair2-2026-09-06" /
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair3-2026-09-06" /
          "m16-witnesses.json").read_text())["witnesses"]
     entry = {f["id"]: f for f in rc.load_corpus(FIXTURES)}["M16"] \
         ["expected"]["findings"][0]
-    assert "falsely claiming" in entry["comment_any"]
-    assert "a lie" in entry["comment_any"]
-    genuine = rejected = 0
+    assert "falsely claiming success" in entry["comment_any"]
+    assert "no labels were actually updated" in entry["comment_any"]
+    # broad forms must not be present as needles
+    assert "falsely claiming" not in entry["comment_any"]
+    assert "a lie" not in entry["comment_any"]
+    counts = {"genuine_expected_expression": 0,
+              "not_expected_expression": 0}
     for w in witnesses:
+        # the witness set is frozen: unknown rulings fail loudly
+        assert w["ruling"] in counts, w["ruling"]
         hit = rc._finding_matches(
             entry, {"severity": "blocking", "comment": w["comment"]})
         if w["ruling"] == "genuine_expected_expression":
             assert hit, w["comment"][:80]
-            genuine += 1
         else:
             assert not hit, w["comment"][:80]
-            rejected += 1
-    assert genuine >= 15 and rejected >= 10
+        counts[w["ruling"]] += 1
+    # frozen cardinality: silent witness deletion must fail
+    assert len(witnesses) == 27
+    assert counts["genuine_expected_expression"] == 16
+    assert counts["not_expected_expression"] == 11
