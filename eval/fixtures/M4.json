@@ -1,7 +1,7 @@
 {
   "id": "M4",
   "kind": "positive",
-  "origin": "synthetic replica (student-platform PR #35, miss #4)",
+  "origin": "synthetic replica (miss #4 class)",
   "paired_with": "C4",
   "input": {
     "title": "worker: document retry contract",

@@ -30,7 +30,9 @@
           "fake success",
           "misleading",
           "mask",
-          "returns {"
+          "returns {",
+          "falsely claiming success",
+          "no labels were actually updated"
         ]
       }
     ]

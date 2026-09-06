@@ -1,0 +1,224 @@
+{
+  "_meta": {
+    "source": "frozen #33 diagnostic reports + narrative coding + the 2026-09-06 human adjudication (m16-novel-phrasing confirmed)",
+    "invariant": "genuine witnesses satisfy the repaired matcher; not-expected witnesses do not"
+  },
+  "witnesses": [
+    {
+      "profile": "haiku",
+      "run": 0,
+      "finding": 0,
+      "comment": "The PUT request result is returned directly without validation. If the request fails (non-2xx status), the response object is still returned, but the caller likely expects a dict with 'ok' and 'updated' keys (as shown in line 12). This creates inconsistent return types: success returns a Response object, failure returns a dict. Callers cannot reliably check response['ok'].",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "haiku",
+      "run": 0,
+      "finding": 1,
+      "comment": "Bare `except Exception` silently swallows all errors (network failures, auth errors, malformed responses, etc.) without logging or reporting. The caller has no way to know if the sync actually failed or succeeded. This defeats observability and makes debugging impossible.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "haiku",
+      "run": 1,
+      "finding": 0,
+      "comment": "The PUT request result is returned inside the try block, but the function's contract (per the comment on line 11) is to return a dict with 'ok' and 'updated' keys. When the request succeeds, this returns a requests.Response object instead, breaking the caller's expectation of a consistent dict structure. Callers checking response['ok'] or response['updated'] will crash.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "haiku",
+      "run": 1,
+      "finding": 1,
+      "comment": "Bare `except Exception: pass` silently swallows all errors (network failures, auth errors, malformed responses, timeouts) without logging or reporting. The caller has no way to know the sync failed. This violates the 'best-effort' contract by hiding failures entirely rather than reporting them.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "haiku",
+      "run": 1,
+      "finding": 2,
+      "comment": "The fallback return `{\"ok\": True, \"updated\": len(LABELS)}` is misleading: it reports success and claims all labels were updated even when the sync failed. This inverts the error signal \u2014 a caller checking `response['ok']` will think the operation succeeded when it did not. The 'ok' field should be False on failure.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "haiku",
+      "run": 2,
+      "finding": 0,
+      "comment": "Bare `except Exception: pass` swallows all errors (network failures, auth errors, malformed responses) without logging or signaling failure to the caller. The caller cannot distinguish success from failure, breaking error handling and observability. This violates the PR's stated 'best-effort' intent by hiding what actually happened.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "haiku",
+      "run": 2,
+      "finding": 1,
+      "comment": "The `repo` parameter is interpolated directly into a URL via `.format()` without validation or URL encoding. If `repo` contains special characters or is attacker-controlled, this could construct malformed or injection-vulnerable URLs. The function should validate or quote the input.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "haiku",
+      "run": 2,
+      "finding": 2,
+      "comment": "Response shape is inconsistent: on success, `session.put()` returns a Response object (with `.status_code`, `.json()`, etc.); on exception, the function returns a dict `{\"ok\": True, \"updated\": ...}`. Callers cannot reliably check success or extract data. The fallback dict also claims success (`\"ok\": True`) even though the actual request failed.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "haiku",
+      "run": 3,
+      "finding": 1,
+      "comment": "Returns `{\"ok\": True, \"updated\": len(LABELS)}` on exception path, falsely claiming success when the sync failed. Caller will treat a network outage or permission error as a successful sync, leading to silent data inconsistency.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "haiku",
+      "run": 3,
+      "finding": 2,
+      "comment": "No test coverage provided for the new `sync_labels` function. Core behavior (label sync, error handling, response shape) is untested. PR description claims 'best-effort' but provides no evidence the function works or that error cases are handled as intended.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "haiku",
+      "run": 4,
+      "finding": 0,
+      "comment": "Bare `except Exception: pass` swallows all errors silently, including network failures, permission errors, and malformed responses. Caller cannot distinguish success from failure since line 12 returns a fake success dict regardless. This breaks observability and makes debugging impossible.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "haiku",
+      "run": 4,
+      "finding": 1,
+      "comment": "Returns `{\"ok\": True, \"updated\": len(LABELS)}` on exception, which is a lie \u2014 no labels were actually updated. Caller will believe the sync succeeded when it failed. This is a silent correctness failure.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "haiku",
+      "run": 4,
+      "finding": 2,
+      "comment": "No test coverage provided for this new core behavior. The PR description claims 'label sync' but provides no tests verifying that labels are actually synced, that failures are handled correctly, or that the response format is correct.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "sonnet",
+      "run": 0,
+      "finding": 0,
+      "comment": "Incorrect API usage: GitHub Labels API does not support bulk PUT to /labels endpoint. Labels must be created/updated individually via POST /repos/{owner}/{repo}/labels (create) or PATCH /repos/{owner}/{repo}/labels/{name} (update). This will fail silently due to exception swallowing on line 9.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 0,
+      "finding": 1,
+      "comment": "Bare except swallows all exceptions including network failures, authentication errors, and API errors. Caller receives fake success response (line 11) when operation actually failed, making debugging impossible and hiding real problems.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 0,
+      "finding": 2,
+      "comment": "Returns fabricated success dictionary on error path, lying to caller about operation outcome. The comment 'report the summary the caller expects' indicates intentional deception. Caller cannot distinguish real success from caught failure.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 1,
+      "finding": 0,
+      "comment": "Incorrect URL construction: `repo` parameter is concatenated directly with `/labels` without proper URL joining. If `repo` is a base URL like 'https://api.github.com/repos/owner/name', this produces 'https://api.github.com/repos/owner/name/labels' (correct), but if it's just 'owner/name', this produces 'owner/name/labels' (invalid URL). Should use proper URL joining or document the expected format.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "sonnet",
+      "run": 1,
+      "finding": 1,
+      "comment": "Bare except clause swallows all exceptions including network errors, authentication failures, and malformed responses. This is a best-effort operation per the PR title, but silently swallowing exceptions makes debugging impossible and hides real problems. At minimum, log the exception or return error information.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 1,
+      "finding": 2,
+      "comment": "Return value on error path is a dict literal that does not match the success path (which returns a requests.Response object). The comment claims this is 'the summary the caller expects', but returning different types from the same function (Response vs dict) will break caller code that expects consistent return types. This is a contract violation.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "sonnet",
+      "run": 1,
+      "finding": 3,
+      "comment": "Missing tests: new function with error handling, API interaction, and best-effort semantics has no accompanying test coverage. At minimum, need tests for: successful sync, network failure, malformed repo parameter, and return value consistency.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "sonnet",
+      "run": 2,
+      "finding": 1,
+      "comment": "Bare except with pass swallows all exceptions including network errors, authentication failures, and malformed responses. The function silently fails and returns a fake success response, hiding real problems from the caller. This violates the 'best-effort' contract by pretending success when operations fail.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 2,
+      "finding": 2,
+      "comment": "Returns a dict with 'ok': True and 'updated': 2 on the error path, but this is a fabricated response that does not match the actual requests.Response object returned on line 7. The caller cannot distinguish success from silent failure, and the return type is inconsistent (Response vs dict).",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 3,
+      "finding": 1,
+      "comment": "Bare `except Exception: pass` swallows all errors including network failures, authentication errors, and malformed responses. This is a best-effort operation per the PR title, but silently swallowing exceptions makes debugging impossible and hides real problems from callers.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 3,
+      "finding": 2,
+      "comment": "Returns fake success dictionary `{\"ok\": True, \"updated\": len(LABELS)}` when an exception occurred. This is a lie \u2014 no labels were updated if the PUT failed. Caller cannot distinguish success from failure. Should return a failure indicator or at minimum `{\"ok\": False}` on the error path.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 3,
+      "finding": 3,
+      "comment": "Missing tests: new function with error handling, external API call, and multiple code paths (success/failure) has no accompanying test file. Core behavior is untested.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    },
+    {
+      "profile": "sonnet",
+      "run": 4,
+      "finding": 2,
+      "comment": "Returns fake success dictionary `{'ok': True, 'updated': len(LABELS)}` on the error path (after exception). This is a lie: no labels were updated if an exception occurred. Caller cannot distinguish success from failure, making debugging impossible and violating correctness.",
+      "ruling": "genuine_expected_expression",
+      "witness_origin": "previously-accepted detection"
+    },
+    {
+      "profile": "sonnet",
+      "run": 4,
+      "finding": 3,
+      "comment": "Missing tests: no test coverage for this new function. Core behaviors to test: successful sync, network failure handling, malformed repo parameter, authentication failure, and the return value contract.",
+      "ruling": "not_expected_expression",
+      "witness_origin": "false-blocker (diagnostic coding)"
+    }
+  ]
+}

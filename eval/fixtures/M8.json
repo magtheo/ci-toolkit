@@ -1,7 +1,7 @@
 {
   "id": "M8",
   "kind": "positive",
-  "origin": "synthetic replica (student-platform PR #50, miss #8)",
+  "origin": "synthetic replica (miss #8 class)",
   "paired_with": "C8",
   "family": "hallucinated-fact",
   "input": {
