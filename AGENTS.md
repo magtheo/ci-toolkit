@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This repository (ci-toolkit) provides provider-agnostic shared CI
+This repository (ci-toolkit) provides consumer-agnostic shared CI
 patterns — currently the **advisory AI pull-request reviewer** and the
 **reviewer evaluation / qualification infrastructure** — under a
 two-level branch workflow for human + coding-agent collaboration.
@@ -22,7 +22,7 @@ or merging unreviewed work.
 
 ## Working in this repo
 
-Provider-agnostic shared CI patterns. Logic only — no secrets, no
+Consumer-agnostic shared CI patterns. Logic only — no secrets, no
 project code. Primary consumers: any repository adopting the reusable
 workflows and governance templates.
 
