@@ -47,7 +47,7 @@
 | generation | temperature 0.2, max_tokens 2000 |
 | logical calls | 360 (180 per profile) |
 | network failures / retries | 0 / 0 |
-| generated (per profile) | see `*-n5.json` `profile.generated` (sonnet 2026-09-07T08:34:03Z, haiku 2026-09-07T10:41Z) |
+| generated (per profile) | see `*-n5.json` `profile.generated` (sonnet 2026-09-07T08:34:03.495974+00:00, haiku 2026-09-07T08:49:27.916906+00:00) |
 | spend | sonnet 243,615 prompt / 76,424 completion tok; haiku 243,615 / 81,034; weekly-window spend at run end ≈ $2.51 (includes one $0.0004 deepseek smoke call, see state-log) |
 
 Pre-run attempt record: the first launch on 2026-09-06 aborted on every
@@ -62,11 +62,12 @@ spend — `attempt1-keylimit.*.stderr.log` (preserved byte-untouched).
 | false-clears (CLEAR or INCONCLUSIVE with defect present) | 29 (0.322) | 15 (0.167) |
 | control false blockers | 90 | 135 |
 | …of which on GATING controls | 0 | 6 (all C7) |
-| INCONCLUSIVE runs | 9 (10 decode-failure / 1 label-evidence†) | 2 (decode-failure) |
+| INCONCLUSIVE runs | 9 (8 JSON decode failures + 1 label-evidence mismatch) | 2 (2 JSON decode failures) |
 
-†corpus-wide: 10 JSON decode failures (8 unescaped-inner-quotes, 2
-second-object-after-reconsideration) + 1 ISSUES_FOUND-without-blocking
-(the haiku C7 run).
+Corpus-wide: 11 protocol failures = 10 JSON decode failures (8
+unescaped-inner-quotes, 2 second-object-after-reconsideration) + 1
+ISSUES_FOUND-without-blocking (the haiku C7 run); per-run reproduced
+causes in `inconclusive-audit.json`.
 
 ## Emitted-family aggregation (324 false blockers, all human-coded)
 
@@ -115,7 +116,10 @@ repair procedure as its own PR.
   `sonnet.stderr.log` — run transport logs
 - `derived-metrics.json` — all machine-derived aggregates
 - `narrative-coding.jsonl` — per-finding human/regex-pre-pass coding
-- `inconclusive-audit.json` — 11 protocol failures, single class
+- `inconclusive-audit.json` — 11 protocol failures with reproduced
+  normalizer causes: 2 cause categories (JSON decode failure; label /
+  schema fail-closed rule), `surface_format` recorded as non-causal
+  observation
 - `c7-sonnet-adjudication.json` — the six sonnet C7 blockers, individually
   adjudicated
 - `oracle-validity-audit.json` — miss decomposition + matcher gaps

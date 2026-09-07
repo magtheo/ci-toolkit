@@ -214,25 +214,25 @@
    "profile": "haiku",
    "fixture": "M9",
    "run": 0,
-   "reason": "protocol: fenced-JSON output -> parser INCONCLUSIVE"
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
   },
   {
    "profile": "haiku",
    "fixture": "M9",
    "run": 1,
-   "reason": "protocol: fenced-JSON output -> parser INCONCLUSIVE"
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
   },
   {
    "profile": "haiku",
    "fixture": "M9",
    "run": 2,
-   "reason": "protocol: fenced-JSON output -> parser INCONCLUSIVE"
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
   },
   {
    "profile": "haiku",
    "fixture": "M9",
    "run": 4,
-   "reason": "protocol: fenced-JSON output -> parser INCONCLUSIVE"
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
   },
   {
    "profile": "sonnet",
