@@ -226,13 +226,17 @@ max_tokens=2000; alternative-model evaluation deferred to a separate
 post-T1.2 track).
 
 - GATING C7 violated on BOTH profiles, two mechanisms: haiku =
-  protocol-conformance (fenced-JSON -> parser INCONCLUSIVE; all 9
-  corpus-wide INCONCLUSIVE runs are this single class), sonnet =
-  6 blocking false blockers (0/6 valid; individually adjudicated in the
-  bundle). T1.2 remains INCOMPLETE; no floors activated; no T1.3 family
-  selected.
+  labeling-protocol failure (ISSUES_FOUND label with only non-blocking
+  findings -> fail-closed parser INCONCLUSIVE; NOT a formatting issue —
+  normalizer causes reproduced for all 11 corpus-wide INCONCLUSIVE
+  runs: 10 JSON decode failures, 1 this label-evidence mismatch),
+  sonnet = 6 blocking false blockers (0/6 valid; individually
+  adjudicated in the bundle). T1.2 remains INCOMPLETE; no floors
+  activated; no T1.3 family selected.
 - Diagnostic values: detection haiku 51/90, sonnet 66/90; false-clear
   0.322 / 0.167; control FB 90 / 135 (GATING: 0 / 6).
-- 4 new matcher-gap candidates recorded (M12, M16 ×2, M3 phrasings) —
-  repair deferred to a witness-tested oracle-repair PR.
+- 3 confirmed matcher-gap candidates recorded (M12, M16, M3 phrasing
+  families; the haiku M16 response-shape narrative is excluded by the
+  frozen #35 negative-witness ruling) — repair deferred to a
+  witness-tested oracle-repair PR.
 - Bundle: eval/evidence/track1-baseline3-2026-09-07/

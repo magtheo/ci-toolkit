@@ -402,14 +402,6 @@
    "note": "third genuine phrasing family ('indistinguishable / no way to know'); needles still miss it"
   },
   {
-   "fixture": "M16",
-   "profile": "haiku",
-   "run": 2,
-   "finding": 2,
-   "narrative": "Return value is inconsistent: ... line 12 returns a plain dict {\"ok\"...} on exception.",
-   "note": "same phrasing family as above (response-shape angle of the fabricated-success defect)"
-  },
-  {
    "fixture": "M3",
    "profile": "sonnet",
    "run": 3,
@@ -419,6 +411,7 @@
   }
  ],
  "unexpected_blockers": {
-  "verdict": "all 323 false blockers human-coded; no control fixture was found to contain a genuine defect (no fixture-validity escape); the six sonnet C7 blockers adjudicated individually in c7-sonnet-adjudication.json \u2014 all six false blockers"
- }
+  "verdict": "all 324 false blockers human-coded; no control fixture was found to contain a genuine defect (no fixture-validity escape); the six sonnet C7 blockers adjudicated individually in c7-sonnet-adjudication.json \u2014 all six false blockers"
+ },
+ "matcher_gap_note": "3 confirmed candidates. The haiku M16 run2 finding2 (response-vs-dict shape) is EXCLUDED per the frozen #35 negative-witness ruling \u2014 that semantic angle is not_expected_expression and is coded as a false blocker (severity-inflation); frozen rulings are not reversed by later runs."
 }

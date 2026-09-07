@@ -1,101 +1,134 @@
 [
-  {
-    "profile": "haiku",
-    "fixture": "C3",
-    "run": 0,
-    "raw_len": 2766,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[C3].runs_detail[0].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "C7",
-    "run": 4,
-    "raw_len": 1579,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[C7].runs_detail[4].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "C9",
-    "run": 0,
-    "raw_len": 3301,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[0].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "C9",
-    "run": 2,
-    "raw_len": 2856,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[2].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "C9",
-    "run": 4,
-    "raw_len": 2074,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[4].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "M9",
-    "run": 0,
-    "raw_len": 1141,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[0].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "M9",
-    "run": 1,
-    "raw_len": 1196,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[1].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "M9",
-    "run": 2,
-    "raw_len": 1103,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[2].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "haiku",
-    "fixture": "M9",
-    "run": 4,
-    "raw_len": 1162,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[4].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "sonnet",
-    "fixture": "C9",
-    "run": 0,
-    "raw_len": 2424,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[0].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  },
-  {
-    "profile": "sonnet",
-    "fixture": "C9",
-    "run": 4,
-    "raw_len": 2879,
-    "class": "fenced-json (markdown code fence around single JSON object)",
-    "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[4].raw_output",
-    "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
-  }
+ {
+  "profile": "haiku",
+  "fixture": "C3",
+  "run": 0,
+  "raw_len": 2766,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[C3].runs_detail[0].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Extra data (col 1)",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C7",
+  "run": 4,
+  "raw_len": 1579,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[C7].runs_detail[4].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "ISSUES_FOUND with no validated blocking finding",
+  "normalizer_cause_detail": "2 non-blocking finding(s), label claims issues",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 0,
+  "raw_len": 3301,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[0].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Extra data (col 1)",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 2,
+  "raw_len": 2856,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[2].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 96)",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 4,
+  "raw_len": 2074,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[4].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 55)",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 0,
+  "raw_len": 1141,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[0].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 55)",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 1,
+  "raw_len": 1196,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[1].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 55)",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 2,
+  "raw_len": 1103,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[2].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 55)",
+  "fenced": true
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 4,
+  "raw_len": 1162,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[4].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 55)",
+  "fenced": true
+ },
+ {
+  "profile": "sonnet",
+  "fixture": "C9",
+  "run": 0,
+  "raw_len": 2424,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[0].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 69)",
+  "fenced": true
+ },
+ {
+  "profile": "sonnet",
+  "fixture": "C9",
+  "run": 4,
+  "raw_len": 2879,
+  "class": "fenced-json (markdown code fence around single JSON object)",
+  "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[4].raw_output",
+  "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\"",
+  "normalizer_cause_category": "JSON decode failure",
+  "normalizer_cause_detail": "json.loads: Expecting ',' delimiter (col 69)",
+  "fenced": true
+ }
 ]

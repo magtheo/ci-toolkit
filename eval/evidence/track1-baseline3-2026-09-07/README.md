@@ -5,14 +5,24 @@
 - GATING control **C7 violated policy on both governed profiles, by two
   distinct mechanisms**:
   - **haiku — assessment/protocol-conformance violation**: zero blocking
-    findings on C7, but 1/5 runs returned the JSON wrapped in a markdown
-    ```json fence; the deterministic parser correctly refused the
-    unsupported format (INCONCLUSIVE), breaking the control's
+    findings on C7, but 1/5 runs was refused by the deterministic
+    normalizer as **"ISSUES_FOUND label with no validated blocking
+    finding"** — the response parsed cleanly and carried 2 advisory-grade
+    findings, but the fail-closed rule (`parse_review.assess`, untrusted
+    label without blocking evidence → INCONCLUSIVE) broke the control's
     every-run-CLEAR requirement. Provisional classification:
-    **protocol-conformance / output-format failure, NOT a discrimination
-    false blocker** (pending human confirmation). All 9 haiku
-    INCONCLUSIVE runs corpus-wide are this same single fenced-single-JSON
-    class (`inconclusive-audit.json`) — no other malformation class.
+    **labeling-protocol failure, NOT a discrimination false blocker**
+    (the model's advisory instinct on a globally-clean diff was arguably
+    right; the ISSUES_FOUND label was the protocol violation) — pending
+    human confirmation. Normalizer causes for all 11 corpus-wide
+    INCONCLUSIVE runs reproduced deterministically in
+    `inconclusive-audit.json`: **10× JSON decode failure** (8× unescaped
+    double quotes inside quoted shell snippets; 2× a second JSON object
+    emitted after post-answer reconsideration), **1× the C7
+    label-evidence mismatch above**. Markdown fencing is an observed
+    surface property of these responses, NOT a causal factor —
+    `parse_model_output` extracts the `{...}` span and accepts fenced
+    objects.
   - **sonnet — blocking-finding violation**: 6 blocking findings on C7.
     All six individually human-coded against the presented ReviewInput in
     `c7-sonnet-adjudication.json`: **0/6 valid defects, 6/6 false
@@ -52,38 +62,47 @@ spend — `attempt1-keylimit.*.stderr.log` (preserved byte-untouched).
 | false-clears (CLEAR or INCONCLUSIVE with defect present) | 29 (0.322) | 15 (0.167) |
 | control false blockers | 90 | 135 |
 | …of which on GATING controls | 0 | 6 (all C7) |
-| INCONCLUSIVE runs | 9 (all fenced-JSON) | 2 (all fenced-JSON) |
+| INCONCLUSIVE runs | 9 (10 decode-failure / 1 label-evidence†) | 2 (decode-failure) |
 
-## Emitted-family aggregation (323 false blockers, all human-coded)
+†corpus-wide: 10 JSON decode failures (8 unescaped-inner-quotes, 2
+second-object-after-reconsideration) + 1 ISSUES_FOUND-without-blocking
+(the haiku C7 run).
+
+## Emitted-family aggregation (324 false blockers, all human-coded)
 
 | family | haiku | sonnet | total |
 |---|---|---|---|
-| speculative-consequence | 41 | 74 | 115 |
-| hallucinated-fact | 18 | 52 | 70 |
-| risk-boilerplate | 31 | 39 | 70 |
-| severity-inflation | 26 | 28 | 54 |
-| absolute-consistency | 5 | 9 | 14 |
+| speculative-consequence | 63 | 52 | 115 |
+| hallucinated-fact | 20 | 50 | 70 |
+| risk-boilerplate | 18 | 52 | 70 |
+| severity-inflation | 16 | 39 | 55 |
+| absolute-consistency | 6 | 8 | 14 |
 
-Grounding: asserted 183, cited-evidence 74, inferred 66.
-Full per-finding coding: `narrative-coding.jsonl` (538 blocking
-findings: 211 expected-expression, 323 false blockers, 4
-defect-expression-unmatched).
+Grounding: asserted 183, cited-evidence 75, inferred 66.
+Full per-finding coding: `narrative-coding.jsonl` — **538 total entries
+= 211 expected-expression + 324 false blockers + 3
+defect-expression-unmatched** (invariant checked mechanically in
+`derived-metrics.json: narrative_coding_summary`).
 
 ## Post-run oracle-validity audit (`oracle-validity-audit.json`)
 
 Miss decomposition (63 non-detecting positive runs):
-haiku — 4 protocol (fenced-JSON, all M9) + 35 reviewer-miss;
+haiku — 4 protocol (JSON decode failures, all M9) + 35 reviewer-miss;
 sonnet — 24 reviewer-miss.
 
-**Four confirmed matcher-gap candidates (defect-expressing narratives
+**Three confirmed matcher-gap candidates (defect-expressing narratives
 the frozen needles miss) — RECORDED, NOT REPAIRED in this PR:**
 1. M12 masking phrasing family "serves stale without distinguishing the
    failure mode" (sonnet r2f2)
 2. M16 third phrasing family "indistinguishable from a successful PUT /
    caller has no way to know" (haiku r4f1)
-3. M16 response-shape angle of the same defect (haiku r2f2)
-4. M3 parsed-date phrasing without the all-of needle `mtime` (sonnet
+3. M3 parsed-date phrasing without the all-of needle `mtime` (sonnet
    r3f1)
+
+The haiku M16 r2f2 response-shape finding ("Response vs dict
+inconsistency") is **not** a gap: that semantic angle is a frozen
+negative witness from Oracle repair 3 (#35) and remains a false blocker
+(severity-inflation); frozen rulings are not reversed by later runs.
 
 No control fixture was found to contain a genuine defect (no
 fixture-validity escape). Any repair follows the witness-tested oracle
