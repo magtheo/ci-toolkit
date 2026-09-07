@@ -1,0 +1,102 @@
+# Track 1 baseline 3 — completed diagnostic T1.2 remeasurement (2026-09-07)
+
+## STATUS: DIAGNOSTIC — NOT BINDING. T1.2 REMAINS INCOMPLETE.
+
+- GATING control **C7 violated policy on both governed profiles, by two
+  distinct mechanisms**:
+  - **haiku — assessment/protocol-conformance violation**: zero blocking
+    findings on C7, but 1/5 runs returned the JSON wrapped in a markdown
+    ```json fence; the deterministic parser correctly refused the
+    unsupported format (INCONCLUSIVE), breaking the control's
+    every-run-CLEAR requirement. Provisional classification:
+    **protocol-conformance / output-format failure, NOT a discrimination
+    false blocker** (pending human confirmation). All 9 haiku
+    INCONCLUSIVE runs corpus-wide are this same single fenced-single-JSON
+    class (`inconclusive-audit.json`) — no other malformation class.
+  - **sonnet — blocking-finding violation**: 6 blocking findings on C7.
+    All six individually human-coded against the presented ReviewInput in
+    `c7-sonnet-adjudication.json`: **0/6 valid defects, 6/6 false
+    blockers** (5 speculative-consequence, 1 severity-inflation; every
+    one rests on counterfactual code outside the diff or a disputed
+    design preference).
+- **No sensitivity value from this run may be activated as a T1.3/T1.5
+  floor. No T1.3 discrimination family has been selected. No further
+  model spend is authorized.**
+- Pair-integrity violations: haiku 6 (M1/M2/M3/M8/M10/M11 controls
+  fail), sonnet 2 (M2, M8).
+
+## Frozen run identity
+
+| field | value |
+|---|---|
+| subject | `4b07246a114a9130b6ef3d6a67cd09a01faacace` (reviewer semantics unchanged; verified 0-diff on engine/render/parse/rubric vs subject) |
+| oracle | `8c34a74047ad0144` (frozen pre-run at the phase boundary; recomputed identical post-run) |
+| corpus | 36 fixtures (18 positive / 18 control) |
+| N | 5 per fixture per profile |
+| profiles | `anthropic/claude-haiku-4.5`, `anthropic/claude-sonnet-4.5` |
+| generation | temperature 0.2, max_tokens 2000 |
+| logical calls | 360 (180 per profile) |
+| network failures / retries | 0 / 0 |
+| generated (per profile) | see `*-n5.json` `profile.generated` (sonnet 2026-09-07T08:34:03Z, haiku 2026-09-07T10:41Z) |
+| spend | sonnet 243,615 prompt / 76,424 completion tok; haiku 243,615 / 81,034; weekly-window spend at run end ≈ $2.51 (includes one $0.0004 deepseek smoke call, see state-log) |
+
+Pre-run attempt record: the first launch on 2026-09-06 aborted on every
+call with OpenRouter 403 (weekly key limit); 0 successful calls, no
+spend — `attempt1-keylimit.*.stderr.log` (preserved byte-untouched).
+
+## Diagnostic headline values (NOT floors)
+
+| | haiku | sonnet |
+|---|---|---|
+| expected-finding detection hits | 51/90 | 66/90 |
+| false-clears (CLEAR or INCONCLUSIVE with defect present) | 29 (0.322) | 15 (0.167) |
+| control false blockers | 90 | 135 |
+| …of which on GATING controls | 0 | 6 (all C7) |
+| INCONCLUSIVE runs | 9 (all fenced-JSON) | 2 (all fenced-JSON) |
+
+## Emitted-family aggregation (323 false blockers, all human-coded)
+
+| family | haiku | sonnet | total |
+|---|---|---|---|
+| speculative-consequence | 41 | 74 | 115 |
+| hallucinated-fact | 18 | 52 | 70 |
+| risk-boilerplate | 31 | 39 | 70 |
+| severity-inflation | 26 | 28 | 54 |
+| absolute-consistency | 5 | 9 | 14 |
+
+Grounding: asserted 183, cited-evidence 74, inferred 66.
+Full per-finding coding: `narrative-coding.jsonl` (538 blocking
+findings: 211 expected-expression, 323 false blockers, 4
+defect-expression-unmatched).
+
+## Post-run oracle-validity audit (`oracle-validity-audit.json`)
+
+Miss decomposition (63 non-detecting positive runs):
+haiku — 4 protocol (fenced-JSON, all M9) + 35 reviewer-miss;
+sonnet — 24 reviewer-miss.
+
+**Four confirmed matcher-gap candidates (defect-expressing narratives
+the frozen needles miss) — RECORDED, NOT REPAIRED in this PR:**
+1. M12 masking phrasing family "serves stale without distinguishing the
+   failure mode" (sonnet r2f2)
+2. M16 third phrasing family "indistinguishable from a successful PUT /
+   caller has no way to know" (haiku r4f1)
+3. M16 response-shape angle of the same defect (haiku r2f2)
+4. M3 parsed-date phrasing without the all-of needle `mtime` (sonnet
+   r3f1)
+
+No control fixture was found to contain a genuine defect (no
+fixture-validity escape). Any repair follows the witness-tested oracle
+repair procedure as its own PR.
+
+## Files (raw outputs byte-untouched)
+
+- `haiku-n5.json`, `sonnet-n5.json` — raw harness reports
+- `haiku.stdout.log`, `haiku.stderr.log`, `sonnet.stdout.log`,
+  `sonnet.stderr.log` — run transport logs
+- `derived-metrics.json` — all machine-derived aggregates
+- `narrative-coding.jsonl` — per-finding human/regex-pre-pass coding
+- `inconclusive-audit.json` — 11 protocol failures, single class
+- `c7-sonnet-adjudication.json` — the six sonnet C7 blockers, individually
+  adjudicated
+- `oracle-validity-audit.json` — miss decomposition + matcher gaps

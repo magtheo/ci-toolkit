@@ -215,3 +215,24 @@ corpus 9fae85b26ff45dc6 -> 8c34a74047ad0144 · 0 model calls
   dual-profile run (360-call scale, spend-authorized) is the next
   T1.2 binding candidate, subject to the same post-run human
   validity check.
+
+## 2026-09-07 — T1.2 remeasurement 3 (diagnostic, NOT BINDING)
+
+oracle 8c34a74047ad0144 (frozen pre-run, identical post-run) · subject
+4b07246 · 360 calls · 0 failures/retries · spend ≈ $2.51 weekly window
+(includes one $0.0004 deepseek-v4-flash smoke call, 2026-09-07: model
+rejected for the governed matrix — reasoning-native, content=null at
+max_tokens=2000; alternative-model evaluation deferred to a separate
+post-T1.2 track).
+
+- GATING C7 violated on BOTH profiles, two mechanisms: haiku =
+  protocol-conformance (fenced-JSON -> parser INCONCLUSIVE; all 9
+  corpus-wide INCONCLUSIVE runs are this single class), sonnet =
+  6 blocking false blockers (0/6 valid; individually adjudicated in the
+  bundle). T1.2 remains INCOMPLETE; no floors activated; no T1.3 family
+  selected.
+- Diagnostic values: detection haiku 51/90, sonnet 66/90; false-clear
+  0.322 / 0.167; control FB 90 / 135 (GATING: 0 / 6).
+- 4 new matcher-gap candidates recorded (M12, M16 ×2, M3 phrasings) —
+  repair deferred to a witness-tested oracle-repair PR.
+- Bundle: eval/evidence/track1-baseline3-2026-09-07/

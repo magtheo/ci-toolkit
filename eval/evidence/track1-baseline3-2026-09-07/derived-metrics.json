@@ -1,0 +1,884 @@
+{
+ "run_identity": {
+  "haiku": {
+   "subject_sha": "4b07246a114a9130b6ef3d6a67cd09a01faacace",
+   "oracle_checkout_sha": "9593627b90cff5cdf0e01baec028be23b4578ada",
+   "rubric_hash": "415d8a38cfed9d3a",
+   "corpus_hash": "d938b2fc42b46385",
+   "model": "anthropic/claude-haiku-4.5",
+   "temperature": 0.2,
+   "max_tokens": 2000,
+   "n": 5,
+   "generated": "2026-09-07T08:49:27.916906+00:00",
+   "calls": 180,
+   "prompt_tokens": 243615,
+   "completion_tokens": 81034,
+   "gating_violations": [
+    "C7"
+   ],
+   "pair_integrity_violations": [
+    {
+     "positive": "M1",
+     "control": "C1",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M10",
+     "control": "C10",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M11",
+     "control": "C11",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M2",
+     "control": "C2",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M3",
+     "control": "C3",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M8",
+     "control": "C8",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+   ]
+  },
+  "sonnet": {
+   "subject_sha": "4b07246a114a9130b6ef3d6a67cd09a01faacace",
+   "oracle_checkout_sha": "9593627b90cff5cdf0e01baec028be23b4578ada",
+   "rubric_hash": "415d8a38cfed9d3a",
+   "corpus_hash": "d938b2fc42b46385",
+   "model": "anthropic/claude-sonnet-4.5",
+   "temperature": 0.2,
+   "max_tokens": 2000,
+   "n": 5,
+   "generated": "2026-09-07T08:34:03.495974+00:00",
+   "calls": 180,
+   "prompt_tokens": 243615,
+   "completion_tokens": 76424,
+   "gating_violations": [
+    "C7"
+   ],
+   "pair_integrity_violations": [
+    {
+     "positive": "M2",
+     "control": "C2",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M8",
+     "control": "C8",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+   ]
+  }
+ },
+ "per_profile": {
+  "haiku": {
+   "positives": {
+    "M1": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M10": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M11": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M12": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M13": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M14": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M15": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M16": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M17": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M18": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M2": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M3": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M4": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M5": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M6": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M7": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M8": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M9": {
+     "detections": 1,
+     "of": 5,
+     "rate": 0.2,
+     "false_clears": 4,
+     "false_clear_rate": 0.8
+    }
+   },
+   "controls": {
+    "C1": {
+     "false_blockers": 5,
+     "runs": 5,
+     "fb_rate": 1.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C10": {
+     "false_blockers": 5,
+     "runs": 5,
+     "fb_rate": 1.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C11": {
+     "false_blockers": 5,
+     "runs": 5,
+     "fb_rate": 1.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C12": {
+     "false_blockers": 15,
+     "runs": 5,
+     "fb_rate": 3.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C13": {
+     "false_blockers": 9,
+     "runs": 5,
+     "fb_rate": 1.8,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C14": {
+     "false_blockers": 11,
+     "runs": 5,
+     "fb_rate": 2.2,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C15": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": true
+    },
+    "C16": {
+     "false_blockers": 7,
+     "runs": 5,
+     "fb_rate": 1.4,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C17": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": true
+    },
+    "C18": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": true
+    },
+    "C2": {
+     "false_blockers": 9,
+     "runs": 5,
+     "fb_rate": 1.8,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C3": {
+     "false_blockers": 5,
+     "runs": 5,
+     "fb_rate": 1.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C4": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "GATING",
+     "passes_policy": true
+    },
+    "C5": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "GATING",
+     "passes_policy": true
+    },
+    "C6": {
+     "false_blockers": 7,
+     "runs": 5,
+     "fb_rate": 1.4,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C7": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "GATING",
+     "passes_policy": false
+    },
+    "C8": {
+     "false_blockers": 8,
+     "runs": 5,
+     "fb_rate": 1.6,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C9": {
+     "false_blockers": 4,
+     "runs": 5,
+     "fb_rate": 0.8,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    }
+   },
+   "gating": {
+    "C7": "assessment/protocol-conformance violation (CLEAR stability 4/5)"
+   },
+   "pairs": [
+    {
+     "positive": "M1",
+     "control": "C1",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M10",
+     "control": "C10",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M11",
+     "control": "C11",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M2",
+     "control": "C2",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M3",
+     "control": "C3",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M8",
+     "control": "C8",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+   ],
+   "aggregate": {
+    "detection_hits": 51,
+    "false_clears_total": 29,
+    "false_clear_rate": 0.322,
+    "control_fb_total": 90,
+    "control_fb_gating": 0
+   }
+  },
+  "sonnet": {
+   "positives": {
+    "M1": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M10": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M11": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M12": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M13": {
+     "detections": 1,
+     "of": 5,
+     "rate": 0.2,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M14": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M15": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M16": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M17": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M18": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M2": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M3": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M4": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M5": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M6": {
+     "detections": 0,
+     "of": 5,
+     "rate": 0.0,
+     "false_clears": 5,
+     "false_clear_rate": 1.0
+    },
+    "M7": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M8": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    },
+    "M9": {
+     "detections": 5,
+     "of": 5,
+     "rate": 1.0,
+     "false_clears": 0,
+     "false_clear_rate": 0.0
+    }
+   },
+   "controls": {
+    "C1": {
+     "false_blockers": 13,
+     "runs": 5,
+     "fb_rate": 2.6,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C10": {
+     "false_blockers": 8,
+     "runs": 5,
+     "fb_rate": 1.6,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C11": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": true
+    },
+    "C12": {
+     "false_blockers": 19,
+     "runs": 5,
+     "fb_rate": 3.8,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C13": {
+     "false_blockers": 15,
+     "runs": 5,
+     "fb_rate": 3.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C14": {
+     "false_blockers": 9,
+     "runs": 5,
+     "fb_rate": 1.8,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C15": {
+     "false_blockers": 11,
+     "runs": 5,
+     "fb_rate": 2.2,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C16": {
+     "false_blockers": 19,
+     "runs": 5,
+     "fb_rate": 3.8,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C17": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": true
+    },
+    "C18": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": true
+    },
+    "C2": {
+     "false_blockers": 10,
+     "runs": 5,
+     "fb_rate": 2.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C3": {
+     "false_blockers": 10,
+     "runs": 5,
+     "fb_rate": 2.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C4": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "GATING",
+     "passes_policy": true
+    },
+    "C5": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "GATING",
+     "passes_policy": true
+    },
+    "C6": {
+     "false_blockers": 0,
+     "runs": 5,
+     "fb_rate": 0.0,
+     "state": "KNOWN_GAP",
+     "passes_policy": true
+    },
+    "C7": {
+     "false_blockers": 6,
+     "runs": 5,
+     "fb_rate": 1.2,
+     "state": "GATING",
+     "passes_policy": false
+    },
+    "C8": {
+     "false_blockers": 9,
+     "runs": 5,
+     "fb_rate": 1.8,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    },
+    "C9": {
+     "false_blockers": 6,
+     "runs": 5,
+     "fb_rate": 1.2,
+     "state": "KNOWN_GAP",
+     "passes_policy": false
+    }
+   },
+   "gating": {
+    "C7": "blocking-finding violation (6 blocking findings)"
+   },
+   "pairs": [
+    {
+     "positive": "M2",
+     "control": "C2",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M8",
+     "control": "C8",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+   ],
+   "aggregate": {
+    "detection_hits": 66,
+    "false_clears_total": 15,
+    "false_clear_rate": 0.167,
+    "control_fb_total": 135,
+    "control_fb_gating": 6
+   }
+  }
+ },
+ "narrative_coding_summary": {
+  "blocking_findings_coded": 523,
+  "false_blockers": 323,
+  "emitted_family_aggregation": {
+   "haiku": {
+    "speculative-consequence": 63,
+    "severity-inflation": 15,
+    "absolute-consistency": 6,
+    "hallucinated-fact": 20,
+    "risk-boilerplate": 18
+   },
+   "sonnet": {
+    "risk-boilerplate": 52,
+    "speculative-consequence": 52,
+    "hallucinated-fact": 50,
+    "severity-inflation": 39,
+    "absolute-consistency": 8
+   }
+  },
+  "families_total": {
+   "speculative-consequence": 115,
+   "severity-inflation": 54,
+   "absolute-consistency": 14,
+   "hallucinated-fact": 70,
+   "risk-boilerplate": 70
+  },
+  "grounding_total": {
+   "inferred": 66,
+   "cited-evidence": 74,
+   "asserted": 183
+  },
+  "defect_expression_unmatched": 4
+ },
+ "protocol_failures": [
+  {
+   "profile": "haiku",
+   "fixture": "C3",
+   "run": 0,
+   "raw_len": 2766,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[C3].runs_detail[0].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "C7",
+   "run": 4,
+   "raw_len": 1579,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[C7].runs_detail[4].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "C9",
+   "run": 0,
+   "raw_len": 3301,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[0].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "C9",
+   "run": 2,
+   "raw_len": 2856,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[2].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "C9",
+   "run": 4,
+   "raw_len": 2074,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[4].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 0,
+   "raw_len": 1141,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[0].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 1,
+   "raw_len": 1196,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[1].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 2,
+   "raw_len": 1103,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[2].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 4,
+   "raw_len": 1162,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[4].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "C9",
+   "run": 0,
+   "raw_len": 2424,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[0].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "C9",
+   "run": 4,
+   "raw_len": 2879,
+   "class": "fenced-json (markdown code fence around single JSON object)",
+   "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[4].raw_output",
+   "prefix_40": "```json\n{\n  \"assessment\": \"ISSUES_FOUND\""
+  }
+ ],
+ "spend_accounting": {
+  "logical_calls": 360,
+  "network_failures": 0,
+  "retries": 0,
+  "weekly_window_spend_at_run_end_usd": 2.51,
+  "per_profile": {
+   "haiku": {
+    "subject_sha": "4b07246a114a9130b6ef3d6a67cd09a01faacace",
+    "oracle_checkout_sha": "9593627b90cff5cdf0e01baec028be23b4578ada",
+    "rubric_hash": "415d8a38cfed9d3a",
+    "corpus_hash": "d938b2fc42b46385",
+    "model": "anthropic/claude-haiku-4.5",
+    "temperature": 0.2,
+    "max_tokens": 2000,
+    "n": 5,
+    "generated": "2026-09-07T08:49:27.916906+00:00",
+    "calls": 180,
+    "prompt_tokens": 243615,
+    "completion_tokens": 81034,
+    "gating_violations": [
+     "C7"
+    ],
+    "pair_integrity_violations": [
+     {
+      "positive": "M1",
+      "control": "C1",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     },
+     {
+      "positive": "M10",
+      "control": "C10",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     },
+     {
+      "positive": "M11",
+      "control": "C11",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     },
+     {
+      "positive": "M2",
+      "control": "C2",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     },
+     {
+      "positive": "M3",
+      "control": "C3",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     },
+     {
+      "positive": "M8",
+      "control": "C8",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     }
+    ]
+   },
+   "sonnet": {
+    "subject_sha": "4b07246a114a9130b6ef3d6a67cd09a01faacace",
+    "oracle_checkout_sha": "9593627b90cff5cdf0e01baec028be23b4578ada",
+    "rubric_hash": "415d8a38cfed9d3a",
+    "corpus_hash": "d938b2fc42b46385",
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.2,
+    "max_tokens": 2000,
+    "n": 5,
+    "generated": "2026-09-07T08:34:03.495974+00:00",
+    "calls": 180,
+    "prompt_tokens": 243615,
+    "completion_tokens": 76424,
+    "gating_violations": [
+     "C7"
+    ],
+    "pair_integrity_violations": [
+     {
+      "positive": "M2",
+      "control": "C2",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     },
+     {
+      "positive": "M8",
+      "control": "C8",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+     }
+    ]
+   }
+  }
+ }
+}
