@@ -280,24 +280,3 @@ oracle 1ef8dc90badc27bd · subject 4b07246 · 0 model calls
   on both profiles (haiku labeling-protocol failure; sonnet 6/6
   false blockers); no qualification activation; no control weakened.
   Plan advanced to rev 7 (Deviation 6).
-
-## 2026-09-08 — T1.3 iteration 1 (mechanism landed, unmeasured)
-
-oracle 1ef8dc90badc27bd (unchanged — rubric is subject bytes) ·
-0 model calls
-
-- Reviewer intelligence change (rubric only, layer a): speculative-
-  consequence grounding rule added to Judgment rules — blocking
-  requires a concrete defect/violated invariant supported by the
-  supplied review input with impact following from that evidence;
-  hypothetical harm from unseen code, unestablished actors, or
-  future misuse is advisory at most; conditionality itself is not
-  disqualifying.
-- Subject moves: rubric bytes change; the Phase 14 run records the
-  new subject SHA and rubric_hash. Mechanism definition frozen in
-  eval/evidence/track1-t13-iter1-2026-09-08/README.md before
-  measurement.
-- Unmeasured as landed: per the T1.3 loop the rule earns or loses
-  its place at Phase 14 (full N=5 dual-profile, spend-authorized
-  separately) against the Deviation 6 pre-change floor; keep/revert
-  decided at Phase 15 from measured residuals.
