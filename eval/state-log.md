@@ -263,7 +263,8 @@ oracle 8c34a74047ad0144 -> 1ef8dc90badc27bd · 0 model calls
   frozen in witness-replay.json as the Deviation 6 floor input.
 - States, taxonomy, reviewer behavior untouched.
 
-## 2026-09-07 — Deviation 6: T1.3 sensitivity-only floor frozen
+## 2026-09-08 — Deviation 6: T1.3 sensitivity-only floor frozen
+(decision 2026-09-08; rescored #36 evidence 2026-09-07)
 
 oracle 1ef8dc90badc27bd · subject 4b07246 · 0 model calls
 

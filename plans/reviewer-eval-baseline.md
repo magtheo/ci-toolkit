@@ -6,7 +6,7 @@ records Deviation 5 (T1.2 split by the oracle-validity discovery:
 repair precedes the binding remeasurement) — approval = maintainer
 review of the oracle-repair phase PR; rev 7 records Deviation 6 (T1.2
 reference split: sensitivity-only floor frozen from the repaired-#36
-rescore) — approval = directing human, 2026-09-07. Implementation may
+rescore) — approval = directing human, 2026-09-08. Implementation may
 continue under the phase
 workflow: phase branches target feature/reviewer-eval-baseline.
 
@@ -377,8 +377,9 @@ not success, and clearing C5 while missing M5 is not success.
 1. **Sensitivity floor:** specificity may improve only without
    reducing sensitivity — at any gate run (N=5, both required model
    profiles), no positive fixture's expected-finding detection may
-   fall below its **frozen T1.2 N=5 reference hits** on that profile.
-   Positives with zero reference hits (out-of-scope known misses:
+   fall below its hits in the **Deviation 6 pre-change sensitivity
+   floor** (frozen repaired-#36 rescore) on that profile.
+   Positives with zero floor hits (out-of-scope known misses:
    M4 → Stage 3, M6 → future rule) are covered by the floor
    trivially and impose **no acquisition obligation** on Track 1.
 2. **M1–M8 non-regression:** existing defect detection must not
@@ -463,10 +464,16 @@ blocking findings into taxonomy families. Two run tiers:
 
 - **exploratory** (N=3, either profile): iteration fuel, never cited
   as a gate reference;
-- **the frozen non-regression reference**: full corpus, N=5, on BOTH
-  required model profiles (haiku-4.5 + sonnet-4.5), with the
-  unchanged reviewer. This — and only this — is the baseline the
-  T1.3/T1.5 sensitivity floors compare against.
+- **pre-change sensitivity measurement (historical, frozen)**: the
+  N=5 dual-profile diagnostic runs with the unchanged reviewer,
+  deterministically rescored under the repaired oracle — per
+  Deviation 6, the repaired-#36 rescore is the frozen source of the
+  T1.3/T1.5 sensitivity floors and stays pinned regardless of any
+  later run;
+- **binding gating/discrimination reference (earned later)**: a
+  changed-reviewer run that independently satisfies the full T1.2
+  gate (C7 clean on both profiles, zero GATING violations) earns
+  this name; it authorizes nothing about sensitivity floors.
 
 Metrics recorded per fixture and per profile, aggregated per family:
 
@@ -482,10 +489,13 @@ Metrics recorded per fixture and per profile, aggregated per family:
   bundle; a machine proxy becomes available only if T1.3 introduces
   structured evidence fields.
 
-Acceptance criteria: the frozen N=5 dual-profile reference bundle
-lands under `eval/evidence/track1-baseline-<date>/` with the
-per-family table AND per-positive, per-profile expected-finding
-hits — the explicit floor values T1.3/T1.5 compare against.
+Acceptance criteria: the frozen N=5 dual-profile bundle lands under
+`eval/evidence/track1-baseline-<date>/` with the per-family table
+AND per-positive, per-profile expected-finding hits. Under Deviation
+6 these recorded values are historical diagnostics; the operative
+T1.3/T1.5 sensitivity floors are the Deviation 6 pre-change
+sensitivity floor (frozen repaired-#36 rescore), and a later
+binding gating reference does not replace them.
 
 ### Stage T1.3 — Smallest general mechanism (reviewer change only)
 
@@ -527,9 +537,10 @@ Acceptance criteria (stage exit — this is also the T1.4 entry gate):
   excluding holdout) satisfies the Track-1 criteria across EVERY
   confirmed in-scope family**: zero false blockers on all in-scope
   controls, per-family separation demonstrated, M5 detected ≥4/5
-  with C5 clean, and every sensitivity floor holds against the
-  Deviation 6 pre-change floor (frozen repaired-#36 rescore) and the
-  then-current measured run, on both model profiles;
+  with C5 clean — every positive must meet the Deviation 6
+  pre-change sensitivity floor on both profiles, and the
+  then-current run must independently satisfy the applicable
+  discrimination/GATING criteria;
 - entering T1.4 on less — e.g. one mechanism generalizing across
   two families while another family still fails — is forbidden:
   the holdout must test generalization, not serve as another
@@ -572,8 +583,9 @@ Track 1 is complete when ALL hold:
      false blockers — the discrimination obligation is universal;
    - **M5:** ≥4/5 severity-matched detection — this track's own
      target and the Phase 4/5 path;
-   - **positives with existing detection in the T1.2 reference:**
-     at least their frozen reference hits (the sensitivity floor);
+   - **positives with existing detection in the Deviation 6
+     pre-change sensitivity reference:** they must retain at least
+     their frozen floor hits (the sensitivity floor);
    - **out-of-scope known misses (M4 → Stage 3, M6 → future rule):**
      preserve their recorded KNOWN_GAP/baseline state — Track 1 is
      NOT required to acquire them and must not silently absorb
@@ -656,7 +668,7 @@ Status: NOT STARTED
 
 ### Deviation 6 — T1.2 reference split: sensitivity-only floor frozen
 from the repaired-#36 rescore (approved by directing human,
-2026-09-07)
+2026-09-08; the rescored #36/#37 evidence is dated 2026-09-07)
 
 T1.3's development loop compares every mechanism against a frozen
 T1.2 N=5 reference. But the 2026-09-07 remeasurement (bundle
