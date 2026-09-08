@@ -262,3 +262,21 @@ oracle 8c34a74047ad0144 -> 1ef8dc90badc27bd · 0 model calls
   flips landed in already-detecting runs); per-positive rescore
   frozen in witness-replay.json as the Deviation 6 floor input.
 - States, taxonomy, reviewer behavior untouched.
+
+## 2026-09-08 — Deviation 6: T1.3 sensitivity-only floor frozen
+(decision 2026-09-08; rescored #36 evidence 2026-09-07)
+
+oracle 1ef8dc90badc27bd · subject 4b07246 · 0 model calls
+
+- Pre-change sensitivity reference frozen: the per-positive,
+  per-profile expected-finding hits of the #36 diagnostic run,
+  rescored deterministically under Oracle repair 4 (frozen at
+  eval/evidence/track1-oracle-repair4-2026-09-07/witness-replay.json).
+  Aggregates: haiku 51/90, sonnet 66/90.
+- Every T1.3 mechanism must hold or improve detection against these
+  floors; they remain pinned to the pre-change rescore even after a
+  later run earns the binding T1.2 reference.
+- NOT a PASS: #36 remains diagnostic / NOT BINDING; C7 still failed
+  on both profiles (haiku labeling-protocol failure; sonnet 6/6
+  false blockers); no qualification activation; no control weakened.
+  Plan advanced to rev 7 (Deviation 6).
