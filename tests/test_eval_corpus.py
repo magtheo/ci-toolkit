@@ -566,3 +566,37 @@ def test_m16_matcher_repair_via_adjudicated_witnesses():
     assert len(witnesses) == 27
     assert counts["genuine_expected_expression"] == 16
     assert counts["not_expected_expression"] == 11
+
+
+def test_oracle_repair4_witness_replay():
+    # Oracle repair 4 (2026-09-07): three phrasing-family matcher
+    # extensions adjudicated from the frozen #36 validity audit.
+    # Frozen invariants: exactly 3 acceptance flips on the #36 replay,
+    # zero collateral reclassification, all 324 #36 false blockers and
+    # all 11 #35 M16 negatives still rejected.
+    art = json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair4-2026-09-07" /
+         "witness-replay.json").read_text())
+    assert len(art["genuine"]) == 3
+    assert art["negative_counts"] == {"#36_false_blockers": 324,
+                                      "#35_m16_negatives": 11}
+    assert art["replay"]["acceptance_flips"] == 3
+    assert art["replay"]["collateral_flips"] == 0
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    for w in art["genuine"]:
+        entry = fixtures[w["fixture"]]["expected"]["findings"]
+        hit = any(rc._finding_matches(e, {"severity": "blocking",
+                                          "comment": w["narrative"]})
+                  for e in entry)
+        assert hit, (w["fixture"], w["narrative"][:60])
+    # needle discipline: the frozen needles are present, and the #35
+    # broad forms remain absent from M16
+    assert "without distinguishing" in \
+        fixtures["M12"]["expected"]["findings"][0]["comment_any"]
+    assert "indistinguishable from a successful" in \
+        fixtures["M16"]["expected"]["findings"][0]["comment_any"]
+    assert any("filesystem metadata" in e["comment_any"]
+               for e in fixtures["M3"]["expected"]["findings"])
+    assert len(fixtures["M3"]["expected"]["findings"]) == 2
+    assert "falsely claiming" not in \
+        fixtures["M16"]["expected"]["findings"][0]["comment_any"]

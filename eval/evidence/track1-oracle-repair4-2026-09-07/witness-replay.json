@@ -1,0 +1,131 @@
+{
+ "_meta": {
+  "source": "frozen #36 bundle (track1-baseline3-2026-09-07) + #35 witness set",
+  "repair": "Oracle repair 4 \u2014 three phrasing-family matcher extensions",
+  "invariant": "exactly 3 acceptance flips; all 324 #36 false blockers and all 11 #35 M16 negatives remain rejected",
+  "needles": {
+   "M12": [
+    "without distinguishing"
+   ],
+   "M16": [
+    "indistinguishable from a successful"
+   ],
+   "M3": [
+    "filesystem metadata (second expected entry)"
+   ]
+  }
+ },
+ "genuine": [
+  {
+   "fixture": "M12",
+   "profile": "sonnet",
+   "run": 2,
+   "finding": 2,
+   "narrative": "ParseError is caught and triggers fallback, but malformed config from origin is a different failure mode than origin unreachability. If origin returns garbage, the code serves stale config without distinguishing this from a network outage \u2014 operators cannot tell if the origin is broken vs. unreachable."
+  },
+  {
+   "fixture": "M16",
+   "profile": "haiku",
+   "run": 4,
+   "finding": 1,
+   "narrative": "Returns `{\"ok\": True, \"updated\": len(LABELS)}` on exception, which is indistinguishable from a successful PUT. The caller has no way to know the sync failed. Either return a distinct failure marker or re-raise/log the exception."
+  },
+  {
+   "fixture": "M3",
+   "profile": "sonnet",
+   "run": 3,
+   "finding": 1,
+   "narrative": "The entire freshness check logic (lines 8-12) needs replacement to actually parse and compare the date string from the file content against the current date, not rely on filesystem metadata."
+  }
+ ],
+ "negative_counts": {
+  "#36_false_blockers": 324,
+  "#35_m16_negatives": 11
+ },
+ "replay": {
+  "acceptance_flips": 3,
+  "collateral_flips": 0,
+  "rescored_detection_hits": {
+   "haiku": 51,
+   "sonnet": 66
+  },
+  "per_positive_detections": {
+   "haiku": {
+    "C1": 0,
+    "C10": 0,
+    "C11": 0,
+    "C12": 0,
+    "C13": 0,
+    "C14": 0,
+    "C15": 0,
+    "C16": 0,
+    "C17": 0,
+    "C18": 0,
+    "C2": 0,
+    "C3": 0,
+    "C4": 0,
+    "C5": 0,
+    "C6": 0,
+    "C7": 0,
+    "C8": 0,
+    "C9": 0,
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 0,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 0,
+    "M18": 0,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 1
+   },
+   "sonnet": {
+    "C1": 0,
+    "C10": 0,
+    "C11": 0,
+    "C12": 0,
+    "C13": 0,
+    "C14": 0,
+    "C15": 0,
+    "C16": 0,
+    "C17": 0,
+    "C18": 0,
+    "C2": 0,
+    "C3": 0,
+    "C4": 0,
+    "C5": 0,
+    "C6": 0,
+    "C7": 0,
+    "C8": 0,
+    "C9": 0,
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 1,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 5,
+    "M18": 5,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 5
+   }
+  }
+ }
+}

@@ -240,3 +240,22 @@ post-T1.2 track).
   frozen #35 negative-witness ruling) — repair deferred to a
   witness-tested oracle-repair PR.
 - Bundle: eval/evidence/track1-baseline3-2026-09-07/
+
+## 2026-09-07 — Oracle repair 4: three phrasing-family matcher extensions
+
+oracle 8c34a74047ad0144 -> 4ff44c2be936ecdf · 0 model calls
+
+- Adjudicated from the frozen #36 validity audit (3 confirmed
+  matcher-gap candidates); witness-tested and replay-verified:
+- M12 + 'without distinguishing' (masking-visibility phrasing);
+  M16 + 'indistinguishable from a successful' (fabricated-success
+  phrasing); M3 second expected entry with 'filesystem metadata'
+  (parsed-date phrasing family; original mtime entry untouched).
+- Frozen #36 replay: exactly 3 acceptance flips (M12 sonnet r2f2,
+  M16 haiku r4f1, M3 sonnet r3f1), 0 collateral; all 324 #36 false
+  blockers and all 11 #35 M16 negatives remain rejected; #35 witness
+  set unchanged (16 accepted / 11 rejected).
+- Rescored detection hits unchanged (haiku 51/90, sonnet 66/90 —
+  flips landed in already-detecting runs); per-positive rescore
+  frozen in witness-replay.json as the Deviation 6 floor input.
+- States, taxonomy, reviewer behavior untouched.

@@ -30,6 +30,13 @@
           "invariant",
           "date"
         ]
+      },
+      {
+        "severity": "blocking",
+        "comment_all": [],
+        "comment_any": [
+          "filesystem metadata"
+        ]
       }
     ]
   },
