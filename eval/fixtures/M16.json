@@ -32,7 +32,8 @@
           "mask",
           "returns {",
           "falsely claiming success",
-          "no labels were actually updated"
+          "no labels were actually updated",
+          "indistinguishable from a successful"
         ]
       }
     ]
