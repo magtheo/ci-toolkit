@@ -33,9 +33,12 @@
       },
       {
         "severity": "blocking",
-        "comment_all": [],
-        "comment_any": [
+        "comment_all": [
           "filesystem metadata"
+        ],
+        "comment_any": [
+          "parse",
+          "date"
         ]
       }
     ]

@@ -571,32 +571,84 @@ def test_m16_matcher_repair_via_adjudicated_witnesses():
 def test_oracle_repair4_witness_replay():
     # Oracle repair 4 (2026-09-07): three phrasing-family matcher
     # extensions adjudicated from the frozen #36 validity audit.
-    # Frozen invariants: exactly 3 acceptance flips on the #36 replay,
-    # zero collateral reclassification, all 324 #36 false blockers and
-    # all 11 #35 M16 negatives still rejected.
-    art = json.loads(
+    # This test REPRODUCES the frozen replay from authoritative frozen
+    # evidence (the #36 raw reports + narrative coding + the #35
+    # witness artifact); it does not trust summary counts.
+    #
+    # Soundness note: narrative-coding.jsonl stores 240-char truncated
+    # comments; 42 needle occurrences corpus-wide live past that mark,
+    # so full texts are joined from the raw reports via the coding's
+    # (profile, fixture, run, finding) pointers.
+    import json as _json
+    ev36 = FIXTURES.parent / "evidence" / "track1-baseline3-2026-09-07"
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    raw = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((ev36 / f"{prof}-n5.json").read_text())
+        for pf in rep["per_fixture"]:
+            for i, r in enumerate(pf["runs_detail"]):
+                for j, f in enumerate(r.get("findings", [])):
+                    if f.get("severity") == "blocking":
+                        raw[(prof, pf["id"], i, j)] = " ".join(
+                            (f.get("comment") or "").split())
+    coding = [_json.loads(l) for l in
+              (ev36 / "narrative-coding.jsonl").read_text().splitlines()]
+    assert len(coding) == len(raw) == 538
+    fb = [k for k, r in ((tuple(r[x] for x in ("profile", "fixture", "run", "finding")), r)
+                         for r in coding) if r["class"] == "false-blocker" for k in [k]]
+    ee = [tuple(r[x] for x in ("profile", "fixture", "run", "finding"))
+          for r in coding if r["class"] == "expected-expression"]
+    gap = [tuple(r[x] for x in ("profile", "fixture", "run", "finding"))
+           for r in coding if r["class"] == "defect-expression-unmatched"]
+    assert len(fb) == 324 and len(ee) == 211 and len(gap) == 3
+
+    art = _json.loads(
         (FIXTURES.parent / "evidence" / "track1-oracle-repair4-2026-09-07" /
          "witness-replay.json").read_text())
-    assert len(art["genuine"]) == 3
-    assert art["negative_counts"] == {"#36_false_blockers": 324,
-                                      "#35_m16_negatives": 11}
-    assert art["replay"]["acceptance_flips"] == 3
-    assert art["replay"]["collateral_flips"] == 0
-    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    adj = set()
     for w in art["genuine"]:
-        entry = fixtures[w["fixture"]]["expected"]["findings"]
-        hit = any(rc._finding_matches(e, {"severity": "blocking",
-                                          "comment": w["narrative"]})
-                  for e in entry)
-        assert hit, (w["fixture"], w["narrative"][:60])
-    # needle discipline: the frozen needles are present, and the #35
-    # broad forms remain absent from M16
-    assert "without distinguishing" in \
-        fixtures["M12"]["expected"]["findings"][0]["comment_any"]
+        ptr = (w["profile"], w["fixture"], w["run"], w["finding"])
+        adj.add(ptr)
+        # tamper check: witness text equals the frozen raw text at pointer
+        assert raw[ptr] == w["narrative"]
+    assert adj == set(gap)
+
+    # replay through the ACTUAL matcher over the full frozen population
+    matched = set()
+    for ptr, text in raw.items():
+        entries = fixtures[ptr[1]]["expected"].get("findings", [])
+        if any(rc._finding_matches(e, {"severity": "blocking", "comment": text})
+               for e in entries):
+            matched.add(ptr)
+    assert matched == set(ee) | adj          # exactly 214
+    assert len(matched & set(fb)) == 0       # all 324 FBs rejected
+    assert len(matched - set(ee)) == 3       # exactly 3 flips
+    # zero collateral: nothing outside the adjudicated three changed
+
+    # #35 contract remains intact through the actual matcher
+    w35 = _json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair3-2026-09-06" /
+         "m16-witnesses.json").read_text())["witnesses"]
+    entry16 = fixtures["M16"]["expected"]["findings"][0]
+    for w in w35:
+        hit = rc._finding_matches(entry16, {"severity": "blocking",
+                                            "comment": w["comment"]})
+        assert hit == (w["ruling"] == "genuine_expected_expression")
+    assert sum(1 for w in w35
+               if w["ruling"] == "genuine_expected_expression") == 16
+    assert sum(1 for w in w35
+               if w["ruling"] == "not_expected_expression") == 11
+
+    # structured-entry discipline: context required, not bare needles
+    e2 = fixtures["M12"]["expected"]["findings"][1]
+    assert e2["comment_all"] == ["stale"]
+    assert set(e2["comment_any"]) == {"without distinguishing",
+                                      "different failure mode"}
+    m3 = fixtures["M3"]["expected"]["findings"]
+    assert m3[0]["comment_all"] == ["mtime"]          # original untouched
+    assert m3[1]["comment_all"] == ["filesystem metadata"]
+    assert set(m3[1]["comment_any"]) == {"parse", "date"}
     assert "indistinguishable from a successful" in \
         fixtures["M16"]["expected"]["findings"][0]["comment_any"]
-    assert any("filesystem metadata" in e["comment_any"]
-               for e in fixtures["M3"]["expected"]["findings"])
-    assert len(fixtures["M3"]["expected"]["findings"]) == 2
     assert "falsely claiming" not in \
         fixtures["M16"]["expected"]["findings"][0]["comment_any"]

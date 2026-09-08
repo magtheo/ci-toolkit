@@ -4,16 +4,11 @@
   "repair": "Oracle repair 4 \u2014 three phrasing-family matcher extensions",
   "invariant": "exactly 3 acceptance flips; all 324 #36 false blockers and all 11 #35 M16 negatives remain rejected",
   "needles": {
-   "M12": [
-    "without distinguishing"
-   ],
-   "M16": [
-    "indistinguishable from a successful"
-   ],
-   "M3": [
-    "filesystem metadata (second expected entry)"
-   ]
-  }
+   "M12": "second entry: comment_all ['stale'] + comment_any ['without distinguishing', 'different failure mode'] (original entry preserved unchanged)",
+   "M16": "'indistinguishable from a successful' added to the existing entry (sufficiently specific)",
+   "M3": "second entry: comment_all ['filesystem metadata'] + comment_any ['parse', 'date'] (original mtime entry unchanged)"
+  },
+  "test_soundness": "narrative-coding.jsonl comments are 240-char truncated; 42 needle occurrences live past that mark, so the deterministic test joins coding pointers with full texts from the frozen raw reports"
  },
  "genuine": [
   {
@@ -126,6 +121,7 @@
     "M8": 5,
     "M9": 5
    }
-  }
+  },
+  "oracle_version": "1ef8dc90badc27bd"
  }
 }

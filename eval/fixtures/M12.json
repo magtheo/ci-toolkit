@@ -32,8 +32,17 @@
           "empty dict",
           "contradicts the",
           "returns {}",
-          "masks",
-          "without distinguishing"
+          "masks"
+        ]
+      },
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "stale"
+        ],
+        "comment_any": [
+          "without distinguishing",
+          "different failure mode"
         ]
       }
     ]
