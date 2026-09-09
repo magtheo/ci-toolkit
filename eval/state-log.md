@@ -374,3 +374,23 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
   continues to the next residual family; no automatic T1.4.
 - corpus_note wording made historically precise (#40 remained
   non-binding; current-oracle requirement independent of it).
+
+## 2026-09-09 — T1.3 iteration 2 measurement: FAIL, NOT BINDING
+
+- subject 1bd0ef9a0b22e3ab265a774fa53f0afe26542330 · oracle
+  cb6870c5a4c635b2 · corpus 72035a00b8db828d.
+- 360 calls exactly once, 0 retries/reruns; $2.80 of the $3.50 cap
+  (list-pricing upper bound).
+- Criteria 1–5 FAIL: C7 GATING violation on both profiles (haiku 1
+  INCONCLUSIVE from label-evidence mismatch with 0 false blockers;
+  sonnet 8 false blockers); 4 floor violations (haiku M1 1/5,
+  haiku M9 0/5, sonnet M13 0/5, sonnet M17 0/5 vs floor 5/5);
+  speculative-consequence 65/100/165 vs caps 53/50/103; control FBs
+  83/142 vs caps 78/112.
+- No state promotions. #43 mechanism rejected per the frozen
+  keep/revert lifecycle; reviewer-only revert required; no further
+  spend authorized.
+- Historical wording correction (commit 5b44bca message, not
+  rewritten): it says "M17 0/5 both profiles vs 5/5 floors" — the
+  sonnet M17 floor is 5; the haiku M17 floor is 0 (haiku M17 was
+  not a floor violation).

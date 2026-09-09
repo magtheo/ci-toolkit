@@ -405,12 +405,12 @@
   "invariant": "expected_expression + false_blocker + defect_expression_unmatched == every blocking narrative emitted",
   "total_blocking_narratives": 505,
   "expected_expression": 186,
-  "false_blocker": 315,
-  "defect_expression_unmatched": 4,
+  "false_blocker": 314,
+  "defect_expression_unmatched": 5,
   "invariant_holds": true,
   "reconciliation": "coded per-fixture counts == raw blocking-finding counts for every fixture (verified)",
   "families_total": {
-   "speculative-consequence": 166,
+   "speculative-consequence": 165,
    "hallucinated-fact": 77,
    "absolute-consistency": 29,
    "severity-inflation": 16,
@@ -425,7 +425,7 @@
     "risk-boilerplate": 6
    },
    "sonnet": {
-    "speculative-consequence": 101,
+    "speculative-consequence": 100,
     "hallucinated-fact": 49,
     "risk-boilerplate": 21,
     "severity-inflation": 8,
@@ -457,21 +457,21 @@
   "criterion3_speculative_retention": {
    "measured": {
     "haiku": 65,
-    "sonnet": 101,
-    "aggregate": 166
+    "sonnet": 100,
+    "aggregate": 165
    },
    "cap": {
     "haiku": 53,
     "sonnet": 50,
     "aggregate": 103
    },
-   "verdict": "FAIL \u2014 all three caps exceeded"
+   "verdict": "FAIL \u2014 all three caps exceeded (65 > 53, 100 > 50, 165 > 103)"
   }
  },
  "criteria": {
-  "1_zero_gating_violations": "FAIL \u2014 C7 false blockers on both profiles (haiku 3, sonnet 8)",
+  "1_zero_gating_violations": "FAIL \u2014 C7 violates GATING on both profiles: haiku 1 INCONCLUSIVE (label-evidence mismatch; 0 false blockers), sonnet 8 false blockers",
   "2_all_per_positive_floors": "FAIL \u2014 4 violations: haiku M1 1/5 vs floor 5; haiku M9 0/5 vs floor 1; sonnet M13 0/5 vs floor 1; sonnet M17 0/5 vs floor 5",
-  "3_speculative_retention": "FAIL \u2014 haiku 65 > 53, sonnet 101 > 50, aggregate 166 > 103",
+  "3_speculative_retention": "FAIL \u2014 haiku 65 > 53, sonnet 100 > 50, aggregate 165 > 103",
   "4_control_fb_nonregression": "FAIL \u2014 haiku 83 > 78, sonnet 142 > 112",
   "5_sonnet_c7_clean": "FAIL \u2014 8 false blockers"
  },

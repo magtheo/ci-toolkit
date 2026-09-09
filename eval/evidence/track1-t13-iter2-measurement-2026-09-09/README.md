@@ -15,9 +15,9 @@ Frozen identity: subject `1bd0ef9a0b22e3ab265a774fa53f0afe26542330`
 
 | # | frozen criterion | measured | verdict |
 |---|---|---|---|
-| 1 | zero GATING violations, both profiles | **C7 false blockers on BOTH profiles** (haiku 3, sonnet 8) | **FAIL** |
+| 1 | zero GATING violations, both profiles | **C7 violates GATING on both profiles** — haiku: 1 INCONCLUSIVE (label-evidence mismatch; 0 false blockers); sonnet: 8 false blockers | **FAIL** |
 | 2 | every Deviation 6 per-positive floor | **4 violations** (below) | **FAIL** |
-| 3 | speculative-consequence ≤ 53 / ≤ 50 / ≤ 103 | **65 / 101 / 166** | **FAIL** |
+| 3 | speculative-consequence ≤ 53 / ≤ 50 / ≤ 103 | **65 / 100 / 165** | **FAIL** |
 | 4 | control FBs ≤ 78 / ≤ 112 | **83 / 142** | **FAIL** |
 | 5 | sonnet C7 clean | 8 false blockers | **FAIL** |
 
@@ -33,9 +33,12 @@ Frozen identity: subject `1bd0ef9a0b22e3ab265a774fa53f0afe26542330`
 | sonnet | **M17** | **0/5** | **5/5** |
 
 **GATING regression (criterion 1):** C7 — the control whose sonnet
-speculative blockers iteration 1 eliminated — carries false blockers on
-both profiles in this run. Both raw reports independently record `C7`
-under `gating_violations`.
+speculative blockers iteration 1 eliminated — violates GATING on both
+profiles in this run, by two different mechanisms: sonnet emits 8 false
+blockers; haiku emits 0 false blockers but 1 INCONCLUSIVE (the
+authoritative normalizer audit attributes it to the label-evidence
+mismatch: an ISSUES_FOUND label with no validated blocking finding).
+Both raw reports independently record `C7` under `gating_violations`.
 
 ## Why M17 failed — the central result
 
@@ -45,6 +48,9 @@ Iteration 2 added the explicit direct-contradiction protection — and got
 **sonnet M17 = 0/5 again**, C7 regressed on both profiles, control FBs
 **rose** (78→83 haiku, 112→142 sonnet), and new sensitivity collateral
 appeared (haiku M1 1/5, haiku M9 0/5, sonnet M13 0/5).
+
+(Haiku M17 is not a floor violation — its Deviation 6 floor is 0;
+the sonnet M17 floor is 5/5.)
 
 Run-detail diagnosis (sonnet M17): CLEAR on all five runs with
 documentation-completeness advisories only — the same-input
@@ -66,13 +72,15 @@ entries firing), M12/M16 floors held on both profiles. M17's loss is a
 reviewer-reasoning failure (CLEAR with advisories), not a matcher,
 parser, or pair artifact — paired control C17 is clean.
 
-Four new matcher-vocabulary gap narratives appeared (recorded as
+Five matcher-vocabulary gap narratives appeared (recorded as
 `defect-expression-unmatched`, frozen coding untouched): M3 and M16
-(haiku), M10 and M9 (sonnet), plus a second M16 variant (sonnet) — the
-M16 fabricated-success defect phrased as *"mimics success. This is a
+(haiku), M9, M10, and a second M16 variant (sonnet). The M16
+fabricated-success defect is phrased as *"mimics success. This is a
 lie — the sync failed"* and *"dict claiming success … no labels were
-actually synced"*, both dodging every repair-5 needle. Matcher-vocabulary
-chase continues to confirm the case for mechanism layer (b).
+actually synced"*; the M10 narrative states the contains-anywhere
+non-anchoring defect without any frozen anchor-vocabulary needle. The
+matcher-vocabulary chase continues to confirm the case for mechanism
+layer (b).
 
 ## Emitted-family movement (false blockers, #40 → this run)
 
@@ -84,13 +92,16 @@ chase continues to confirm the case for mechanism layer (b).
 | severity-inflation | 12→8 | 26→8 | 38→16 |
 | risk-boilerplate | 22→6 | 43→21 | 65→27 |
 
-Every family that iteration 1 had reduced grew again — the mechanism did
-not trade specificity for sensitivity; it lost ground on both
-simultaneously.
+Three of the five emitted false-blocker families worsened — including
+the target speculative-consequence family (104→166) — while
+severity-inflation (38→16) and risk-boilerplate (65→27) improved
+further. Overall control false blockers nevertheless regressed on both
+profiles, so iteration 2 lost the required specificity while also
+violating sensitivity floors.
 
 Exact per-profile tables: `derived-metrics.json#narrative_coding_summary`.
-Coding: 505 blocking narratives = 186 expected-expression + 315
-false-blocker + 4 defect-expression-unmatched (invariant holds; coded
+Coding: 505 blocking narratives = 186 expected-expression + 314
+false-blocker + 5 defect-expression-unmatched (invariant holds; coded
 counts reconcile with raw blocking counts per fixture).
 
 ## Run integrity & spend
@@ -110,3 +121,10 @@ inference), sonnet 0. False-clears on positives: 30/90 haiku,
 - `derived-metrics.json` — identity, protocol, spend, floors, criteria
 - `narrative-coding.jsonl` — every blocking narrative coded, pointers preserved
 - `inconclusive-audit.json` — authoritative normalizer causes
+
+## Provenance note
+
+Raw-evidence commit `5b44bca`'s message says "M17 0/5 both profiles vs
+5/5 floors" — imprecise: the sonnet M17 floor is 5 (violated, 0/5); the
+haiku M17 floor is 0 (not violated). The commit is immutable; this note
+is the correction of record.
