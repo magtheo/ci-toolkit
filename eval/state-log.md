@@ -336,3 +336,21 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
   repair-5 artifact floors == repair-4 frozen per-positive floors,
   aggregates haiku 51/90, sonnet 66/90).
 - Zero model calls; reviewer untouched.
+
+## 2026-09-09 — T1.3 iteration 2 measurement freeze (pre-authorization)
+
+- Subject frozen: 1bd0ef9a0b22e3ab265a774fa53f0afe26542330 (#43
+  merge; rubric 345b8af00cd5db1e = iteration-1 grounding rule +
+  direct-contradiction protection, Documentation-completeness
+  broadening removed per review).
+- Oracle cb6870c5a4c635b2 (repair 5); corpus 72035a00b8db828d
+  (repair-5 M11/M16 entries; change vs the repair-4 corpus
+  invalidates prior PASS records — fail closed, hence this run).
+- Floors: repair-5 rescore, aggregates haiku 51/90, sonnet 66/90,
+  per-positive in the freeze; sonnet M17 = 5/5 explicit — 4/5 fails.
+- Success criteria: zero GATING both profiles; every per-positive
+  floor met including sonnet M17 5/5; speculative-consequence gain
+  retained (FBs at or below #40; sonnet C7 clean).
+- N=5 dual profile, 360 calls, $3.50 cap, exactly-once/no-rerun;
+  calls_made_at_freeze_time = 0. Awaiting human spend
+  authorization; no calls before it.

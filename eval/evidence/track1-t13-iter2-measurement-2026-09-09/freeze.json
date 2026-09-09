@@ -1,0 +1,85 @@
+{
+ "frozen_before_call_1": true,
+ "subject_sha": "1bd0ef9a0b22e3ab265a774fa53f0afe26542330",
+ "subject_note": "merge commit of #43 (rubric.md only vs prior subject); reviewer semantics delta = the grounding rule + direct-contradiction protection below; rebased onto the #44 evidence-hardening merge",
+ "rubric_hash": "345b8af00cd5db1e",
+ "oracle_version": "cb6870c5a4c635b2",
+ "oracle_note": "repair-5 oracle (#42): M11 status-less phrasing + M16 returned-on-failure phrasings; #36/#40 populations replayed, #35 contract intact, floors rescored",
+ "corpus_hash": "72035a00b8db828d",
+ "corpus_note": "changed vs the 902738301d0a8bd7 repair-4 corpus recorded by the #36/#40 freezes: repair-5 (#42) added the M11 + M16 structured expected entries; per the oracle_version rule this invalidates prior PASS records \u2014 fail closed, hence this new measurement",
+ "n": 5,
+ "profiles": [
+  "anthropic/claude-haiku-4.5",
+  "anthropic/claude-sonnet-4.5"
+ ],
+ "temperature": 0.2,
+ "max_tokens": 2000,
+ "deviation6_floors": {
+  "source": "eval/evidence/track1-oracle-repair5-2026-09-08/witness-replay.json",
+  "aggregate": {
+   "haiku": "51/90",
+   "sonnet": "66/90"
+  },
+  "per_positive": {
+   "haiku": {
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 0,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 0,
+    "M18": 0,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 1
+   },
+   "sonnet": {
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 1,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 5,
+    "M18": 5,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 5
+   }
+  },
+  "rule": "every positive must hold or improve its per-positive floor hits on both profiles",
+  "explicit": "sonnet M17 floor is 5/5 \u2014 a 4/5 result FAILS the hard invariant"
+ },
+ "mechanism_definition_copied_from_merged_43": {
+  "layer": "(a) rubric / reasoning contract \u2014 wording only",
+  "rule": "A blocking finding must identify a concrete defect or violated invariant supported by evidence available in the supplied review input (diff, PR description, provided context), and the claimed impact must follow from that evidence. A hypothetical harm that depends on unseen code behavior, an unestablished external actor or compromise, or future misuse is not sufficient grounds for blocking \u2014 report such concerns as advisory. Conditional reasoning itself is not disqualifying: a visible injection path blocks even though exploitation is conditional. What fails this rule is the unsupported premise, not the conditionality. Direct-contradiction protection: a direct contradiction or violated invariant established entirely by the supplied review input is grounded evidence and remains subject to the normal blocking criteria \u2014 even when its only consequence is downstream or its severity is disputed. Consistency with explicitly stated invariants and same-input factual contradictions are established by the input alone and are not made advisory by this rule.",
+  "target_families": {
+   "speculative-consequence": "iteration-1 win to retain (#39/#40: 115->104; sonnet C7 clean)",
+   "protected": "M17 same-input contradiction (cache-wide absolute vs /health,/metrics origin bypass; C17 qualifies up front)"
+  }
+ },
+ "success_criteria": [
+  "zero GATING violations on both profiles",
+  "every Deviation 6 per-positive floor met on both profiles, including sonnet M17 = 5/5",
+  "speculative-consequence gain retained (control false blockers at or below #40 levels; sonnet C7 clean)"
+ ],
+ "spend_cap_usd": 3.5,
+ "run_policy": "exactly once; no reruns of failures/parser failures/ugly outputs; everything preserved as emitted; stop if projected cost would exceed the cap; authorized only by explicit human spend authorization after this freeze is reviewed",
+ "calls_made_at_freeze_time": 0,
+ "freeze_timestamp": "2026-09-09T08:20:48Z"
+}
