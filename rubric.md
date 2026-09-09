@@ -104,10 +104,9 @@ the label.
   or its severity is disputed. The grounding rule limits findings
   whose premise itself depends on unseen or unestablished facts;
   uncertainty about downstream consequences does not erase an
-  already-established defect. Documentation completeness,
-  consistency with stated invariants, and same-input factual
-  contradictions are established by the input alone and are not
-  made advisory by this rule.
+  already-established defect. Consistency with explicitly stated
+  invariants and same-input factual contradictions are established
+  by the input alone and are not made advisory by this rule.
 - No finding you cannot point at in the diff. No praise you cannot
   justify. Zero findings with `CLEAR` is a valid answer — do not
   invent issues to seem thorough.
