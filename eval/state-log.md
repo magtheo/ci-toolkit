@@ -299,3 +299,23 @@ $2.64 of $3.50 cap · 0 retries/reruns
   M16 returned-on-exception x2) — not repaired here.
 - T1.2 remains INCOMPLETE. Phase 15 keep/revert decision pending;
   bundle makes no decision.
+
+## 2026-09-08 — Oracle repair 5: M11 + M16 returned-on-failure phrasings
+
+oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
+
+- Adjudicated genuine gaps (Phase 15 prerequisite): M11 second
+  entry ['|| true' + suppress/exit-code] (status-less phrasing);
+  M16 second entry ['{"ok' + returned-on-exception-family]
+  (fabricated-success stated as returned-on-failure; the frozen #35
+  response-shape negative remains rejected).
+- Replay: #36 population unchanged (214 matched, 0 flips, 324/324
+  FBs rejected); #40 population 197 matched — 4 adjudicated flips
+  (the 3 witnesses + haiku M11 r0f1, same phrasing family, #40
+  regex pre-pass miscoding revealed by replay and corrected by
+  adjudication; frozen #40 coding untouched); 272/273 #40 FBs
+  rejected.
+- Deviation 6 floors rescored under the repaired oracle from the
+  #36 raw reports: aggregates unchanged (haiku 51/90, sonnet 66/90;
+  per-positive values in the repair-5 artifact).
+- States, taxonomy, reviewer behavior untouched.

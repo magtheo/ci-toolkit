@@ -1,0 +1,98 @@
+{
+ "_meta": {
+  "source": "frozen #40 bundle (track1-t13-iter1-measurement-2026-09-08) + frozen #36 bundle + #35 witness set",
+  "repair": "Oracle repair 5 \u2014 M11 status-less phrasing + M16 returned-on-failure phrasing (adjudicated genuine oracle gaps, Phase 15 prerequisite)",
+  "matcher_structure": {
+   "M11": "second entry: comment_all ['|| true'] + comment_any ['suppress', 'exit code'] (original status entry untouched)",
+   "M16": "second entry: comment_all ['{\"ok\"'] + comment_any ['returned when an exception', 'even when the put request failed', 'not when the sync succeed'] (original entry untouched; the frozen #35 response-shape negative remains rejected)"
+  },
+  "oracle_version": "cb6870c5a4c635b2"
+ },
+ "adjudicated_flips_on_#40": [
+  {
+   "fixture": "M11",
+   "profile": "haiku",
+   "run": 3,
+   "finding": 1,
+   "narrative": "The `|| true` suppresses the exit code of the prisma command, making it impossible to detect migration failures. The script needs to capture whether the command succeeded or failed to report accurate state to the pipeline composer."
+  },
+  {
+   "fixture": "M11",
+   "profile": "haiku",
+   "run": 0,
+   "finding": 1,
+   "note": "revealed by replay: same '|| true suppresses the exit code' phrasing family; the #40 regex pre-pass had miscoded it as a false blocker (frozen #40 coding untouched; corrected here by adjudication)",
+   "narrative": "The `|| true` suppresses the exit code of the migrate command, making it impossible to detect migration failures."
+  },
+  {
+   "fixture": "M16",
+   "profile": "haiku",
+   "run": 2,
+   "finding": 1,
+   "narrative": "The fallback return `{\"ok\": True, \"updated\": len(LABELS)}` is returned when an exception occurs, not when the sync succeeds. This is a logic error: it claims success when the HTTP request failed."
+  },
+  {
+   "fixture": "M16",
+   "profile": "haiku",
+   "run": 4,
+   "finding": 1,
+   "narrative": "The fallback return value `{\"ok\": True, \"updated\": len(LABELS)}` is returned even when the PUT request failed or was never attempted. This is factually incorrect \u2014 no labels were updated if the exception path was taken."
+  }
+ ],
+ "replay_results": {
+  "#36_population": {
+   "matched": 214,
+   "flips": 0,
+   "false_blockers_rejected": "324/324"
+  },
+  "#40_population": {
+   "matched": 197,
+   "flips": "4 adjudicated (above)",
+   "false_blockers_rejected": "272/273 (the 273rd is the adjudicated r0f1 phrasing)"
+  },
+  "#35_contract": "16 genuine accepted / 11 negatives rejected (original entry)"
+ },
+ "floor_rescore_under_repaired_oracle": {
+  "haiku": {
+   "M1": 5,
+   "M10": 5,
+   "M11": 5,
+   "M12": 5,
+   "M13": 0,
+   "M14": 5,
+   "M15": 0,
+   "M16": 5,
+   "M17": 0,
+   "M18": 0,
+   "M2": 5,
+   "M3": 5,
+   "M4": 0,
+   "M5": 0,
+   "M6": 0,
+   "M7": 5,
+   "M8": 5,
+   "M9": 1
+  },
+  "sonnet": {
+   "M1": 5,
+   "M10": 5,
+   "M11": 5,
+   "M12": 5,
+   "M13": 1,
+   "M14": 5,
+   "M15": 0,
+   "M16": 5,
+   "M17": 5,
+   "M18": 5,
+   "M2": 5,
+   "M3": 5,
+   "M4": 0,
+   "M5": 0,
+   "M6": 0,
+   "M7": 5,
+   "M8": 5,
+   "M9": 5
+  }
+ },
+ "floor_rescore_note": "per-positive Deviation 6 floors recomputed from the #36 raw reports under oracle cb6870c5a4c635b2: aggregates unchanged (haiku 51/90, sonnet 66/90)"
+}

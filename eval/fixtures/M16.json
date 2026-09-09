@@ -35,6 +35,17 @@
           "no labels were actually updated",
           "indistinguishable from a successful"
         ]
+      },
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "{\"ok\""
+        ],
+        "comment_any": [
+          "returned when an exception",
+          "even when the put request failed",
+          "not when the sync succeed"
+        ]
       }
     ]
   },

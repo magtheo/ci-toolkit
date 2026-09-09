@@ -652,3 +652,85 @@ def test_oracle_repair4_witness_replay():
         fixtures["M16"]["expected"]["findings"][0]["comment_any"]
     assert "falsely claiming" not in \
         fixtures["M16"]["expected"]["findings"][0]["comment_any"]
+
+
+def _load_blocking_population(evdir):
+    import json as _json
+    raw = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((evdir / f"{prof}-n5.json").read_text())
+        for pf in rep["per_fixture"]:
+            for i, r in enumerate(pf["runs_detail"]):
+                for j, f in enumerate(r.get("findings", [])):
+                    if f.get("severity") == "blocking":
+                        raw[(prof, pf["id"], i, j)] = " ".join(
+                            (f.get("comment") or "").split())
+    return raw
+
+
+def test_oracle_repair5_witness_replay():
+    # Oracle repair 5: M11 status-less + M16 returned-on-failure
+    # phrasings. Reproduced from authoritative frozen evidence (#36 +
+    # #40 raw reports + codings + #35 artifact); summary fields are
+    # metadata only.
+    import json as _json
+    ev = FIXTURES.parent / "evidence"
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    art = _json.loads((ev / "track1-oracle-repair5-2026-09-08" /
+                       "witness-replay.json").read_text())
+    adj = {(w["profile"], w["fixture"], w["run"], w["finding"])
+           for w in art["adjudicated_flips_on_#40"]}
+
+    for tag, evdir in (("#36", ev / "track1-baseline3-2026-09-07"),
+                       ("#40", ev / "track1-t13-iter1-measurement-2026-09-08")):
+        raw = _load_blocking_population(evdir)
+        coding = {_json.loads(l) and tuple(_json.loads(l)[k] for k in
+                   ("profile", "fixture", "run", "finding")): _json.loads(l)
+                  for l in (evdir / "narrative-coding.jsonl").read_text().splitlines()}
+        ee = {k for k, v in coding.items()
+              if v["class"] == "expected-expression"}
+        fbs = {k for k, v in coding.items() if v["class"] == "false-blocker"}
+        gaps = {k for k, v in coding.items()
+                if v["class"] == "defect-expression-unmatched"}
+        matched = set()
+        for ptr, text in raw.items():
+            entries = fixtures[ptr[1]]["expected"].get("findings", [])
+            if any(rc._finding_matches(e, {"severity": "blocking",
+                                           "comment": text})
+                   for e in entries):
+                matched.add(ptr)
+        if tag == "#36":
+            # repair-4's three adjudicated gaps stay accepted; repair 5
+            # adds nothing to this population
+            assert len(raw) == 538 and matched == ee | gaps
+            assert len(matched) == 214 and len(gaps) == 3
+            assert not (matched & fbs)            # 324/324 rejected
+        else:
+            assert len(raw) == 469
+            # witness texts tamper-checked against the raw reports
+            for w in art["adjudicated_flips_on_#40"]:
+                ptr = (w["profile"], w["fixture"], w["run"], w["finding"])
+                assert raw[ptr].startswith(w["narrative"][:80])
+            assert matched == ee | adj and len(matched) == 197
+            assert len(fbs - matched) == 272       # only r0f1 accepted
+            assert adj <= matched
+
+    # #35 contract through the actual matcher
+    w35 = _json.loads((ev / "track1-oracle-repair3-2026-09-06" /
+                       "m16-witnesses.json").read_text())["witnesses"]
+    entries16 = fixtures["M16"]["expected"]["findings"]
+    for w in w35:
+        hit = any(rc._finding_matches(e, {"severity": "blocking",
+                                          "comment": w["comment"]})
+                  for e in entries16)
+        assert hit == (w["ruling"] == "genuine_expected_expression")
+
+    # structured-entry discipline: context required, originals intact
+    m11 = fixtures["M11"]["expected"]["findings"]
+    assert m11[0]["comment_all"] == ["status"]
+    assert m11[1]["comment_all"] == ["|| true"]
+    assert set(m11[1]["comment_any"]) == {"suppress", "exit code"}
+    m16 = fixtures["M16"]["expected"]["findings"]
+    assert "indistinguishable from a successful" in m16[0]["comment_any"]
+    assert m16[1]["comment_all"] == ['{"ok"']
+    assert "falsely claiming" not in m16[0]["comment_any"]
