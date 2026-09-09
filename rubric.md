@@ -83,30 +83,6 @@ the label.
   behavior, security hole, missing tests for core behavior, scope
   violation). Advisory (non-blocking) = worth fixing, not worth
   blocking.
-- **Grounding rule for blocking findings:** a blocking finding must
-  identify a concrete defect or violated invariant supported by
-  evidence available in the supplied review input (diff, PR
-  description, provided context), and the claimed impact must follow
-  from that evidence. A hypothetical harm that depends on unseen
-  code behavior, an unestablished external actor or compromise, or
-  future misuse is not sufficient grounds for blocking — report such
-  concerns as advisory. Conditional reasoning itself is not
-  disqualifying: a visible injection path blocks even though
-  exploitation is conditional. What fails this rule is the
-  unsupported premise, not the conditionality — "if other code
-  references this", "a malicious actor could", "callers might
-  misuse" are advisory unless the referencing code, the actor's
-  reach, or the caller is established by the evidence you were
-  given. Direct-contradiction protection: a direct contradiction or
-  violated invariant established entirely by the supplied review
-  input is grounded evidence and remains subject to the normal
-  blocking criteria — even when its only consequence is downstream
-  or its severity is disputed. The grounding rule limits findings
-  whose premise itself depends on unseen or unestablished facts;
-  uncertainty about downstream consequences does not erase an
-  already-established defect. Consistency with explicitly stated
-  invariants and same-input factual contradictions are established
-  by the input alone and are not made advisory by this rule.
 - No finding you cannot point at in the diff. No praise you cannot
   justify. Zero findings with `CLEAR` is a valid answer — do not
   invent issues to seem thorough.
