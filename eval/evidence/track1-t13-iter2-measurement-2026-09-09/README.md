@@ -86,14 +86,14 @@ layer (b).
 
 | family | haiku | sonnet | total |
 |---|---|---|---|
-| speculative-consequence | 54→**65** | 50→**101** | 104→**166** |
+| speculative-consequence | 54→**65** | 50→**100** | 104→**165** |
 | hallucinated-fact | 15→28 | 42→49 | 57→77 |
 | absolute-consistency | 4→15 | 5→14 | 9→29 |
 | severity-inflation | 12→8 | 26→8 | 38→16 |
 | risk-boilerplate | 22→6 | 43→21 | 65→27 |
 
 Three of the five emitted false-blocker families worsened — including
-the target speculative-consequence family (104→166) — while
+the target speculative-consequence family (104→165) — while
 severity-inflation (38→16) and risk-boilerplate (65→27) improved
 further. Overall control false blockers nevertheless regressed on both
 profiles, so iteration 2 lost the required specificity while also

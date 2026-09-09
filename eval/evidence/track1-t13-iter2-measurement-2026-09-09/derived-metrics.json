@@ -443,7 +443,7 @@
    },
    {
     "pointer": "sonnet-n5.json#per_fixture[M10]",
-    "note": "intended non-anchoring defect without the 'search' needle"
+    "note": "intended non-anchoring defect without any frozen anchor-vocabulary needle"
    },
    {
     "pointer": "sonnet-n5.json#per_fixture[M9]",
