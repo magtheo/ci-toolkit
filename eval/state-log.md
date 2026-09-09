@@ -336,3 +336,61 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
   repair-5 artifact floors == repair-4 frozen per-positive floors,
   aggregates haiku 51/90, sonnet 66/90).
 - Zero model calls; reviewer untouched.
+
+## 2026-09-09 — T1.3 iteration 2 measurement freeze (pre-authorization)
+
+- Subject frozen: 1bd0ef9a0b22e3ab265a774fa53f0afe26542330 (#43
+  merge; rubric 345b8af00cd5db1e = iteration-1 grounding rule +
+  direct-contradiction protection, Documentation-completeness
+  broadening removed per review).
+- Oracle cb6870c5a4c635b2 (repair 5); corpus 72035a00b8db828d
+  (repair-5 M11/M16 entries; change vs the repair-4 corpus
+  invalidates prior PASS records — fail closed, hence this run).
+- Floors: repair-5 rescore, aggregates haiku 51/90, sonnet 66/90,
+  per-positive in the freeze; sonnet M17 = 5/5 explicit — 4/5 fails.
+- Success criteria: zero GATING both profiles; every per-positive
+  floor met including sonnet M17 5/5; speculative-consequence gain
+  retained (FBs at or below #40; sonnet C7 clean).
+- N=5 dual profile, 360 calls, $3.50 cap, exactly-once/no-rerun;
+  calls_made_at_freeze_time = 0. Awaiting human spend
+  authorization; no calls before it.
+
+## 2026-09-09 — Freeze revision 2 (pre-call corrections, 0 calls)
+
+- Supersedes freeze commit 4184dbd (unchanged in history); still 0
+  model calls.
+- Mechanism text now the exact verbatim #43 rubric bullet (was an
+  abridged paraphrase mislabeled as a copy).
+- Deviation 6 floors: normative source restored to the repair-4
+  frozen rescore; repair-5 parity recorded as validation evidence,
+  not replacement.
+- Specificity acceptance split: target-family retention
+  (speculative-consequence FBs <= 53 haiku / 50 sonnet / 103
+  aggregate, from frozen #40 54/50 with the repair-5-adjudicated
+  haiku M11 r0f1 reclassification) AND overall control-FB
+  non-regression (<= 78/112); C7 clean explicit.
+- Pass interpretation recorded: iteration-2 keep criterion and
+  potential binding T1.2 reference — NOT T1.3 stage exit; T1.3
+  continues to the next residual family; no automatic T1.4.
+- corpus_note wording made historically precise (#40 remained
+  non-binding; current-oracle requirement independent of it).
+
+## 2026-09-09 — T1.3 iteration 2 measurement: FAIL, NOT BINDING
+
+- subject 1bd0ef9a0b22e3ab265a774fa53f0afe26542330 · oracle
+  cb6870c5a4c635b2 · corpus 72035a00b8db828d.
+- 360 calls exactly once, 0 retries/reruns; $2.80 of the $3.50 cap
+  (list-pricing upper bound).
+- Criteria 1–5 FAIL: C7 GATING violation on both profiles (haiku 1
+  INCONCLUSIVE from label-evidence mismatch with 0 false blockers;
+  sonnet 8 false blockers); 4 floor violations (haiku M1 1/5,
+  haiku M9 0/5, sonnet M13 0/5, sonnet M17 0/5 vs floor 5/5);
+  speculative-consequence 65/100/165 vs caps 53/50/103; control FBs
+  83/142 vs caps 78/112.
+- No state promotions. #43 mechanism rejected per the frozen
+  keep/revert lifecycle; reviewer-only revert required; no further
+  spend authorized.
+- Historical wording correction (commit 5b44bca message, not
+  rewritten): it says "M17 0/5 both profiles vs 5/5 floors" — the
+  sonnet M17 floor is 5; the haiku M17 floor is 0 (haiku M17 was
+  not a floor violation).

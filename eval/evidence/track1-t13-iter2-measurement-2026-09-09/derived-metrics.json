@@ -1,0 +1,479 @@
+{
+ "identity": {
+  "subject_sha": "1bd0ef9a0b22e3ab265a774fa53f0afe26542330",
+  "rubric_hash": "345b8af00cd5db1e",
+  "oracle_version": "cb6870c5a4c635b2",
+  "corpus_hash": "72035a00b8db828d",
+  "freeze": "freeze.json (revision 2, supersedes 4184dbd); freeze predates call 1 by commit history"
+ },
+ "protocol": {
+  "calls": 360,
+  "n": 5,
+  "profiles": [
+   "anthropic/claude-haiku-4.5",
+   "anthropic/claude-sonnet-4.5"
+  ],
+  "exactly_once": true,
+  "retries": 0,
+  "reruns": 0
+ },
+ "spend_accounting": {
+  "calls": 360,
+  "cap_usd": 3.5,
+  "cost_usd": 2.8,
+  "cost_method": "OpenRouter list pricing (haiku-4.5 $1/$5, sonnet-4.5 $3/$15 per MTok in/out), no cache discount \u2014 upper bound",
+  "prompt_tokens_per_profile": 302835,
+  "completion_tokens": {
+   "haiku": 79486,
+   "sonnet": 79730
+  },
+  "retries": 0,
+  "reruns": 0
+ },
+ "per_profile": {
+  "haiku": {
+   "gating_violations": [
+    "C7"
+   ],
+   "detection_vs_floor": [
+    {
+     "fixture": "M1",
+     "floor": 5,
+     "measured": 1,
+     "verdict": "VIOLATION"
+    },
+    {
+     "fixture": "M10",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M11",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M12",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M13",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M14",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M15",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M16",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M17",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M18",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M2",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M3",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M4",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M5",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M6",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M7",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M8",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M9",
+     "floor": 1,
+     "measured": 0,
+     "verdict": "VIOLATION"
+    }
+   ],
+   "floor_violations": [
+    {
+     "fixture": "M1",
+     "floor": 5,
+     "measured": 1
+    },
+    {
+     "fixture": "M9",
+     "floor": 1,
+     "measured": 0
+    }
+   ],
+   "control_false_blockers_per_fixture": {
+    "C1": 6,
+    "C10": 5,
+    "C11": 7,
+    "C12": 15,
+    "C13": 6,
+    "C14": 10,
+    "C15": 0,
+    "C16": 7,
+    "C17": 0,
+    "C18": 0,
+    "C2": 6,
+    "C3": 3,
+    "C4": 0,
+    "C5": 0,
+    "C6": 7,
+    "C7": 0,
+    "C8": 9,
+    "C9": 2
+   },
+   "control_false_blockers_total": 83,
+   "false_clears_on_positives": {
+    "clear": 25,
+    "inconclusive": 5,
+    "total": 30,
+    "of": 90
+   },
+   "pair_integrity_violations": [
+    {
+     "positive": "M10",
+     "control": "C10",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M11",
+     "control": "C11",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M14",
+     "control": "C14",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M2",
+     "control": "C2",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M8",
+     "control": "C8",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+   ],
+   "inconclusive_runs": 12,
+   "inconclusive_causes": {
+    "JSON decode failure": 11,
+    "label-evidence mismatch": 1
+   },
+   "spend": {
+    "calls": 180,
+    "prompt_tokens": 302835,
+    "completion_tokens": 79486
+   }
+  },
+  "sonnet": {
+   "gating_violations": [
+    "C7"
+   ],
+   "detection_vs_floor": [
+    {
+     "fixture": "M1",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M10",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M11",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M12",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M13",
+     "floor": 1,
+     "measured": 0,
+     "verdict": "VIOLATION"
+    },
+    {
+     "fixture": "M14",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M15",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M16",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M17",
+     "floor": 5,
+     "measured": 0,
+     "verdict": "VIOLATION"
+    },
+    {
+     "fixture": "M18",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M2",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M3",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M4",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M5",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M6",
+     "floor": 0,
+     "measured": 0,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M7",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M8",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    },
+    {
+     "fixture": "M9",
+     "floor": 5,
+     "measured": 5,
+     "verdict": "hold"
+    }
+   ],
+   "floor_violations": [
+    {
+     "fixture": "M13",
+     "floor": 1,
+     "measured": 0
+    },
+    {
+     "fixture": "M17",
+     "floor": 5,
+     "measured": 0
+    }
+   ],
+   "control_false_blockers_per_fixture": {
+    "C1": 10,
+    "C10": 11,
+    "C11": 6,
+    "C12": 19,
+    "C13": 13,
+    "C14": 11,
+    "C15": 10,
+    "C16": 13,
+    "C17": 0,
+    "C18": 0,
+    "C2": 9,
+    "C3": 10,
+    "C4": 0,
+    "C5": 0,
+    "C6": 0,
+    "C7": 8,
+    "C8": 11,
+    "C9": 11
+   },
+   "control_false_blockers_total": 142,
+   "false_clears_on_positives": {
+    "clear": 20,
+    "inconclusive": 0,
+    "total": 20,
+    "of": 90
+   },
+   "pair_integrity_violations": [
+    {
+     "positive": "M1",
+     "control": "C1",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M2",
+     "control": "C2",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+     "positive": "M8",
+     "control": "C8",
+     "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+   ],
+   "inconclusive_runs": 0,
+   "inconclusive_causes": {},
+   "spend": {
+    "calls": 180,
+    "prompt_tokens": 302835,
+    "completion_tokens": 79730
+   }
+  }
+ },
+ "narrative_coding_summary": {
+  "invariant": "expected_expression + false_blocker + defect_expression_unmatched == every blocking narrative emitted",
+  "total_blocking_narratives": 505,
+  "expected_expression": 186,
+  "false_blocker": 314,
+  "defect_expression_unmatched": 5,
+  "invariant_holds": true,
+  "reconciliation": "coded per-fixture counts == raw blocking-finding counts for every fixture (verified)",
+  "families_total": {
+   "speculative-consequence": 165,
+   "hallucinated-fact": 77,
+   "absolute-consistency": 29,
+   "severity-inflation": 16,
+   "risk-boilerplate": 27
+  },
+  "families_by_profile": {
+   "haiku": {
+    "speculative-consequence": 65,
+    "hallucinated-fact": 28,
+    "absolute-consistency": 15,
+    "severity-inflation": 8,
+    "risk-boilerplate": 6
+   },
+   "sonnet": {
+    "speculative-consequence": 100,
+    "hallucinated-fact": 49,
+    "risk-boilerplate": 21,
+    "severity-inflation": 8,
+    "absolute-consistency": 14
+   }
+  },
+  "gap_narratives": [
+   {
+    "pointer": "haiku-n5.json#per_fixture[M3]",
+    "note": "intended parse-the-date defect without the 'filesystem metadata' needle"
+   },
+   {
+    "pointer": "haiku-n5.json#per_fixture[M16]",
+    "note": "intended fabricated-success defect: 'mimics success. This is a lie \u2014 the sync failed' avoids every repair-5 needle"
+   },
+   {
+    "pointer": "sonnet-n5.json#per_fixture[M10]",
+    "note": "intended non-anchoring defect without any frozen anchor-vocabulary needle"
+   },
+   {
+    "pointer": "sonnet-n5.json#per_fixture[M9]",
+    "note": "intended inverted-gate defect without the frozen needles"
+   },
+   {
+    "pointer": "sonnet-n5.json#per_fixture[M16]",
+    "note": "intended fabricated-success defect: single-quoted dict + 'actually synced' avoid every repair-5 needle"
+   }
+  ],
+  "criterion3_speculative_retention": {
+   "measured": {
+    "haiku": 65,
+    "sonnet": 100,
+    "aggregate": 165
+   },
+   "cap": {
+    "haiku": 53,
+    "sonnet": 50,
+    "aggregate": 103
+   },
+   "verdict": "FAIL \u2014 all three caps exceeded (65 > 53, 100 > 50, 165 > 103)"
+  }
+ },
+ "criteria": {
+  "1_zero_gating_violations": "FAIL \u2014 C7 violates GATING on both profiles: haiku 1 INCONCLUSIVE (label-evidence mismatch; 0 false blockers), sonnet 8 false blockers",
+  "2_all_per_positive_floors": "FAIL \u2014 4 violations: haiku M1 1/5 vs floor 5; haiku M9 0/5 vs floor 1; sonnet M13 0/5 vs floor 1; sonnet M17 0/5 vs floor 5",
+  "3_speculative_retention": "FAIL \u2014 haiku 65 > 53, sonnet 100 > 50, aggregate 165 > 103",
+  "4_control_fb_nonregression": "FAIL \u2014 haiku 83 > 78, sonnet 142 > 112",
+  "5_sonnet_c7_clean": "FAIL \u2014 8 false blockers"
+ },
+ "verdict": "ITERATION 2 FAIL \u2014 hard invariants violated on multiple independent criteria; frozen lifecycle dictates mechanism revert"
+}
