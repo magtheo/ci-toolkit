@@ -6,7 +6,7 @@
  "oracle_version": "cb6870c5a4c635b2",
  "oracle_note": "repair-5 oracle (#42): M11 status-less phrasing + M16 returned-on-failure phrasings; #36/#40 populations replayed, #35 contract intact, floors rescored",
  "corpus_hash": "72035a00b8db828d",
- "corpus_note": "changed vs the 902738301d0a8bd7 repair-4 corpus recorded by the #36/#40 freezes: repair-5 (#42) added the M11 + M16 structured expected entries; per the oracle_version rule this invalidates prior PASS records \u2014 fail closed, hence this new measurement",
+ "corpus_note": "changed vs the 902738301d0a8bd7 repair-4 corpus recorded by the #36/#40 freezes: repair-5 (#42) added the M11 + M16 structured expected entries; older PASS records cannot satisfy the current-oracle requirement, and #40 itself remained non-binding \u2014 this iteration-2 measurement is independently required because the reviewer subject changed",
  "n": 5,
  "profiles": [
   "anthropic/claude-haiku-4.5",
@@ -15,7 +15,11 @@
  "temperature": 0.2,
  "max_tokens": 2000,
  "deviation6_floors": {
-  "source": "eval/evidence/track1-oracle-repair5-2026-09-08/witness-replay.json",
+  "normative_source": "eval/evidence/track1-oracle-repair4-2026-09-07/witness-replay.json",
+  "normative_source_note": "Deviation 6 pins the sensitivity reference to the pre-change #36 deterministic rescore under repair 4; later measurements do not replace it",
+  "current_oracle_parity_evidence": "eval/evidence/track1-oracle-repair5-2026-09-08/witness-replay.json",
+  "current_oracle_parity_verified": true,
+  "parity_chain": "repair-4 frozen floors == #36 rescored under current repair-5 oracle == repair-5 artifact table (test_repair5_evidence_hardening)",
   "aggregate": {
    "haiku": "51/90",
    "sonnet": "66/90"
@@ -67,7 +71,7 @@
  },
  "mechanism_definition_copied_from_merged_43": {
   "layer": "(a) rubric / reasoning contract \u2014 wording only",
-  "rule": "A blocking finding must identify a concrete defect or violated invariant supported by evidence available in the supplied review input (diff, PR description, provided context), and the claimed impact must follow from that evidence. A hypothetical harm that depends on unseen code behavior, an unestablished external actor or compromise, or future misuse is not sufficient grounds for blocking \u2014 report such concerns as advisory. Conditional reasoning itself is not disqualifying: a visible injection path blocks even though exploitation is conditional. What fails this rule is the unsupported premise, not the conditionality. Direct-contradiction protection: a direct contradiction or violated invariant established entirely by the supplied review input is grounded evidence and remains subject to the normal blocking criteria \u2014 even when its only consequence is downstream or its severity is disputed. Consistency with explicitly stated invariants and same-input factual contradictions are established by the input alone and are not made advisory by this rule.",
+  "rule_exact_verbatim": "- **Grounding rule for blocking findings:** a blocking finding must\n  identify a concrete defect or violated invariant supported by\n  evidence available in the supplied review input (diff, PR\n  description, provided context), and the claimed impact must follow\n  from that evidence. A hypothetical harm that depends on unseen\n  code behavior, an unestablished external actor or compromise, or\n  future misuse is not sufficient grounds for blocking \u2014 report such\n  concerns as advisory. Conditional reasoning itself is not\n  disqualifying: a visible injection path blocks even though\n  exploitation is conditional. What fails this rule is the\n  unsupported premise, not the conditionality \u2014 \"if other code\n  references this\", \"a malicious actor could\", \"callers might\n  misuse\" are advisory unless the referencing code, the actor's\n  reach, or the caller is established by the evidence you were\n  given. Direct-contradiction protection: a direct contradiction or\n  violated invariant established entirely by the supplied review\n  input is grounded evidence and remains subject to the normal\n  blocking criteria \u2014 even when its only consequence is downstream\n  or its severity is disputed. The grounding rule limits findings\n  whose premise itself depends on unseen or unestablished facts;\n  uncertainty about downstream consequences does not erase an\n  already-established defect. Consistency with explicitly stated\n  invariants and same-input factual contradictions are established\n  by the input alone and are not made advisory by this rule.",
   "target_families": {
    "speculative-consequence": "iteration-1 win to retain (#39/#40: 115->104; sonnet C7 clean)",
    "protected": "M17 same-input contradiction (cache-wide absolute vs /health,/metrics origin bypass; C17 qualifies up front)"
@@ -76,10 +80,17 @@
  "success_criteria": [
   "zero GATING violations on both profiles",
   "every Deviation 6 per-positive floor met on both profiles, including sonnet M17 = 5/5",
-  "speculative-consequence gain retained (control false blockers at or below #40 levels; sonnet C7 clean)"
+  "target-family retention: speculative-consequence false blockers haiku <= 53, sonnet <= 50, aggregate <= 103 (repair-5-adjudicated interpretation of frozen #40: 54/50 with haiku M11 r0f1 reclassified genuine expected expression)",
+  "overall specificity non-regression: total control false blockers haiku <= 78, sonnet <= 112",
+  "sonnet C7 clean (entailed by criterion 1; recorded explicitly)"
  ],
  "spend_cap_usd": 3.5,
  "run_policy": "exactly once; no reruns of failures/parser failures/ugly outputs; everything preserved as emitted; stop if projected cost would exceed the cap; authorized only by explicit human spend authorization after this freeze is reviewed",
  "calls_made_at_freeze_time": 0,
- "freeze_timestamp": "2026-09-09T08:20:48Z"
+ "freeze_timestamp": "2026-09-09T08:20:48Z",
+ "freeze_revision": 2,
+ "supersedes_freeze_commit": "4184dbdff67c35ac131f2535c8907764e4904f98",
+ "interpretation_on_pass": "a passing run is the iteration-2 KEEP criterion and may earn the binding T1.2 gating/discrimination reference; it is NOT T1.3 stage exit \u2014 T1.3 continues to the next residual family until the complete development corpus separates every confirmed in-scope family with zero false blockers on all in-scope controls; no automatic entry into T1.4; a hard-invariant failure reverts the mechanism",
+ "freeze_revision_2_timestamp": "2026-09-09T10:50:28Z",
+ "freeze_revision_2_note": "pre-call corrections from the #45 review, 0 model calls: (1) exact verbatim mechanism text replaces the abridged paraphrase; (2) Deviation 6 normative floor source restored to repair-4 with repair-5 parity recorded as validation, not replacement; (3) specificity acceptance split into target-family retention (speculative-consequence <= 53/50) and overall control-FB non-regression (<= 78/112); (4) pass interpretation recorded as iteration keep criterion / potential binding T1.2 reference, not T1.3 stage exit; (5) corpus_note wording made historically precise"
 }

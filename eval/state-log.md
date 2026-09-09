@@ -354,3 +354,23 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
 - N=5 dual profile, 360 calls, $3.50 cap, exactly-once/no-rerun;
   calls_made_at_freeze_time = 0. Awaiting human spend
   authorization; no calls before it.
+
+## 2026-09-09 — Freeze revision 2 (pre-call corrections, 0 calls)
+
+- Supersedes freeze commit 4184dbd (unchanged in history); still 0
+  model calls.
+- Mechanism text now the exact verbatim #43 rubric bullet (was an
+  abridged paraphrase mislabeled as a copy).
+- Deviation 6 floors: normative source restored to the repair-4
+  frozen rescore; repair-5 parity recorded as validation evidence,
+  not replacement.
+- Specificity acceptance split: target-family retention
+  (speculative-consequence FBs <= 53 haiku / 50 sonnet / 103
+  aggregate, from frozen #40 54/50 with the repair-5-adjudicated
+  haiku M11 r0f1 reclassification) AND overall control-FB
+  non-regression (<= 78/112); C7 clean explicit.
+- Pass interpretation recorded: iteration-2 keep criterion and
+  potential binding T1.2 reference — NOT T1.3 stage exit; T1.3
+  continues to the next residual family; no automatic T1.4.
+- corpus_note wording made historically precise (#40 remained
+  non-binding; current-oracle requirement independent of it).
