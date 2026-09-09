@@ -31,6 +31,16 @@
           "swallow",
           "|| true"
         ]
+      },
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "|| true"
+        ],
+        "comment_any": [
+          "suppress",
+          "exit code"
+        ]
       }
     ]
   },
