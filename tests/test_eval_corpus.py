@@ -734,3 +734,64 @@ def test_oracle_repair5_witness_replay():
     assert "indistinguishable from a successful" in m16[0]["comment_any"]
     assert m16[1]["comment_all"] == ['{"ok"']
     assert "falsely claiming" not in m16[0]["comment_any"]
+
+
+def test_repair5_evidence_hardening():
+    # Zero-spend hardening of the merged repair-5 evidence (#42),
+    # per the #43 review: provenance, exact witness integrity, #40
+    # coding totals, deterministic floor parity.
+    import json as _json
+    from collections import Counter
+    ev = FIXTURES.parent / "evidence"
+    E40 = ev / "track1-t13-iter1-measurement-2026-09-08"
+    art = _json.loads((ev / "track1-oracle-repair5-2026-09-08" /
+                       "witness-replay.json").read_text())
+    assert art["_provenance"]["adjudicated_on"] == "2026-09-09"
+
+    # (a) #40 coding totals: 469 = 193 + 273 + 3
+    rows = [_json.loads(l) for l in (E40 / "narrative-coding.jsonl")
+            .read_text().splitlines()]
+    c = Counter(r["class"] for r in rows)
+    assert len(rows) == 469
+    assert (c["expected-expression"], c["false-blocker"],
+            c["defect-expression-unmatched"]) == (193, 273, 3)
+
+    # (b) exact witness integrity: byte equality with the raw reports
+    raw = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((E40 / f"{prof}-n5.json").read_text())
+        for pf in rep["per_fixture"]:
+            for i, r in enumerate(pf["runs_detail"]):
+                for j, f in enumerate(r.get("findings", [])):
+                    if f.get("severity") == "blocking":
+                        raw[(prof, pf["id"], i, j)] = f.get("comment") or ""
+    for w in art["adjudicated_flips_on_#40"]:
+        ptr = (w["profile"], w["fixture"], w["run"], w["finding"])
+        assert raw[ptr] == w["narrative"] and w["narrative"].strip()
+
+    # (c) deterministic floor parity: recomputed #36 rescore under the
+    # current oracle == repair-5 artifact floors == repair-4 frozen
+    # per-positive floors
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    E36 = ev / "track1-baseline3-2026-09-07"
+    recomputed = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((E36 / f"{prof}-n5.json").read_text())
+        recomputed[prof] = {}
+        for pf in rep["per_fixture"]:
+            if pf["kind"] != "positive":
+                continue
+            entries = fixtures[pf["id"]]["expected"].get("findings", [])
+            recomputed[prof][pf["id"]] = sum(
+                1 for r in pf["runs_detail"]
+                if any(rc._finding_matches(e, f)
+                       for f in r.get("findings", []) for e in entries))
+    assert recomputed == art["floor_rescore_under_repaired_oracle"]
+    r4 = _json.loads((ev / "track1-oracle-repair4-2026-09-07" /
+                      "witness-replay.json").read_text())
+    frozen = r4["replay"]["per_positive_detections"]
+    for prof in ("haiku", "sonnet"):
+        pos = {k: v for k, v in frozen[prof].items() if k in recomputed[prof]}
+        assert pos == recomputed[prof]
+    assert sum(recomputed["haiku"].values()) == 51
+    assert sum(recomputed["sonnet"].values()) == 66

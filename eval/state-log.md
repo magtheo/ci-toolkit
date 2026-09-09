@@ -319,3 +319,20 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
   #36 raw reports: aggregates unchanged (haiku 51/90, sonnet 66/90;
   per-positive values in the repair-5 artifact).
 - States, taxonomy, reviewer behavior untouched.
+
+## 2026-09-09 — Repair-5 evidence hardening (provenance correction)
+
+- Provenance: the repair-5 adjudication and replay were performed
+  2026-09-09 (PR #42), not 2026-09-08; the bundle directory keeps the
+  2026-09-08 measurement date because every witness derives from that
+  run. `_provenance` added to the artifact.
+- Witness narratives in the artifact were abbreviated at authoring
+  time; replaced with the exact full texts from the raw #40 reports.
+  The deterministic test now asserts byte equality against the raw
+  reports (integrity, not prefix match).
+- Added mechanical assertions: #40 coding totals 469 = 193
+  expected-expression + 273 false-blocker + 3 defect-expression-
+  unmatched; deterministic floor parity (recomputed #36 rescore ==
+  repair-5 artifact floors == repair-4 frozen per-positive floors,
+  aggregates haiku 51/90, sonnet 66/90).
+- Zero model calls; reviewer untouched.
