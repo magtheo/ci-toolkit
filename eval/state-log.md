@@ -280,3 +280,22 @@ oracle 1ef8dc90badc27bd · subject 4b07246 · 0 model calls
   on both profiles (haiku labeling-protocol failure; sonnet 6/6
   false blockers); no qualification activation; no control weakened.
   Plan advanced to rev 7 (Deviation 6).
+
+## 2026-09-08 — T1.3 iteration 1 measured (grounding rule)
+
+subject 9772b8b · oracle 1ef8dc90badc27bd · 360 calls exactly once ·
+$2.64 of $3.50 cap · 0 retries/reruns
+
+- Discrimination: first run with ZERO GATING violations on both
+  profiles (C7 clean; sonnet's 6 speculative C7 blockers gone; haiku
+  label mismatch did not recur). Control FBs 90->78 (haiku),
+  135->112 (sonnet); speculative-consequence family 115->104.
+- Sensitivity: haiku 52/90 holds the Deviation 6 floor (51) with no
+  per-positive regression; sonnet 61/90 VIOLATES the floor (66) —
+  M17 0/5 vs 5/5: the grounding rule chilled a legitimate
+  same-input absolute-consistency detection (CLEAR x5 with only
+  doc-completeness advisories). Not matcher, not parser.
+- 3 new matcher-gap candidates recorded (M11 status-less phrasing;
+  M16 returned-on-exception x2) — not repaired here.
+- T1.2 remains INCOMPLETE. Phase 15 keep/revert decision pending;
+  bundle makes no decision.
