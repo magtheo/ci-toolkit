@@ -1,0 +1,98 @@
+[
+ {
+  "profile": "haiku",
+  "fixture": "C3",
+  "run": 2,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C3].runs_detail[2]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C3",
+  "run": 4,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C3].runs_detail[4]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C7",
+  "run": 2,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "label-evidence mismatch (ISSUES_FOUND label, no validated blocking finding)",
+  "pointer": "haiku-n5.json#per_fixture[C7].runs_detail[2]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 0,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[0]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 1,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[1]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 2,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[2]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 3,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[3]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 0,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[0]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 1,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[1]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 2,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[2]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 3,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[3]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 4,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[4]"
+ }
+]
