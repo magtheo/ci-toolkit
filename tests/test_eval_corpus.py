@@ -690,6 +690,8 @@ def test_oracle_repair5_witness_replay():
         ee = {k for k, v in coding.items()
               if v["class"] == "expected-expression"}
         fbs = {k for k, v in coding.items() if v["class"] == "false-blocker"}
+        gaps = {k for k, v in coding.items()
+                if v["class"] == "defect-expression-unmatched"}
         matched = set()
         for ptr, text in raw.items():
             entries = fixtures[ptr[1]]["expected"].get("findings", [])
@@ -698,7 +700,10 @@ def test_oracle_repair5_witness_replay():
                    for e in entries):
                 matched.add(ptr)
         if tag == "#36":
-            assert len(raw) == 538 and matched == ee and len(ee) == 214
+            # repair-4's three adjudicated gaps stay accepted; repair 5
+            # adds nothing to this population
+            assert len(raw) == 538 and matched == ee | gaps
+            assert len(matched) == 214 and len(gaps) == 3
             assert not (matched & fbs)            # 324/324 rejected
         else:
             assert len(raw) == 469
