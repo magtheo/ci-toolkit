@@ -1,19 +1,23 @@
 """Layer (b) support contract tests (phase 20b).
 
 Locks the approved design (plans/layer-b-structured-support-design.md,
-#47 rev 2):
+#47 rev 2) plus the #48 review fixes:
 
 - support corpus is the EXACT model-visible/budgeted input (one
   effective_review_input feeding prompts AND validation; the test-only
   legacy reference pins budget byte-identity);
-- segment-local matching (no cross-boundary quotes); policy text and
-  engine framing are never matchable;
+- segment-local matching (no cross-boundary quotes); policy text,
+  engine framing, and GENERATED diff-section headers are never
+  matchable — actual patch bytes only;
 - anti-vacuity floor (>= 16 normalized chars AND >= 3 lexical tokens),
-  boundaries locked;
+  boundaries locked; casefold (not lower) is the normalization;
 - under-support (missing/null/malformed/non-matching) is deterministic
-  DOWNGRADE to advisory with a machine reason — never dropped, never
-  INCONCLUSIVE; structural failure and the C7-style label mismatch
-  stay fail-closed in parse_review;
+  DOWNGRADE to the CANONICAL "non-blocking" severity with a truthful
+  machine reason — never dropped, never INCONCLUSIVE; structural
+  failure and the C7-style label mismatch stay fail-closed;
+- engine-derived provenance: the model supplies only the quote, the
+  engine annotates the first matching item with engine_match
+  {kind, id}; unmatched/vacuous items get no fabricated provenance;
 - post-support assessment: >= 1 surviving blocker -> ISSUES_FOUND;
   all blockers demoted -> CLEAR; no blockers ever -> INCONCLUSIVE.
 """
@@ -26,13 +30,14 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 import engine  # noqa: E402
-from parse_review import normalize  # noqa: E402
+from parse_review import normalize, SEVERITIES  # noqa: E402
 
 PATCH_A = "@@ -1 +1 @@\n+return handler.process(cfg)"
 PATCH_B = "@@ -1 +1 @@\n+omega handler configuration"
 # canonical supported quote (27 normalized chars, 4 tokens)
 QUOTE_A = "return handler.process(cfg)"
 QUOTE_B = "omega handler configuration"
+HEADER_B = "----- b.py (modified) -----\n"  # 28 chars, generated framing
 
 
 def _input(**over):
@@ -101,18 +106,6 @@ def test_malformed_support_shapes_drop_per_item_never_invalidate():
         assert "support" not in result["findings"][0], support
 
 
-def test_empty_quote_item_is_structural_but_vacuous():
-    # typed correctly (quote: str) so parse carries it; the engine's
-    # anti-vacuity floor rejects it -> deterministic downgrade
-    content = _model_json("ISSUES_FOUND", _findings(
-        support=[{"quote": ""}]))
-    parsed = normalize(content)
-    assert parsed["findings"][0]["support"] == [{"quote": ""}]
-    result = _policy_result(content, _input())
-    assert result["assessment"] == "CLEAR"
-    assert result["findings"][0]["severity"] == "advisory"
-
-
 def test_malformed_item_does_not_poison_valid_sibling():
     content = _model_json("ISSUES_FOUND", _findings(
         support=[{"quote": 5}, {"quote": QUOTE_A}]))
@@ -126,7 +119,8 @@ def test_advisory_support_is_carried_but_never_gating():
     result = _policy_result(content, _input())
     assert result["assessment"] == "CLEAR"
     assert result["findings"][0]["support"] == [{"quote": QUOTE_A}]
-    assert engine.SUPPORT_DOWNGRADE_NOTE not in result["findings"][0]["comment"]
+    assert engine.SUPPORT_DOWNGRADE_PREFIX not in \
+        result["findings"][0]["comment"]
 
     content = _model_json("CLEAR", _findings(
         severity="non-blocking", support="not-a-list"))
@@ -137,13 +131,16 @@ def test_advisory_support_is_carried_but_never_gating():
 
 # ---- engine layer: matching semantics ---------------------------------------
 
-def test_supported_blocker_survives():
+def test_supported_blocker_survives_with_provenance():
     content = _model_json("ISSUES_FOUND", _findings(
         support=[{"quote": QUOTE_A}]))
     result = _policy_result(content, _input())
     assert result["assessment"] == "ISSUES_FOUND"
     assert result["findings"][0]["severity"] == "blocking"
-    assert engine.SUPPORT_DOWNGRADE_NOTE not in result["findings"][0]["comment"]
+    assert engine.SUPPORT_DOWNGRADE_PREFIX not in \
+        result["findings"][0]["comment"]
+    item = result["findings"][0]["support"][0]
+    assert item["engine_match"] == {"kind": "diff", "id": "a.py"}
 
 
 def test_matching_is_case_and_whitespace_insensitive():
@@ -153,14 +150,62 @@ def test_matching_is_case_and_whitespace_insensitive():
     assert result["findings"][0]["severity"] == "blocking"
 
 
-def test_unsupported_only_blocker_is_demoted_to_clear_with_reason():
+def test_casefold_not_lower_is_the_normalization():
+    # lower() would keep "straße" distinct from "STRASSE"; casefold
+    # (the documented contract) unifies them
+    review_input = _input(title="die Straße Planung Kontext hier")
+    content = _model_json("ISSUES_FOUND", _findings(
+        support=[{"quote": "STRASSE PLANUNG KONTEXT"}]))
+    result = _policy_result(content, review_input)
+    assert result["findings"][0]["severity"] == "blocking"
+
+
+def test_unsupported_only_blocker_is_demoted_with_truthful_reason():
     content = _model_json("ISSUES_FOUND", _findings(support="absent"))
     result = _policy_result(content, _input())
     assert result["assessment"] == "CLEAR"
     f = result["findings"][0]
-    assert f["severity"] == "advisory"
-    assert f["comment"].endswith(engine.SUPPORT_DOWNGRADE_NOTE)
+    assert f["severity"] == "non-blocking"
+    assert f["comment"].endswith(
+        engine.support_downgrade_note("support_missing"))
     assert f["comment"].startswith("defect")
+
+
+def test_demoted_severity_is_always_canonical():
+    # the machine enum is parse_review.SEVERITIES — "advisory" is
+    # presentation vocabulary only and must never appear in a result
+    for support in ("absent", None, "not-a-list", [{"quote": ""}],
+                    [{"quote": "no such quote exists anywhere here"}]):
+        content = _model_json("ISSUES_FOUND", _findings(support=support))
+        result = _policy_result(content, _input())
+        assert all(f["severity"] in SEVERITIES
+                   for f in result["findings"]), support
+        assert all(f["severity"] != "advisory"
+                   for f in result["findings"]), support
+
+
+def test_downgrade_reasons_are_truthful_per_path():
+    cases = [
+        ("absent", "support_missing"),
+        (None, "support_missing"),
+        ([], "support_missing"),
+        ([{"quote": ""}], "support_vacuous"),
+        ([{"quote": "if"}], "support_vacuous"),
+        ([{"quote": "aa bb ccccccccc"}], "support_vacuous"),  # 15ch/3tok
+        ([{"quote": "ab cccccccccccccc"}], "support_vacuous"),  # 16ch/2tok
+        ([{"quote": "no such quote exists anywhere here"}],
+         "support_not_found"),
+        # vacuous + non-vacuous non-matching -> the strongest true code
+        ([{"quote": "if"},
+          {"quote": "no such quote exists anywhere here"}],
+         "support_not_found"),
+    ]
+    for support, reason in cases:
+        content = _model_json("ISSUES_FOUND", _findings(support=support))
+        result = _policy_result(content, _input())
+        assert result["findings"][0]["comment"].endswith(
+            engine.support_downgrade_note(reason)), support
+        assert result["assessment"] == "CLEAR"
 
 
 def test_partial_demotion_keeps_issues_found():
@@ -170,7 +215,7 @@ def test_partial_demotion_keeps_issues_found():
     result = _policy_result(content, _input())
     assert result["assessment"] == "ISSUES_FOUND"
     assert [f["severity"] for f in result["findings"]] == \
-        ["advisory", "blocking"]
+        ["non-blocking", "blocking"]
 
 
 def test_c7_style_label_mismatch_without_demotion_stays_inconclusive():
@@ -189,13 +234,64 @@ def test_clear_label_with_unsupported_blockers_is_clear_after_demotion():
     content = _model_json("CLEAR", _findings(support="absent"))
     result = _policy_result(content, _input())
     assert result["assessment"] == "CLEAR"
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
 
 
 def test_inconclusive_fragment_is_a_no_op():
     result = _policy_result("not json at all", _input())
     assert result["assessment"] == "INCONCLUSIVE"
     assert result["findings"] == []
+
+
+# ---- provenance: engine-derived, never fabricated ---------------------------
+
+def test_provenance_first_match_is_deterministic():
+    # the same phrase present in body AND diff resolves to the body —
+    # effective_review_input segment order (title, body, changed_files,
+    # files) is the documented deterministic order
+    phrase = "shared evidence phrase here"
+    review_input = _input(body="intro " + phrase,
+                          files=[{"path": "a.py", "status": "modified",
+                                  "patch": "@@ -1 +1 @@\n+" + phrase},
+                                 {"path": "b.py", "status": "modified",
+                                  "patch": PATCH_B}])
+    content = _model_json("ISSUES_FOUND", _findings(
+        support=[{"quote": phrase}]))
+    result = _policy_result(content, review_input)
+    assert result["findings"][0]["severity"] == "blocking"
+    assert result["findings"][0]["support"][0]["engine_match"] == \
+        {"kind": "body", "id": ""}
+
+
+def test_title_match_provenance():
+    review_input = _input(title="aa bb cccccccccc context")
+    content = _model_json("ISSUES_FOUND", _findings(
+        support=[{"quote": "AA \tBB\nCCCCCCCCCC"}]))
+    result = _policy_result(content, review_input)
+    assert result["findings"][0]["severity"] == "blocking"
+    assert result["findings"][0]["support"][0]["engine_match"] == \
+        {"kind": "title", "id": ""}
+
+
+def test_unmatched_and_vacuous_items_get_no_provenance():
+    content = _model_json("ISSUES_FOUND", _findings(support=[
+        {"quote": "if"},                                # vacuous
+        {"quote": "no such quote exists anywhere here"},  # non-matching
+        {"quote": QUOTE_A},                             # the matching one
+    ]))
+    result = _policy_result(content, _input())
+    items = result["findings"][0]["support"]
+    assert "engine_match" not in items[0]
+    assert "engine_match" not in items[1]
+    assert items[2]["engine_match"] == {"kind": "diff", "id": "a.py"}
+    assert result["findings"][0]["severity"] == "blocking"
+
+
+def test_demoted_support_carries_no_engine_match():
+    content = _model_json("ISSUES_FOUND", _findings(
+        support=[{"quote": "no such quote exists anywhere here"}]))
+    result = _policy_result(content, _input())
+    assert "engine_match" not in result["findings"][0]["support"][0]
 
 
 # ---- segment locality + exclusions ------------------------------------------
@@ -206,24 +302,28 @@ def test_quote_spanning_body_and_diff_never_matches():
     content = _model_json("ISSUES_FOUND", _findings(
         support=[{"quote": tail + " return handler.process(cfg)"}]))
     result = _policy_result(content, review_input)
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
 
 
 def test_quote_spanning_two_files_never_matches():
     content = _model_json("ISSUES_FOUND", _findings(
         support=[{"quote": QUOTE_A + " " + QUOTE_B}]))
     result = _policy_result(content, _input())
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
 
 
-def test_policy_system_prompt_and_framing_never_match():
+def test_policy_system_prompt_framing_and_headers_never_match():
     for quote in ("SECRET RUBRIC TEXT NEVER MATCHABLE",
                   "you are an advisory code reviewer. follow this rubric",
-                  "pull request title:"):
+                  "pull request title:",
+                  HEADER_B.strip(),          # generated section header
+                  "----- a.py (modified)"):
         content = _model_json("ISSUES_FOUND", _findings(
             support=[{"quote": quote}]))
         result = _policy_result(content, _input())
-        assert result["findings"][0]["severity"] == "advisory", quote
+        assert result["findings"][0]["severity"] == "non-blocking", quote
+        assert result["findings"][0]["comment"].endswith(
+            engine.support_downgrade_note("support_not_found")), quote
 
 
 def test_engine_notes_never_match(monkeypatch):
@@ -231,7 +331,7 @@ def test_engine_notes_never_match(monkeypatch):
     content = _model_json("ISSUES_FOUND", _findings(
         support=[{"quote": "file list capped at 1 of 2 changed files"}]))
     result = _policy_result(content, _input())
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
 
 
 # ---- budget identity: the validator sees exactly what the model sees --------
@@ -242,7 +342,7 @@ def test_quote_beyond_body_budget_never_matches():
     content = _model_json("ISSUES_FOUND", _findings(
         support=[{"quote": tail}]))
     result = _policy_result(content, review_input)
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
 
 
 def test_quote_beyond_file_cap_never_matches(monkeypatch):
@@ -250,25 +350,44 @@ def test_quote_beyond_file_cap_never_matches(monkeypatch):
     content = _model_json("ISSUES_FOUND", _findings(
         file="b.py", support=[{"quote": QUOTE_B}]))
     result = _policy_result(content, _input())
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
 
 
 def test_quote_beyond_diff_truncation_never_matches(monkeypatch):
-    # section a.py is 68 chars; max_diff 91 keeps exactly 21 chars of
-    # b.py ("----- b.py (modified)") — QUOTE_B lies beyond the cut
+    # section a.py is 68 chars (28 header + 40 patch); max_diff 91
+    # leaves 21 chars of b.py — inside the generated header — so b.py
+    # contributes NO matchable segment and QUOTE_B cannot certify
     monkeypatch.setenv("AI_REVIEW_MAX_DIFF", "91")
     content = _model_json("ISSUES_FOUND", _findings(
         file="b.py", support=[{"quote": QUOTE_B}]))
     result = _policy_result(content, _input())
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
+    assert result["findings"][0]["comment"].endswith(
+        engine.support_downgrade_note("support_not_found"))
 
 
-def test_quote_inside_kept_prefix_of_truncated_section_matches(monkeypatch):
-    monkeypatch.setenv("AI_REVIEW_MAX_DIFF", "91")
+def test_header_cut_contributes_no_segment_but_patch_prefix_survives(
+        monkeypatch):
+    # inverse pair pinned per #48 review: generated header alone ->
+    # downgrade; actual patch bytes visible before truncation -> support
+    monkeypatch.setenv("AI_REVIEW_MAX_DIFF", "133")  # 35 patch bytes visible
+    content = _model_json("ISSUES_FOUND", _findings(file="b.py", support=[
+        {"quote": HEADER_B.strip()},            # framing -> downgrade
+        {"quote": "omega handler configu"},     # visible prefix -> survives
+    ]))
+    result = _policy_result(content, _input())
+    items = result["findings"][0]["support"]
+    assert "engine_match" not in items[0]
+    assert items[1]["engine_match"] == {"kind": "diff", "id": "b.py"}
+    assert result["findings"][0]["severity"] == "blocking"
+
+
+def test_quote_inside_cut_header_matches_nothing(monkeypatch):
+    monkeypatch.setenv("AI_REVIEW_MAX_DIFF", "91")  # kept 21 <= header 28
     content = _model_json("ISSUES_FOUND", _findings(
         file="b.py", support=[{"quote": "----- b.py (modified)"}]))
     result = _policy_result(content, _input())
-    assert result["findings"][0]["severity"] == "blocking"
+    assert result["findings"][0]["severity"] == "non-blocking"
 
 
 # ---- anti-vacuity floor (frozen: >= 16 normalized chars, >= 3 tokens) --------
@@ -279,7 +398,7 @@ def test_vacuous_quotes_never_certify():
         content = _model_json("ISSUES_FOUND", _findings(
             support=[{"quote": quote}]))
         result = _policy_result(content, _input())
-        assert result["findings"][0]["severity"] == "advisory", quote
+        assert result["findings"][0]["severity"] == "non-blocking", quote
 
 
 def test_boundary_conforming_quote_certifies():
@@ -321,7 +440,7 @@ def _legacy_budget(review_input):
 
 
 def test_budget_tuple_is_byte_identical_to_legacy_reference(monkeypatch):
-    third = ("----- c.py (modified) -----\n@@ -1 +1 @@\n+third section text")
+    third = "@@ -1 +1 @@\n+third section text"
     base = [
         {"path": "a.py", "status": "modified", "patch": PATCH_A},
         {"path": "b.py", "status": "modified", "patch": PATCH_B},
@@ -329,7 +448,8 @@ def test_budget_tuple_is_byte_identical_to_legacy_reference(monkeypatch):
     ]
     cases = [
         ({}, _input(files=base)),                                   # no cap
-        ({"AI_REVIEW_MAX_DIFF": "91"}, _input(files=base)),         # kept b hdr
+        ({"AI_REVIEW_MAX_DIFF": "91"}, _input(files=base)),         # cut in hdr
+        ({"AI_REVIEW_MAX_DIFF": "133"}, _input(files=base)),        # cut mid-b
         ({"AI_REVIEW_MAX_DIFF": "70"}, _input(files=base)),         # cut in joiner
         ({"AI_REVIEW_MAX_DIFF": "69"}, _input(files=base)),         # cut in joiner
         ({"AI_REVIEW_MAX_DIFF": "46"}, _input(files=base)),         # cut mid-a
@@ -350,12 +470,12 @@ def test_budget_tuple_is_byte_identical_to_legacy_reference(monkeypatch):
                 got["trunc_note"]) == want, env
         assert engine._budget(review_input) == want, env
         # every segment the validator may match is literally inside the
-        # model-visible diff text (budget identity, containment form)
-        for name, text in got["segments"]:
-            if name.startswith("diff:"):
-                assert text in want[1], (env, name)
-        for k in env:
-            monkeypatch.delenv(k)
+        # model-visible diff text (budget identity, containment form);
+        # segments are patch bytes only — no generated headers
+        for kind, ident, text in got["segments"]:
+            if kind == "diff":
+                assert text in want[1], (env, ident)
+                assert text.startswith("----- ") is False, (env, ident)
 
 
 # ---- end-to-end wiring through run_review (model call stubbed) ---------------
@@ -380,6 +500,7 @@ def test_run_review_applies_support_policy_supported(monkeypatch):
     result = engine.run_review(_input())
     assert result["assessment"] == "ISSUES_FOUND"
     assert result["findings"][0]["severity"] == "blocking"
+    assert all(f["severity"] in SEVERITIES for f in result["findings"])
     assert set(result) == {"schema_version", "assessment", "findings",
                            "summary", "good", "usage", "raw_output"}
 
@@ -389,6 +510,7 @@ def test_run_review_applies_support_policy_demoted(monkeypatch):
         support="absent")))
     result = engine.run_review(_input())
     assert result["assessment"] == "CLEAR"
-    assert result["findings"][0]["severity"] == "advisory"
+    assert result["findings"][0]["severity"] == "non-blocking"
+    assert all(f["severity"] in SEVERITIES for f in result["findings"])
     assert result["findings"][0]["comment"].endswith(
-        engine.SUPPORT_DOWNGRADE_NOTE)
+        engine.support_downgrade_note("support_missing"))
