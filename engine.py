@@ -35,6 +35,7 @@ JSON payloads, never through shell evaluation.
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -73,30 +74,72 @@ def _load_review_input(path):
     return review_input
 
 
-def _budget(review_input):
-    """Input selection: caps + notes, byte-identical to the legacy
-    review.sh budgeting (prompts must not change)."""
+def effective_review_input(review_input):
+    """The model-visible input, built ONCE — the single source for
+    BOTH prompt construction AND support validation (layer (b)
+    contract). The validator never reconstructs the haystack
+    independently: a quote can only validate against exactly what the
+    model saw (file cap, per-section diff truncation, body[:2000]).
+
+    Returns a dict with the legacy budget tuple (changed_list,
+    diff_text, files_note, trunc_note — byte-identical to the
+    review.sh budgeting) plus `segments`: the matchable data segments
+    (title; body slice; changed-file list; each per-file diff section
+    as actually included, header included, truncation applied).
+    Engine framing (prompt labels, files_note, trunc_note) and the
+    policy/rubric text are NOT segments — quoting instructions or
+    synthetic notes can never certify a finding.
+    """
     max_files = int(os.environ.get("AI_REVIEW_MAX_FILES", "200"))
     max_diff = int(os.environ.get("AI_REVIEW_MAX_DIFF", "120000"))
     files = review_input["files"]
 
     files_note = ""
     if len(files) > max_files:
-        files = files[:max_files]
         files_note = "\n[file list capped at {0} of {1} changed files]".format(
-            max_files, len(review_input["files"]))
+            max_files, len(files))
+        files = files[:max_files]
 
     changed_list = "\n".join(f["path"] for f in files)
-    diff_text = "\n\n".join(
-        "----- {0} ({1}) -----\n{2}".format(f["path"], f["status"], f["patch"])
-        for f in files if f.get("patch") is not None)
+    segments = [("title", review_input["title"]),
+                ("body", review_input["body"][:2000]),
+                ("changed_files", changed_list)]
 
+    diff_text = ""
     trunc_note = ""
-    if len(diff_text) > max_diff:
-        diff_text = diff_text[:max_diff]
+    for f in files:
+        if f.get("patch") is None:
+            continue
+        section = "----- {0} ({1}) -----\n{2}".format(
+            f["path"], f["status"], f["patch"])
+        joiner = "\n\n" if diff_text else ""
+        candidate = diff_text + joiner + section
+        if len(candidate) <= max_diff:
+            diff_text = candidate
+            segments.append(("diff:" + f["path"], section))
+            continue
+        # budget boundary: the model sees only the kept prefix of this
+        # section (the cut can even land inside the joiner — the exact
+        # legacy slice semantics are preserved by slicing the candidate)
+        kept_len = max(0, max_diff - len(diff_text) - len(joiner))
+        diff_text = candidate[:max_diff]
+        kept = section[:kept_len]
+        if kept:
+            segments.append(("diff:" + f["path"], kept))
         trunc_note = "\n[diff truncated at {0} characters]".format(max_diff)
+        break
 
-    return changed_list, diff_text, files_note, trunc_note
+    return {"changed_list": changed_list, "diff_text": diff_text,
+            "files_note": files_note, "trunc_note": trunc_note,
+            "segments": segments}
+
+
+def _budget(review_input):
+    """Input selection — thin wrapper over effective_review_input so
+    prompts and support validation can never drift apart."""
+    eff = effective_review_input(review_input)
+    return (eff["changed_list"], eff["diff_text"],
+            eff["files_note"], eff["trunc_note"])
 
 
 def _build_prompts(review_input):
@@ -226,10 +269,85 @@ def _call_model(review_input):
     return content, usage
 
 
+# ---- layer (b): deterministic support validation ----------------------------
+# Contract (plans/layer-b-structured-support-design.md, approved #47 rev 2):
+# a blocking finding needs >= 1 valid support item — a non-trivial verbatim
+# quote from the model-visible input, matched within a single segment.
+# Under-support (missing/null/malformed/non-matching) is INTENTIONAL POLICY
+# demotion to advisory — never dropped, never INCONCLUSIVE. Structural
+# failure (JSON/schema/label mismatch) stays fail-closed in parse_review;
+# this stage runs after it and never resurrects INCONCLUSIVE into CLEAR.
+
+SUPPORT_DOWNGRADE_NOTE = ("[downgraded by support validation: "
+                          "quote not found in review input]")
+
+# Anti-vacuity floor (frozen here; recorded verbatim in any 20d freeze):
+# a quote shorter than this — or lexically thinner — cannot certify a
+# blocker, whatever it matches.
+_SUPPORT_MIN_CHARS = 16   # normalized length (case-folded, whitespace-collapsed)
+_SUPPORT_MIN_TOKENS = 3   # maximal alphanumeric runs
+
+
+def _normalize_text(text):
+    """Case-fold + whitespace-collapse (both sides of every match)."""
+    return " ".join(text.split()).lower()
+
+
+def _support_item_valid(item, segments):
+    """One support item is valid iff its quote clears the anti-vacuity
+    floor AND matches within a single model-visible segment."""
+    quote = _normalize_text(item.get("quote", ""))
+    if len(quote) < _SUPPORT_MIN_CHARS:
+        return False
+    if len(re.findall(r"[^\W_]+", quote, re.UNICODE)) < _SUPPORT_MIN_TOKENS:
+        return False
+    return any(quote in _normalize_text(seg) for seg in segments)
+
+
+def _has_valid_support(support, segments):
+    """Valid items are judged per-item; the finding needs one."""
+    if not support:
+        return False
+    return any(_support_item_valid(item, segments) for item in support)
+
+
+def apply_support_policy(result, review_input):
+    """Support validation over a normalized ReviewResult fragment.
+
+    - unsupported blockers -> advisory + machine reason appended
+      (auditability: the claim stays visible, the demotion is
+      reproducible from the frozen inputs);
+    - >= 1 surviving blocker -> ISSUES_FOUND unchanged;
+    - blockers present, all demoted -> CLEAR (intentional deterministic
+      demotion is not malformed evidence);
+    - INCONCLUSIVE fragments (structural failure / C7-style label
+      mismatch) carry no findings, so this stage is a no-op on them —
+      the fail-closed path is untouched.
+    """
+    if result.get("assessment") == "INCONCLUSIVE":
+        return result
+    segments = [text for _, text in
+                effective_review_input(review_input)["segments"]]
+    demoted = False
+    for finding in result.get("findings", []):
+        if finding.get("severity") != "blocking":
+            continue
+        if not _has_valid_support(finding.get("support"), segments):
+            finding["severity"] = "advisory"
+            finding["comment"] = "{0} {1}".format(
+                finding["comment"], SUPPORT_DOWNGRADE_NOTE)
+            demoted = True
+    if demoted and result["assessment"] == "ISSUES_FOUND" \
+            and not any(f["severity"] == "blocking"
+                        for f in result["findings"]):
+        result["assessment"] = "CLEAR"
+    return result
+
+
 def run_review(review_input):
     """ReviewInput v1 -> ReviewResult v1 (full pipeline, pure result)."""
     content, usage = _call_model(review_input)
-    result = normalize(content)
+    result = apply_support_policy(normalize(content), review_input)
     result["usage"] = usage
     result["raw_output"] = content
     return result

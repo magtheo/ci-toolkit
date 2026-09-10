@@ -196,10 +196,14 @@ def test_engine_clear_path(monkeypatch):
 
 
 def test_engine_issues_path(monkeypatch):
+    # layer (b) contract: a supported blocker survives end-to-end
+    patch = "@@ -1 +1 @@\n+return handler.process(cfg)"
     _stub(monkeypatch, _or_response(
         '{"assessment": "ISSUES_FOUND", "findings": [{"file": "a.py", '
-        '"line": 1, "severity": "blocking", "comment": "c"}]}'))
-    result = engine.run_review(_input())
+        '"line": 1, "severity": "blocking", "comment": "c", '
+        '"support": [{"quote": "return handler.process(cfg)"}]}]}'))
+    result = engine.run_review(_input(files=[
+        {"path": "a.py", "status": "modified", "patch": patch}]))
     assert result["assessment"] == "ISSUES_FOUND"
     assert result["findings"][0]["severity"] == "blocking"
 
