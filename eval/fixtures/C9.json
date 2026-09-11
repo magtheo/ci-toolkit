@@ -1,0 +1,23 @@
+{
+  "id": "C9",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M9",
+  "family": "hallucinated-fact",
+  "input": {
+    "title": "ci: gate deploy on PR merge state",
+    "body": "Adds a merge-state guard before deploy.",
+    "files": [
+      {
+        "path": "scripts/deploy-guard.sh",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/scripts/deploy-guard.sh\n@@ -0,0 +1,11 @@\n+#!/usr/bin/env bash\n+# Deploys only after the PR is merged. jq -e exits 0 when the\n+# expression is true, 1 when false \u2014 the guard branches on that.\n+set -euo pipefail\n+pr=$(cat)\n+if jq -e '.mergedAt != null' <<<\"$pr\" >/dev/null; then\n+  echo \"deploy: PR merged \u2014 continuing\"\n+else\n+  echo \"deploy: PR still open \u2014 aborting\" >&2\n+  exit 1\n+fi\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: != null is the merged test; branches consistent with the documented jq -e semantics."
+}

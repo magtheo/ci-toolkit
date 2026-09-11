@@ -1,0 +1,23 @@
+{
+  "id": "C8",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M8",
+  "family": "hallucinated-fact",
+  "input": {
+    "title": "chat: resume requested thread on open",
+    "body": "Legacy null-course threads resume into the selected course.",
+    "files": [
+      {
+        "path": "lib/chat/sheet.dart",
+        "status": "modified",
+        "patch": "--- a/lib/chat/sheet.dart\n+++ b/lib/chat/sheet.dart\n@@ -12,6 +12,16 @@ class ChatSheet extends ConsumerStatefulWidget {\n   void initState() {\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      // legacy null-course threads resume into the selected course\n+      // (this PR's promised behavior)\n+      // consume the resume target only once a course exists;\n+      // CourseSelector auto-selects in a later frame\n+      ref.listenManual(chatCourseIdProvider, (prev, course) {\n+        final target = ref.read(chatResumeTargetProvider);\n+        if (target == null || course == null) return;\n+        ref.read(chatResumeTargetProvider.notifier).state = null;\n+        _resume(target.threadId, course);\n+      });\n       _restoreOrResume();\n     });\n   }"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: resume reacts to course selection."
+}

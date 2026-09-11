@@ -1,0 +1,82 @@
+[
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 2,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[2]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 3,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[3]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "C9",
+  "run": 4,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[4]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M6",
+  "run": 3,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M6].runs_detail[3]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 1,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[1]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 2,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[2]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 3,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[3]"
+ },
+ {
+  "profile": "haiku",
+  "fixture": "M9",
+  "run": 4,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[4]"
+ },
+ {
+  "profile": "sonnet",
+  "fixture": "C9",
+  "run": 3,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[3]"
+ },
+ {
+  "profile": "sonnet",
+  "fixture": "C9",
+  "run": 4,
+  "surface_format": "markdown-fenced response",
+  "normalizer_cause_category": "JSON decode failure",
+  "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[4]"
+ }
+]

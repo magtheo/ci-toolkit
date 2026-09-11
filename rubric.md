@@ -51,6 +51,7 @@ the label.
       "line": 12,
       "severity": "blocking" | "non-blocking",
       "comment": "what is wrong and why it matters",
+      "support": [{"quote": "verbatim text copied from the supplied review input"}],
       "suggestion": "optional: drop-in replacement code for that line"
     }
   ],
@@ -60,6 +61,10 @@ the label.
 
 ## Citation rules (important)
 
+- Every blocking finding must include `support`: at least one verbatim
+  quote copied from the supplied review input (diff, description, or
+  provided context) that the finding rests on. If you cannot quote the
+  input, the finding is advisory.
 - ALWAYS include `line` when the finding maps to a specific spot: it
   is the line number in the NEW file, visible in the diff hunk
   headers (`@@ -a,b +c,d @@` starts new-side numbering at `c`;

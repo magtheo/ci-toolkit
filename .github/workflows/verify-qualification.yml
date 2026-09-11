@@ -1,0 +1,58 @@
+# Secretless consumer-side verification of pin bumps.
+#
+# Reusable workflow: a consumer repo's pin-bump PR calls this (or the
+# toolkit's own dogfood caller does). It confirms the deployment
+# invariant mechanically — the proposed SHA has a PASS qualification
+# record against the CURRENT oracle — with no secrets of any kind:
+#   1. compute the current oracle version from toolkit main;
+#   2. fetch the subject's latest record from the qualifications
+#      branch (public repo, unauthenticated raw content);
+#   3. eval/verify.py enforces subject match + PASS + current oracle
+#      + model allowlist, and prints the evidence summary.
+#
+# A PR description citing a qualification is documentation; THIS is
+# the control.
+
+name: verify-qualification
+
+on:
+  workflow_call:
+    inputs:
+      toolkit_repo:
+        description: "owner/repo of the toolkit"
+        type: string
+        default: magtheo/ci-toolkit
+      subject_sha:
+        description: "SHA the pin-bump PR proposes to deploy"
+        type: string
+        required: true
+      allowed_models:
+        description: "comma-separated acceptable model profiles"
+        type: string
+        default: "anthropic/claude-haiku-4.5"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: ${{ inputs.toolkit_repo }}
+          ref: main
+          path: toolkit
+
+      - name: fetch qualification record (qualifications branch)
+        run: |
+          curl -sS -f -o "$RUNNER_TEMP/record.json" \
+            "https://raw.githubusercontent.com/${{ inputs.toolkit_repo }}/qualifications/records/by-subject/${{ inputs.subject_sha }}.json" \
+            || { echo "::error::no qualification record for ${{ inputs.subject_sha }} — the proposed SHA has never been qualified"; exit 1; }
+
+      - name: verify — subject + PASS + current oracle + model allowlist
+        run: |
+          cd toolkit
+          ORACLE=$(python3 eval/run_corpus.py --print-oracle-version)
+          echo "current oracle: $ORACLE"
+          python3 eval/verify.py "$RUNNER_TEMP/record.json" \
+            --oracle-version "$ORACLE" \
+            --subject "${{ inputs.subject_sha }}" \
+            $(printf -- '--allow-model %s ' $(echo "${{ inputs.allowed_models }}" | tr ',' ' '))

@@ -19,11 +19,11 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from parse_review import (  # noqa: E402
-    assess,
-    build_payload,
+    normalize,
     parse_model_output,
     valid_lines_from_patch,
 )
+from render import build_payload  # noqa: E402
 
 TOOLKIT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -36,37 +36,39 @@ def _content(**kw):
     return json.dumps(kw)
 
 
+def _payload(content, files):
+    """The split pipeline: normalize (engine stage) -> render."""
+    return build_payload(normalize(content), files, "sha", "m")
+
+
 # ---- schema ---------------------------------------------------------------
 
 def test_valid_clear():
-    p = build_payload(_content(assessment="CLEAR", summary="s",
-                               findings=[], good=[]),
-                      [], "sha", "m")
+    p = _payload(_content(assessment="CLEAR", summary="s",
+                               findings=[], good=[]), [])
     assert "AI review · Clear" in p["body"]
 
 
 def test_valid_issues_found():
-    p = build_payload(
-        _content(assessment="ISSUES_FOUND", summary="s",
+    p = _payload(_content(assessment="ISSUES_FOUND", summary="s",
                  findings=[{"file": "a.py", "line": 1, "severity": "blocking",
-                            "comment": "c"}]),
-        FILES, "sha", "m")
+                            "comment": "c"}]), FILES)
     assert "AI review · Issues found" in p["body"]
     assert "1 blocking issue" in p["body"]
 
 
 def test_unknown_assessment_is_inconclusive():
-    p = build_payload(_content(assessment="LGTM", findings=[]), [], "sha", "m")
+    p = _payload(_content(assessment="LGTM", findings=[]), [])
     assert "AI review · Inconclusive" in p["body"]
 
 
 def test_missing_assessment_is_inconclusive():
-    p = build_payload(_content(summary="s", findings=[]), [], "sha", "m")
+    p = _payload(_content(summary="s", findings=[]), [])
     assert "AI review · Inconclusive" in p["body"]
 
 
 def test_malformed_json_is_inconclusive():
-    p = build_payload("complete garbage {broken", [], "sha", "m")
+    p = _payload("complete garbage {broken", [])
     assert "AI review · Inconclusive" in p["body"]
     assert "Do not treat this review as clear." in p["body"]
 
@@ -74,21 +76,17 @@ def test_malformed_json_is_inconclusive():
 # ---- deterministic consistency --------------------------------------------
 
 def test_clear_with_blocking_finding_normalizes_to_issues():
-    p = build_payload(
-        _content(assessment="CLEAR", summary="s",
+    p = _payload(_content(assessment="CLEAR", summary="s",
                  findings=[{"file": "a.py", "line": 1,
-                            "severity": "blocking", "comment": "c"}]),
-        FILES, "sha", "m")
+                            "severity": "blocking", "comment": "c"}]), FILES)
     assert "AI review · Issues found" in p["body"]
     assert "AI review · Clear" not in p["body"]
 
 
 def test_clear_with_advisory_only_stays_clear():
-    p = build_payload(
-        _content(assessment="CLEAR", summary="s",
+    p = _payload(_content(assessment="CLEAR", summary="s",
                  findings=[{"file": "a.py", "line": 2,
-                            "severity": "non-blocking", "comment": "c"}]),
-        FILES, "sha", "m")
+                            "severity": "non-blocking", "comment": "c"}]), FILES)
     assert "AI review · Clear" in p["body"]
     assert "0 blocking · 1 advisory" in p["body"]
 
@@ -96,14 +94,13 @@ def test_clear_with_advisory_only_stays_clear():
 # ---- strict schema validation (fail closed) --------------------------------
 
 def test_clear_with_findings_not_a_list_is_inconclusive():
-    p = build_payload(_content(assessment="CLEAR", findings="oops"),
-                      [], "sha", "m")
+    p = _payload(_content(assessment="CLEAR", findings="oops"), [])
     assert "AI review · Inconclusive" in p["body"]
     assert "AI review · Clear" not in p["body"]
 
 
 def test_clear_with_findings_missing_is_inconclusive():
-    p = build_payload(_content(assessment="CLEAR"), [], "sha", "m")
+    p = _payload(_content(assessment="CLEAR"), [])
     assert "AI review · Inconclusive" in p["body"]
 
 
@@ -114,27 +111,22 @@ def test_malformed_finding_is_inconclusive():
         [{"file": "", "severity": "blocking", "comment": "c"}],
         ["not-a-dict"],
     ):
-        p = build_payload(_content(assessment="CLEAR", findings=bad),
-                          [], "sha", "m")
+        p = _payload(_content(assessment="CLEAR", findings=bad), [])
         assert "AI review · Inconclusive" in p["body"], bad
 
 
 def test_severity_case_whitespace_normalized():
-    p = build_payload(
-        _content(assessment="CLEAR", summary="s",
+    p = _payload(_content(assessment="CLEAR", summary="s",
                  findings=[{"file": "a.py", "line": 1,
-                            "severity": " BLOCKING ", "comment": "c"}]),
-        FILES, "sha", "m")
+                            "severity": " BLOCKING ", "comment": "c"}]), FILES)
     assert "AI review · Issues found" in p["body"]
     assert "1 blocking issue" in p["body"]
 
 
 def test_unknown_severity_is_inconclusive():
-    p = build_payload(
-        _content(assessment="ISSUES_FOUND",
+    p = _payload(_content(assessment="ISSUES_FOUND",
                  findings=[{"file": "a.py", "severity": "critical",
-                            "comment": "c"}]),
-        FILES, "sha", "m")
+                            "comment": "c"}]), FILES)
     assert "AI review · Inconclusive" in p["body"]
 
 
@@ -143,38 +135,31 @@ def test_unknown_severity_is_inconclusive():
 def test_contradictory_issues_found_label_with_advisory_only_is_inconclusive():
     # the model reports issues, but no blocking finding survived
     # validation — contradictory output must never become Clear
-    p = build_payload(
-        _content(assessment="ISSUES_FOUND", summary="s",
+    p = _payload(_content(assessment="ISSUES_FOUND", summary="s",
                  findings=[{"file": "a.py", "line": 2,
-                            "severity": "non-blocking", "comment": "c"}]),
-        FILES, "sha", "m")
+                            "severity": "non-blocking", "comment": "c"}]), FILES)
     assert "AI review · Inconclusive" in p["body"]
     assert "AI review · Clear" not in p["body"]
 
 
 def test_contradictory_issues_found_label_with_zero_findings_is_inconclusive():
-    p = build_payload(_content(assessment="ISSUES_FOUND", findings=[]),
-                      [], "sha", "m")
+    p = _payload(_content(assessment="ISSUES_FOUND", findings=[]), [])
     assert "AI review · Inconclusive" in p["body"]
 
 
 def test_clear_label_with_advisory_only_stays_clear():
-    p = build_payload(
-        _content(assessment="CLEAR", summary="s",
+    p = _payload(_content(assessment="CLEAR", summary="s",
                  findings=[{"file": "a.py", "line": 2,
-                            "severity": "non-blocking", "comment": "c"}]),
-        FILES, "sha", "m")
+                            "severity": "non-blocking", "comment": "c"}]), FILES)
     assert "AI review · Clear" in p["body"]
     assert "0 blocking · 1 advisory" in p["body"]
 
 
 def test_blocking_evidence_overrides_optimistic_label():
     for label in ("CLEAR", "ISSUES_FOUND"):
-        p = build_payload(
-            _content(assessment=label,
+        p = _payload(_content(assessment=label,
                      findings=[{"file": "a.py", "line": 1,
-                                "severity": "blocking", "comment": "c"}]),
-            FILES, "sha", "m")
+                                "severity": "blocking", "comment": "c"}]), FILES)
         assert "AI review · Issues found" in p["body"], label
 
 
@@ -183,7 +168,7 @@ def test_parser_failure_never_clear():
     # tolerance is a feature) — covered by
     # test_parse_model_output_strips_wrapping_prose
     for content in ("", "no json", "{broken", '["list"]'):
-        p = build_payload(content, [], "sha", "m")
+        p = _payload(content, [])
         assert "AI review · Clear" not in p["body"], content
         assert "AI review · Inconclusive" in p["body"], content
 
@@ -197,7 +182,7 @@ def test_no_lgtm_or_verdict_vocabulary():
                                         "severity": "blocking",
                                         "comment": "c"}]),
                     "garbage"):
-        body = build_payload(content, FILES, "sha", "m")["body"]
+        body = _payload(content, FILES)["body"]
         assert "LGTM" not in body
         assert "Verdict:" not in body
         assert "NEEDS_CHANGES" not in body
@@ -206,19 +191,16 @@ def test_no_lgtm_or_verdict_vocabulary():
 
 def test_advisory_terminology_not_non_blocking():
     # advisory-only + CLEAR label renders advisories under details
-    p = build_payload(
-        _content(assessment="CLEAR", summary="s",
+    p = _payload(_content(assessment="CLEAR", summary="s",
                  findings=[{"file": "a.py", "line": 2,
-                            "severity": "non-blocking", "comment": "c"}]),
-        FILES, "sha", "m")
+                            "severity": "non-blocking", "comment": "c"}]), FILES)
     assert "### Advisory" in p["body"]
     assert "non-blocking" not in p["body"].replace("### Advisory", "")
 
 
 def test_progressive_disclosure_details_blocks():
-    p = build_payload(_content(assessment="CLEAR", summary="s",
-                               findings=[], good=["g"]),
-                      [], "sha", "m")
+    p = _payload(_content(assessment="CLEAR", summary="s",
+                               findings=[], good=["g"]), [])
     assert "<details>" in p["body"]
     assert "<summary>Review metadata</summary>" in p["body"]
     assert "Model: m" in p["body"]
@@ -237,11 +219,11 @@ def test_event_is_always_comment_regardless_of_output():
         json.dumps({"event": "APPROVE", "assessment": "CLEAR"}),
         "garbage",
     ):
-        assert build_payload(content, FILES, "sha", "m")["event"] == "COMMENT"
+        assert _payload(content, FILES)["event"] == "COMMENT"
 
 
 def test_event_is_a_literal_in_source():
-    src = (TOOLKIT_ROOT / "parse_review.py").read_text()
+    src = (TOOLKIT_ROOT / "render.py").read_text()
     assert '"event": "COMMENT"' in src
 
 
@@ -262,7 +244,7 @@ def test_inline_comments_only_on_valid_lines():
             {"file": "not-in-diff.py", "line": 1, "severity": "blocking",
              "comment": "bad-file"},
         ])
-    p = build_payload(content, FILES, "sha", "m")
+    p = _payload(content, FILES)
     assert [c["line"] for c in p["comments"]] == [1]
     assert "```suggestion\nx = 2\n```" in p["comments"][0]["body"]
     assert "**Blocking**:" in p["comments"][0]["body"]

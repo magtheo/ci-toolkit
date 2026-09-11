@@ -1,0 +1,23 @@
+{
+  "id": "C10",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M10",
+  "family": "hallucinated-fact",
+  "input": {
+    "title": "core: branch rules for the privileged lane",
+    "body": "Extracts branch classification.",
+    "files": [
+      {
+        "path": "core/branch_rules.py",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/core/branch_rules.py\n@@ -0,0 +1,7 @@\n+import re\n+\n+\n+def is_feature_branch(ref: str) -> bool:\n+    \"\"\"Only refs under feature/ may run the privileged lane.\"\"\"\n+    # match anchors at the start of the string; only feature/ refs pass\n+    return re.match(r\"feature/\", ref) is not None\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: re.match anchors at the start, exactly what the prefix check needs."
+}

@@ -33,3 +33,77 @@ jobs:
       toolkit_ref: e59239f485fd2d4d3ef3a2647b791c53cb3a5963
     secrets:
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+
+  # Secretless, machine-verified pin promotion (plan phase 3): when a
+  # PR proposes new toolkit pins, the proposed SHA must carry a PASS
+  # qualification record against the CURRENT oracle. Runs from the
+  # trusted base (pull_request_target) like the review job above;
+  # verifies the PR's OWN pins when they change, and any
+  # explicit `qualify <sha>` PR title line on request.
+  # Inlined verification (same logic as the reusable
+  # verify-qualification.yml that external consumers call; inlined
+  # here so the dogfood check is self-contained and syntax-trivial).
+  verify-pin:
+    if: ${{ !github.event.pull_request.head.repo.fork }}
+    runs-on: ubuntu-latest
+    steps:
+      # Fail-closed pin verification invariant:
+      #   review.yml unchanged                          -> skip (ok)
+      #   changed, no toolkit-pin line touched          -> skip (ok)
+      #   any pin line touched but SHA unextractable    -> FAIL
+      #   pin changed                                    -> verify exactly
+      - name: extract proposed SHA from the PR diff (fail closed)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DIFF=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[] | select(.filename == ".github/workflows/review.yml") | .patch' || true)
+          if [ -z "$DIFF" ]; then
+            echo "::notice::no review.yml changes — pin verification skipped"
+            echo "SKIP=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          if ! grep -qE '^[+-].*(ai-review\.yml@|toolkit_ref:)' <<<"$DIFF"; then
+            echo "::notice::review.yml changed but no toolkit pin lines touched — pin verification skipped"
+            echo "SKIP=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          # pin lines were touched: exact extraction is now MANDATORY
+          SHAS=$(grep '^+' <<<"$DIFF" \
+            | grep -oE '(ai-review\.yml@|toolkit_ref:[[:space:]]*)[0-9a-f]{40}' \
+            | grep -oE '[0-9a-f]{40}' | sort -u || true)
+          if [ -z "$SHAS" ]; then
+            echo "::error::toolkit pin lines changed but no valid full-SHA pin could be extracted — refusing to pass verification without evidence"
+            exit 1
+          fi
+          N=$(wc -l <<<"$SHAS")
+          if [ "$N" -ne 1 ]; then
+            echo "::error::multiple distinct proposed pins found ($SHAS) — pin verification requires exactly one; resolve manually"
+            exit 1
+          fi
+          echo "proposed toolkit pin: $SHAS"
+          echo "PROPOSED=$SHAS" >> "$GITHUB_ENV"
+
+      - name: current oracle (toolkit main, public + secretless)
+        if: env.SKIP != 'true'
+        run: |
+          git clone --depth 1 --branch main \
+            https://github.com/magtheo/ci-toolkit "$RUNNER_TEMP/toolkit"
+
+      - name: fetch qualification record (qualifications branch)
+        if: env.SKIP != 'true'
+        run: |
+          curl -sS -f -o "$RUNNER_TEMP/record.json" \
+            "https://raw.githubusercontent.com/magtheo/ci-toolkit/qualifications/records/by-subject/${{ env.PROPOSED }}.json" \
+            || { echo "::error::no qualification record for ${{ env.PROPOSED }} — the proposed SHA has never been qualified; run the qualification workflow on it first"; exit 1; }
+
+      - name: verify — subject + PASS + current oracle + model allowlist
+        if: env.SKIP != 'true'
+        run: |
+          cd "$RUNNER_TEMP/toolkit"
+          ORACLE=$(python3 eval/run_corpus.py --print-oracle-version)
+          echo "current oracle: $ORACLE"
+          python3 eval/verify.py "$RUNNER_TEMP/record.json" \
+            --oracle-version "$ORACLE" \
+            --subject "${{ env.PROPOSED }}" \
+            --allow-model anthropic/claude-haiku-4.5

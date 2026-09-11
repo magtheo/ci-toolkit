@@ -1,0 +1,542 @@
+{
+ "per_profile": {
+  "haiku": {
+   "positives": {
+    "M1": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M10": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M11": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M12": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M13": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M14": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M15": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M16": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M17": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M18": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M2": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M3": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M4": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M5": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M6": {
+     "detections": 1,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 1
+    },
+    "M7": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M8": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M9": {
+     "detections": 1,
+     "floor": 1,
+     "meets_floor": true,
+     "false_clears": 4
+    }
+   },
+   "controls": {
+    "C1": {
+     "false_blockers": 5,
+     "passes_policy": false
+    },
+    "C10": {
+     "false_blockers": 5,
+     "passes_policy": false
+    },
+    "C11": {
+     "false_blockers": 5,
+     "passes_policy": false
+    },
+    "C12": {
+     "false_blockers": 14,
+     "passes_policy": false
+    },
+    "C13": {
+     "false_blockers": 5,
+     "passes_policy": false
+    },
+    "C14": {
+     "false_blockers": 9,
+     "passes_policy": false
+    },
+    "C15": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C16": {
+     "false_blockers": 7,
+     "passes_policy": false
+    },
+    "C17": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C18": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C2": {
+     "false_blockers": 6,
+     "passes_policy": false
+    },
+    "C3": {
+     "false_blockers": 5,
+     "passes_policy": false
+    },
+    "C4": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C5": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C6": {
+     "false_blockers": 5,
+     "passes_policy": false
+    },
+    "C7": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C8": {
+     "false_blockers": 8,
+     "passes_policy": false
+    },
+    "C9": {
+     "false_blockers": 4,
+     "passes_policy": false
+    }
+   },
+   "gating": {
+    "C4": "clean",
+    "C5": "clean",
+    "C7": "clean"
+   },
+   "aggregate": {
+    "detection_hits": 52,
+    "floor_total": 51,
+    "false_clears": 30,
+    "control_fb_total": 78,
+    "gating_violations": [],
+    "pair_integrity_failures": [
+     "M1",
+     "M10",
+     "M2",
+     "M8"
+    ]
+   }
+  },
+  "sonnet": {
+   "positives": {
+    "M1": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M10": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M11": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M12": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M13": {
+     "detections": 1,
+     "floor": 1,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M14": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M15": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M16": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M17": {
+     "detections": 0,
+     "floor": 5,
+     "meets_floor": false,
+     "false_clears": 5
+    },
+    "M18": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M2": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M3": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M4": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M5": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M6": {
+     "detections": 0,
+     "floor": 0,
+     "meets_floor": true,
+     "false_clears": 5
+    },
+    "M7": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M8": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    },
+    "M9": {
+     "detections": 5,
+     "floor": 5,
+     "meets_floor": true,
+     "false_clears": 0
+    }
+   },
+   "controls": {
+    "C1": {
+     "false_blockers": 10,
+     "passes_policy": false
+    },
+    "C10": {
+     "false_blockers": 9,
+     "passes_policy": false
+    },
+    "C11": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C12": {
+     "false_blockers": 15,
+     "passes_policy": false
+    },
+    "C13": {
+     "false_blockers": 13,
+     "passes_policy": false
+    },
+    "C14": {
+     "false_blockers": 6,
+     "passes_policy": false
+    },
+    "C15": {
+     "false_blockers": 8,
+     "passes_policy": false
+    },
+    "C16": {
+     "false_blockers": 16,
+     "passes_policy": false
+    },
+    "C17": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C18": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C2": {
+     "false_blockers": 8,
+     "passes_policy": false
+    },
+    "C3": {
+     "false_blockers": 10,
+     "passes_policy": false
+    },
+    "C4": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C5": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C6": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C7": {
+     "false_blockers": 0,
+     "passes_policy": true
+    },
+    "C8": {
+     "false_blockers": 11,
+     "passes_policy": false
+    },
+    "C9": {
+     "false_blockers": 6,
+     "passes_policy": false
+    }
+   },
+   "gating": {
+    "C4": "clean",
+    "C5": "clean",
+    "C7": "clean"
+   },
+   "aggregate": {
+    "detection_hits": 61,
+    "floor_total": 66,
+    "false_clears": 20,
+    "control_fb_total": 112,
+    "gating_violations": [],
+    "pair_integrity_failures": [
+     "M14",
+     "M2",
+     "M8",
+     "M9"
+    ]
+   }
+  }
+ },
+ "narrative_coding_summary": {
+  "invariant": "expected_expression + false_blocker + defect_expression_unmatched == total jsonl entries",
+  "total_jsonl_entries": 469,
+  "expected_expression": 193,
+  "false_blocker": 273,
+  "defect_expression_unmatched": 3,
+  "invariant_holds": true,
+  "families_total": {
+   "speculative-consequence": 104,
+   "severity-inflation": 38,
+   "risk-boilerplate": 65,
+   "hallucinated-fact": 57,
+   "absolute-consistency": 9
+  },
+  "emitted_family_aggregation": {
+   "haiku": {
+    "speculative-consequence": 54,
+    "severity-inflation": 12,
+    "risk-boilerplate": 22,
+    "hallucinated-fact": 15,
+    "absolute-consistency": 4
+   },
+   "sonnet": {
+    "risk-boilerplate": 43,
+    "speculative-consequence": 50,
+    "absolute-consistency": 5,
+    "hallucinated-fact": 42,
+    "severity-inflation": 26
+   }
+  }
+ },
+ "protocol_failures": {
+  "per_run": [
+   {
+    "profile": "haiku",
+    "fixture": "C9",
+    "run": 2,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[2]"
+   },
+   {
+    "profile": "haiku",
+    "fixture": "C9",
+    "run": 3,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[3]"
+   },
+   {
+    "profile": "haiku",
+    "fixture": "C9",
+    "run": 4,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[C9].runs_detail[4]"
+   },
+   {
+    "profile": "haiku",
+    "fixture": "M6",
+    "run": 3,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[M6].runs_detail[3]"
+   },
+   {
+    "profile": "haiku",
+    "fixture": "M9",
+    "run": 1,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[1]"
+   },
+   {
+    "profile": "haiku",
+    "fixture": "M9",
+    "run": 2,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[2]"
+   },
+   {
+    "profile": "haiku",
+    "fixture": "M9",
+    "run": 3,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[3]"
+   },
+   {
+    "profile": "haiku",
+    "fixture": "M9",
+    "run": 4,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "haiku-n5.json#per_fixture[M9].runs_detail[4]"
+   },
+   {
+    "profile": "sonnet",
+    "fixture": "C9",
+    "run": 3,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[3]"
+   },
+   {
+    "profile": "sonnet",
+    "fixture": "C9",
+    "run": 4,
+    "surface_format": "markdown-fenced response",
+    "normalizer_cause_category": "JSON decode failure",
+    "pointer": "sonnet-n5.json#per_fixture[C9].runs_detail[4]"
+   }
+  ],
+  "breakdown": {
+   "JSON decode failure": 10
+  }
+ },
+ "spend_accounting": {
+  "calls": 360,
+  "cap_usd": 3.5,
+  "cost_usd": 2.64,
+  "prompt_tokens_per_profile": 279975,
+  "completion_tokens": {
+   "sonnet": 76178,
+   "haiku": 79043
+  },
+  "retries": 0,
+  "reruns": 0
+ }
+}

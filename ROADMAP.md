@@ -48,18 +48,26 @@ anti-pattern this roadmap exists to prevent.
 ## Current position (2026-08-30)
 
 - eval-baseline plan Phases 1–3 complete (engine contract, corpus +
-  measured baseline, qualification infrastructure); Phase 4 (M5) next.
+  measured baseline, qualification infrastructure).
+- Phase 4 (M5) attempted and **rolled back**: detection was induced
+  (5/5) but pair integrity failed in every formulation — C5
+  false-blocked 5/5 across three rubric wordings and two models
+  (`eval/evidence/phase4-discrimination-probe-2026-08-30/`).
+  Phase 4 BLOCKED (plan Deviation 2); M5 remains KNOWN_GAP.
 - Measured baseline: local defect detection decent; discrimination
-  weak (5/8 controls false-blocked); cross-file (M4) 0/3;
-  state/lifecycle (M8) unproven via pair integrity.
+  weak (5/8 controls false-blocked; probe: a stronger model made it
+  worse); cross-file (M4) weak; state/lifecycle (M8) unproven via
+  pair integrity.
+- **Next active stage: Track 1 (discrimination)** — resequenced
+  ahead of the M5 retry by Deviation 2.
 - Deployment contract PENDING ACTIVATION (see plan Deviation 1).
 
 ## Capability tracks
 
 | # | Capability | Evidence | State |
 |---|------------|----------|-------|
-| 1 | Discrimination / false-blocker reduction | baseline controls; #14 self-review FPs | dominant weakness; first priority |
-| 2 | Same-diff consistency | M5 / miss #5 | planned — eval-baseline Phases 4–5 |
+| 1 | Discrimination / false-blocker reduction | baseline controls; phase-4 probe; #14 self-review FPs | **ACTIVE — next stage** (Deviation 2) |
+| 2 | Same-diff consistency | M5 / miss #5 | blocked by Track 1 (probe: detection without separation) |
 | 3 | Targeted trusted-base context retrieval | M4 (0/3) | identified; design needed |
 | 4 | Cross-file contract reasoning | M4 (0/3), shared w/ track 3 | identified |
 | 5 | State / lifecycle / concurrency reasoning | M8; publisher bug (human-caught) | identified; fixture family needed |
@@ -67,9 +75,12 @@ anti-pattern this roadmap exists to prevent.
 | 7 | Architectural invariant reasoning | states.json-not-in-oracle_version (human-caught) | identified |
 | 8 | Acceptance / process truth | Phase-3/#10 circularity; #15 CLEAR-miss (both human-caught) | identified |
 
-Tracks 2, then 1, are sequenced (Phases 4–5, then discrimination).
-Tracks 3–8 start after the eval-baseline plan completes; ordering
-thereafter is chosen from measured evidence, not this table's number.
+Track 1 is the next active stage (resequenced ahead of the M5
+retry by plan Deviation 2, after the Phase 4 probe falsified the
+M5-first sequence). Track 2 (Phases 4–5) resumes under Track 1's
+outcome. Tracks 3–8 start after the eval-baseline plan completes;
+ordering thereafter is chosen from measured evidence, not this
+table's number.
 
 ---
 
@@ -80,13 +91,25 @@ thereafter is chosen from measured evidence, not this table's number.
   is blocking on *looks risky* that is not *is incorrect*. Plus the
   #14 self-review false positives (appendix A): hallucinated absence,
   inverted conclusion from a true premise, and asserting a test gap
-  without reading the test.
-- **Current state:** measured, unimproved. `promotion_eligible_positives`
-  is diagnostic only.
+  without reading the test. Plus the phase-4 probe
+  (`eval/evidence/phase4-discrimination-probe-2026-08-30/`): given a
+  consistency rule, the reviewer blocked its own paired control 5/5
+  under three wordings and two models — the blocking *narrative*
+  changed with each wording while the blocking *verdict* never did.
+- **Current state:** ACTIVE — staged sub-plan T1.1–T1.5 lives in
+  `plans/reviewer-eval-baseline.md` (plan Deviation 4; plan-approval
+  phase PR pending). First sharp target: M5/C5 separation. Scope
+  guard: Track 1 must
+  address the broader measured false-blocker problem (5/8 controls;
+  stronger models make it worse), NOT special-case C5 — C5 passing
+  while C1/C2/C3/C6/C8 still fail would be benchmark gaming, not
+  capability. `promotion_eligible_positives` is diagnostic only.
 - **Candidate mechanism:** a discrimination requirement on every
   blocking finding — state the invariant violated, the concrete
   failing execution path, and the diff/context evidence; anything
-  that cannot be argued concretely is downgraded to advisory. Possibly
+  that cannot be argued concretely is downgraded to advisory
+  (candidate layer b in the Track 1 sub-plan; wording-only changes
+  admissible only with measured separation). Possibly
   a dedicated pass, but only if measurement shows the single-pass
   form insufficient (a layer must earn its existence — no big-bang
   pipeline redesign).
@@ -225,7 +248,8 @@ prove cheaply and exactly.
 
 ## Appendix A — evidence: #14 self-review false positives (2026-08-30)
 
-Preserved per directive; to be classified against existing miss classes BEFORE any are frozen as fixtures.
+Preserved per directive; to be classified against existing miss
+classes BEFORE any are frozen as fixtures.
 
 1. **Hallucinated absence:** claimed `hashlib` was never imported
    while it was (line 32), contradicted by a passing test on the same

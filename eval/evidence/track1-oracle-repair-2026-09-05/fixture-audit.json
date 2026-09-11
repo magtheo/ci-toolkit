@@ -1,0 +1,226 @@
+{
+  "_meta": {
+    "purpose": "Human semantic audit of the REPAIRED 36-fixture corpus, frozen BEFORE any T1.2 remeasurement spend authorization (directing instruction). Judged strictly from the exact ReviewInput presented; modified files carry implied surrounding content, added files must be self-contained.",
+    "repair_pr": "phase/reviewer-eval-baseline/08-oracle-repair",
+    "oracle_version_after_repair": "9fae85b26ff45dc6",
+    "model_calls": 0
+  },
+  "fixtures": {
+    "M1": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "secrets:inherit is the sole delta; otherwise least-privilege permissions, fork guard, full-SHA pins"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "secrets: inherit exposes every secret to the called workflow"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "secrets block: inherit vs explicit single-secret mapping"
+    },
+    "M2": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "pinned both layers, explicit secret; modified-file context carries realistic SHAs"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "trigger flipped to pull_request (trusted base lost) AND uses/toolkit_ref floated to main \u2014 both frozen expected findings"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "trigger + uses/toolkit_ref lines (pinned -> floating, pull_request_target -> pull_request)"
+    },
+    "M3": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "mtime logic correct and documented"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "freshness condition inverted relative to contract"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "find predicate"
+    },
+    "M4": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "self-contained claim fixture"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "cross-file docstring/flag contract defect present (detection is out-of-scope known miss)"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "flag/contract mutation"
+    },
+    "M5": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "claim qualified up front, consistent with Wiring"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "unqualified absolute contradicts same-file exclusions"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "qualification of the opening claim"
+    },
+    "M6": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "jq -se slurps the JSONL array; skip logic correct"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "jq -e without -s evaluates per-line \u2014 the whole-set check is not performed"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "-s (slurp) flag presence"
+    },
+    "M7": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "bounds retained; modified-file context implies surrounding imports/constants"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "urlopen single timeout replaces connect+total bounds"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "HTTP transport + timeout structure"
+    },
+    "M8": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "documented Riverpod resume pattern; lifecycle claims against it are false premises"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "resume race/once-consumption defect present"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "listener/consumption logic"
+    },
+    "M9": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "!= null is the merged test; branches consistent; script self-contained"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "condition inverted \u2014 merged PRs abort"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "jq condition (!= null vs == null)"
+    },
+    "M10": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "re.match anchors at start; docstring and comment accurate"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "re.search does not anchor \u2014 prefix check bypassed"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "re.match vs re.search (+comment)"
+    },
+    "M11": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "exit-0 + JSON status is the documented wrapper contract; both outcomes derived"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "status hardcoded ok; check outcome discarded via || true"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "status derivation"
+    },
+    "M12": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "REPAIRED: CONFIG_URL/OriginError/ParseError/_decode defined in-file; stale-on-error contract intact"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "(OriginError, ParseError) masked + .get(last_good,{}) fallback"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "except tuple + fallback access"
+    },
+    "M13": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "full-SHA pin, least privilege, fork guard, explicit secret, realistic SHA"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "floating @v4 tag \u2014 single delta"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "uses ref: pinned SHA vs v4"
+    },
+    "M14": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "REPAIRED: both env vars guarded; header-file transport (0600, single trap)"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "token echoed to stderr and passed in curl argv"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "echo line + Authorization transport"
+    },
+    "M15": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "TODO/loop style is advisory-grade; check correct"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "allowed tuple misspells eu-north-1"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "one tuple entry (eu-nord-1)"
+    },
+    "M16": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "REPAIRED: LABELS defined; narrow except, logged, None per best-effort contract"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "bare except + fabricated ok summary"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "except breadth + fallback return"
+    },
+    "M17": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "claim qualified (except probe endpoints), consistent"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "unqualified 'All API responses' contradicts same-file bypass"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "qualification of opening claim"
+    },
+    "M18": {
+      "control_clean_as_presented": {
+        "verdict": "yes",
+        "rationale": "automatic-deploy claim carries approval qualifier"
+      },
+      "positive_intended_defect_present": {
+        "verdict": "yes",
+        "rationale": "'no human action' contradicts required approval"
+      },
+      "unrelated_blocking_defects": [],
+      "pair_delta": "approval qualifier"
+    }
+  }
+}

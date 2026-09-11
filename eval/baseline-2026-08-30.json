@@ -1,0 +1,475 @@
+{
+  "profile": {
+    "toolkit_sha": "5365b035a29953cfc392aff5b6e773864557785b",
+    "rubric_hash": "415d8a38cfed9d3a",
+    "corpus_hash": "3dbfbfcf8c0ffc33",
+    "model": "anthropic/claude-haiku-4.5",
+    "temperature": 0.2,
+    "max_tokens": 2000,
+    "n": 3,
+    "generated": "2026-08-30T10:08:37.687732+00:00"
+  },
+  "per_fixture": [
+    {
+      "id": "C1",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 6,
+      "advisory_noise": 0,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "C2",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 4,
+      "advisory_noise": 3,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "C3",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 3,
+      "advisory_noise": 3,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "C4",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "CLEAR",
+        "CLEAR",
+        "CLEAR"
+      ],
+      "assessment_stability": {
+        "CLEAR": 3,
+        "ISSUES_FOUND": 0,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 0,
+      "advisory_noise": 3,
+      "passes_policy": true,
+      "proposal": "GATING-capable"
+    },
+    {
+      "id": "C5",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "CLEAR",
+        "CLEAR",
+        "CLEAR"
+      ],
+      "assessment_stability": {
+        "CLEAR": 3,
+        "ISSUES_FOUND": 0,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 0,
+      "advisory_noise": 0,
+      "passes_policy": true,
+      "proposal": "GATING-capable"
+    },
+    {
+      "id": "C6",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 3,
+      "advisory_noise": 2,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "C7",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "CLEAR",
+        "CLEAR",
+        "CLEAR"
+      ],
+      "assessment_stability": {
+        "CLEAR": 3,
+        "ISSUES_FOUND": 0,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 0,
+      "advisory_noise": 0,
+      "passes_policy": true,
+      "proposal": "GATING-capable"
+    },
+    {
+      "id": "C8",
+      "kind": "control",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [],
+      "false_blockers": 5,
+      "advisory_noise": 2,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M1",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_all": [
+              "inherit"
+            ]
+          },
+          "hits": 3
+        }
+      ],
+      "false_blockers": 1,
+      "advisory_noise": 1,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M2",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_all": [
+              "pull_request"
+            ],
+            "comment_any": [
+              "trigger",
+              "trusted base",
+              "trusted-base",
+              "pull_request_target"
+            ]
+          },
+          "hits": 3
+        },
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_any": [
+              "pin",
+              "floating",
+              "immutable",
+              "@main",
+              "mutable"
+            ]
+          },
+          "hits": 3
+        }
+      ],
+      "false_blockers": 1,
+      "advisory_noise": 0,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M3",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_all": [
+              "mtime"
+            ],
+            "comment_any": [
+              "contract",
+              "document",
+              "comment",
+              "invariant",
+              "date"
+            ]
+          },
+          "hits": 3
+        }
+      ],
+      "false_blockers": 2,
+      "advisory_noise": 0,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M4",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_any": [
+              "cannot verify",
+              "unverifiable",
+              "not visible in the diff",
+              "outside the diff",
+              "cross-file",
+              "no evidence in the diff",
+              "isn't in the diff"
+            ]
+          },
+          "hits": 0
+        }
+      ],
+      "false_blockers": 4,
+      "advisory_noise": 3,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M5",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "CLEAR",
+        "CLEAR",
+        "CLEAR"
+      ],
+      "assessment_stability": {
+        "CLEAR": 3,
+        "ISSUES_FOUND": 0,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_any": [
+              "every pull request",
+              "all pull requests",
+              "unqualif",
+              "absolute",
+              "contradict"
+            ]
+          },
+          "hits": 0
+        }
+      ],
+      "false_blockers": 0,
+      "advisory_noise": 0,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M6",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_all": [
+              "jq"
+            ],
+            "comment_any": [
+              "jsonl",
+              "per-line",
+              "each line",
+              "one object per line",
+              "slurp",
+              "line by line"
+            ]
+          },
+          "hits": 0
+        }
+      ],
+      "false_blockers": 3,
+      "advisory_noise": 0,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M7",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_any": [
+              "timeout",
+              "socket",
+              "connect",
+              "wall clock",
+              "urllib",
+              "curl"
+            ]
+          },
+          "hits": 3
+        }
+      ],
+      "false_blockers": 3,
+      "advisory_noise": 2,
+      "passes_policy": false,
+      "proposal": "KNOWN_GAP"
+    },
+    {
+      "id": "M8",
+      "kind": "positive",
+      "runs": 3,
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "assessment_stability": {
+        "CLEAR": 0,
+        "ISSUES_FOUND": 3,
+        "INCONCLUSIVE": 0
+      },
+      "expected_detection": [
+        {
+          "entry": {
+            "severity": "blocking",
+            "comment_any": [
+              "course",
+              "resume",
+              "frame",
+              "order",
+              "lifecycle",
+              "listen"
+            ]
+          },
+          "hits": 3
+        }
+      ],
+      "false_blockers": 0,
+      "advisory_noise": 2,
+      "passes_policy": true,
+      "proposal": "GATING-capable"
+    }
+  ],
+  "spend": {
+    "calls": 48,
+    "prompt_tokens": 65079,
+    "completion_tokens": 21183
+  },
+  "gating_violations": [],
+  "states_in_force": {}
+}

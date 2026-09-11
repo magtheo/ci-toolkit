@@ -1,0 +1,1128 @@
+{
+  "floors": {
+    "M1": {
+      "haiku": 5,
+      "sonnet": 5
+    },
+    "M10": {
+      "haiku": 2,
+      "sonnet": 0
+    },
+    "M11": {
+      "haiku": 5,
+      "sonnet": 5
+    },
+    "M12": {
+      "haiku": 1,
+      "sonnet": 2
+    },
+    "M13": {
+      "haiku": 1,
+      "sonnet": 0
+    },
+    "M14": {
+      "haiku": 5,
+      "sonnet": 5
+    },
+    "M15": {
+      "haiku": 0,
+      "sonnet": 0
+    },
+    "M16": {
+      "haiku": 5,
+      "sonnet": 4
+    },
+    "M17": {
+      "haiku": 0,
+      "sonnet": 5
+    },
+    "M18": {
+      "haiku": 0,
+      "sonnet": 5
+    },
+    "M2": {
+      "haiku": 5,
+      "sonnet": 5
+    },
+    "M3": {
+      "haiku": 5,
+      "sonnet": 5
+    },
+    "M4": {
+      "haiku": 2,
+      "sonnet": 0
+    },
+    "M5": {
+      "haiku": 0,
+      "sonnet": 0
+    },
+    "M6": {
+      "haiku": 1,
+      "sonnet": 0
+    },
+    "M7": {
+      "haiku": 5,
+      "sonnet": 5
+    },
+    "M8": {
+      "haiku": 5,
+      "sonnet": 5
+    },
+    "M9": {
+      "haiku": 0,
+      "sonnet": 5
+    }
+  },
+  "_meta": {
+    "purpose": "T1.3/T1.5 sensitivity floors: per-positive, per-profile expected-finding hits out of N=5. A later gate run may not fall below these values (plan rev 5, invariant 1).",
+    "subject_sha": "46b9547b9b5a253687a16fb8cb74ccdad212cb5e",
+    "oracle_version": "92683f53fb1f7e30",
+    "n": 5,
+    "generated": "2026-09-05T09:50:02.756916+00:00",
+    "profiles": [
+      "anthropic/claude-haiku-4.5",
+      "anthropic/claude-sonnet-4.5"
+    ]
+  },
+  "family_aggregation": {
+    "risk-boilerplate": {
+      "haiku": {
+        "controls_clean": 0,
+        "controls_total": 4,
+        "false_blockers": 41,
+        "positives_detected": 1,
+        "positives_total": 4
+      },
+      "sonnet": {
+        "controls_clean": 0,
+        "controls_total": 4,
+        "false_blockers": 46,
+        "positives_detected": 0,
+        "positives_total": 4
+      }
+    },
+    "hallucinated-fact": {
+      "haiku": {
+        "controls_clean": 0,
+        "controls_total": 4,
+        "false_blockers": 22,
+        "positives_detected": 1,
+        "positives_total": 4
+      },
+      "sonnet": {
+        "controls_clean": 0,
+        "controls_total": 4,
+        "false_blockers": 36,
+        "positives_detected": 2,
+        "positives_total": 4
+      }
+    },
+    "speculative-consequence": {
+      "haiku": {
+        "controls_clean": 0,
+        "controls_total": 3,
+        "false_blockers": 31,
+        "positives_detected": 1,
+        "positives_total": 3
+      },
+      "sonnet": {
+        "controls_clean": 2,
+        "controls_total": 3,
+        "false_blockers": 27,
+        "positives_detected": 1,
+        "positives_total": 3
+      }
+    },
+    "severity-inflation": {
+      "haiku": {
+        "controls_clean": 1,
+        "controls_total": 2,
+        "false_blockers": 8,
+        "positives_detected": 0,
+        "positives_total": 2
+      },
+      "sonnet": {
+        "controls_clean": 0,
+        "controls_total": 2,
+        "false_blockers": 22,
+        "positives_detected": 0,
+        "positives_total": 2
+      }
+    },
+    "absolute-consistency": {
+      "haiku": {
+        "controls_clean": 3,
+        "controls_total": 3,
+        "false_blockers": 0,
+        "positives_detected": 0,
+        "positives_total": 3
+      },
+      "sonnet": {
+        "controls_clean": 2,
+        "controls_total": 3,
+        "false_blockers": 3,
+        "positives_detected": 2,
+        "positives_total": 3
+      }
+    }
+  },
+  "summary": {
+    "per_fixture": {
+      "C1": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 10,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 10,
+          "advisory_noise": 4,
+          "passes_policy": false
+        }
+      },
+      "C10": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 6,
+          "advisory_noise": 4,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 10,
+          "advisory_noise": 4,
+          "passes_policy": false
+        }
+      },
+      "C11": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 5,
+          "advisory_noise": 2,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 5,
+          "passes_policy": true
+        }
+      },
+      "C12": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 21,
+          "advisory_noise": 1,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 27,
+          "advisory_noise": 4,
+          "passes_policy": false
+        }
+      },
+      "C13": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 10,
+          "advisory_noise": 1,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 17,
+          "advisory_noise": 1,
+          "passes_policy": false
+        }
+      },
+      "C14": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 13,
+          "advisory_noise": 5,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 13,
+          "advisory_noise": 5,
+          "passes_policy": false
+        }
+      },
+      "C15": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 4,
+          "passes_policy": true
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 8,
+          "advisory_noise": 7,
+          "passes_policy": false
+        }
+      },
+      "C16": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 8,
+          "advisory_noise": 1,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 14,
+          "advisory_noise": 11,
+          "passes_policy": false
+        }
+      },
+      "C17": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 3,
+          "advisory_noise": 6,
+          "passes_policy": false
+        }
+      },
+      "C18": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        }
+      },
+      "C2": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 8,
+          "advisory_noise": 4,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 6,
+          "advisory_noise": 5,
+          "passes_policy": false
+        }
+      },
+      "C3": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 5,
+          "advisory_noise": 4,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 10,
+          "advisory_noise": 5,
+          "passes_policy": false
+        }
+      },
+      "C4": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "ISSUES_FOUND",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 1,
+          "advisory_noise": 4,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        }
+      },
+      "C5": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 7,
+          "passes_policy": true
+        }
+      },
+      "C6": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 5,
+          "advisory_noise": 5,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        }
+      },
+      "C7": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "ISSUES_FOUND",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 1,
+          "advisory_noise": 4,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 5,
+          "passes_policy": true
+        }
+      },
+      "C8": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 9,
+          "advisory_noise": 1,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 11,
+          "advisory_noise": 4,
+          "passes_policy": false
+        }
+      },
+      "C9": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "INCONCLUSIVE",
+            "INCONCLUSIVE",
+            "INCONCLUSIVE",
+            "INCONCLUSIVE"
+          ],
+          "false_blockers": 2,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "INCONCLUSIVE",
+            "INCONCLUSIVE"
+          ],
+          "false_blockers": 5,
+          "advisory_noise": 4,
+          "passes_policy": false
+        }
+      },
+      "M1": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 4,
+          "advisory_noise": 6,
+          "passes_policy": false
+        }
+      },
+      "M10": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 3,
+          "advisory_noise": 3,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 10,
+          "advisory_noise": 1,
+          "passes_policy": false
+        }
+      },
+      "M11": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 2,
+          "passes_policy": true
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        }
+      },
+      "M12": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 21,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 26,
+          "advisory_noise": 5,
+          "passes_policy": false
+        }
+      },
+      "M13": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 8,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 14,
+          "advisory_noise": 1,
+          "passes_policy": false
+        }
+      },
+      "M14": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 6,
+          "advisory_noise": 6,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 6,
+          "advisory_noise": 5,
+          "passes_policy": false
+        }
+      },
+      "M15": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 5,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 5,
+          "advisory_noise": 10,
+          "passes_policy": false
+        }
+      },
+      "M16": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 10,
+          "advisory_noise": 5,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 16,
+          "advisory_noise": 4,
+          "passes_policy": false
+        }
+      },
+      "M17": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 1,
+          "passes_policy": true
+        }
+      },
+      "M18": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 2,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": true
+        }
+      },
+      "M2": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 1,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 2,
+          "advisory_noise": 0,
+          "passes_policy": false
+        }
+      },
+      "M3": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 2,
+          "advisory_noise": 3,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 7,
+          "passes_policy": true
+        }
+      },
+      "M4": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 7,
+          "advisory_noise": 5,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": false
+        }
+      },
+      "M5": {
+        "haiku": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": false
+        }
+      },
+      "M6": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 4,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR",
+            "CLEAR"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": false
+        }
+      },
+      "M7": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 5,
+          "advisory_noise": 3,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 11,
+          "advisory_noise": 1,
+          "passes_policy": false
+        }
+      },
+      "M8": {
+        "haiku": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 7,
+          "passes_policy": true
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 4,
+          "passes_policy": true
+        }
+      },
+      "M9": {
+        "haiku": {
+          "assessments": [
+            "INCONCLUSIVE",
+            "INCONCLUSIVE",
+            "INCONCLUSIVE",
+            "INCONCLUSIVE",
+            "INCONCLUSIVE"
+          ],
+          "false_blockers": 0,
+          "advisory_noise": 0,
+          "passes_policy": false
+        },
+        "sonnet": {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 13,
+          "advisory_noise": 2,
+          "passes_policy": false
+        }
+      }
+    },
+    "gating_violations": {
+      "anthropic/claude-haiku-4.5": [
+        "C4",
+        "C7"
+      ],
+      "anthropic/claude-sonnet-4.5": []
+    },
+    "spend": {
+      "anthropic/claude-haiku-4.5": {
+        "calls": 180,
+        "prompt_tokens": 241115,
+        "completion_tokens": 76389
+      },
+      "anthropic/claude-sonnet-4.5": {
+        "calls": 180,
+        "prompt_tokens": 241115,
+        "completion_tokens": 74327
+      }
+    }
+  }
+}

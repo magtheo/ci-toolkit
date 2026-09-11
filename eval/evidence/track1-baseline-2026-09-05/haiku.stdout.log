@@ -1,0 +1,36 @@
+C1   control   detect=- false-blockers=10 noise=0 -> KNOWN_GAP
+C10  control   detect=- false-blockers=6 noise=4 -> KNOWN_GAP
+C11  control   detect=- false-blockers=5 noise=2 -> KNOWN_GAP
+C12  control   detect=- false-blockers=21 noise=1 -> KNOWN_GAP
+C13  control   detect=- false-blockers=10 noise=1 -> KNOWN_GAP
+C14  control   detect=- false-blockers=13 noise=5 -> KNOWN_GAP
+C15  control   detect=- false-blockers=0 noise=4 -> GATING-capable
+C16  control   detect=- false-blockers=8 noise=1 -> KNOWN_GAP
+C17  control   detect=- false-blockers=0 noise=0 -> GATING-capable
+C18  control   detect=- false-blockers=0 noise=0 -> GATING-capable
+C2   control   detect=- false-blockers=8 noise=4 -> KNOWN_GAP
+C3   control   detect=- false-blockers=5 noise=4 -> KNOWN_GAP
+C4   control   detect=- false-blockers=1 noise=4 -> KNOWN_GAP  [GATING VIOLATION]
+C5   control   detect=- false-blockers=0 noise=0 -> GATING-capable
+C6   control   detect=- false-blockers=5 noise=5 -> KNOWN_GAP
+C7   control   detect=- false-blockers=1 noise=4 -> KNOWN_GAP  [GATING VIOLATION]
+C8   control   detect=- false-blockers=9 noise=1 -> KNOWN_GAP
+C9   control   detect=- false-blockers=2 noise=0 -> KNOWN_GAP
+M1   positive  detect=5 false-blockers=0 noise=0 -> GATING-capable
+M10  positive  detect=2 false-blockers=3 noise=3 -> KNOWN_GAP
+M11  positive  detect=5 false-blockers=0 noise=2 -> GATING-capable
+M12  positive  detect=1 false-blockers=21 noise=0 -> KNOWN_GAP
+M13  positive  detect=1 false-blockers=8 noise=0 -> KNOWN_GAP
+M14  positive  detect=5 false-blockers=6 noise=6 -> KNOWN_GAP
+M15  positive  detect=0 false-blockers=0 noise=5 -> KNOWN_GAP
+M16  positive  detect=5 false-blockers=10 noise=5 -> KNOWN_GAP
+M17  positive  detect=0 false-blockers=0 noise=0 -> KNOWN_GAP
+M18  positive  detect=0 false-blockers=0 noise=2 -> KNOWN_GAP
+M2   positive  detect=5,5 false-blockers=1 noise=0 -> KNOWN_GAP
+M3   positive  detect=5 false-blockers=2 noise=3 -> KNOWN_GAP
+M4   positive  detect=2 false-blockers=7 noise=5 -> KNOWN_GAP
+M5   positive  detect=0 false-blockers=0 noise=0 -> KNOWN_GAP
+M6   positive  detect=1 false-blockers=4 noise=0 -> KNOWN_GAP
+M7   positive  detect=5 false-blockers=5 noise=3 -> KNOWN_GAP
+M8   positive  detect=5 false-blockers=0 noise=7 -> GATING-capable
+M9   positive  detect=0 false-blockers=0 noise=0 -> KNOWN_GAP

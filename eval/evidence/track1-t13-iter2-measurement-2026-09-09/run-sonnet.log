@@ -1,0 +1,4 @@
+corpus: 36 fixtures (18 positive / 18 control), N=5, model=anthropic/claude-sonnet-4.5, oracle=cb6870c5a4c635b2
+spend: 180 calls, 302835 prompt tok, 79730 completion tok
+report: eval/evidence/track1-t13-iter2-measurement-2026-09-09/sonnet-n5.json
+GATING VIOLATIONS: C7

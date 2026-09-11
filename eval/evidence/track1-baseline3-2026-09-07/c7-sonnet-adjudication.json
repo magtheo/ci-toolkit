@@ -1,0 +1,60 @@
+{
+ "verdict_summary": "0/6 valid defects; 6/6 false blockers; C7 fixture validated (globally clean as designed)",
+ "fixture_basis": "title 'engine: restructure model call'; body 'Purely mechanical port; behavior-preserving.'; patch inlines HTTP='curl' to a literal with identical curl bounds and adds 'import subprocess'; no removed import exists in the diff",
+ "findings": [
+  {
+   "run": 0,
+   "finding": 0,
+   "verdict": "false blocker",
+   "family": "speculative-consequence",
+   "grounding": "asserted",
+   "rationale": "Claims the diff 'suggests' an import was removed from the line-2 area; the removed line there is the HTTP constant, not an import. Both harms are counterfactual branches on code outside the diff.",
+   "pointer": "sonnet-n5.json#per_fixture[C7].runs_detail[0].findings[0]"
+  },
+  {
+   "run": 0,
+   "finding": 1,
+   "verdict": "false blocker",
+   "family": "speculative-consequence",
+   "grounding": "asserted",
+   "rationale": "'Moving the subprocess import from module level' \u2014 no import is moved anywhere in the diff; the premise is absent from the presented input, the consequence hypothetical.",
+   "pointer": "sonnet-n5.json#per_fixture[C7].runs_detail[0].findings[1]"
+  },
+  {
+   "run": 1,
+   "finding": 0,
+   "verdict": "false blocker",
+   "family": "speculative-consequence",
+   "grounding": "asserted",
+   "rationale": "Same import-removal hallucination as run0/finding0 plus an explicit scope-contradiction claim; the diff shows no removed import.",
+   "pointer": "sonnet-n5.json#per_fixture[C7].runs_detail[1].findings[0]"
+  },
+  {
+   "run": 2,
+   "finding": 0,
+   "verdict": "false blocker",
+   "family": "speculative-consequence",
+   "grounding": "inferred",
+   "rationale": "The one diff-cited fact (constant removed) is real, but the harm chain ('if other code references HTTP') is entirely about invisible external code; calling the inlining a 'drive-by' mischaracterizes the restructure itself.",
+   "pointer": "sonnet-n5.json#per_fixture[C7].runs_detail[2].findings[0]"
+  },
+  {
+   "run": 4,
+   "finding": 0,
+   "verdict": "false blocker",
+   "family": "speculative-consequence",
+   "grounding": "asserted",
+   "rationale": "Dual counterfactual ('if removed elsewhere breaks; if never imported, original was broken') about code outside the diff; adding a needed import preserves behavior.",
+   "pointer": "sonnet-n5.json#per_fixture[C7].runs_detail[4].findings[0]"
+  },
+  {
+   "run": 4,
+   "finding": 1,
+   "verdict": "false blocker",
+   "family": "severity-inflation",
+   "grounding": "inferred",
+   "rationale": "Diff-cited removal, but the 'defect' is a maintainability/mocking preference about a one-use private constant, inflated into a blocking scope violation.",
+   "pointer": "sonnet-n5.json#per_fixture[C7].runs_detail[4].findings[1]"
+  }
+ ]
+}

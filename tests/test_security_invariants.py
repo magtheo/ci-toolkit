@@ -45,23 +45,65 @@ def test_rubric_fails_closed_on_non_200_non_404():
     assert "FAIL CLOSED" in sec
 
 
+# ---- credential transport: never curl argv (main #22 hardening, ----
+# ---- ported to the engine architecture) ------------------------------------
+
+def test_credentials_never_in_curl_argv():
+    # Credential transport invariant: Authorization headers reach
+    # curl via private files (-H @file), never argv — /proc/<pid>/cmdline
+    # is observable by co-located users on self-hosted runners.
+    # TWO transports carry credentials: review.sh (GitHub API) and
+    # engine.py (OpenRouter model call) — both are pinned here.
+    assert '-H "Authorization: Bearer $' not in SRC, \
+        "Authorization header passed as argv (observable via /proc)"
+    # pin the actual transport sites, not the substring "-H @"
+    # (which comments also contain): both GitHub-token curl call
+    # sites must pass the private header file by literal path
+    assert SRC.count('-H @"$HDR_DIR/gh"') >= 2, \
+        "expected GitHub-token curl sites to use the header file"
+    assert '"-H", "Authorization' not in ESRC, \
+        "engine passes Authorization as curl argv (observable via /proc)"
+    assert "'-H', 'Authorization" not in ESRC
+    assert '"-H", "@"' in ESRC, \
+        "engine model call must use header-file transport (-H @file)"
+
+
+def test_credential_cleanup_is_effective_single_trap():
+    # cleanup must be EFFECTIVE, not merely present: bash EXIT traps
+    # REPLACE, they do not append — a second `trap ... EXIT` anywhere
+    # would silently drop credential-file removal. Exactly one EXIT
+    # trap, installed on a cleanup() that removes the header dir.
+    exit_traps = re.findall(r"^trap .*EXIT", SRC, re.M)
+    assert exit_traps == ["trap cleanup EXIT"], exit_traps
+    body = SRC[SRC.index("cleanup() {"):SRC.index("trap cleanup EXIT")]
+    assert 'rm -rf "$HDR_DIR"' in body, \
+        "cleanup() must remove the credential header dir"
+
+
+# Model-call retry invariants live in the engine since the Phase 1
+# boundary extraction (reviewer-eval-baseline); same semantics.
+
+ENGINE_PY = REVIEW_SH.parent / "engine.py"
+ESRC = ENGINE_PY.read_text()
+
+
 def test_network_failures_retry_not_exit():
-    sec = _section("# ---- model call:")
-    # rc != 0 (transport failure) must be a retry path, distinct from the
-    # http-status case statement
-    assert '[ "$rc" -ne 0 ]' in sec
-    retry_idx = sec.index("network failure")
-    case_idx = sec.index("case \"$http_code\" in")
-    assert retry_idx < case_idx or "elif" in sec[:case_idx]
+    # transport failures (_NetworkFailure) must be a retry path inside
+    # the retry loop, distinct from the HTTP-status branches
+    assert "except _NetworkFailure" in ESRC
+    assert "retrying after backoff" in ESRC
+    retry_idx = ESRC.index('"network failure (')
+    loop_idx = ESRC.index("for attempt in")
+    exhausted_idx = ESRC.index("retries exhausted")
+    assert loop_idx < retry_idx < exhausted_idx
 
 
 def test_retry_reports_last_status_not_reset():
-    sec = _section("# ---- model call:")
-    # http_code=000 may appear exactly once, as the pre-loop init; a
+    # status = 0 may appear exactly once, as the pre-loop init; a
     # reset inside/after the loop would clobber the final reported status
-    assert sec.count("http_code=000") == 1
-    assert sec.index("http_code=000") < sec.index("for attempt")
-    assert "retries exhausted (last http $http_code" in sec
+    assert ESRC.count("status = 0") == 1
+    assert ESRC.index("status = 0") < ESRC.index("for attempt in")
+    assert "retries exhausted (last http {0})\".format(status)" in ESRC
 
 
 def test_gitignore_covers_python_artifacts():
@@ -92,8 +134,11 @@ def test_secret_bearing_caller_never_inherits_secrets():
 
 def test_caller_pins_both_layers_to_full_sha():
     src = REVIEW_YML.read_text()
-    uses = re.findall(r"ai-review\.yml@(\S+)", src)
-    refs = re.findall(r"toolkit_ref:\s*(\S+)", src)
+    # only the caller job carries pins; the verify-pin job's bash
+    # extraction patterns mention the same keywords as data
+    caller = src[:src.index("verify-pin:")]
+    uses = re.findall(r"ai-review\.yml@(\S+)", caller)
+    refs = re.findall(r"toolkit_ref:\s*(\S+)", caller)
     assert uses and refs
     for ref in uses + refs:
         assert re.fullmatch(r"[0-9a-f]{40}", ref), ref
@@ -117,23 +162,3 @@ def test_checkout_pinned_to_full_sha():
     m = re.search(r"actions/checkout@([0-9a-f]{40})", src)
     assert m, "actions/checkout must be pinned to a full commit SHA"
     assert "actions/checkout@v4\n" not in src
-
-
-def test_reviewer_credentials_never_in_curl_argv():
-    # Credential transport invariant: Authorization headers reach curl
-    # via private files (-H @file), never argv — /proc/<pid>/cmdline is
-    # observable by co-located users on self-hosted runners.
-    src = (TOOLKIT_ROOT / "review.sh").read_text()
-    assert '-H "Authorization: Bearer $' not in src, \
-        "Authorization header passed as argv (observable via /proc)"
-    assert src.count("-H @") >= 3, "expected header-file curl usage"
-    # cleanup must be EFFECTIVE, not merely present: bash EXIT traps
-    # REPLACE, they do not append — a second `trap ... EXIT` anywhere
-    # would silently drop credential-file removal. Exactly one EXIT
-    # trap, installed on a cleanup() that removes the header dir.
-    import re
-    exit_traps = re.findall(r"^trap .*EXIT", src, re.M)
-    assert exit_traps == ["trap cleanup EXIT"], exit_traps
-    body = src[src.index("cleanup() {"):src.index("trap cleanup EXIT")]
-    assert 'rm -rf "$HDR_DIR"' in body, \
-        "cleanup() must remove the credential header dir"

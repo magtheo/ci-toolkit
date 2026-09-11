@@ -1,0 +1,797 @@
+"""Deterministic tests for the eval harness (no network, no model).
+
+The harness's own logic — corpus loading, matching, pass policy,
+measured classification proposals, gating exit semantics, profile
+metadata — must be as regression-proofed as the reviewer itself.
+"""
+
+import json
+import pathlib
+import sys
+
+import pytest
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
+
+import eval.run_corpus as rc  # noqa: E402
+
+FIXTURES = pathlib.Path(__file__).resolve().parents[1] / "eval" / "fixtures"
+
+
+def _result(assessment, findings=None, usage=None):
+    return {"schema_version": 1, "assessment": assessment,
+            "findings": findings or [], "summary": "", "good": [],
+            "usage": usage or {"prompt_tokens": 10,
+                               "completion_tokens": 5},
+            "raw_output": ""}
+
+
+BLOCK = {"severity": "blocking", "file": "a", "comment": "uses inherit here",
+         "line": 1, "suggestion": None}
+ADV = {"severity": "non-blocking", "file": "a", "comment": "nit",
+       "line": 1, "suggestion": None}
+
+
+# ---- corpus ----------------------------------------------------------------
+
+def test_corpus_loads_all_thirty_six_fixtures():
+    fixtures = rc.load_corpus(FIXTURES)
+    ids = {f["id"] for f in fixtures}
+    assert ids == {"M{0}".format(i) for i in range(1, 19)} | \
+        {"C{0}".format(i) for i in range(1, 19)}
+
+
+# ---- Track 1 family semantics (T1.1) ----------------------------------------
+
+def test_family_field_must_be_a_declared_family(tmp_path):
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    ctrl["family"] = "not-a-family"
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="unknown family"):
+        rc.load_corpus(tmp_path)
+
+
+def test_family_must_be_pair_consistent(tmp_path):
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    pos["family"] = "risk-boilerplate"  # control stays hallucinated-fact
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="pair family mismatch"):
+        rc.load_corpus(tmp_path)
+
+
+def test_family_absent_on_both_pair_members_is_valid(tmp_path):
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    for d in (ctrl, pos):
+        d.pop("family")
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    assert len(rc.load_corpus(tmp_path)) == 2
+
+
+def test_identical_pair_inputs_are_rejected(tmp_path):
+    # a control identical to its positive carries the defect too —
+    # the pair measures nothing. This guard caught the T1.1 silent
+    # template failures (M10/M12/C17/C18).
+    ctrl = json.loads((FIXTURES / "C9.json").read_text())
+    pos = json.loads((FIXTURES / "M9.json").read_text())
+    pos["input"] = dict(ctrl["input"])  # positive now identical to control
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="identical inputs"):
+        rc.load_corpus(tmp_path)
+
+
+def test_real_corpus_pairs_all_diverge():
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    for fid, f in fixtures.items():
+        if f["kind"] == "positive":
+            mate = fixtures[f["paired_with"]]
+            assert f["input"] != mate["input"], fid
+
+
+# ---- oracle-repair validity guards (T1.2 diagnostic discoveries) -----------
+
+def _tmp_pair(tmp_path, fid="C9"):
+    ctrl = json.loads((FIXTURES / (fid + ".json")).read_text())
+    mate = fid.replace("C", "M", 1) if fid.startswith("C") else \
+        fid.replace("M", "C", 1)
+    pos = json.loads((FIXTURES / (mate + ".json")).read_text())
+    return ctrl, pos
+
+
+def test_placeholder_shas_are_rejected(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C13")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace(
+            "9f2a4c1e8b7d63a05c4e2f1b9d8a7c3e5f6021ab",
+            "0123456789abcdef0123456789abcdef01234567")
+    (tmp_path / "C13.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M13.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="placeholder"):
+        rc.load_corpus(tmp_path)
+
+
+def test_added_python_must_be_self_contained(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C12")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace("+CONFIG_URL =", "+OTHER_URL =")
+    (tmp_path / "C12.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M12.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="undefined names.*CONFIG_URL"):
+        rc.load_corpus(tmp_path)
+
+
+def test_added_shell_vars_must_be_guarded(tmp_path):
+    ctrl, pos = _tmp_pair(tmp_path, "C14")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace(
+            '+: "${REGISTRY_URL:?REGISTRY_URL must be set}"\n', "") \
+        .replace("@@ -0,0 +1,12 @@", "@@ -0,0 +1,11 @@")
+    (tmp_path / "C14.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M14.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="unguarded variables"):
+        rc.load_corpus(tmp_path)
+
+
+def test_matcher_repair_semantics_via_frozen_witnesses():
+    # The matcher-repair invariant is NOT lexical union preservation:
+    # all previously accepted genuine detections remain accepted,
+    # every audited genuine gap narrative becomes accepted, and every
+    # audited non-defect narrative stays rejected — verified against
+    # the frozen #30 diagnostic evidence as a deterministic witness
+    # set (see eval/evidence/track1-oracle-repair-2026-09-05/).
+    witnesses = json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair-2026-09-05" /
+         "matcher-witnesses.json").read_text())["witnesses"]
+    assert len(witnesses) >= 100
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    genuine = rejected = 0
+    for w in witnesses:
+        entry = fixtures[w["fixture"]]["expected"]["findings"][
+            w["finding_index"]]
+        hit = rc._finding_matches(
+            entry, {"severity": "blocking", "comment": w["comment"]})
+        if w["ruling"] == "genuine_expected_expression":
+            assert hit, ("genuine witness rejected", w["fixture"],
+                         w["comment"][:80])
+            genuine += 1
+        else:
+            assert not hit, ("non-defect witness accepted", w["fixture"],
+                             w["comment"][:80])
+            rejected += 1
+    assert genuine >= 50 and rejected >= 40
+
+
+def test_diff_hunk_counts_are_validated(tmp_path):
+    # wrong NEW-side count rejected
+    ctrl, pos = _tmp_pair(tmp_path, "C9")
+    ctrl["input"]["files"][0]["patch"] = ctrl["input"]["files"][0][
+        "patch"].replace("@@ -0,0 +1,11 @@", "@@ -0,0 +1,10 @@")
+    (tmp_path / "C9.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M9.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="new-side count"):
+        rc.load_corpus(tmp_path)
+
+
+def test_diff_old_side_counts_are_validated(tmp_path):
+    # wrong OLD-side count rejected on a modified-file hunk
+    ctrl, pos = _tmp_pair(tmp_path, "C6")
+    lines = ctrl["input"]["files"][0]["patch"].splitlines()
+    hdr = next(i for i, l in enumerate(lines) if l.startswith("@@"))
+    # C6's real header is @@ -1,N +1,M @@ with context+removed on the
+    # old side; inflate the old count without changing the body
+    import re as _re
+    m = _re.match(r"@@ -(\d+),(\d+) \+(\d+),(\d+) @@", lines[hdr])
+    lines[hdr] = "@@ -{0},{1} +{2},{3} @@".format(
+        m.group(1), int(m.group(2)) + 1, m.group(3), m.group(4))
+    ctrl["input"]["files"][0]["patch"] = "\n".join(lines) + "\n"
+    (tmp_path / "C6.json").write_text(json.dumps(ctrl))
+    (tmp_path / "M6.json").write_text(json.dumps(pos))
+    with pytest.raises(AssertionError, match="old-side count"):
+        rc.load_corpus(tmp_path)
+
+
+def test_every_declared_family_has_two_new_frozen_pairs():
+    # plan rev 5, T1.1 acceptance: >=2 NEW frozen pairs per confirmed
+    # family beyond baseline coverage (baseline ids are M1-M8/C1-C8)
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    for family in rc.FAMILIES:
+        new_pairs = [fid for fid, f in fixtures.items()
+                     if f["kind"] == "positive" and f.get("family") == family
+                     and int(fid[1:]) >= 9]
+        assert len(new_pairs) >= 2, \
+            "{0}: expected >=2 new pairs, found {1}".format(family, new_pairs)
+
+
+def test_states_cover_every_fixture():
+    states = json.loads(
+        (FIXTURES.parent / "states.json").read_text())
+    fixtures = rc.load_corpus(FIXTURES)
+    assert {f["id"] for f in fixtures} == set(states), \
+        "states.json and corpus fixture ids must stay in lockstep"
+
+
+def test_every_positive_has_control_and_vice_versa():
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    for fid, f in fixtures.items():
+        assert fixtures[f["paired_with"]]["paired_with"] == fid
+
+
+def test_corpus_hash_is_stable_and_content_sensitive():
+    a = rc.load_corpus(FIXTURES)
+    h1 = rc.corpus_hash(a)
+    assert h1 == rc.corpus_hash(rc.load_corpus(FIXTURES))
+    mutated = [dict(f) for f in a]
+    mutated[0] = dict(mutated[0])
+    mutated[0]["input"] = dict(mutated[0]["input"],
+                               title="changed")
+    assert rc.corpus_hash(mutated) != h1
+
+
+# ---- pass policy ------------------------------------------------------------
+
+def _fx(kind="positive"):
+    return {"id": "X1", "kind": kind, "paired_with": "X2",
+            "expected": {
+                "assessment": "CLEAR" if kind == "control"
+                else "ISSUES_FOUND",
+                "findings": [] if kind == "control" else [
+                    {"severity": "blocking", "comment_any": ["inherit"]}]}}
+
+
+def test_positive_passes_at_two_of_three_detection():
+    runs = [_result("ISSUES_FOUND", [dict(BLOCK)]),  # hit
+            _result("ISSUES_FOUND", [dict(BLOCK)]),  # hit
+            _result("CLEAR")]                         # miss
+    r = rc.evaluate(_fx(), runs)
+    assert r["passes_policy"] and r["proposal"] == "GATING-capable"
+    assert r["expected_detection"][0]["hits"] == 2
+
+
+def test_positive_fails_at_one_of_three():
+    runs = [_result("ISSUES_FOUND", [dict(BLOCK)]),
+            _result("CLEAR"), _result("CLEAR")]
+    assert not rc.evaluate(_fx(), runs)["passes_policy"]
+
+
+def test_control_fails_on_any_false_blocker_zero_tolerance():
+    runs = [_result("CLEAR"), _result("CLEAR"),
+            _result("ISSUES_FOUND", [{"severity": "blocking",
+                                      "file": "a", "comment": "spurious",
+                                      "line": 1, "suggestion": None}])]
+    r = rc.evaluate(_fx(kind="control"), runs)
+    assert not r["passes_policy"]
+    assert r["false_blockers"] == 1
+    assert r["proposal"] == "KNOWN_GAP"
+
+
+def test_unexpected_blocker_fails_even_positive():
+    runs = [_result("ISSUES_FOUND", [dict(BLOCK),
+                                     {"severity": "blocking", "file": "b",
+                                      "comment": "extra", "line": 2,
+                                      "suggestion": None}])] * 3
+    r = rc.evaluate(_fx(), runs)
+    assert not r["passes_policy"]
+
+
+def test_advisory_noise_counted_not_gating():
+    runs = [_result("CLEAR", [dict(ADV), dict(ADV)])] * 3
+    r = rc.evaluate(_fx(kind="control"), runs)
+    assert r["passes_policy"]          # advisories alone never fail
+    assert r["advisory_noise"] == 6
+
+
+def test_severity_must_match_expectation():
+    soft = [dict(BLOCK, severity="non-blocking")]
+    runs = [_result("CLEAR", soft)] * 3
+    assert not rc.evaluate(_fx(), runs)["passes_policy"]
+
+
+# ---- classification + gating semantics --------------------------------------
+
+def test_measured_proposal_is_never_taken_on_faith():
+    # a fixture that fails today is proposed as KNOWN_GAP — the
+    # harness records reality; states.json is the human record
+    runs = [_result("CLEAR")] * 3
+    r = rc.evaluate(_fx(), runs)
+    assert r["proposal"] == "KNOWN_GAP"
+
+
+def test_gating_violation_logic():
+    # emulate main()'s gating composition: only recorded GATING
+    # fixtures gate the exit status
+    states = {"M1": "GATING", "M2": "KNOWN_GAP"}
+    per = [{"id": "M1", "passes_policy": False},
+           {"id": "M2", "passes_policy": False}]
+    violations = [r["id"] for r in per
+                  if states.get(r["id"]) == "GATING"
+                  and not r["passes_policy"]]
+    assert violations == ["M1"]
+
+
+# ---- profile metadata --------------------------------------------------------
+
+def test_review_input_uses_bundled_rubric_and_model_config():
+    fx = rc.load_corpus(FIXTURES)[0]
+    ri = rc._review_input(fx, "model-x")
+    assert ri["schema_version"] == 1
+    assert "RUBRIC" not in ri["policy"][:0]  # policy present
+    assert ri["policy"].strip()              # non-empty bundled rubric
+    assert ri["model"] == {"id": "model-x", "temperature": 0.2,
+                           "max_tokens": 2000}
+
+
+def test_spend_accumulates_usage():
+    fixtures = [rc.load_corpus(FIXTURES)[0]]
+    runs = iter([_result("CLEAR")])
+    spend = {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0}
+
+    def run_once(f):
+        return _result("CLEAR")
+
+    per, spend = rc.run_corpus(fixtures, "m", 3, run_once)
+    assert spend == {"calls": 3, "prompt_tokens": 30,
+                     "completion_tokens": 15}
+    assert per[0]["runs"] == 3
+
+
+# ---- oracle-validity regressions (external review of #12) --------------------
+
+def test_positive_with_missed_finding_is_known_gap_not_pass():
+    # the M4-inversion regression: a positive whose expected finding
+    # never appears must FAIL policy (proposal KNOWN_GAP) — never
+    # auto-pass via an empty-expectations hack
+    fx = {"id": "X1", "kind": "positive",
+          "expected": {"assessment": "ISSUES_FOUND",
+                       "findings": [{"severity": "blocking",
+                                     "comment_all": ["inherit"]}]}}
+    runs = [_result("CLEAR")] * 3
+    r = rc.evaluate(fx, runs)
+    assert not r["passes_policy"]
+    assert r["proposal"] == "KNOWN_GAP"
+
+
+def test_control_fails_when_reviewer_is_inconclusive():
+    # a reviewer answering INCONCLUSIVE on everything cannot pass a
+    # clean control — expected assessment is enforced, not decorative
+    fx = {"id": "C1", "kind": "control",
+          "expected": {"assessment": "CLEAR", "findings": []}}
+    runs = [_result("INCONCLUSIVE")] * 3
+    r = rc.evaluate(fx, runs)
+    assert not r["passes_policy"]
+    assert r["assessment_stability"]["INCONCLUSIVE"] == 3
+
+
+def test_control_passes_only_when_all_runs_clear():
+    fx = {"id": "C1", "kind": "control",
+          "expected": {"assessment": "CLEAR", "findings": []}}
+    ok = rc.evaluate(fx, [_result("CLEAR", [dict(ADV)])] * 3)
+    assert ok["passes_policy"]          # advisories are compatible
+    assert ok["advisory_noise"] == 3
+    mixed = rc.evaluate(fx, [_result("CLEAR"), _result("CLEAR"),
+                             _result("INCONCLUSIVE")])
+    assert not mixed["passes_policy"]
+
+
+def test_positive_requires_assessment_stability_too():
+    fx = {"id": "X1", "kind": "positive",
+          "expected": {"assessment": "ISSUES_FOUND",
+                       "findings": [{"severity": "blocking",
+                                     "comment_all": ["inherit"]}]}}
+    # detection 2/3 ok, but one INCONCLUSIVE run is a miss only if
+    # it pushes assessment below threshold: 2 ISSUES_FOUND of 3 -> ok
+    runs = [_result("ISSUES_FOUND", [dict(BLOCK)]),
+            _result("ISSUES_FOUND", [dict(BLOCK)]),
+            _result("INCONCLUSIVE")]
+    r = rc.evaluate(fx, runs)
+    assert r["passes_policy"]
+
+
+def test_matcher_all_and_any_semantics():
+    entry = {"severity": "blocking",
+             "comment_all": ["jq"], "comment_any": ["slurp", "jsonl"]}
+    hit = {"severity": "blocking", "file": "a",
+           "comment": "the jq call needs -s to slurp the stream", "line": 1}
+    missing_all = dict(hit, comment="the loop needs -s to slurp")
+    missing_any = dict(hit, comment="the jq call needs -s")
+    assert rc._finding_matches(entry, hit)
+    assert not rc._finding_matches(entry, missing_all)
+    assert not rc._finding_matches(entry, missing_any)
+    assert not rc._finding_matches(entry, dict(hit, severity="non-blocking"))
+
+
+def _loader_case(kind, expected):
+    # self-pairing: pairing validity is not what these cases test
+    return {"id": "X1", "kind": kind, "paired_with": "X1",
+            "expected": expected}
+
+
+def test_loader_rejects_positive_without_expected_findings(tmp_path):
+    bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
+                                    "findings": []})
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(bad))
+    with pytest.raises(AssertionError, match="expected finding"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_control_with_findings_or_non_clear(tmp_path):
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(_loader_case(
+        "control", {"assessment": "ISSUES_FOUND", "findings": []})))
+    with pytest.raises(AssertionError, match="CLEAR"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_matcher_without_all_or_any(tmp_path):
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(_loader_case(
+        "positive", {"assessment": "ISSUES_FOUND",
+                     "findings": [{"severity": "blocking"}]})))
+    with pytest.raises(AssertionError, match="comment_all"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_any_assessment_sentinel(tmp_path):
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(_loader_case(
+        "positive", {"assessment": "ANY",
+                     "findings": [{"severity": "blocking",
+                                   "comment_any": ["x"]}]})))
+    with pytest.raises(AssertionError, match="assessment"):
+        rc.load_corpus(d)
+
+
+def test_real_corpus_passes_strict_validation():
+    fixtures = rc.load_corpus(FIXTURES)
+    for f in fixtures:
+        if f["kind"] == "control":
+            assert f["expected"]["assessment"] == "CLEAR"
+            assert f["expected"]["findings"] == []
+        else:
+            assert f["expected"]["findings"]
+            for e in f["expected"]["findings"]:
+                assert e.get("comment_all") or e.get("comment_any")
+
+
+# ---- fixture-hygiene invariants (external review pass 3 of #12) --------------
+
+def _patch(fid):
+    return json.loads((FIXTURES / (fid + ".json")).read_text()) \
+        ["input"]["files"][0]["patch"]
+
+
+def test_M1_C1_differ_only_in_the_secrets_block():
+    # compare hunk BODIES — the headers legitimately differ because
+    # the secrets delta changes the new-side line count
+    a, b = _patch("M1").splitlines()[3:], _patch("C1").splitlines()[3:]
+    i = 0
+    while i < min(len(a), len(b)) and a[i] == b[i]:
+        i += 1
+    j = 0
+    while j < min(len(a), len(b)) - i and a[-1 - j] == b[-1 - j]:
+        j += 1
+    assert a[i:len(a) - j] == ["+    secrets: inherit"]
+    assert b[i:len(b) - j] == ["+    secrets:",
+                               "+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}"]
+    # both sides fully hardened otherwise
+    for p in (a, b):
+        assert "pull_request_target" in "\n".join(p)
+        assert "toolkit_ref: 4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd" \
+            in "\n".join(p)
+        assert "permissions:" in "\n".join(p)
+        assert "head.repo.fork" in "\n".join(p)
+
+
+def test_M2_secret_expression_well_formed():
+    p = _patch("M2")
+    assert "LLM_API_KEY: ${{ secrets.LLM_API_KEY }}" in p
+    assert "${ secrets" not in p          # the format() artifact is gone
+    assert "+  pull_request:" in p        # intended defect 1
+    assert "@main" in p                   # intended defect 2 (floating)
+
+
+def test_M7_urllib_hunk_is_mechanically_valid():
+    p = _patch("M7")
+    assert "+    req = urllib.request.Request(OPENROUTER_URL," in p
+    # the presented function defines everything it uses
+
+
+def test_C4_claim_is_self_contained():
+    c4, m4 = _patch("C4"), _patch("M4")
+    assert "RetryHandler" not in c4
+    assert "no other signal" not in c4   # no external-code claims
+    assert "no other signal" in m4       # M4 keeps the cross-file claim
+
+
+def test_no_accidental_double_diff_markers():
+    for f in sorted(FIXTURES.glob("*.json")):
+        for line in _patch(f.stem).splitlines():
+            assert not (line.startswith("++") and
+                        not line.startswith("+++ ")), (f.stem, line)
+
+
+def test_report_captures_raw_findings_for_analysis():
+    # the baseline's key question is WHAT the reviewer said, not just
+    # how often — false blockers must be inspectable post-hoc
+    fx = {"id": "X1", "kind": "control",
+          "expected": {"assessment": "CLEAR", "findings": []}}
+    runs = [_result("ISSUES_FOUND", [dict(BLOCK)])]
+    r = rc.evaluate(fx, runs)
+    assert r["runs_detail"][0]["findings"][0]["comment"] == \
+        "uses inherit here"
+    assert "raw_output" in r["runs_detail"][0]
+
+
+def test_m16_matcher_repair_via_adjudicated_witnesses():
+    # 2026-09-06 human adjudication: M16 novel phrasings ("falsely
+    # claiming success", "a lie -- no labels were actually updated",
+    # backticked Returns-{"ok" ...) are genuine expressions of the
+    # frozen fabricated-success defect. Precision rule: the added
+    # needles are semantically sufficient phrases, not broad rhetoric
+    # ("falsely claiming" / "a lie" alone could accept unrelated
+    # future blockers in the OR-only matcher).
+    witnesses = json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair3-2026-09-06" /
+         "m16-witnesses.json").read_text())["witnesses"]
+    entry = {f["id"]: f for f in rc.load_corpus(FIXTURES)}["M16"] \
+        ["expected"]["findings"][0]
+    assert "falsely claiming success" in entry["comment_any"]
+    assert "no labels were actually updated" in entry["comment_any"]
+    # broad forms must not be present as needles
+    assert "falsely claiming" not in entry["comment_any"]
+    assert "a lie" not in entry["comment_any"]
+    counts = {"genuine_expected_expression": 0,
+              "not_expected_expression": 0}
+    for w in witnesses:
+        # the witness set is frozen: unknown rulings fail loudly
+        assert w["ruling"] in counts, w["ruling"]
+        hit = rc._finding_matches(
+            entry, {"severity": "blocking", "comment": w["comment"]})
+        if w["ruling"] == "genuine_expected_expression":
+            assert hit, w["comment"][:80]
+        else:
+            assert not hit, w["comment"][:80]
+        counts[w["ruling"]] += 1
+    # frozen cardinality: silent witness deletion must fail
+    assert len(witnesses) == 27
+    assert counts["genuine_expected_expression"] == 16
+    assert counts["not_expected_expression"] == 11
+
+
+def test_oracle_repair4_witness_replay():
+    # Oracle repair 4 (2026-09-07): three phrasing-family matcher
+    # extensions adjudicated from the frozen #36 validity audit.
+    # This test REPRODUCES the frozen replay from authoritative frozen
+    # evidence (the #36 raw reports + narrative coding + the #35
+    # witness artifact); it does not trust summary counts.
+    #
+    # Soundness note: narrative-coding.jsonl stores 240-char truncated
+    # comments; 42 needle occurrences corpus-wide live past that mark,
+    # so full texts are joined from the raw reports via the coding's
+    # (profile, fixture, run, finding) pointers.
+    import json as _json
+    ev36 = FIXTURES.parent / "evidence" / "track1-baseline3-2026-09-07"
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    raw = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((ev36 / f"{prof}-n5.json").read_text())
+        for pf in rep["per_fixture"]:
+            for i, r in enumerate(pf["runs_detail"]):
+                for j, f in enumerate(r.get("findings", [])):
+                    if f.get("severity") == "blocking":
+                        raw[(prof, pf["id"], i, j)] = " ".join(
+                            (f.get("comment") or "").split())
+    coding = [_json.loads(l) for l in
+              (ev36 / "narrative-coding.jsonl").read_text().splitlines()]
+    assert len(coding) == len(raw) == 538
+    fb = [k for k, r in ((tuple(r[x] for x in ("profile", "fixture", "run", "finding")), r)
+                         for r in coding) if r["class"] == "false-blocker" for k in [k]]
+    ee = [tuple(r[x] for x in ("profile", "fixture", "run", "finding"))
+          for r in coding if r["class"] == "expected-expression"]
+    gap = [tuple(r[x] for x in ("profile", "fixture", "run", "finding"))
+           for r in coding if r["class"] == "defect-expression-unmatched"]
+    assert len(fb) == 324 and len(ee) == 211 and len(gap) == 3
+
+    art = _json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair4-2026-09-07" /
+         "witness-replay.json").read_text())
+    adj = set()
+    for w in art["genuine"]:
+        ptr = (w["profile"], w["fixture"], w["run"], w["finding"])
+        adj.add(ptr)
+        # tamper check: witness text equals the frozen raw text at pointer
+        assert raw[ptr] == w["narrative"]
+    assert adj == set(gap)
+
+    # replay through the ACTUAL matcher over the full frozen population
+    matched = set()
+    for ptr, text in raw.items():
+        entries = fixtures[ptr[1]]["expected"].get("findings", [])
+        if any(rc._finding_matches(e, {"severity": "blocking", "comment": text})
+               for e in entries):
+            matched.add(ptr)
+    assert matched == set(ee) | adj          # exactly 214
+    assert len(matched & set(fb)) == 0       # all 324 FBs rejected
+    assert len(matched - set(ee)) == 3       # exactly 3 flips
+    # zero collateral: nothing outside the adjudicated three changed
+
+    # #35 contract remains intact through the actual matcher
+    w35 = _json.loads(
+        (FIXTURES.parent / "evidence" / "track1-oracle-repair3-2026-09-06" /
+         "m16-witnesses.json").read_text())["witnesses"]
+    entry16 = fixtures["M16"]["expected"]["findings"][0]
+    for w in w35:
+        hit = rc._finding_matches(entry16, {"severity": "blocking",
+                                            "comment": w["comment"]})
+        assert hit == (w["ruling"] == "genuine_expected_expression")
+    assert sum(1 for w in w35
+               if w["ruling"] == "genuine_expected_expression") == 16
+    assert sum(1 for w in w35
+               if w["ruling"] == "not_expected_expression") == 11
+
+    # structured-entry discipline: context required, not bare needles
+    e2 = fixtures["M12"]["expected"]["findings"][1]
+    assert e2["comment_all"] == ["stale"]
+    assert set(e2["comment_any"]) == {"without distinguishing",
+                                      "different failure mode"}
+    m3 = fixtures["M3"]["expected"]["findings"]
+    assert m3[0]["comment_all"] == ["mtime"]          # original untouched
+    assert m3[1]["comment_all"] == ["filesystem metadata"]
+    assert set(m3[1]["comment_any"]) == {"parse", "date"}
+    assert "indistinguishable from a successful" in \
+        fixtures["M16"]["expected"]["findings"][0]["comment_any"]
+    assert "falsely claiming" not in \
+        fixtures["M16"]["expected"]["findings"][0]["comment_any"]
+
+
+def _load_blocking_population(evdir):
+    import json as _json
+    raw = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((evdir / f"{prof}-n5.json").read_text())
+        for pf in rep["per_fixture"]:
+            for i, r in enumerate(pf["runs_detail"]):
+                for j, f in enumerate(r.get("findings", [])):
+                    if f.get("severity") == "blocking":
+                        raw[(prof, pf["id"], i, j)] = " ".join(
+                            (f.get("comment") or "").split())
+    return raw
+
+
+def test_oracle_repair5_witness_replay():
+    # Oracle repair 5: M11 status-less + M16 returned-on-failure
+    # phrasings. Reproduced from authoritative frozen evidence (#36 +
+    # #40 raw reports + codings + #35 artifact); summary fields are
+    # metadata only.
+    import json as _json
+    ev = FIXTURES.parent / "evidence"
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    art = _json.loads((ev / "track1-oracle-repair5-2026-09-08" /
+                       "witness-replay.json").read_text())
+    adj = {(w["profile"], w["fixture"], w["run"], w["finding"])
+           for w in art["adjudicated_flips_on_#40"]}
+
+    for tag, evdir in (("#36", ev / "track1-baseline3-2026-09-07"),
+                       ("#40", ev / "track1-t13-iter1-measurement-2026-09-08")):
+        raw = _load_blocking_population(evdir)
+        coding = {_json.loads(l) and tuple(_json.loads(l)[k] for k in
+                   ("profile", "fixture", "run", "finding")): _json.loads(l)
+                  for l in (evdir / "narrative-coding.jsonl").read_text().splitlines()}
+        ee = {k for k, v in coding.items()
+              if v["class"] == "expected-expression"}
+        fbs = {k for k, v in coding.items() if v["class"] == "false-blocker"}
+        gaps = {k for k, v in coding.items()
+                if v["class"] == "defect-expression-unmatched"}
+        matched = set()
+        for ptr, text in raw.items():
+            entries = fixtures[ptr[1]]["expected"].get("findings", [])
+            if any(rc._finding_matches(e, {"severity": "blocking",
+                                           "comment": text})
+                   for e in entries):
+                matched.add(ptr)
+        if tag == "#36":
+            # repair-4's three adjudicated gaps stay accepted; repair 5
+            # adds nothing to this population
+            assert len(raw) == 538 and matched == ee | gaps
+            assert len(matched) == 214 and len(gaps) == 3
+            assert not (matched & fbs)            # 324/324 rejected
+        else:
+            assert len(raw) == 469
+            # witness texts tamper-checked against the raw reports
+            for w in art["adjudicated_flips_on_#40"]:
+                ptr = (w["profile"], w["fixture"], w["run"], w["finding"])
+                assert raw[ptr].startswith(w["narrative"][:80])
+            assert matched == ee | adj and len(matched) == 197
+            assert len(fbs - matched) == 272       # only r0f1 accepted
+            assert adj <= matched
+
+    # #35 contract through the actual matcher
+    w35 = _json.loads((ev / "track1-oracle-repair3-2026-09-06" /
+                       "m16-witnesses.json").read_text())["witnesses"]
+    entries16 = fixtures["M16"]["expected"]["findings"]
+    for w in w35:
+        hit = any(rc._finding_matches(e, {"severity": "blocking",
+                                          "comment": w["comment"]})
+                  for e in entries16)
+        assert hit == (w["ruling"] == "genuine_expected_expression")
+
+    # structured-entry discipline: context required, originals intact
+    m11 = fixtures["M11"]["expected"]["findings"]
+    assert m11[0]["comment_all"] == ["status"]
+    assert m11[1]["comment_all"] == ["|| true"]
+    assert set(m11[1]["comment_any"]) == {"suppress", "exit code"}
+    m16 = fixtures["M16"]["expected"]["findings"]
+    assert "indistinguishable from a successful" in m16[0]["comment_any"]
+    assert m16[1]["comment_all"] == ['{"ok"']
+    assert "falsely claiming" not in m16[0]["comment_any"]
+
+
+def test_repair5_evidence_hardening():
+    # Zero-spend hardening of the merged repair-5 evidence (#42),
+    # per the #43 review: provenance, exact witness integrity, #40
+    # coding totals, deterministic floor parity.
+    import json as _json
+    from collections import Counter
+    ev = FIXTURES.parent / "evidence"
+    E40 = ev / "track1-t13-iter1-measurement-2026-09-08"
+    art = _json.loads((ev / "track1-oracle-repair5-2026-09-08" /
+                       "witness-replay.json").read_text())
+    assert art["_provenance"]["adjudicated_on"] == "2026-09-09"
+
+    # (a) #40 coding totals: 469 = 193 + 273 + 3
+    rows = [_json.loads(l) for l in (E40 / "narrative-coding.jsonl")
+            .read_text().splitlines()]
+    c = Counter(r["class"] for r in rows)
+    assert len(rows) == 469
+    assert (c["expected-expression"], c["false-blocker"],
+            c["defect-expression-unmatched"]) == (193, 273, 3)
+
+    # (b) exact witness integrity: byte equality with the raw reports
+    raw = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((E40 / f"{prof}-n5.json").read_text())
+        for pf in rep["per_fixture"]:
+            for i, r in enumerate(pf["runs_detail"]):
+                for j, f in enumerate(r.get("findings", [])):
+                    if f.get("severity") == "blocking":
+                        raw[(prof, pf["id"], i, j)] = f.get("comment") or ""
+    for w in art["adjudicated_flips_on_#40"]:
+        ptr = (w["profile"], w["fixture"], w["run"], w["finding"])
+        assert raw[ptr] == w["narrative"] and w["narrative"].strip()
+
+    # (c) deterministic floor parity: recomputed #36 rescore under the
+    # current oracle == repair-5 artifact floors == repair-4 frozen
+    # per-positive floors
+    fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
+    E36 = ev / "track1-baseline3-2026-09-07"
+    recomputed = {}
+    for prof in ("haiku", "sonnet"):
+        rep = _json.loads((E36 / f"{prof}-n5.json").read_text())
+        recomputed[prof] = {}
+        for pf in rep["per_fixture"]:
+            if pf["kind"] != "positive":
+                continue
+            entries = fixtures[pf["id"]]["expected"].get("findings", [])
+            recomputed[prof][pf["id"]] = sum(
+                1 for r in pf["runs_detail"]
+                if any(rc._finding_matches(e, f)
+                       for f in r.get("findings", []) for e in entries))
+    assert recomputed == art["floor_rescore_under_repaired_oracle"]
+    r4 = _json.loads((ev / "track1-oracle-repair4-2026-09-07" /
+                      "witness-replay.json").read_text())
+    frozen = r4["replay"]["per_positive_detections"]
+    for prof in ("haiku", "sonnet"):
+        pos = {k: v for k, v in frozen[prof].items() if k in recomputed[prof]}
+        assert pos == recomputed[prof]
+    assert sum(recomputed["haiku"].values()) == 51
+    assert sum(recomputed["sonnet"].values()) == 66
