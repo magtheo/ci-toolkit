@@ -10,6 +10,33 @@
 - [ ] Feature umbrella (`feature/*` -> `main`)
 - [ ] Feature phase (`phase/*` -> `feature/*`)
 
+## Current state
+
+<!-- Applies to every PR type. REPLACE this section as state changes —
+     do not append an execution diary; history lives in commits,
+     checks, and review threads. The state describes the exact current
+     head; a stale or contradictory description is a defect. For
+     umbrella PRs, also summarize phases complete / in flight / blocked
+     and the drift assessment vs current `main` here. -->
+
+**State:** IN_PROGRESS
+<!-- Allowed work-status values: IN_PROGRESS | BLOCKED |
+     NEEDS_HUMAN_DECISION | IMPLEMENTATION_COMPLETE -->
+**Head:** `<full commit SHA at the current review boundary>`
+**Known blockers:** —
+**Known limitations:** —
+**Next action:** —
+
+<!-- Work-status values are implementation-phase presentation.
+     IMPLEMENTATION_COMPLETE is the implementation agent's handoff:
+     "the assigned work is finished" — nothing more; not merge
+     readiness, not merge authorization. The decision progression
+     IMPLEMENTATION_COMPLETE -> READY_FOR_HUMAN_MERGE_REVIEW ->
+     MERGE_AUTHORIZED -> MERGED is defined by the repository's
+     readiness policy (see ci-toolkit MATURITY_ROADMAP 3.7);
+     READY_FOR_HUMAN_MERGE_REVIEW and beyond are machine-derived only
+     and must never be asserted by an implementation agent. -->
+
 ## Umbrella PR format (delete if not the umbrella)
 
 <!-- Open as draft; stays draft until every phase has merged and final
@@ -23,13 +50,6 @@
 ## Goal
 
 One or two sentences.
-
-## Current state
-
-<!-- At each review boundary, update to the exact current head:
-     phases complete / in flight / blocked, drift assessment vs
-     current `main`, known limitations. A description that
-     contradicts the diff is a defect. -->
 
 ## Phase PR format (delete if not a phase PR)
 
