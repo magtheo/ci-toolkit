@@ -134,7 +134,9 @@ def effective_review_input(review_input):
         trunc_note = "\n[diff truncated at {0} characters]".format(max_diff)
         break
 
-    return {"changed_list": changed_list, "diff_text": diff_text,
+    return {"title": review_input["title"],
+            "body": review_input["body"][:2000],
+            "changed_list": changed_list, "diff_text": diff_text,
             "files_note": files_note, "trunc_note": trunc_note,
             "segments": segments}
 
@@ -148,8 +150,11 @@ def _budget(review_input):
 
 
 def _build_prompts(review_input):
-    """Prompt construction — byte-identical to the legacy template."""
-    changed_list, diff_text, files_note, trunc_note = _budget(review_input)
+    """Prompt construction — byte-identical to the legacy template.
+    Every model-visible field comes from effective_review_input: there
+    is ONE source for what the model sees (title/body budgets included),
+    so prompts and support validation can never drift apart."""
+    eff = effective_review_input(review_input)
     system_prompt = ("You are an advisory code reviewer. "
                      "Follow this rubric exactly:\n\n"
                      "{0}").format(review_input["policy"])
@@ -168,9 +173,10 @@ def _build_prompts(review_input):
                    "\n"
                    "Respond with the rubric's STRICT JSON object and "
                    "nothing else.").format(
-                       review_input["title"],
-                       review_input["body"][:2000],
-                       changed_list, files_note, diff_text, trunc_note)
+                       eff["title"],
+                       eff["body"],
+                       eff["changed_list"], eff["files_note"],
+                       eff["diff_text"], eff["trunc_note"])
     return system_prompt, user_prompt
 
 

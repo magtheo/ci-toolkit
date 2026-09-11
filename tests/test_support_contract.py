@@ -476,6 +476,29 @@ def test_budget_tuple_is_byte_identical_to_legacy_reference(monkeypatch):
             if kind == "diff":
                 assert text in want[1], (env, ident)
                 assert text.startswith("----- ") is False, (env, ident)
+        # drift regression: the title/body MATCHABLE segments are the
+        # exact effective fields the prompt is built from — a future
+        # budget change cannot update one consumer without the other
+        by_kind = {kind: text for kind, _, text in got["segments"]}
+        assert by_kind["title"] == got["title"], env
+        assert by_kind["body"] == got["body"], env
+        assert got["body"] == review_input["body"][:2000], env
+
+
+def test_prompt_title_and_body_come_from_effective_input():
+    # the prompt embeds exactly the effective title/body — the same
+    # fields the validator matches against (single source of truth)
+    review_input = _input(
+        title="The title",
+        body="short line " * 180 + "TAILSENTINEL beyond budget")
+    eff = engine.effective_review_input(review_input)
+    _, user_prompt = engine._build_prompts(review_input)
+    assert ("title", "", eff["title"]) in eff["segments"]
+    assert ("body", "", eff["body"]) in eff["segments"]
+    assert eff["body"] == review_input["body"][:2000]
+    assert eff["title"] in user_prompt
+    assert eff["body"] in user_prompt
+    assert "TAILSENTINEL beyond budget" not in user_prompt
 
 
 # ---- end-to-end wiring through run_review (model call stubbed) ---------------
