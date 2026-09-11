@@ -67,6 +67,27 @@ def parse_model_output(content):
     return obj if isinstance(obj, dict) else {}
 
 
+def _extract_support(raw):
+    """Structural extraction of a finding's support field (layer (b)).
+
+    Shape-only, never content-judged (matching/vacuity is the engine's
+    job, against the model-visible input). Conforming items become
+    {"quote": str}; anything malformed is DROPPED PER ITEM — support
+    problems are evidence problems, not schema failures: zero valid
+    items means under-support (deterministic downgrade downstream),
+    never INCONCLUSIVE. Returns None when no valid items exist, so the
+    findings dict stays byte-identical to the pre-support schema for
+    support-less findings (old subjects replay unchanged).
+    """
+    if not isinstance(raw, list):
+        return None
+    items = []
+    for item in raw:
+        if isinstance(item, dict) and isinstance(item.get("quote"), str):
+            items.append({"quote": item["quote"]})
+    return items or None
+
+
 def _validate_findings(obj):
     """Strict schema validation of the findings list.
 
@@ -74,7 +95,9 @@ def _validate_findings(obj):
     invalid (bad output must never become Clear — it becomes
     INCONCLUSIVE instead). Severity is normalized case/whitespace;
     anything still outside the enum invalidates the whole response
-    rather than silently downgrading evidence to advisory.
+    rather than silently downgrading evidence to advisory. Support is
+    carried through structurally (see _extract_support) — its absence
+    or malformedness never invalidates the response.
     """
     if not isinstance(obj, dict):
         return None
@@ -92,9 +115,13 @@ def _validate_findings(obj):
         severity = str(f.get("severity", "")).strip().lower()
         if not comment or not fname or severity not in SEVERITIES:
             return None
-        cleaned.append({"file": fname, "comment": comment,
-                        "severity": severity, "line": f.get("line"),
-                        "suggestion": f.get("suggestion")})
+        cleaned_finding = {"file": fname, "comment": comment,
+                           "severity": severity, "line": f.get("line"),
+                           "suggestion": f.get("suggestion")}
+        support = _extract_support(f.get("support"))
+        if support is not None:
+            cleaned_finding["support"] = support
+        cleaned.append(cleaned_finding)
     return cleaned
 
 

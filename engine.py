@@ -35,6 +35,7 @@ JSON payloads, never through shell evaluation.
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -73,35 +74,87 @@ def _load_review_input(path):
     return review_input
 
 
-def _budget(review_input):
-    """Input selection: caps + notes, byte-identical to the legacy
-    review.sh budgeting (prompts must not change)."""
+def effective_review_input(review_input):
+    """The model-visible input, built ONCE — the single source for
+    BOTH prompt construction AND support validation (layer (b)
+    contract). The validator never reconstructs the haystack
+    independently: a quote can only validate against exactly what the
+    model saw (file cap, per-section diff truncation, body[:2000]).
+
+    Returns a dict with the legacy budget tuple (changed_list,
+    diff_text, files_note, trunc_note — byte-identical to the
+    review.sh budgeting) plus `segments`: the matchable data segments
+    as (kind, id, text) — title; body slice; changed-file list; and
+    each file's VISIBLE PATCH BYTES (the generated "----- path
+    (status) -----" header is engine framing, never matchable; when
+    the legacy cut lands inside the header the file contributes no
+    diff segment). Policy/rubric text, files_note/trunc_note and all
+    prompt framing are likewise excluded — quoting instructions or
+    synthetic notes can never certify a finding.
+    """
     max_files = int(os.environ.get("AI_REVIEW_MAX_FILES", "200"))
     max_diff = int(os.environ.get("AI_REVIEW_MAX_DIFF", "120000"))
     files = review_input["files"]
 
     files_note = ""
     if len(files) > max_files:
-        files = files[:max_files]
         files_note = "\n[file list capped at {0} of {1} changed files]".format(
-            max_files, len(review_input["files"]))
+            max_files, len(files))
+        files = files[:max_files]
 
     changed_list = "\n".join(f["path"] for f in files)
-    diff_text = "\n\n".join(
-        "----- {0} ({1}) -----\n{2}".format(f["path"], f["status"], f["patch"])
-        for f in files if f.get("patch") is not None)
+    segments = [("title", "", review_input["title"]),
+                ("body", "", review_input["body"][:2000]),
+                ("changed_files", "", changed_list)]
 
+    diff_text = ""
     trunc_note = ""
-    if len(diff_text) > max_diff:
-        diff_text = diff_text[:max_diff]
+    for f in files:
+        if f.get("patch") is None:
+            continue
+        header = "----- {0} ({1}) -----\n".format(f["path"], f["status"])
+        candidate = diff_text + ("\n\n" if diff_text else "") \
+            + header + f["patch"]
+        if len(candidate) <= max_diff:
+            diff_text = candidate
+            segments.append(("diff", f["path"], f["patch"]))
+            continue
+        # budget boundary: the model sees only the kept prefix of this
+        # section (the cut can even land inside the joiner or the
+        # generated header — the exact legacy slice semantics are
+        # preserved by slicing the candidate); only actual patch bytes
+        # past the header join the support corpus
+        section_start = len(diff_text) + (2 if diff_text else 0)
+        kept_len = max_diff - section_start
+        diff_text = candidate[:max_diff]
+        header_len = len(header)
+        if kept_len > header_len:
+            segments.append(("diff", f["path"],
+                             f["patch"][:kept_len - header_len]))
         trunc_note = "\n[diff truncated at {0} characters]".format(max_diff)
+        break
 
-    return changed_list, diff_text, files_note, trunc_note
+    return {"title": review_input["title"],
+            "body": review_input["body"][:2000],
+            "changed_list": changed_list, "diff_text": diff_text,
+            "files_note": files_note, "trunc_note": trunc_note,
+            "segments": segments}
+
+
+def _budget(review_input):
+    """Input selection — thin wrapper over effective_review_input so
+    prompts and support validation can never drift apart."""
+    eff = effective_review_input(review_input)
+    return (eff["changed_list"], eff["diff_text"],
+            eff["files_note"], eff["trunc_note"])
 
 
 def _build_prompts(review_input):
-    """Prompt construction — byte-identical to the legacy template."""
-    changed_list, diff_text, files_note, trunc_note = _budget(review_input)
+    """Prompt construction — byte-identical to the legacy template.
+    Every model-visible field comes from effective_review_input: there
+    is ONE source for what the model sees (title/body budgets included),
+    so prompts and support validation can never drift apart."""
+    eff = effective_review_input(review_input)
     system_prompt = ("You are an advisory code reviewer. "
                      "Follow this rubric exactly:\n\n"
                      "{0}").format(review_input["policy"])
@@ -120,9 +173,10 @@ def _build_prompts(review_input):
                    "\n"
                    "Respond with the rubric's STRICT JSON object and "
                    "nothing else.").format(
-                       review_input["title"],
-                       review_input["body"][:2000],
-                       changed_list, files_note, diff_text, trunc_note)
+                       eff["title"],
+                       eff["body"],
+                       eff["changed_list"], eff["files_note"],
+                       eff["diff_text"], eff["trunc_note"])
     return system_prompt, user_prompt
 
 
@@ -226,10 +280,118 @@ def _call_model(review_input):
     return content, usage
 
 
+# ---- layer (b): deterministic support validation ----------------------------
+# Contract (plans/layer-b-structured-support-design.md, approved #47 rev 2):
+# a blocking finding needs >= 1 valid support item — a non-trivial verbatim
+# quote from the model-visible input, matched within a single segment.
+# Under-support (missing/null/malformed/non-matching) is INTENTIONAL POLICY
+# demotion to the canonical non-blocking severity (presentation vocabulary
+# "advisory" lives in render.py) with a machine reason appended — never
+# dropped, never INCONCLUSIVE. Structural failure (JSON/schema/label
+# mismatch) stays fail-closed in parse_review; this stage runs after it and
+# never resurrects INCONCLUSIVE into CLEAR.
+
+SUPPORT_DOWNGRADE_PREFIX = "[downgraded by support validation: "
+
+# Anti-vacuity floor (frozen here; recorded verbatim in any 20d freeze):
+# a quote shorter than this — or lexically thinner — cannot certify a
+# blocker, whatever it matches.
+_SUPPORT_MIN_CHARS = 16   # normalized length (case-folded, whitespace-collapsed)
+_SUPPORT_MIN_TOKENS = 3   # maximal alphanumeric runs
+
+
+def support_downgrade_note(reason):
+    """Deterministic machine reason for a demotion (public: 20d tooling
+    reads these back out of frozen reports)."""
+    return "{0}{1}]".format(SUPPORT_DOWNGRADE_PREFIX, reason)
+
+
+def _normalize_text(text):
+    """Case-fold + whitespace-collapse (both sides of every match)."""
+    return " ".join(text.split()).casefold()
+
+
+def _passes_vacuity(quote_normalized):
+    if len(quote_normalized) < _SUPPORT_MIN_CHARS:
+        return False
+    if len(re.findall(r"[^\W_]+", quote_normalized,
+                      re.UNICODE)) < _SUPPORT_MIN_TOKENS:
+        return False
+    return True
+
+
+def _resolve_support(support, segments):
+    """Validate a finding's support against the model-visible segments.
+
+    Returns (matched_item, reason): on success matched_item is the
+    first valid item, annotated IN PLACE with engine-derived provenance
+    `engine_match: {kind, id}` (kind: title | body | changed_files |
+    diff; id: file path for diff segments, "" otherwise). The model
+    supplies only the quote; the engine supplies the match coordinates.
+    Deterministic: items in order, segments in effective_review_input
+    order; only the FIRST match is annotated. Items that do not match
+    get no fabricated provenance.
+
+    Failure reasons (truthful, deterministic):
+      support_missing   no support items survived parsing
+      support_vacuous   items exist but every quote fails the
+                        anti-vacuity floor
+      support_not_found at least one non-vacuous quote, none matched
+    """
+    if not support:
+        return None, "support_missing"
+    saw_nonvacuous = False
+    for item in support:
+        normalized = _normalize_text(item.get("quote", ""))
+        if not _passes_vacuity(normalized):
+            continue
+        saw_nonvacuous = True
+        for kind, ident, text in segments:
+            if normalized in _normalize_text(text):
+                item["engine_match"] = {"kind": kind, "id": ident}
+                return item, None
+    return None, ("support_vacuous" if not saw_nonvacuous
+                  else "support_not_found")
+
+
+def apply_support_policy(result, review_input):
+    """Support validation over a normalized ReviewResult fragment.
+
+    - unsupported blockers -> canonical "non-blocking" severity +
+      machine reason appended (auditability: the claim stays visible,
+      the demotion is reproducible from the frozen inputs);
+    - >= 1 surviving blocker -> ISSUES_FOUND unchanged;
+    - blockers present, all demoted -> CLEAR (intentional deterministic
+      demotion is not malformed evidence);
+    - INCONCLUSIVE fragments (structural failure / C7-style label
+      mismatch) carry no findings, so this stage is a no-op on them —
+      the fail-closed path is untouched.
+    """
+    if result.get("assessment") == "INCONCLUSIVE":
+        return result
+    segments = [(kind, ident, text) for kind, ident, text in
+                effective_review_input(review_input)["segments"]]
+    demoted = False
+    for finding in result.get("findings", []):
+        if finding.get("severity") != "blocking":
+            continue
+        item, reason = _resolve_support(finding.get("support"), segments)
+        if item is None:
+            finding["severity"] = "non-blocking"
+            finding["comment"] = "{0} {1}".format(
+                finding["comment"], support_downgrade_note(reason))
+            demoted = True
+    if demoted and result["assessment"] == "ISSUES_FOUND" \
+            and not any(f["severity"] == "blocking"
+                        for f in result["findings"]):
+        result["assessment"] = "CLEAR"
+    return result
+
+
 def run_review(review_input):
     """ReviewInput v1 -> ReviewResult v1 (full pipeline, pure result)."""
     content, usage = _call_model(review_input)
-    result = normalize(content)
+    result = apply_support_policy(normalize(content), review_input)
     result["usage"] = usage
     result["raw_output"] = content
     return result
