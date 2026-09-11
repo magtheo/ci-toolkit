@@ -206,7 +206,8 @@ Is the branch mine for this task or explicitly assigned?
 If any cannot be determined reliably, stop and ask.
 
 Stop conditions and prohibited actions: as in `templates/AGENTS.md`
-(agents never approve or merge PRs — "finish this"/"land this"/"get
+(agents never approve or merge PRs — not delegable by conversational
+shorthand or task-level instruction; "finish this"/"land this"/"get
 this merged"/"proceed when green" means bring the PR to the human
 merge-review boundary, never execute the merge; no direct
 commits/merges to `main`, no writing to foreign branches,

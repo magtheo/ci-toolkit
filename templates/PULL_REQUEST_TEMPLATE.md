@@ -19,19 +19,23 @@
      umbrella PRs, also summarize phases complete / in flight / blocked
      and the drift assessment vs current `main` here. -->
 
-**State:** IN PROGRESS
-<!-- Allowed: IN PROGRESS | BLOCKED | NEEDS HUMAN DECISION |
-     IMPLEMENTATION COMPLETE -->
-**Head:** `<sha at the current review boundary>`
+**State:** IN_PROGRESS
+<!-- Allowed work-status values: IN_PROGRESS | BLOCKED |
+     NEEDS_HUMAN_DECISION | IMPLEMENTATION_COMPLETE -->
+**Head:** `<full commit SHA at the current review boundary>`
 **Known blockers:** —
 **Known limitations:** —
 **Next action:** —
 
-<!-- IMPLEMENTATION COMPLETE is the implementation agent's handoff:
-     "the assigned work is finished" — nothing more. It is not merge
-     readiness and not merge authorization. READY_FOR_HUMAN_MERGE_REVIEW
-     is reserved for future machine-derived, exact-head readiness
-     machinery and must never be asserted by an implementation agent. -->
+<!-- Work-status values are implementation-phase presentation.
+     IMPLEMENTATION_COMPLETE is the implementation agent's handoff:
+     "the assigned work is finished" — nothing more; not merge
+     readiness, not merge authorization. The decision progression
+     IMPLEMENTATION_COMPLETE -> READY_FOR_HUMAN_MERGE_REVIEW ->
+     MERGE_AUTHORIZED -> MERGED is defined by the repository's
+     readiness policy (see ci-toolkit MATURITY_ROADMAP 3.7);
+     READY_FOR_HUMAN_MERGE_REVIEW and beyond are machine-derived only
+     and must never be asserted by an implementation agent. -->
 
 ## Umbrella PR format (delete if not the umbrella)
 

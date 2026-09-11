@@ -333,8 +333,8 @@ this stage — the evidence here is the operational fragmentation above.)
 
 ### Target
 
-Introduce one machine-readable PR state, bound to the exact current head SHA,
-with strictly separated ownership:
+Introduce one machine-readable PR decision state, bound to the exact
+current head SHA, with strictly separated ownership:
 
 ```text
 1. IMPLEMENTATION_COMPLETE
@@ -343,17 +343,29 @@ with strictly separated ownership:
 
 2. READY_FOR_HUMAN_MERGE_REVIEW
    owner: deterministic readiness machinery (this stage)
-   claim: "All evidence required by repository policy completed successfully
-   for this exact head, with no known unresolved blocker."
+   claim: "All pre-human-review evidence required to enter merge review
+   completed successfully for this exact head, with no known unresolved
+   blocker."
 
 3. MERGE_AUTHORIZED
-   owner: human maintainer, or explicit pre-authorized repository policy
+   owner: human maintainer
    claim: "This change may cross the integration boundary."
 
 4. MERGED
-   execution: the directing human, or trusted deterministic automation
-   acting on an already-recorded authorization.
+   execution: the directing human performs the merge.
 ```
+
+The relationship to the PR-template work-status vocabulary
+(`IN_PROGRESS` / `BLOCKED` / `NEEDS_HUMAN_DECISION`) is explicit:
+those are human- or agent-authored implementation work-status values
+used before handoff; the machine-readable decision progression begins
+at `IMPLEMENTATION_COMPLETE` and supersedes that presentation when
+implemented.
+
+Deterministic execution of an already-recorded authorization (a merge
+queue) is not part of the current model; it remains a possible future
+extension, to be introduced only as a separately reviewed policy
+change if operational evidence justifies it.
 
 These states must not be collapsed together. In particular:
 
@@ -375,8 +387,9 @@ These states must not be collapsed together. In particular:
 - Present the state through one compact, mutable current-state surface;
   reruns replace rather than accumulate duplicate human-facing summaries,
   while underlying evidence and history remain inspectable.
-- Any future automatically pre-authorized class of changes must be explicitly
-  defined by repository policy; agents never infer an exception for
+- No automatically pre-authorized merge class exists in the current
+  model. If one is ever introduced, it must be an explicit, separately
+  reviewed repository policy — agents never infer an exception for
   themselves.
 
 ### Prerequisite

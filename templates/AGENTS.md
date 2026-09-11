@@ -85,8 +85,7 @@ main
 - Agents never approve or merge pull requests — not small-change PRs,
   not phase PRs, not umbrella PRs.
 - Work reaches `main` only through a reviewed pull request merged by
-  the directing human (or by trusted automation acting on an explicit,
-  already-recorded human authorization — see Merge authority below).
+  the directing human.
 
 ### Architecture invariants
 
@@ -516,19 +515,16 @@ value — never a tollbooth.
 
 **Agents never approve or merge pull requests.** Agents may prepare,
 update, test, review, and declare their implementation work complete;
-the directing human authorizes and executes the merge. Trusted
-repository automation may later execute an already-authorized merge
-if repository policy explicitly provides for it — agents never
-authorize, including for themselves.
+the directing human authorizes and executes the merge. Merge authority
+is not delegable — not through conversational shorthand, not through
+task-level instructions, and not by agent self-interpretation. The
+rule changes only by amending this governance file.
 
 Conversational shorthand such as "finish this", "land this", "get
 this merged", "proceed when green", or similar does **not** grant
 merge authority. It means: bring the PR to the human merge-review
 boundary (validation current at the exact head, review findings
-addressed, description accurate) and stop. If repository policy
-defines a pre-authorized class of changes that automation may merge,
-an agent still cannot infer that its own change qualifies — only the
-explicit policy can.
+addressed, description accurate) and stop.
 
 ---
 
@@ -609,11 +605,16 @@ Stopping is preferred to guessing.
 
 ## Prohibited Agent Actions
 
-Unless a human explicitly overrides this file for a specific task, agents must not:
+Merge authority is not delegable through task-level instructions:
+agents never approve or merge pull requests. This holds even when a
+human explicitly overrides this file for a specific task — the rule
+itself changes only by amending this governance file.
 
-- commit, push, or merge directly to `main`, or approve or merge any
-  PR (small-change, phase, or umbrella — agents never approve or
-  merge; see Merge authority);
+For the remaining prohibitions below, unless a human explicitly
+overrides this file for a specific task, agents must not:
+
+- approve or merge any PR (non-overrideable — see Merge authority);
+- commit, push, or merge directly to `main`;
 - implement multiple phases in one PR;
 - silently expand feature scope, or silently rewrite an approved plan;
 - skip required tests to make a PR appear complete; hide failing
