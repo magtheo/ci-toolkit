@@ -9,7 +9,7 @@ the **toolkit itself**: release discipline, compatibility, deterministic CI,
 consumer contracts, operational visibility, supply-chain posture, and fleet
 management.
 
-Last reviewed: 2026-08-31
+Last reviewed: 2026-09-11
 
 ## Scope boundary
 
@@ -64,7 +64,12 @@ around basic reviewer safety:
 6. operational health across multiple consumers is not yet observable;
 7. upgrade/fleet management is manual;
 8. the existing roadmap freshness guard covers `ROADMAP.md` only, so this new
-   authoritative roadmap is not yet mechanically freshness-checked.
+   authoritative roadmap is not yet mechanically freshness-checked;
+9. PR decision state is fragmented: CI runs, AI reviews, agent summaries,
+   review threads, and fix rounds each expose partial evidence through
+   separate surfaces; determining "what is the next action on this PR?"
+   requires reconstructing comment history manually, and evidence is not
+   uniformly bound to the exact current head (see 3.7).
 
 ## Maturity stages
 
@@ -309,6 +314,96 @@ whole PR.
 
 ---
 
+## 3.7 Decision-grade PR state and human handoff
+
+### Evidence / gap
+
+CI, AI review, agent summaries, review threads, and fix rounds currently expose
+useful evidence through multiple GitHub surfaces. As a PR evolves, determining
+its current state requires reconstructing that history manually. This increases
+cognitive load and makes it easy to confuse "agent finished", "AI review clear",
+and "human-authorized to merge" — three different claims.
+
+A compact readiness state is valuable only if it is derived from trustworthy,
+exact-head evidence. It must not hide uncertainty or turn an advisory reviewer
+into an authority. (A 2026-09-11 cross-repository incident in which an agent
+executed a PR merge on conversational wording motivates the authority
+clarification recorded in `AGENTS.md`; it is not by itself the evidence for
+this stage — the evidence here is the operational fragmentation above.)
+
+### Target
+
+Introduce one machine-readable PR state, bound to the exact current head SHA,
+with strictly separated ownership:
+
+```text
+1. IMPLEMENTATION_COMPLETE
+   owner: implementation agent
+   claim: "I have finished the assigned work."
+
+2. READY_FOR_HUMAN_MERGE_REVIEW
+   owner: deterministic readiness machinery (this stage)
+   claim: "All evidence required by repository policy completed successfully
+   for this exact head, with no known unresolved blocker."
+
+3. MERGE_AUTHORIZED
+   owner: human maintainer, or explicit pre-authorized repository policy
+   claim: "This change may cross the integration boundary."
+
+4. MERGED
+   execution: the directing human, or trusted deterministic automation
+   acting on an already-recorded authorization.
+```
+
+These states must not be collapsed together. In particular:
+
+- Every CI/review/readiness claim is bound to a specific head SHA; a new
+  commit invalidates prior readiness.
+- Changes made after a review require fresh, current-head evidence according
+  to repository policy; a stale review can never make a new head ready.
+- Agent completion is an input to the state, never authority to set the final
+  state; an implementation agent never asserts `READY_FOR_HUMAN_MERGE_REVIEW`.
+- `READY_FOR_HUMAN_MERGE_REVIEW` is not a correctness guarantee and not merge
+  authorization.
+- AI review remains advisory and contributes only with its
+  demonstrated/qualified semantics; `Clear` must never be promoted into a
+  stronger claim than the reviewer contract supports.
+- Partial, inconclusive, or truncated review evidence fails closed rather
+  than becoming green readiness (ties into 3.6).
+- Higher-risk change classes may require more evidence; an agent can never
+  lower its own required evidence class.
+- Present the state through one compact, mutable current-state surface;
+  reruns replace rather than accumulate duplicate human-facing summaries,
+  while underlying evidence and history remain inspectable.
+- Any future automatically pre-authorized class of changes must be explicitly
+  defined by repository policy; agents never infer an exception for
+  themselves.
+
+### Prerequisite
+
+This stage does not require a "perfect" reviewer. It requires that the
+evidence types it aggregates — deterministic gate results, reviewer evidence
+with its qualified scope, coverage/truncation semantics from 3.6 — are
+sufficiently defined to aggregate truthfully (e.g. readiness can say required
+reviewer evidence is current and qualified, without claiming the reviewer
+proves correctness). Implementation is deliberately deferred until those
+prerequisites are mature; document now, build later.
+
+### Acceptance
+
+A maintainer can answer "what is the next action on this PR?" without
+reconstructing the comment history; every readiness claim identifies the exact
+head it covers; stale review/CI cannot produce readiness; partial or
+inconclusive evidence cannot silently become green; and the underlying
+evidence remains inspectable.
+
+### Non-goal
+
+No AI merge authority, no agent self-authorization, no automatic "safe to
+merge" claim, and no hiding unresolved evidence to produce a cleaner UI.
+
+---
+
 # Stage 4 — Mature multi-repo internal platform
 
 **Entry condition:** Stage 3 contracts are stable and multiple active consumer
@@ -529,7 +624,11 @@ Unless new evidence changes priority, the recommended order is:
 5. **Consumer integration harness**, built from the highest-value real failure
    modes already observed.
 6. **Resolve partial/truncated review semantics.**
-7. Move into Stage 4 items only as consumer count and operational evidence earn
+7. **Stage 3.7 PR-readiness state**: design and implement only once the
+   evidence types it aggregates (deterministic gates, qualified reviewer
+   scope, 3.6 coverage semantics) are defined enough to aggregate truthfully —
+   documented now, deliberately deferred (see its Prerequisite).
+8. Move into Stage 4 items only as consumer count and operational evidence earn
    them.
 
 This ordering deliberately postpones dashboards, generalized orchestration,

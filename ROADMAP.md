@@ -11,7 +11,7 @@ contracts, operations, and fleet management).
 semantic capability. Platform maturity work belongs in
 `MATURITY_ROADMAP.md`; do not duplicate the same backlog in both.
 
-Last reviewed: 2026-09-06
+Last reviewed: 2026-09-11
 
 
 ## Philosophy
@@ -28,6 +28,14 @@ guarantee that. The target:
 > from the PR and accessible trusted context, at a very low
 > false-blocker rate, with each capability's level demonstrated by
 > measurement, not belief.
+
+**Qualification is scoped evidence, not authority.** A qualified
+capability demonstrates measured performance only for the capability,
+oracle, and context under which it was qualified. It does not prove
+general code correctness, and `AI review · Clear` is never by itself
+merge authorization or a complete readiness claim. Downstream
+PR-readiness presentation must preserve these limits rather than
+strengthening them.
 
 ## The permanent development loop
 
@@ -220,6 +228,11 @@ maintenance of deterministic CI belongs there.
 
 **Principle:** never spend LLM reasoning on something a deterministic tool can
 prove cheaply and exactly.
+
+Aggregation of reviewer evidence into a human PR-decision surface
+(readiness state, merge handoff) belongs to `MATURITY_ROADMAP.md`
+Stage 3.7; reviewer capability and the evidence that earns trust
+remain owned here.
 
 ---
 

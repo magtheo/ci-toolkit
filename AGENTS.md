@@ -206,7 +206,10 @@ Is the branch mine for this task or explicitly assigned?
 If any cannot be determined reliably, stop and ask.
 
 Stop conditions and prohibited actions: as in `templates/AGENTS.md`
-(no direct commits/merges to `main`, no writing to foreign branches,
+(agents never approve or merge PRs — "finish this"/"land this"/"get
+this merged"/"proceed when green" means bring the PR to the human
+merge-review boundary, never execute the merge; no direct
+commits/merges to `main`, no writing to foreign branches,
 no silent scope expansion, no silently rewriting approved plans, no
 hiding failures). One addition specific to this repo: **never change
 eval semantics (fixtures, states, harness thresholds) and reviewer
