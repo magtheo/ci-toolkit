@@ -86,8 +86,8 @@
    "provenance": "the engine annotates the first matching support item with engine_match {kind, id} (title/body/changed_files/diff + path); unmatched and vacuous items get no fabricated provenance; the model supplies only the quote"
   },
   "target_families": {
-   "speculative-consequence": "dominant false-blocker family — premise-absent blockers cannot carry input-anchored support; the mechanism is family-agnostic by construction (no narrative vocabulary chase)",
-   "protected": "M17 same-input contradiction (cache-wide absolute vs /health,/metrics origin bypass) — input-anchored by construction; the validator can only demote claims whose quoted premise is absent from the model-visible input"
+   "speculative-consequence": "dominant false-blocker family — its blockers' premises typically depend on facts absent from the model-visible input and therefore cannot be quoted; citation presence does NOT establish relevance or entailment: a speculative finding may still find a matching quote while making an unsupported semantic leap — 20d determines whether citation presence actually separates the family (design §2.7/§3; no narrative vocabulary chase either way)",
+   "protected": "M17 same-input contradiction (cache-wide absolute vs /health,/metrics origin bypass) — sensitivity is EMPIRICALLY protected by the frozen sonnet 5/5 floor, not mechanically guaranteed by the validator; the validator can only demote claims whose quotes fail presence/vacuity/matching, and a genuine finding can be lost if the model paraphrases instead of quoting (design §3)"
   },
   "hypothesis_falsifiable": "layer (b) mechanically enforces citation PRESENCE, not entailment — this run measures whether forcing and validating a non-trivial evidence pointer materially improves discrimination without violating the floors"
  },
@@ -99,11 +99,25 @@
   "sonnet C7 clean (entailed by criterion 1; recorded explicitly)"
  ],
  "derived_analysis_planned": "post-run bundle reports demotion-reason counts, engine_match kind distribution, and INCONCLUSIVE rates alongside the standard matched/false-blocker/coding fields — the mechanism's own evidence for the keep/revert decision",
+ "protocol": {
+  "source": "plans/reviewer-eval-baseline.md §T1.2 + Deviation 6",
+  "unexpected_blocking": "fails that fixture's policy evaluation (mechanical, existing harness)",
+  "pair_integrity": "computed under the existing harness; a positive's own pass is promotion-eligible only if its paired control also passes",
+  "keep_vs_binding": "20d KEEP criteria do not by themselves declare the binding T1.2 reference; binding-reference eligibility additionally requires the applicable full T1.2 gate — C7 clean on both profiles, zero GATING violations, and in-scope pair integrity"
+ },
+ "gating_snapshot": {
+  "fixtures": ["C4", "C5", "C7"],
+  "note": "informational snapshot only; eval/states.json under the frozen oracle cb6870c5a4c635b2 remains authoritative"
+ },
  "spend_cap_usd": 3.5,
  "spend_estimate_note": "the #45 run of identical call shape cost $2.80 (upper-bound list pricing, no cache discount); support fields add output tokens — INCONCLUSIVE rates are watched and reported, max_tokens unchanged at 2000",
  "run_policy": "exactly once; no reruns of failures/parser failures/ugly outputs; everything preserved as emitted; stop if projected cost would exceed the cap; authorized only by explicit human spend authorization after this freeze is reviewed",
- "calls_made_at_freeze_time": 0,
+ "governed_calls_made_at_freeze_time": 0,
+ "governed_calls_note": "counts ONLY governed 20d corpus calls; ordinary per-PR dogfood AI reviews (e.g. the haiku run on this branch's exact head) are excluded from this count and do not contaminate the governed measurement",
  "freeze_timestamp": "2026-09-11T12:17:27Z",
- "freeze_revision": 1,
- "interpretation_on_pass": "a passing run is the 20d KEEP criterion for the layer (b) support contract and may earn the binding T1.2 gating/discrimination reference; it is NOT T1.3 stage exit — the remaining families (hallucinated-fact, risk-boilerplate, severity-inflation, absolute-consistency) continue; no automatic entry into T1.4; a hard-invariant failure reverts the mechanism (rubric.md + engine policy via reviewer-side revert PRs) and records layer (b) measured insufficient — evidence that earns consideration of the next mechanism, which is not preemptively built"
+ "freeze_revision": 2,
+ "supersedes_freeze_commit": "f8f691b25010137c9d1800dc9dbc84d50a40362e",
+ "interpretation_on_pass": "TWO separate predicates. 20d KEEP = the five frozen success criteria — a passing run keeps the layer (b) support contract. Binding-reference eligibility = KEEP PLUS the applicable full T1.2 gate (C7 clean both profiles, zero GATING violations, in-scope pair integrity per the protocol block) — only that combined result may be recorded as earning the binding T1.2 gating/discrimination reference. Neither predicate is T1.3 stage exit: the remaining families (hallucinated-fact, risk-boilerplate, severity-inflation, absolute-consistency) continue; no automatic entry into T1.4; a hard-invariant failure reverts the mechanism (rubric.md + engine policy via reviewer-side revert PRs) and records layer (b) measured insufficient — evidence that earns consideration of the next mechanism, which is not preemptively built",
+ "freeze_revision_2_timestamp": "2026-09-12T08:12:20Z",
+ "freeze_revision_2_note": "pre-call corrections from the #51 review, 0 governed calls: (1) calls_made_at_freeze_time replaced by governed_calls_made_at_freeze_time with explicit dogfood exclusion (ordinary PR dogfood ran on this exact head; not a governed call); (2) target_families claims narrowed to the approved design language — citation presence does not establish relevance/entailment, M17 protected empirically by the frozen 5/5 floor, not mechanically; (3) protocol block added with the KEEP vs binding-eligibility split; (4) GATING snapshot (C4/C5/C7) added as informational, states.json under the frozen oracle authoritative"
 }
