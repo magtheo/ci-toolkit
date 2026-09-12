@@ -1,0 +1,39 @@
+corpus: 36 fixtures (18 positive / 18 control), N=5, model=anthropic/claude-haiku-4.5, oracle=cb6870c5a4c635b2
+spend: 180 calls, 257835 prompt tok, 84460 completion tok
+report: eval/evidence/track1-t13-layerb-measurement-2026-09-11/haiku-n5.json
+C1   control   detect=- false-blockers=0 noise=10 -> GATING-capable
+C10  control   detect=- false-blockers=0 noise=5 -> GATING-capable
+C11  control   detect=- false-blockers=0 noise=10 -> GATING-capable
+C12  control   detect=- false-blockers=0 noise=20 -> GATING-capable
+C13  control   detect=- false-blockers=0 noise=10 -> GATING-capable
+C14  control   detect=- false-blockers=0 noise=13 -> GATING-capable
+C15  control   detect=- false-blockers=0 noise=4 -> GATING-capable
+C16  control   detect=- false-blockers=0 noise=13 -> GATING-capable
+C17  control   detect=- false-blockers=0 noise=0 -> GATING-capable
+C18  control   detect=- false-blockers=0 noise=0 -> GATING-capable
+C2   control   detect=- false-blockers=0 noise=10 -> GATING-capable
+C3   control   detect=- false-blockers=0 noise=9 -> KNOWN_GAP
+C4   control   detect=- false-blockers=0 noise=0 -> GATING-capable
+C5   control   detect=- false-blockers=0 noise=0 -> GATING-capable
+C6   control   detect=- false-blockers=0 noise=9 -> GATING-capable
+C7   control   detect=- false-blockers=0 noise=1 -> GATING-capable
+C8   control   detect=- false-blockers=0 noise=12 -> GATING-capable
+C9   control   detect=- false-blockers=0 noise=8 -> KNOWN_GAP
+M1   positive  detect=0 false-blockers=0 noise=11 -> KNOWN_GAP
+M10  positive  detect=1 false-blockers=0 noise=4 -> KNOWN_GAP
+M11  positive  detect=0,0 false-blockers=0 noise=9 -> KNOWN_GAP
+M12  positive  detect=0,0 false-blockers=0 noise=18 -> KNOWN_GAP
+M13  positive  detect=0 false-blockers=0 noise=9 -> KNOWN_GAP
+M14  positive  detect=0 false-blockers=0 noise=11 -> KNOWN_GAP
+M15  positive  detect=0 false-blockers=0 noise=5 -> KNOWN_GAP
+M16  positive  detect=0,0 false-blockers=0 noise=19 -> KNOWN_GAP
+M17  positive  detect=0 false-blockers=0 noise=0 -> KNOWN_GAP
+M18  positive  detect=0 false-blockers=0 noise=0 -> KNOWN_GAP
+M2   positive  detect=0,0 false-blockers=0 noise=15 -> KNOWN_GAP
+M3   positive  detect=0,0 false-blockers=0 noise=11 -> KNOWN_GAP
+M4   positive  detect=0 false-blockers=0 noise=0 -> KNOWN_GAP
+M5   positive  detect=0 false-blockers=0 noise=0 -> KNOWN_GAP
+M6   positive  detect=0 false-blockers=0 noise=7 -> KNOWN_GAP
+M7   positive  detect=0 false-blockers=0 noise=17 -> KNOWN_GAP
+M8   positive  detect=1 false-blockers=0 noise=12 -> KNOWN_GAP
+M9   positive  detect=0 false-blockers=0 noise=5 -> KNOWN_GAP

@@ -1,0 +1,123 @@
+{
+ "frozen_before_call_1": true,
+ "subject_sha": "e87b6e44caf4c7247a81bea126eb891dc8706626",
+ "subject_note": "merge commit of #49 (rubric.md only vs #48); reviewer semantics delta vs the #45-measured subject = the layer (b) support contract: 20b deterministic support validation in the engine (#48, through d4057d3) + 20c rubric support-citation instruction (#49)",
+ "rubric_hash": "77f10a1913da8ac2",
+ "rubric_hash_note": "sha256(rubric.md)[:16]; scheme reproduced against the #45 freeze (prior subject rubric = 345b8af00cd5db1e)",
+ "oracle_version": "cb6870c5a4c635b2",
+ "oracle_note": "repair-5 oracle (#42), unchanged by 20b/20c BY DESIGN: oracle_version hashes eval-side inputs only (run_corpus.py, fixture bytes, states.json); recomputed at freeze time on this branch and equals the #45 freeze value",
+ "corpus_hash": "72035a00b8db828d",
+ "corpus_note": "identical to the #45 freeze corpus (repair-5 M11/M16 entries); no fixture, state, or harness change since repair 5",
+ "n": 5,
+ "profiles": [
+  "anthropic/claude-haiku-4.5",
+  "anthropic/claude-sonnet-4.5"
+ ],
+ "temperature": 0.2,
+ "max_tokens": 2000,
+ "deviation6_floors": {
+  "normative_source": "eval/evidence/track1-oracle-repair4-2026-09-07/witness-replay.json",
+  "normative_source_note": "Deviation 6 pins the sensitivity reference to the pre-change #36 deterministic rescore under repair 4; later measurements do not replace it",
+  "current_oracle_parity_evidence": "eval/evidence/track1-oracle-repair5-2026-09-08/witness-replay.json",
+  "current_oracle_parity_verified": true,
+  "parity_chain": "repair-4 frozen floors == #36 rescored under current repair-5 oracle == repair-5 artifact table (test_repair5_evidence_hardening)",
+  "aggregate": {
+   "haiku": "51/90",
+   "sonnet": "66/90"
+  },
+  "per_positive": {
+   "haiku": {
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 0,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 0,
+    "M18": 0,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 1
+   },
+   "sonnet": {
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 1,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 5,
+    "M18": 5,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 5
+   }
+  },
+  "rule": "every positive must hold or improve its per-positive floor hits on both profiles",
+  "explicit": "sonnet M17 floor is 5/5 — a 4/5 result FAILS the hard invariant"
+ },
+ "mechanism_definition": {
+  "layer": "(b) finding schema + deterministic support validation",
+  "design": "plans/layer-b-structured-support-design.md (#47 rev 2, approved)",
+  "rubric_addition_exact_verbatim": {
+   "schema_line": "      \"support\": [{\"quote\": \"verbatim text copied from the supplied review input\"}],",
+   "citation_rule": "- Every blocking finding must include `support`: at least one verbatim\n  quote copied from the supplied review input (diff, description, or\n  provided context) that the finding rests on. If you cannot quote the\n  input, the finding is advisory."
+  },
+  "deterministic_implementation": {
+   "pinned_by": "tests/test_support_contract.py at the subject SHA (187 tests green on this branch)",
+   "support_corpus": "effective_review_input(): the exact model-visible/budgeted input — title, body[:2000], changed-file list, per-file VISIBLE PATCH BYTES (file cap + legacy diff truncation, cuts can land in joiner or generated header); generated headers, policy text, engine notes and prompt framing are never matchable; matching is segment-local",
+   "anti_vacuity_floor": "normalized (casefold + whitespace-collapse) length >= 16 characters AND >= 3 lexical tokens — a quote shorter or lexically thinner cannot certify a blocker",
+   "matching": "casefold + whitespace-collapse substring within a single segment; deterministic first-match order (title, body, changed_files, then files)",
+   "demotion": "unsupported blocker -> canonical non-blocking severity + machine reason appended: [downgraded by support validation: support_missing | support_vacuous | support_not_found]; never dropped; >= 1 surviving blocker -> ISSUES_FOUND; all blockers demoted -> CLEAR (intentional demotion is not malformed evidence); C7-style label mismatch with no demotion stays INCONCLUSIVE (fail-closed path untouched)",
+   "provenance": "the engine annotates the first matching support item with engine_match {kind, id} (title/body/changed_files/diff + path); unmatched and vacuous items get no fabricated provenance; the model supplies only the quote"
+  },
+  "target_families": {
+   "speculative-consequence": "dominant false-blocker family — its blockers' premises typically depend on facts absent from the model-visible input and therefore cannot be quoted; citation presence does NOT establish relevance or entailment: a speculative finding may still find a matching quote while making an unsupported semantic leap — 20d determines whether citation presence actually separates the family (design §2.7/§3; no narrative vocabulary chase either way)",
+   "protected": "M17 same-input contradiction (cache-wide absolute vs /health,/metrics origin bypass) — sensitivity is EMPIRICALLY protected by the frozen sonnet 5/5 floor, not mechanically guaranteed by the validator; the validator can only demote claims whose quotes fail presence/vacuity/matching, and a genuine finding can be lost if the model paraphrases instead of quoting (design §3)"
+  },
+  "hypothesis_falsifiable": "layer (b) mechanically enforces citation PRESENCE, not entailment — this run measures whether forcing and validating a non-trivial evidence pointer materially improves discrimination without violating the floors"
+ },
+ "success_criteria": [
+  "zero GATING violations on both profiles",
+  "every Deviation 6 per-positive floor met on both profiles, including sonnet M17 = 5/5",
+  "target-family retention: speculative-consequence false blockers haiku <= 53, sonnet <= 50, aggregate <= 103 (repair-5-adjudicated interpretation of frozen #40)",
+  "overall specificity non-regression: total control false blockers haiku <= 78, sonnet <= 112",
+  "sonnet C7 clean (entailed by criterion 1; recorded explicitly)"
+ ],
+ "derived_analysis_planned": "post-run bundle reports demotion-reason counts, engine_match kind distribution, and INCONCLUSIVE rates alongside the standard matched/false-blocker/coding fields — the mechanism's own evidence for the keep/revert decision",
+ "protocol": {
+  "source": "plans/reviewer-eval-baseline.md §T1.2 + Deviation 6",
+  "unexpected_blocking": "fails that fixture's policy evaluation (mechanical, existing harness)",
+  "pair_integrity": "computed under the existing harness; a positive's own pass is promotion-eligible only if its paired control also passes",
+  "keep_vs_binding": "20d KEEP criteria do not by themselves declare the binding T1.2 reference; binding-reference eligibility additionally requires the applicable full T1.2 gate — C7 clean on both profiles, zero GATING violations, and in-scope pair integrity"
+ },
+ "gating_snapshot": {
+  "fixtures": ["C4", "C5", "C7"],
+  "note": "informational snapshot only; eval/states.json under the frozen oracle cb6870c5a4c635b2 remains authoritative"
+ },
+ "spend_cap_usd": 3.5,
+ "spend_estimate_note": "the #45 run of identical call shape cost $2.80 (upper-bound list pricing, no cache discount); support fields add output tokens — INCONCLUSIVE rates are watched and reported, max_tokens unchanged at 2000",
+ "run_policy": "exactly once; no reruns of failures/parser failures/ugly outputs; everything preserved as emitted; stop if projected cost would exceed the cap; authorized only by explicit human spend authorization after this freeze is reviewed",
+ "governed_calls_made_at_freeze_time": 0,
+ "governed_calls_note": "counts ONLY governed 20d corpus calls; ordinary per-PR dogfood AI reviews (e.g. the haiku run on this branch's exact head) are excluded from this count and do not contaminate the governed measurement",
+ "freeze_timestamp": "2026-09-11T12:17:27Z",
+ "freeze_revision": 2,
+ "supersedes_freeze_commit": "f8f691b25010137c9d1800dc9dbc84d50a40362e",
+ "interpretation_on_pass": "TWO separate predicates. 20d KEEP = the five frozen success criteria — a passing run keeps the layer (b) support contract. Binding-reference eligibility = KEEP PLUS the applicable full T1.2 gate (C7 clean both profiles, zero GATING violations, in-scope pair integrity per the protocol block) — only that combined result may be recorded as earning the binding T1.2 gating/discrimination reference. Neither predicate is T1.3 stage exit: the remaining families (hallucinated-fact, risk-boilerplate, severity-inflation, absolute-consistency) continue; no automatic entry into T1.4; a hard-invariant failure reverts the mechanism (rubric.md + engine policy via reviewer-side revert PRs) and records layer (b) measured insufficient — evidence that earns consideration of the next mechanism, which is not preemptively built",
+ "freeze_revision_2_timestamp": "2026-09-12T08:12:20Z",
+ "freeze_revision_2_note": "pre-call corrections from the #51 review, 0 governed calls: (1) calls_made_at_freeze_time replaced by governed_calls_made_at_freeze_time with explicit dogfood exclusion (ordinary PR dogfood ran on this exact head; not a governed call); (2) target_families claims narrowed to the approved design language — citation presence does not establish relevance/entailment, M17 protected empirically by the frozen 5/5 floor, not mechanically; (3) protocol block added with the KEEP vs binding-eligibility split; (4) GATING snapshot (C4/C5/C7) added as informational, states.json under the frozen oracle authoritative"
+}
