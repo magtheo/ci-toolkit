@@ -1,0 +1,3 @@
+corpus: 36 fixtures (18 positive / 18 control), N=5, model=anthropic/claude-haiku-4.5, oracle=cb6870c5a4c635b2
+OpenRouter call failed: http 403
+{"error":{"message":"Key limit exceeded (weekly limit). Manage it using https://openrouter.ai/workspaces/default/keys/7ae9f7424303294e80de21dccb7e1f4ae246895c33f14611f3f046fcebcee0f3","code":403}}
