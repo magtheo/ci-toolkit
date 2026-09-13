@@ -127,18 +127,29 @@ def main():
         det_total = 0
         control_fb = 0
         spec_fb = 0
+        fb_total = 0
+        gap_total = 0
         dem = {"support_missing": 0, "support_vacuous": 0, "support_not_found": 0}
         kinds = {}
         per_det = {}
         for f in r["per_fixture"]:
             fid, kind = f["id"], f["kind"]
-            det = sum(e["hits"] for e in f["expected_detection"])
-            det_total += det
-            per_det[fid] = det
+            entries = [e["entry"] for e in f["expected_detection"]]
+            # frozen Deviation-6 metric: fixture-level 0-5, POSITIVES
+            # ONLY — a run counts for the positive only when ALL its
+            # expected entries are detected on that run (never sum
+            # per-entry hits; controls have no expected entries)
+            det = sum(
+                1 for run in f["runs_detail"]
+                if kind == "positive" and entries
+                and all(any(_finding_matches(e, fd) for fd in run["findings"])
+                        for e in entries))
+            if kind == "positive":
+                per_det[fid] = det
+                det_total += det
             if kind == "control":
                 control_fb += f["false_blockers"]
-            # expected entries for FB identification
-            entries = [e["entry"] for e in f["expected_detection"]]
+            # expected entries already captured above
             for i, run in enumerate(f["runs_detail"]):
                 if run["assessment"] == "INCONCLUSIVE":
                     obj = parse_model_output(run["raw_output"])
@@ -161,14 +172,24 @@ def main():
                     if any(_finding_matches(e, fd) for e in entries):
                         continue  # expected expression, not a false blocker
                     family = code_one(fid, c)
+                    # #45 accounting invariant: blocking narratives =
+                    # expected expression + adjudicated false blocker +
+                    # defect-expression-unmatched (matcher gap — coding
+                    # note, NEVER a model false blocker)
+                    gap = family == "genuine-defect-unmatched"
+                    cls = ("defect-expression-unmatched" if gap
+                           else "false-blocker")
                     if family == "speculative-consequence":
                         spec_fb += 1
+                    if gap:
+                        gap_total += 1
+                    else:
+                        fb_total += 1
                     coding_rows.append({
                         "profile": prof, "fixture": fid, "kind": kind,
-                        "run": i, "class": "false-blocker",
+                        "run": i, "class": cls,
                         "family": family, "comment": c,
                         "method": "rule-table-v1 (frozen iter-2 precedents)"})
-        fb_total = sum(1 for row in coding_rows if row["profile"] == prof)
         metrics["profiles"][prof] = {
             "aggregate_detection": f"{det_total}/90",
             "floor_aggregate": FLOORS[prof] and (
@@ -176,6 +197,8 @@ def main():
             "control_false_blockers": control_fb,
             "control_fb_cap": CAPS[prof]["control_fb"],
             "false_blockers_total": fb_total,
+            "matcher_gap_observations": gap_total,
+            "raw_unexpected_blocking_narratives": fb_total + gap_total,
             "speculative_consequence_fb": spec_fb,
             "spec_cap": CAPS[prof]["spec"],
             "inconclusive": sum(1 for x in inconclusives if x["profile"] == prof),
@@ -262,9 +285,18 @@ def main():
     fam = {}
     for row in coding_rows:
         fam[row["family"]] = fam.get(row["family"], 0) + 1
-    print("coding totals:", fam)
-    print("UNMATCHED-REVIEW rows must be 0 — reconcile before commit"
-          if fam.get("UNMATCHED-REVIEW") else "coding: fully reconciled, fail-closed clean")
+    unmatched = [row for row in coding_rows
+                 if row["family"] == "UNMATCHED-REVIEW"]
+    if unmatched:
+        print("UNMATCHED-REVIEW rows present — fail-closed:")
+        for row in unmatched:
+            print(" ", row["profile"], row["fixture"], "run", row["run"])
+        sys.exit(1)
+    print("coding: fail-closed clean")
+    for row in coding_rows:
+        if row["class"] == "defect-expression-unmatched":
+            print("matcher-gap observation (excluded from FB totals):",
+                  row["profile"], row["fixture"], "run", row["run"])
     print("criteria pass map:", {k: v["pass"] for k, v in metrics["frozen_criteria"].items()})
     print("floor violations:", len(floor_viol), "| spend: $%.2f" % total_cost)
 

@@ -35,19 +35,22 @@ citation presence enforces nothing about relevance or entailment.
 | # | criterion | result | measured |
 |---|---|---|---|
 | 1 | zero GATING, both profiles | **FAIL** | sonnet C7: 4/5 ISSUES_FOUND, 4 FBs (see `gating_violations`) |
-| 2 | Deviation 6 floors | **FAIL** | **19 violations** (list below); haiku aggregate **2/90** vs floor 51; sonnet **50/90** vs 66 |
+| 2 | Deviation 6 floors | **FAIL** | **21 violations** (list below); haiku aggregate **2/90** vs floor 51; sonnet **29/90** vs 66 |
 | 3 | spec-family ≤ 53/50/103 | **FAIL** | sonnet speculative-consequence FBs = 60 (cap 50); aggregate 60 (cap 103) |
 | 4 | control FBs ≤ 78/112 | pass | haiku 0, sonnet 67 — attenuation artifact, see causal summary |
 | 5 | sonnet C7 clean | **FAIL** | entailed by #1 |
 
-## The 19 floor violations (per-positive deltas)
+## The 21 floor violations (per-positive deltas, fixture-level 0–5 metric)
 
 haiku: M1 0/5 (−5), M2 0/5 (−5), M3 0/5 (−5), M7 0/5 (−5), M8 1/5
 (−4), M9 0/1 (−1), M10 1/5 (−4), M11 0/5 (−5), M12 0/5 (−5), M14
-0/5 (−5), M16 0/5 (−5) · sonnet: M1 4/5 (−1), M9 2/5 (−3), M10 0/5
-(−5), M12 2/5 (−3), M13 0/1 (−1), M16 4/5 (−1), M17 **0/5 (−5, hard
-invariant, third consecutive iteration)**, M18 0/5 (−5). Full table:
-`derived-metrics.json` → `floor_violations`.
+0/5 (−5), M16 0/5 (−5) · sonnet: M1 4/5 (−1), M3 0/5 (−5), M9 2/5
+(−3), M10 0/5 (−5), M11 3/5 (−2), M12 0/5 (−5), M13 0/1 (−1), M16
+0/5 (−5), M17 **0/5 (−5, hard invariant, third consecutive
+iteration)**, M18 0/5 (−5). Detection uses the frozen fixture-level
+convention (a run counts only when ALL of the fixture's expected
+entries are detected on that run — never summed per-entry hits).
+Full table: `derived-metrics.json` → `floor_violations`.
 
 Haiku detection collapsed from the 51/90 floor to 2/90 — the
 citation requirement did not make haiku more accurate; it stopped
@@ -71,24 +74,28 @@ quote "Purely mechanical port; behavior-preserving." resolved via
 `engine_match {kind: body}`). The validator did exactly what it was
 built to do; what it certified was not discrimination.
 
-## False-blocker family coding (123 sonnet FBs, 0 haiku)
+## False-blocker family coding (sonnet 123 raw unexpected blocking narratives = 122 adjudicated FBs + 1 matcher gap; haiku 0)
 
 `narrative-coding.jsonl`, rule table v1 following the frozen
-iteration-2 precedents, fail-closed (0 UNMATCHED):
+iteration-2 precedents, fail-closed enforced (nonzero exit on any
+UNMATCHED; 0 present). Accounting per the #45 invariant — blocking
+narratives = expected expression + adjudicated false blocker +
+defect-expression-unmatched:
 
-| family | count |
+| adjudicated family | count |
 |---|---|
 | speculative-consequence | 60 |
 | hallucinated-fact | 28 |
 | absolute-consistency | 13 |
 | risk-boilerplate | 12 |
 | severity-inflation | 9 |
-| genuine-defect-unmatched (coding note, not a taxonomy family) | 1 |
+| **adjudicated total** | **122** |
+| defect-expression-unmatched (class `defect-expression-unmatched`; coding note, NOT a false blocker) | 1 |
 
-The single `genuine-defect-unmatched` row (sonnet M11, output/exit-
-code suppression phrased past the needles) continues the #40
-reclassification precedent — it marks an oracle matching gap, not a
-model win.
+The single matcher-gap row (sonnet M11 run 4: output/exit-code
+suppression phrased past the needles) is excluded from all
+false-blocker totals and family counts — it records an oracle
+matching gap (the #40 reclassification precedent), not a model win.
 
 ## Spend, calls, incident log
 
