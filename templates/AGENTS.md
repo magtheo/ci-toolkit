@@ -54,8 +54,9 @@ Standing rules:
 - `main` is the only permanent integration branch.
 - One `feature/*` branch = one independently mergeable feature.
 - One active phase branch per feature, sequential by default.
-- Agents never merge into `main`; agents write only branches they
-  created for the current task or branches explicitly assigned to them.
+- Agents never approve or merge pull requests; agents write only
+  branches they created for the current task or branches explicitly
+  assigned to them.
 
 ---
 
@@ -81,8 +82,10 @@ main
 `main` is the repository's **only permanent integration branch**.
 
 - Do not commit or push implementation work directly to `main`.
-- Agents must never merge into `main`.
-- Work reaches `main` only through a reviewed pull request.
+- Agents never approve or merge pull requests — not small-change PRs,
+  not phase PRs, not umbrella PRs.
+- Work reaches `main` only through a reviewed pull request merged by
+  the directing human.
 
 ### Architecture invariants
 
@@ -463,7 +466,9 @@ code when necessary.
 
 The final `feature/* -> main` PR must be reviewed by the human maintainers.
 
-Agents may assist with review, testing, summaries, and finding issues, but agents must not approve or merge the final feature PR.
+Agents may assist with review, testing, summaries, and finding
+issues, but agents must not approve or merge any PR (phase, umbrella,
+or small change).
 
 The umbrella PR should normally be merged with a **merge commit** so the feature's phase-level history remains visible.
 
@@ -505,6 +510,21 @@ expectation before any merge: AI review pass + one human read by
 the directing human, who clicks merge. Agents never approve or merge.
 Collaborator reviews are welcome contributions, fresh-eyes
 value — never a tollbooth.
+
+### Merge authority
+
+**Agents never approve or merge pull requests.** Agents may prepare,
+update, test, review, and declare their implementation work complete;
+the directing human authorizes and executes the merge. Merge authority
+is not delegable — not through conversational shorthand, not through
+task-level instructions, and not by agent self-interpretation. The
+rule changes only by amending this governance file.
+
+Conversational shorthand such as "finish this", "land this", "get
+this merged", "proceed when green", or similar does **not** grant
+merge authority. It means: bring the PR to the human merge-review
+boundary (validation current at the exact head, review findings
+addressed, description accurate) and stop.
 
 ---
 
@@ -585,11 +605,16 @@ Stopping is preferred to guessing.
 
 ## Prohibited Agent Actions
 
-Unless a human explicitly overrides this file for a specific task, agents must not:
+Merge authority is not delegable through task-level instructions:
+agents never approve or merge pull requests. This holds even when a
+human explicitly overrides this file for a specific task — the rule
+itself changes only by amending this governance file.
 
-- commit, push, or merge directly to `main`, or approve or merge PRs
-  (phase PRs merge only after review; agents never approve the final
-  feature PR);
+For the remaining prohibitions below, unless a human explicitly
+overrides this file for a specific task, agents must not:
+
+- approve or merge any PR (non-overrideable — see Merge authority);
+- commit, push, or merge directly to `main`;
 - implement multiple phases in one PR;
 - silently expand feature scope, or silently rewrite an approved plan;
 - skip required tests to make a PR appear complete; hide failing
@@ -624,6 +649,16 @@ Lessons from real failures, 2026-08:
 3. **Verify what your PR actually carries** before declaring it ready:
    `gh pr diff <n> --name-only` must match the intended scope. A PR
    description that contradicts its diff is a defect.
+4. **Conversational wording is not merge authority** (2026-09-11
+   cross-repository incident: an agent interpreted completion/merge
+   phrasing as authorization and executed a PR merge on green checks
+   before the intended human review; the canonical rule was
+   ambiguous — "agents never merge into `main`" reads more narrowly
+   than "agents never approve or merge pull requests"). Shorthand
+   such as "finish this" or "land this" means bring the PR to the
+   human merge-review boundary, never execute the merge. Exact
+   repo/PR reference unrecovered; recorded generically rather than
+   guessed.
 
 ---
 
