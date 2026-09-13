@@ -53,7 +53,7 @@ measured miss
 Ad-hoc rubric stuffing ("check GitHub APIs", "look for races") is the
 anti-pattern this roadmap exists to prevent.
 
-## Current position (2026-08-30)
+## Current position (2026-09-13)
 
 - eval-baseline plan Phases 1–3 complete (engine contract, corpus +
   measured baseline, qualification infrastructure).
@@ -66,15 +66,23 @@ anti-pattern this roadmap exists to prevent.
   weak (5/8 controls false-blocked; probe: a stronger model made it
   worse); cross-file (M4) weak; state/lifecycle (M8) unproven via
   pair integrity.
-- **Next active stage: Track 1 (discrimination)** — resequenced
-  ahead of the M5 retry by Deviation 2.
+- **Active stage: Track 1 (discrimination), T1.3 in progress** —
+  T1.1 COMPLETE (taxonomy + 36-fixture corpus); T1.2 INCOMPLETE
+  (Deviation-6 sensitivity floors frozen: haiku 51/90, sonnet 66/90;
+  binding gating/discrimination reference never earned); T1.3
+  lifecycle progress SUBSTANTIAL, capability gate NOT PASSED —
+  three measured mechanisms rejected (iter-1 grounding/rubric,
+  iter-2 grounding + contradiction protection, layer (b) structured
+  support + deterministic validation), all fully reverted with the
+  reviewer surface byte-exact to the pre-layer-(b) state
+  (restoration audit 2026-09-13). T1.4/T1.5 not started.
 - Deployment contract PENDING ACTIVATION (see plan Deviation 1).
 
 ## Capability tracks
 
 | # | Capability | Evidence | State |
 |---|------------|----------|-------|
-| 1 | Discrimination / false-blocker reduction | baseline controls; phase-4 probe; #14 self-review FPs | **ACTIVE — next stage** (Deviation 2) |
+| 1 | Discrimination / false-blocker reduction | baseline controls; phase-4 probe; #14 self-review FPs; 3 rejected T1.3 mechanisms | **ACTIVE — T1.3** (lifecycle progress substantial; capability gate NOT PASSED) |
 | 2 | Same-diff consistency | M5 / miss #5 | blocked by Track 1 (probe: detection without separation) |
 | 3 | Targeted trusted-base context retrieval | M4 (0/3) | identified; design needed |
 | 4 | Cross-file contract reasoning | M4 (0/3), shared w/ track 3 | identified |
@@ -83,7 +91,7 @@ anti-pattern this roadmap exists to prevent.
 | 7 | Architectural invariant reasoning | states.json-not-in-oracle_version (human-caught) | identified |
 | 8 | Acceptance / process truth | Phase-3/#10 circularity; #15 CLEAR-miss (both human-caught) | identified |
 
-Track 1 is the next active stage (resequenced ahead of the M5
+Track 1 is the active stage (resequenced ahead of the M5
 retry by plan Deviation 2, after the Phase 4 probe falsified the
 M5-first sequence). Track 2 (Phases 4–5) resumes under Track 1's
 outcome. Tracks 3–8 start after the eval-baseline plan completes;
@@ -104,23 +112,32 @@ table's number.
   consistency rule, the reviewer blocked its own paired control 5/5
   under three wordings and two models — the blocking *narrative*
   changed with each wording while the blocking *verdict* never did.
-- **Current state:** ACTIVE — staged sub-plan T1.1–T1.5 lives in
-  `plans/reviewer-eval-baseline.md` (plan Deviation 4; plan-approval
-  phase PR pending). First sharp target: M5/C5 separation. Scope
-  guard: Track 1 must
+- **Current state:** ACTIVE — T1.3 in progress; staged sub-plan
+  T1.1–T1.5 lives in `plans/reviewer-eval-baseline.md` (plan
+  approved through rev 4; Deviation 4). Scope guard: Track 1 must
   address the broader measured false-blocker problem (5/8 controls;
   stronger models make it worse), NOT special-case C5 — C5 passing
   while C1/C2/C3/C6/C8 still fail would be benchmark gaming, not
   capability. `promotion_eligible_positives` is diagnostic only.
-- **Candidate mechanism:** a discrimination requirement on every
-  blocking finding — state the invariant violated, the concrete
-  failing execution path, and the diff/context evidence; anything
-  that cannot be argued concretely is downgraded to advisory
-  (candidate layer b in the Track 1 sub-plan; wording-only changes
-  admissible only with measured separation). Possibly
-  a dedicated pass, but only if measurement shows the single-pass
-  form insufficient (a layer must earn its existence — no big-bang
-  pipeline redesign).
+- **Mechanism evidence:** three measured single-pass/support
+  mechanisms have now FAILED the frozen keep/revert lifecycle
+  (iter-1 grounding/rubric; iter-2 grounding + direct-contradiction
+  protection; layer (b) structured support + deterministic
+  validation). Layer (b) specifically demonstrated that **support
+  presence is not semantic entailment**: false-blocking narratives
+  supplied valid verbatim citations while remaining semantically
+  unsupported, and broad support enforcement degraded genuine
+  detection (haiku aggregate 2/90 vs floor 51). The common failure
+  across all five measured false-blocker families
+  (speculative-consequence, hallucinated-fact, absolute-consistency,
+  severity-inflation, risk-boilerplate) is blocker justification /
+  inference validation, not five unrelated missing rubric rules.
+  The plan's dedicated-discrimination-pass option (candidate layer
+  (d)) has therefore earned design consideration. Next work: a
+  bounded blocker-verification-pass design targeting that common
+  inference problem — not another family-specific rubric tweak, and
+  no big-bang pipeline redesign (candidate generation → candidate
+  verification, nothing more).
 - **Acceptance criteria:** near-miss control fixtures reviewed without
   blockers while their paired defects are still caught, on an
   expanded control set.

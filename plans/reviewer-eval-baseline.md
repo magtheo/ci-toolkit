@@ -324,8 +324,12 @@ ROADMAP.md).
 
 ## Track 1 — Reviewer discrimination (staged sub-plan)
 
-Status: PLANNED — this section IS the Track 1 implementation plan;
-no T1 implementation exists yet. Elaborates Deviation 2 (recorded as
+Status: **ACTIVE** — T1.1 COMPLETE; T1.2 INCOMPLETE (Deviation 6
+sensitivity floors frozen; binding reference not yet earned);
+T1.3 ACTIVE with lifecycle progress SUBSTANTIAL and the capability
+gate NOT PASSED (three mechanisms measured and rejected — see the
+T1.3 stage status); T1.4 and T1.5 NOT STARTED. This section is the
+Track 1 implementation plan; it elaborates Deviation 2 (recorded as
 Deviation 4). Stages T1.1–T1.5 are sequential: each is one phase PR
 targeting the feature branch, and stage N must be merged before
 stage N+1 begins.
@@ -403,6 +407,10 @@ not success, and clearing C5 while missing M5 is not success.
 
 ### Stage T1.1 — Failure taxonomy + frozen discrimination corpus
 (eval semantics only; no reviewer change in this PR)
+
+Status: **COMPLETE** (2026-09-04; `eval/evidence/track1-taxonomy-2026-09-04.md`;
+frozen 36-fixture discrimination corpus carried by oracle
+`cb6870c5a4c635b2` since).
 
 Scope:
 
@@ -499,6 +507,38 @@ binding gating reference does not replace them.
 
 ### Stage T1.3 — Smallest general mechanism (reviewer change only)
 
+Status: **ACTIVE — lifecycle progress SUBSTANTIAL, capability gate
+NOT PASSED.** Three mechanisms have completed the frozen
+keep/revert lifecycle and were REJECTED; none passed, so the
+mid-loop milestone is unmet and T1.4 remains entry-gated:
+
+1. **Iteration 1 — grounding/rubric mechanism** (2026-09-08):
+   rejected after a hard sensitivity regression;
+   `eval/evidence/track1-t13-iter1-measurement-2026-09-08/`.
+2. **Iteration 2 — grounding + direct-contradiction protection**
+   (2026-09-09): rejected — C7 GATING failures on both profiles,
+   control-cap violations, major sensitivity regressions;
+   `eval/evidence/track1-t13-iter2-measurement-2026-09-09/`.
+3. **Layer (b) — structured support + deterministic validation**
+   (2026-09-11/13): REJECTED as **measured insufficient** — citation
+   presence did not imply entailment: 122 adjudicated false blockers
+   remained (60 speculative-consequence) while genuine detection
+   degraded (21 Deviation-6 floor violations; sonnet M17 0/5 hard
+   invariant for the third consecutive iteration; haiku aggregate
+   2/90 vs floor 51); sonnet C7 GATING violation;
+   `eval/evidence/track1-t13-layerb-measurement-2026-09-11/`.
+   Fully reverted (#52 engine/parser, #53 rubric); the whole-reviewer
+   restoration audit (2026-09-13) proved the reviewer surface
+   byte-exact to the pre-layer-(b) state (engine `f9b236d4`, parser
+   `a280883c`, rubric `2d194a40` — all == `f68cea3`); evidence and
+   history preserved, runtime residue zero.
+
+The stage continues: the next mechanism is a design-level decision
+(a dedicated-pass form is now admissible under candidate layer (d),
+given the measured insufficiency of single-pass forms), subject to
+the same lifecycle and gates. Negative results frozen with the same
+discipline as positive ones.
+
 Development loop, per iteration:
 
 ```text
@@ -555,6 +595,8 @@ Acceptance criteria (stage exit — this is also the T1.4 entry gate):
 
 ### Stage T1.4 — Generalization gate (holdout corpus)
 
+Status: **NOT STARTED** — entry-gated by the T1.3 stage exit.
+
 Scope: author new holdout fixtures per confirmed family from the
 family definitions alone — **without reference to mechanism
 internals or failure outputs**. Per family: a true-defect variant
@@ -574,6 +616,8 @@ gate (T1.5 criterion 1) — the holdout never becomes an obligation
 to solve out-of-scope known misses.
 
 ### Stage T1.5 — Qualification gate + Phase 5 handoff
+
+Status: **NOT STARTED.**
 
 Track 1 is complete when ALL hold:
 
