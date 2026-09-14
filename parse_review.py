@@ -142,8 +142,37 @@ def _metadata_block(model, head_sha, assessment):
     ).format(model, head_sha, assessment)
 
 
+def _entry_lines(entries):
+    """Shared finding-item line: `- `file:line` — comment`."""
+    return ["- {0} — {1}".format(_ref(e), e["comment"]) for e in entries]
+
+
+def _advisory_lines(advisory):
+    """Shared `### Advisory` section; caller skips it when advisory is empty."""
+    return ["### Advisory", ""] + _entry_lines(advisory) + [""]
+
+
+def _strength_lines(good):
+    """Shared `### Evidence-backed strengths` section; skipped when empty."""
+    return (["### Evidence-backed strengths", ""]
+            + ["- {0}".format(g) for g in good] + [""])
+
+
+def _details_lines(title, body):
+    """Shared collapsible <details> scaffolding around body lines."""
+    return (["<details>", "<summary>{0}</summary>".format(title), ""]
+            + body + ["</details>"])
+
+
 def _build_clear(summary, advisory, good, model, head_sha):
     n_adv = len(advisory)
+    details_body = []
+    if summary:
+        details_body += [summary, ""]
+    if advisory:
+        details_body += _advisory_lines(advisory)
+    if good:
+        details_body += _strength_lines(good)
     lines = [
         "## AI review · Clear",
         "",
@@ -151,22 +180,9 @@ def _build_clear(summary, advisory, good, model, head_sha):
         "",
         "0 blocking · {0} advisory".format(n_adv),
         "",
-        "<details>",
-        "<summary>Review details</summary>",
-        "",
     ]
-    if summary:
-        lines += [summary, ""]
-    if advisory:
-        lines += ["### Advisory", ""]
-        lines += ["- {0} — {1}".format(_ref(e), e["comment"])
-                  for e in advisory]
-        lines += [""]
-    if good:
-        lines += ["### Evidence-backed strengths", ""]
-        lines += ["- {0}".format(g) for g in good]
-        lines += [""]
-    lines += ["</details>", "", _metadata_block(model, head_sha, "CLEAR")]
+    lines += _details_lines("Review details", details_body)
+    lines += ["", _metadata_block(model, head_sha, "CLEAR")]
     return "\n".join(lines), []
 
 
@@ -181,45 +197,35 @@ def _build_issues(summary, blocking, advisory, good, model, head_sha):
         "",
     ]
     lines += ["### Blocking", ""]
-    lines += ["- {0} — {1}".format(_ref(e), e["comment"])
-              for e in blocking] or ["- none"]
+    lines += _entry_lines(blocking) or ["- none"]
     lines += [""]
     if advisory:
-        lines += ["### Advisory", ""]
-        lines += ["- {0} — {1}".format(_ref(e), e["comment"])
-                  for e in advisory]
-        lines += [""]
-    lines += ["<details>", "<summary>Review details</summary>", ""]
+        lines += _advisory_lines(advisory)
+    details_body = []
     if summary:
-        lines += [summary, ""]
+        details_body += [summary, ""]
     if good:
-        lines += ["### Evidence-backed strengths", ""]
-        lines += ["- {0}".format(g) for g in good]
-        lines += [""]
-    lines += ["</details>", "",
-              _metadata_block(model, head_sha, "ISSUES_FOUND")]
+        details_body += _strength_lines(good)
+    lines += _details_lines("Review details", details_body)
+    lines += ["", _metadata_block(model, head_sha, "ISSUES_FOUND")]
     return "\n".join(lines), blocking, advisory
 
 
 def _build_inconclusive(model, head_sha):
-    body = "\n".join([
-        "## AI review · Inconclusive",
-        "",
-        "A reliable semantic review could not be produced.",
-        "",
-        "Do not treat this review as clear.",
-        "",
-        "<details>",
-        "<summary>Technical details</summary>",
-        "",
-        "Reason: reviewer response was malformed, incomplete, or "
-        "self-contradictory (assessment missing/unknown, or issues "
-        "claimed without evidence).",
-        "",
-        "</details>",
-        "",
-        _metadata_block(model, head_sha, INCONCLUSIVE),
-    ])
+    body = "\n".join(
+        ["## AI review · Inconclusive",
+         "",
+         "A reliable semantic review could not be produced.",
+         "",
+         "Do not treat this review as clear.",
+         ""]
+        + _details_lines(
+            "Technical details",
+            ["Reason: reviewer response was malformed, incomplete, or "
+             "self-contradictory (assessment missing/unknown, or issues "
+             "claimed without evidence).",
+             ""])
+        + ["", _metadata_block(model, head_sha, INCONCLUSIVE)])
     return body, []
 
 
