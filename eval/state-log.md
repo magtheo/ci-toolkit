@@ -394,3 +394,67 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
   rewritten): it says "M17 0/5 both profiles vs 5/5 floors" — the
   sonnet M17 floor is 5; the haiku M17 floor is 0 (haiku M17 was
   not a floor violation).
+
+## 2026-09-10 — T1.3 layer (b): design approved
+
+- #47 merged as f68cea3: `plans/layer-b-structured-support-design.md`
+  (approved rev 2) — structured `support` quotes on blocking findings
+  + deterministic validation/demotion; candidate layer (b) exercised
+  under the frozen keep/revert lifecycle; 20a–20d phasing recorded.
+
+## 2026-09-11 — T1.3 layer (b): implementation complete
+
+- #48 merged as d7ae807: engine/parse support contract
+  (`effective_review_input`, `apply_support_policy`, anti-vacuity
+  floor, `engine_match` provenance) + 28 contract tests incl.
+  byte-identity reference matrix; #49 merged as e87b6e4: rubric
+  support instruction (+5 lines). Subject e87b6e4 · rubric
+  77f10a1913da8ac2 · oracle cb6870c5a4c635b2 unchanged · corpus
+  72035a00b8db828d unchanged.
+
+## 2026-09-12 — T1.3 layer (b) measurement (20d): FAIL, MEASURED INSUFFICIENT
+
+- Freeze rev 2 approved (#51, commit ce3073c); spend authorized
+  $3.50 / 360 calls exactly once. First attempt blocked at call 1
+  (OpenRouter http 403 weekly key limit; 0 calls served; log
+  preserved verbatim, commit dd59604). Re-authorized run: 360/360
+  calls, $3.06 upper bound (raw 36106f3, byte-immutable).
+- FAIL on the frozen criteria: 21 Deviation-6 floor violations
+  (haiku aggregate 2/90 vs floor 51 — detection collapse; sonnet
+  29/90 vs 66; sonnet M17 0/5 hard invariant, third consecutive
+  iteration); sonnet C7 GATING violation; speculative-consequence
+  FBs 60 > cap 50. Narrative coding: 122 adjudicated false blockers
+  (60 spec / 28 hallu / 13 abs / 12 risk / 9 sev) + 1 oracle
+  matcher gap. Telemetry: 336 demotions (haiku 218 support_missing;
+  sonnet 116 support_not_found) — genuine findings disproportionately
+  demoted while false-blocking narratives frequently supplied valid
+  matching citations.
+- Conclusion: citation/support presence is NOT semantic entailment.
+  Layer (b) REJECTED as measured insufficient; evidence preserved
+  immutable in
+  `eval/evidence/track1-t13-layerb-measurement-2026-09-11/`
+  (raw + derived bundle incl. deterministic accounting correction
+  8ca9ed8). Revert directed by the frozen disposition.
+
+## 2026-09-13 — layer (b) fully reverted; restoration audited CLEAN
+
+- #52 merged as 83805b6: engine/parse support policy reverted
+  (engine.py, parse_review.py, tests/test_engine_contract.py
+  byte-exact to pre-layer-(b) f68cea3; tests/test_support_contract.py
+  removed; 152 tests).
+- #53 merged as d884d3e: rubric support requirement reverted
+  (rubric.md byte-exact to f68cea3, blob 2d194a404c0f142ec6ed0c29bf
+  08e1493a6e477e; 5 deletions, 0 insertions).
+- Whole-reviewer restoration audit (read-only, zero model calls,
+  at d884d3e): engine.py f9b236d4f984babe6396ed3e836559ec09939096,
+  parse_review.py a280883c22c35482c2b4896cc71f805c9241bbb4, rubric.md
+  2d194a404c0f142ec6ed0c29bf08e1493a6e477e — all byte-identical to
+  f68cea3; review.sh, render.py, .github/workflows/ai-review.yml
+  unchanged since f68cea3; zero layer-(b) symbol residue in
+  runtime/test content; 152 tests pass. **Experimental fact: layer
+  (b) left no reviewer-behavior residue; only evidence/history
+  remains.**
+- #54 merged as 142ae17: main/#50 governance reconciled into the
+  feature branch (merge commit c2879176, parents d884d3e + c44b2b6;
+  0 behind main; only the five #50-owned files changed; reviewer
+  behavior blobs intact).
