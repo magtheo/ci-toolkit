@@ -127,17 +127,18 @@ table's number.
   presence is not semantic entailment**: false-blocking narratives
   supplied valid verbatim citations while remaining semantically
   unsupported, and broad support enforcement degraded genuine
-  detection (haiku aggregate 2/90 vs floor 51). The common failure
-  across all five measured false-blocker families
-  (speculative-consequence, hallucinated-fact, absolute-consistency,
-  severity-inflation, risk-boilerplate) is blocker justification /
-  inference validation, not five unrelated missing rubric rules.
-  The plan's dedicated-discrimination-pass option (candidate layer
-  (d)) has therefore earned design consideration. Next work: a
-  bounded blocker-verification-pass design targeting that common
-  inference problem — not another family-specific rubric tweak, and
-  no big-bang pipeline redesign (candidate generation → candidate
-  verification, nothing more).
+  detection (haiku aggregate 2/90 vs floor 51). Across the five
+  confirmed false-blocker families (speculative-consequence,
+  hallucinated-fact, absolute-consistency, severity-inflation,
+  risk-boilerplate), the evidence **suggests** a common
+  blocker-justification / inference-validation problem rather than
+  five independent missing rubric rules; three lower-complexity
+  mechanisms have now failed, so the plan's
+  dedicated-discrimination-pass option (candidate layer (d)) has
+  earned design consideration. Next step: a bounded
+  blocker-verification design that explicitly tests this hypothesis
+  — not another family-specific rubric tweak. Its exact architecture
+  belongs to that design PR.
 - **Acceptance criteria:** near-miss control fixtures reviewed without
   blockers while their paired defects are still caught, on an
   expanded control set.
