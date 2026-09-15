@@ -1,0 +1,32 @@
+{
+ "frozen_before_call_1": true,
+ "subject_sha": "9772b8b5808a07d4c2e0eeda48639e4f15c89fc0",
+ "subject_note": "merge commit of #39 (rubric.md only vs prior subject); reviewer semantics delta = the grounding rule below",
+ "rubric_hash": "8c14fdc4ce8c5b20",
+ "oracle_version": "1ef8dc90badc27bd",
+ "corpus_hash": "902738301d0a8bd7",
+ "n": 5,
+ "profiles": [
+  "anthropic/claude-haiku-4.5",
+  "anthropic/claude-sonnet-4.5"
+ ],
+ "temperature": 0.2,
+ "max_tokens": 2000,
+ "deviation6_floors": {
+  "source": "eval/evidence/track1-oracle-repair4-2026-09-07/witness-replay.json",
+  "aggregate": {
+   "haiku": "51/90",
+   "sonnet": "66/90"
+  },
+  "rule": "every positive must hold or improve its per-positive floor hits on both profiles"
+ },
+ "mechanism_definition_copied_from_merged_39": {
+  "layer": "(a) rubric / reasoning contract \u2014 wording only",
+  "rule": "A blocking finding must identify a concrete defect or violated invariant supported by evidence available in the supplied review input, and the claimed impact must follow from that evidence. A hypothetical harm that depends on unseen code behavior, an unestablished external actor/compromise, or future misuse is not sufficient grounds for blocking \u2014 advisory at most. Conditional reasoning is not disqualifying (visible injection path blocks); the unsupported premise is.",
+  "target_family": "speculative-consequence",
+  "measured_basis": "115/324 #36 false blockers; 5/6 of sonnet C7 GATING misses; dominant haiku family"
+ },
+ "spend_cap_usd": 3.5,
+ "run_policy": "exactly once; no reruns of failures/parser failures/ugly outputs; everything preserved as emitted; stop if projected cost would exceed the cap",
+ "freeze_timestamp": "2026-09-08T18:12:07Z"
+}

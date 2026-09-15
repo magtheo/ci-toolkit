@@ -1,0 +1,23 @@
+{
+  "id": "C16",
+  "kind": "control",
+  "origin": "synthetic",
+  "paired_with": "M16",
+  "family": "severity-inflation",
+  "input": {
+    "title": "core: best-effort label sync",
+    "body": "Adds label sync to the repo bootstrap.",
+    "files": [
+      {
+        "path": "core/sync.py",
+        "status": "added",
+        "patch": "--- /dev/null\n+++ b/core/sync.py\n@@ -0,0 +1,14 @@\n+import logging\n+import requests\n+\n+LABELS = {\"bug\": \"#d73a4a\", \"chore\": \"#cfd8dc\"}\n+\n+\n+def sync_labels(session, repo):\n+    # TODO: attach retry/backoff once flakiness shows up in practice.\n+    try:\n+        return session.put(\"{0}/labels\".format(repo), json=LABELS)\n+    except requests.RequestException as e:\n+        # log-and-continue: label sync is best-effort by design\n+        logging.warning(\"label sync failed: %s\", e)\n+        return None\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "CLEAR",
+    "findings": []
+  },
+  "note": "Globally clean: narrow except, logged, None returned \u2014 the documented best-effort contract; TODO is advisory-grade."
+}

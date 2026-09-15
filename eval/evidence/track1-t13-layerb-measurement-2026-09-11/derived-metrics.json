@@ -1,0 +1,320 @@
+{
+ "profiles": {
+  "haiku": {
+   "aggregate_detection": "2/90",
+   "floor_aggregate": 51,
+   "control_false_blockers": 0,
+   "control_fb_cap": 78,
+   "false_blockers_total": 0,
+   "matcher_gap_observations": 0,
+   "raw_unexpected_blocking_narratives": 0,
+   "speculative_consequence_fb": 0,
+   "spec_cap": 53,
+   "inconclusive": 3,
+   "per_positive_detection": {
+    "M1": 0,
+    "M10": 1,
+    "M11": 0,
+    "M12": 0,
+    "M13": 0,
+    "M14": 0,
+    "M15": 0,
+    "M16": 0,
+    "M17": 0,
+    "M18": 0,
+    "M2": 0,
+    "M3": 0,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 0,
+    "M8": 1,
+    "M9": 0
+   }
+  },
+  "sonnet": {
+   "aggregate_detection": "29/90",
+   "floor_aggregate": 66,
+   "control_false_blockers": 67,
+   "control_fb_cap": 112,
+   "false_blockers_total": 122,
+   "matcher_gap_observations": 1,
+   "raw_unexpected_blocking_narratives": 123,
+   "speculative_consequence_fb": 60,
+   "spec_cap": 50,
+   "inconclusive": 5,
+   "per_positive_detection": {
+    "M1": 4,
+    "M10": 0,
+    "M11": 3,
+    "M12": 0,
+    "M13": 0,
+    "M14": 5,
+    "M15": 0,
+    "M16": 0,
+    "M17": 0,
+    "M18": 0,
+    "M2": 5,
+    "M3": 0,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 2
+   }
+  }
+ },
+ "frozen_criteria": {
+  "1_zero_gating": {
+   "haiku": [],
+   "sonnet": [
+    "C7"
+   ],
+   "pass": false
+  },
+  "2_deviation6_floors": {
+   "violations": 21,
+   "pass": false,
+   "sonnet_M17": 0
+  },
+  "3_spec_retention": {
+   "haiku": 0,
+   "sonnet": 60,
+   "aggregate": 60,
+   "caps": "53/50/103",
+   "pass": false
+  },
+  "4_control_fb_nonregression": {
+   "haiku": 0,
+   "sonnet": 67,
+   "caps": "78/112",
+   "pass": true
+  },
+  "5_sonnet_c7_clean": {
+   "pass": false
+  }
+ },
+ "floor_violations": [
+  {
+   "profile": "haiku",
+   "fixture": "M1",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M10",
+   "detected": 1,
+   "floor": 5,
+   "delta": -4
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M11",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M12",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M14",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M16",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M2",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M3",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M7",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M8",
+   "detected": 1,
+   "floor": 5,
+   "delta": -4
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "detected": 0,
+   "floor": 1,
+   "delta": -1
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M1",
+   "detected": 4,
+   "floor": 5,
+   "delta": -1
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M10",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M11",
+   "detected": 3,
+   "floor": 5,
+   "delta": -2
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M12",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "detected": 0,
+   "floor": 1,
+   "delta": -1
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M16",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M17",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M18",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M3",
+   "detected": 0,
+   "floor": 5,
+   "delta": -5
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M9",
+   "detected": 2,
+   "floor": 5,
+   "delta": -3
+  }
+ ],
+ "demotion_telemetry": {
+  "haiku": {
+   "demotions_total": 218,
+   "by_reason": {
+    "support_missing": 218,
+    "support_vacuous": 0,
+    "support_not_found": 0
+   },
+   "engine_match_annotations": 3,
+   "engine_match_kinds": {
+    "diff": 3
+   }
+  },
+  "sonnet": {
+   "demotions_total": 118,
+   "by_reason": {
+    "support_missing": 0,
+    "support_vacuous": 2,
+    "support_not_found": 116
+   },
+   "engine_match_annotations": 191,
+   "engine_match_kinds": {
+    "diff": 162,
+    "body": 22,
+    "title": 7
+   }
+  }
+ },
+ "spend_accounting": {
+  "haiku": {
+   "calls": 180,
+   "prompt_tokens": 257835,
+   "completion_tokens": 84460,
+   "cost_upper_bound_usd": 0.68,
+   "pricing": "list, no cache discount"
+  },
+  "sonnet": {
+   "calls": 180,
+   "prompt_tokens": 257835,
+   "completion_tokens": 107305,
+   "cost_upper_bound_usd": 2.38,
+   "pricing": "list, no cache discount"
+  },
+  "total_usd_upper_bound": 3.06,
+  "cap_usd": 3.5,
+  "calls_total": 360
+ },
+ "incident_log": [
+  {
+   "attempt": 1,
+   "event": "blocked at call 1 \u2014 OpenRouter http 403 key weekly limit",
+   "governed_calls_served": 0,
+   "evidence": "commit dd59604: haiku-n5.log (verbatim 403 body)",
+   "resolution": "human confirmed key reset; explicitly re-authorized the identical frozen run against head dd59604"
+  },
+  {
+   "attempt": 2,
+   "event": "360/360 calls served, exits: haiku 0, sonnet 1 (policy-failure signal; report complete, no transport errors)",
+   "governed_calls_served": 360
+  }
+ ],
+ "pair_integrity_sonnet": [
+  {
+   "positive": "M2",
+   "control": "C2",
+   "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+  },
+  {
+   "positive": "M8",
+   "control": "C8",
+   "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+  }
+ ]
+}
