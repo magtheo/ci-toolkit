@@ -458,3 +458,30 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
   feature branch (merge commit c2879176, parents d884d3e + c44b2b6;
   0 behind main; only the five #50-owned files changed; reviewer
   behavior blobs intact).
+
+## 2026-09-15 — T1.3 iteration 4 freeze (0 calls, awaiting authorization)
+
+- stage 25d: blocker-verification mechanism frozen before call 1.
+  Subject d1a2ef1bdc1661c880b9373380ffa2b639251023 (merge of #60; 25c
+  activation) · rubric 415d8a38cfed9d3a (UNCHANGED by design — the
+  verifier protocol is engine-owned, pass-2-only; equals the
+  2026-08-30 baseline value) · protocol hash 1bbacabc83ea768e ·
+  oracle cb6870c5a4c635b2 unchanged · corpus 72035a00b8db828d
+  unchanged (36 fixtures) · N=5, haiku + sonnet, each verifying its
+  own findings.
+- Freeze at
+  `eval/evidence/track1-t13-iter4-measurement-2026-09-15/freeze.json`:
+  trace contract v2 pinned (12-key schema, model_id attribution,
+  per-profile trace files, review_input_digest construction, logical
+  stage accounting), run commands, Deviation-6 floors copied
+  verbatim, success criteria 1–6 copied verbatim from the approved
+  design rev 3 (incl. criterion-6 causal non-vacuity measured via the
+  frozen trace; NO confirmation-rate gate).
+- Accounting: 360 review invocations; governed semantic-call ceiling
+  720 logical model stages (transport retries are not governed
+  samples); spend derived from frozen-trace usage; one-time cap
+  $7.00; stop-before-exceed.
+- Authorization boundary recorded: merge -> verify frozen SHA/hashes
+  -> HUMAN authorizes the one governed spend -> run exactly once.
+  KEEP = all six criteria; anything else = full mechanism revert with
+  the failure mode recorded. No governed calls made for this freeze.

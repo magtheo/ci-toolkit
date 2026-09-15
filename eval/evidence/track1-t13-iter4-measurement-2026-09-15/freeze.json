@@ -1,0 +1,141 @@
+{
+ "frozen_before_call_1": true,
+ "freeze_timestamp": "2026-09-15",
+ "freeze_revision": 1,
+ "stage": "25d — iteration-4 governed campaign freeze (documentation/evidence only; zero governed calls at freeze time)",
+ "subject_sha": "d1a2ef1bdc1661c880b9373380ffa2b639251023",
+ "subject_note": "merge commit of #60 (25c activation; head 23177aa is a parent). Reviewer-behavior delta vs the pre-iteration-4 subject: 25b verification plumbing (inert without activation) + 25c conditional pass-2 blocker verification. Pass-1 prompts/parse are byte-identical to the reverted layer-(b) subject; rubric.md is byte-identical (blob 2d194a404c0f142ec6ed0c29bf08e1493a6e477e).",
+ "rubric_hash": "415d8a38cfed9d3a",
+ "rubric_hash_note": "sha256(rubric.md)[:16]. UNCHANGED by iteration 4 BY DESIGN (the verifier protocol is engine-owned, pass-2-only; any rubric edit would break pass-1 byte identity). Equals the 2026-08-30 baseline freeze value.",
+ "oracle_version": "cb6870c5a4c635b2",
+ "oracle_note": "repair-5 oracle, unchanged BY DESIGN across the entire iteration-4 series: oracle_version hashes eval-side inputs only (run_corpus.py, fixture bytes, states.json); recomputed at freeze time on this branch and equals every prior Track-1 freeze value.",
+ "corpus_hash": "72035a00b8db828d",
+ "corpus_note": "identical to all prior Track-1 freezes; 36 fixtures (eval/fixtures).",
+ "n": 5,
+ "profiles": [
+  "anthropic/claude-haiku-4.5",
+  "anthropic/claude-sonnet-4.5"
+ ],
+ "temperature": 0.2,
+ "max_tokens": 2000,
+ "verification_profile_rule": "each profile verifies its own findings (same model id for pass 1 and pass 2) — no stronger judge, no cross-profile verification (design rev 3, §1)",
+ "deviation6_floors": {
+  "normative_source": "eval/evidence/track1-oracle-repair4-2026-09-07/witness-replay.json",
+  "normative_source_note": "Deviation 6 pins the sensitivity reference to the pre-change #36 deterministic rescore under repair 4; later measurements do not replace it",
+  "current_oracle_parity_evidence": "eval/evidence/track1-oracle-repair5-2026-09-08/witness-replay.json",
+  "current_oracle_parity_verified": true,
+  "aggregate": {
+   "haiku": "51/90",
+   "sonnet": "66/90"
+  },
+  "per_positive": {
+   "haiku": {
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 0,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 0,
+    "M18": 0,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 1
+   },
+   "sonnet": {
+    "M1": 5,
+    "M10": 5,
+    "M11": 5,
+    "M12": 5,
+    "M13": 1,
+    "M14": 5,
+    "M15": 0,
+    "M16": 5,
+    "M17": 5,
+    "M18": 5,
+    "M2": 5,
+    "M3": 5,
+    "M4": 0,
+    "M5": 0,
+    "M6": 0,
+    "M7": 5,
+    "M8": 5,
+    "M9": 5
+   }
+  },
+  "rule": "every positive must hold or improve its per-positive floor hits on both profiles (fixture-level: a run counts only when ALL of the fixture's expected entries are detected on that run)",
+  "explicit": "sonnet M17 floor is 5/5 — a 4/5 result FAILS the hard invariant"
+ },
+ "mechanism_definition": {
+  "layer": "(d) dedicated discrimination pass — bounded blocker-verification (candidate generation -> candidate verification, nothing more)",
+  "design": "plans/iter4-blocker-verification-design.md (rev 3, approved via #56)",
+  "pass1": "byte-identical to the pre-iteration-4 subject (same _build_prompts/_budget/normalize); zero-candidate reviews are single-stage and byte-identical end to end",
+  "pass2_trigger": "pass-1 normalization yields >=1 blocking candidate (ISSUES_FOUND)",
+  "verifier_protocol_hash": "1bbacabc83ea768e",
+  "verifier_protocol_hash_note": "sha256(engine.VERIFICATION_PROTOCOL exact string)[:16], computed at freeze time on the frozen subject; the protocol is the five-question challenge + strict bare-JSON output contract (top-level keys exactly {verdicts}; per-candidate fields evidence_establishes, applicable_requirement, contradiction, unstated_assumption, correct_implementation_possible, verdict in {confirmed, refuted})",
+  "verdict_application": "confirmed -> finding preserved byte-for-byte; refuted -> REMOVED from final findings (never advisory); any removal clears the final summary (render.py prints it verbatim on the CLEAR path); good/ strengths kept; CASE A (no pass 2) keeps existing parser semantics byte-for-byte; CASE B recomputes assessment from trusted surviving findings — all refuted -> CLEAR, any survivor -> ISSUES_FOUND",
+  "failure_domains": "pass-2 transport failure -> legacy retry policy (3 attempts, backoff) then hard run failure (exit 1) — never INCONCLUSIVE; pass-2 semantic failure (VerificationParseError: non-JSON, prose/fence wrappers, extra top-level keys, missing/extra ids, invalid verdict, mistyped fields) -> final review INCONCLUSIVE with NO keep/remove applied"
+ },
+ "trace_contract": {
+  "version": 2,
+  "env": "AI_REVIEW_TRACE_PATH",
+  "unset_behavior": "production behavior identical; no file written; ReviewResult unchanged",
+  "failure_semantics": "sink unwritable at preflight (BEFORE the first provider call) -> hard failure; runtime write failure -> hard failure; a governed campaign must never silently lose criterion-6 evidence",
+  "exact_key_set": [
+   "trace_version",
+   "model_id",
+   "review_input_digest",
+   "pass1_review_result",
+   "pass1_usage",
+   "candidate_ids",
+   "verifier_raw_response",
+   "verifier_parsed",
+   "verification_error",
+   "pass2_usage",
+   "final_review_result",
+   "provider_call_count"
+  ],
+  "key_semantics": "one append-only JSONL record per review; pass1_review_result is the PRE-verification parsed result; candidate_ids are the v1..vn blocking candidates submitted; verifier_parsed holds the reconstruction fields + verdict per id (null on semantic failure, where verification_error carries the parser message and verifier_raw_response the verbatim pass-2 body); provider_call_count counts LOGICAL model stages (1 or 2 successful model responses) — never raw HTTP attempts, which the retry policy may multiply",
+  "review_input_digest_construction": "PROVISIONAL->PINNED at this freeze: sha256(json.dumps({'title': title, 'body': body[:2000], 'changed_list': changed_list, 'diff_text': diff_text, 'files_note': files_note, 'trunc_note': trunc_note}, sort_keys=True, ensure_ascii=False).encode('utf-8')).hexdigest()[:16] — exactly the budgeted effective input pass 1 embeds (engine._review_input_digest on subject d1a2ef1)",
+  "profile_attribution": "model_id is recorded in every trace record; the evidence procedure additionally requires SEPARATE trace files per profile and post-run validation that each record's model_id matches its file's profile"
+ },
+ "run_commands": {
+  "checkout": "git checkout d1a2ef1bdc1661c880b9373380ffa2b639251023 (subject run via --subject-dir of this checkout; oracle stays in the harness checkout)",
+  "haiku": "OPENROUTER_API_KEY=<key> AI_REVIEW_TRACE_PATH=<dir>/haiku-trace.jsonl python3 eval/run_corpus.py --model anthropic/claude-haiku-4.5 --n 5 --out <dir>/haiku-n5.json --subject-dir <subject checkout>",
+  "sonnet": "OPENROUTER_API_KEY=<key> AI_REVIEW_TRACE_PATH=<dir>/sonnet-trace.jsonl python3 eval/run_corpus.py --model anthropic/claude-sonnet-4.5 --n 5 --out <dir>/sonnet-n5.json --subject-dir <subject checkout>",
+  "environment": "no other AI_REVIEW_* variables; no retries beyond the engine's standing transport policy"
+ },
+ "success_criteria": [
+  "1. zero GATING violations on both profiles (C4/C5/C7)",
+  "2. every Deviation 6 per-positive sensitivity floor met on both profiles (aggregates haiku 51/90, sonnet 66/90 as summary form; per-positive floors normative, fixture-level detection)",
+  "3. sonnet M17 = 5/5 (hard invariant)",
+  "4. speculative-consequence false blockers <= 53 haiku / <= 50 sonnet / <= 103 aggregate; overall control false blockers <= 78 haiku / <= 112 sonnet",
+  "5. every confirmed family demonstrates separation, with pair integrity (no positive promotable while its paired control fails)",
+  "6. causal non-vacuity, measured in the same campaign via the frozen trace: among control fixtures where pass 1 produced a blocking candidate, verification must REFUTE (remove) at least one such candidate in at least two confirmed families (pass1_review_result joined to final_review_result via review_input_digest)"
+ ],
+ "criteria_source": "copied verbatim from the approved design rev 3 §4 — frozen, not reinterpreted; KEEP requires ALL SIX; no confirmation-rate gate exists and none may be added after seeing results (telemetry: confirmation/refutation rates, pre->post deltas, per-family effects — descriptive only)",
+ "interpretation": {
+  "KEEP": "all six criteria pass -> freeze raw evidence + trace; then check predicate alignment so this same campaign earns the binding T1.2 reference and the T1.3 stage exit where predicates align; then T1.4 (blind holdout)",
+  "REVERT": "anything else -> freeze raw evidence FIRST, then revert the mechanism components completely (engine pass-2 policy/prompt, verifier parsing, trace stays inert), and record the failure mode (rubber-stamping / over-suppression / GATING / caps / floors); the next mechanism is decided only afterward",
+  "no_partial_keeps": true
+ },
+ "accounting": {
+  "review_invocations": "360 = 36 fixtures x N=5 x 2 profiles",
+  "governed_semantic_call_ceiling": "720 logical model stages (each invocation = 1 stage always + 1 verifier stage only when pass 1 produced blockers)",
+  "transport_note": "provider_call_count is logical stages, NOT raw HTTP requests; transport retries follow the pre-existing retry policy and are NOT additional governed semantic samples",
+  "spend_derivation": "spend is derived from frozen-trace usage/accounting and must remain <= the authorized monetary cap",
+  "spend_cap_usd": 7.0,
+  "spend_estimate_note": "one-time authorization requested at <= $7.00; the layer-(b) 360-stage campaign cost $3.06 upper bound. If the estimated cost before execution exceeds the frozen cap: STOP rather than silently extend.",
+  "one_campaign": "exactly one authorized campaign; no retries, no re-authoring, no second campaign after seeing results"
+ },
+ "authorization_boundary": "25d merged -> verify frozen SHA/hashes on the merged head -> HUMAN authorizes the one governed spend -> run exactly once. The campaign is never run as part of the merge.",
+ "governed_calls_made_at_freeze_time": 0,
+ "governed_calls_note": "zero governed evaluation/corpus calls were made for this freeze. Normal PR dogfood review, if it runs on this head, is separate and is never governed evidence."
+}
