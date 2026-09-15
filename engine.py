@@ -41,7 +41,9 @@ import sys
 import tempfile
 import time
 
-from parse_review import RESULT_SCHEMA_VERSION, normalize
+from parse_review import (INCONCLUSIVE, RESULT_SCHEMA_VERSION,
+                          VerificationParseError, extract_verdicts,
+                          normalize)
 
 INPUT_SCHEMA_VERSION = 1
 # RESULT_SCHEMA_VERSION: single source of truth in parse_review
@@ -49,26 +51,59 @@ INPUT_SCHEMA_VERSION = 1
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 RETRYABLE_HTTP = (429, 500, 502, 503, 504)
 
-# ---- iteration-4 plumbing (25b: built and tested, NOT activated) ----------
-# The blocker-verification design (plans/iter4-blocker-verification-
-# design.md rev 3) adds a conditional second model stage. run_review's
-# production behavior is UNCHANGED until 25c activates it; this
-# section only builds and tests the deterministic plumbing.
+# ---- iteration-4 blocker verification (25c: ACTIVATED) --------------------
+# Conditional second model stage per plans/iter4-blocker-verification-
+# design.md rev 3: blocking candidates from pass 1 are verified by one
+# same-profile pass before they may remain blocking. Pass 1 is
+# byte-identical; review.sh, rubric.md, eval/ are untouched.
 
 TRACE_ENV = "AI_REVIEW_TRACE_PATH"
-# Optional evidence channel (design §2.5). Unset -> behavior identical
-# to the pre-25b engine, no file written. Set -> one append-only JSONL
-# record per review; a set-but-unwritable sink is a hard failure so a
-# governed campaign can never silently lose criterion-6 evidence.
-TRACE_VERSION = 1
+# Optional evidence channel (design §2.5). Unset -> no file written;
+# the ReviewResult is identical. Set -> one append-only JSONL record
+# per review; a set-but-unwritable sink is a hard failure before the
+# first provider call so a governed campaign can never silently lose
+# criterion-6 evidence.
+TRACE_VERSION = 2
+# v2: adds model_id (profile attribution — evidentiary, deterministic)
+# and verification_error (semantic pass-2 failure evidence).
 # provider_call_count counts LOGICAL model stages (successful model
 # responses: 1 = pass 1 only, 2 = pass 1 + verification) — never raw
 # HTTP attempts, which the retry policy may multiply.
 
-VERIFICATION_PROTOCOL = None
-# Pass-2 protocol text — engine-owned, rubric-independent so pass-1
-# prompts stay byte-identical (design §2.2). 25c sets this; until then
-# prompt construction refuses to build (plumbing without behavior).
+VERIFICATION_PROTOCOL = """\
+You are the verification stage of a two-stage code reviewer. A first \
+stage proposed candidate blocking findings. For EACH candidate you \
+must independently reconstruct the evidential chain from the supplied \
+review input — do not audit the candidate's own argument; derive the \
+contradiction from the evidence yourself.
+
+For each candidate answer five questions:
+
+1. What observable proposition does the supplied evidence establish?
+2. What requirement / invariant / stated contract applies?
+3. What exact contradiction or failing behavior follows?
+4. Does that conclusion follow from the evidence, or is an unstated \
+assumption required?
+5. Could the same supplied evidence plausibly describe a correct \
+implementation?
+
+If the defect cannot survive this challenge the verdict is "refuted"; \
+otherwise "confirmed".
+
+Respond with ONE bare JSON object and nothing else — no prose, no \
+Markdown fences, no extra top-level fields:
+
+{"verdicts": {"<candidate-id>": {
+  "evidence_establishes": "<what the evidence actually establishes>",
+  "applicable_requirement": "<the requirement/invariant that applies>",
+  "contradiction": "<the exact contradiction, or why none follows>",
+  "unstated_assumption": "<the assumption the conclusion needs, or 'none'>",
+  "correct_implementation_possible": <true|false>,
+  "verdict": "<confirmed|refuted>"}}}
+
+Every candidate id you were given must appear exactly once. Every \
+field is required. Unverifiable prose, missing/extra ids or fields, \
+or any non-JSON response makes the whole review unusable."""
 
 
 class _NetworkFailure(Exception):
@@ -188,27 +223,19 @@ def _post_chat(payload):
         return status, out.read()
 
 
-def _call_model(review_input):
-    """Model call with the legacy retry policy:
+def _post_with_retries(payload, what):
+    """The legacy retry policy, shared by both model stages:
 
     - up to 3 attempts; network failures and 429/5xx retry with
       backoff (attempt * 10s); anything else fails immediately;
     - the LAST status is reported on exhaustion (status is never
       reset inside the loop);
-    - a 200 with empty message content is a hard failure.
+    - exhaustion and non-retryable HTTP statuses are hard failures;
+    - a 200 with empty message content returns content None — the
+      CALLER decides the failure domain (pass 1: hard failure; pass 2:
+      empty content flows to the strict parser and fails closed into
+      INCONCLUSIVE — semantic, not transport).
     """
-    system_prompt, user_prompt = _build_prompts(review_input)
-    m = review_input["model"]
-    payload = {
-        "model": m["id"],
-        "temperature": m["temperature"],
-        "max_tokens": m["max_tokens"],
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-    }
-
     status = 0  # pre-loop init only; never reset inside the loop
     body = b""
     for attempt in (1, 2, 3):
@@ -225,7 +252,7 @@ def _call_model(review_input):
             print("OpenRouter attempt {0} failed (http {1}) — retrying "
                   "after backoff".format(attempt, status), file=sys.stderr)
         else:
-            print("OpenRouter call failed: http {0}".format(status),
+            print("OpenRouter {0} failed: http {1}".format(what, status),
                   file=sys.stderr)
             sys.stderr.write(body.decode("utf-8", "replace") + "\n")
             sys.exit(1)
@@ -239,13 +266,51 @@ def _call_model(review_input):
     resp = json.loads(body)
     content = (resp.get("choices") or [{}])[0].get("message", {}) \
         .get("content")
+    return content, resp.get("usage")
+
+
+def _call_model(review_input):
+    """Pass-1 model call (byte-identical prompts, legacy retry policy;
+    a 200 with empty message content is a hard failure)."""
+    system_prompt, user_prompt = _build_prompts(review_input)
+    m = review_input["model"]
+    payload = {
+        "model": m["id"],
+        "temperature": m["temperature"],
+        "max_tokens": m["max_tokens"],
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    }
+    content, usage = _post_with_retries(payload, "call")
     if not content:
         print("OpenRouter returned 200 but no message content:",
               file=sys.stderr)
-        sys.stderr.write(body.decode("utf-8", "replace") + "\n")
         sys.exit(1)
-    usage = resp.get("usage")
     return content, usage
+
+
+def _call_verifier(review_input, candidates):
+    """Pass-2 model call: same model, same retry policy, same hard
+    transport failure — but a 200 with empty/unusable content is NOT
+    a hard failure here: it returns ("", usage) so the strict verdict
+    parser fails closed into INCONCLUSIVE (semantic failure domain —
+    design §2.2 keeps the two failure domains separate)."""
+    system_prompt, user_prompt = _build_verification_prompts(
+        review_input, candidates)
+    m = review_input["model"]
+    payload = {
+        "model": m["id"],
+        "temperature": m["temperature"],
+        "max_tokens": m["max_tokens"],
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    }
+    content, usage = _post_with_retries(payload, "verification call")
+    return (content or ""), usage
 
 
 def _blocking_candidates(findings):
@@ -372,20 +437,24 @@ def _trace_preflight(path):
         sys.exit(1)
 
 
-def _trace_emit(path, review_input, result, usage):
+def _trace_emit(path, review_input, pass1_result, final_result, usage1,
+                usage2, candidate_ids, verifier_raw, verifier_parsed,
+                verification_error, provider_calls):
     """Append one trace record. A runtime write failure is a hard
     failure — never a silent skip (design §2.5)."""
     record = {
         "trace_version": TRACE_VERSION,
+        "model_id": review_input["model"]["id"],
         "review_input_digest": _review_input_digest(review_input),
-        "pass1_review_result": result,
-        "pass1_usage": usage,
-        "candidate_ids": [],
-        "verifier_raw_response": None,
-        "verifier_parsed": None,
-        "pass2_usage": None,
-        "final_review_result": result,
-        "provider_call_count": 1,  # logical stages; pass 2 adds none yet
+        "pass1_review_result": pass1_result,
+        "pass1_usage": usage1,
+        "candidate_ids": candidate_ids,
+        "verifier_raw_response": verifier_raw,
+        "verifier_parsed": verifier_parsed,
+        "verification_error": verification_error,
+        "pass2_usage": usage2,
+        "final_review_result": final_result,
+        "provider_call_count": provider_calls,
     }
     try:
         with open(path, "a") as fh:
@@ -397,17 +466,67 @@ def _trace_emit(path, review_input, result, usage):
 
 
 def run_review(review_input):
-    """ReviewInput v1 -> ReviewResult v1 (full pipeline, pure result)."""
+    """ReviewInput v1 -> ReviewResult v1 (full pipeline, pure result).
+
+    Iteration-4 activation (design rev 3): when pass 1 normalizes to
+    ISSUES_FOUND, its blocking findings are verified by one additional
+    same-profile model stage before they may remain blocking.
+
+    Failure domains (design §2.2):
+    - pass-2 transport failure -> the standing retry policy, then a
+      hard run failure (infrastructure is never semantic evidence);
+    - pass-2 semantic failure (unusable verdict object) -> the final
+      review is INCONCLUSIVE — the trace preserves pass-1 state, the
+      candidates, the raw verifier response, and the parse error, and
+      no keep/remove decision is applied.
+    """
     trace_path = os.environ.get(TRACE_ENV)
     if trace_path:
         _trace_preflight(trace_path)
     content, usage = _call_model(review_input)
-    result = normalize(content)
-    result["usage"] = usage
-    result["raw_output"] = content
+    pass1 = normalize(content)
+    pass1["usage"] = usage
+    pass1["raw_output"] = content
+
+    candidates = _blocking_candidates(pass1["findings"]) \
+        if pass1["assessment"] == "ISSUES_FOUND" else []
+    if not candidates:
+        if trace_path:
+            _trace_emit(trace_path, review_input, pass1, pass1, usage,
+                        None, [], None, None, None, 1)
+        return pass1
+
+    candidate_ids = [cid for cid, _ in candidates]
+    v_content, v_usage = _call_verifier(review_input, candidates)
+    try:
+        verdicts = extract_verdicts(v_content, candidate_ids)
+    except VerificationParseError as e:
+        final = {
+            "schema_version": pass1["schema_version"],
+            "assessment": INCONCLUSIVE,
+            "findings": [],
+            "summary": "",
+            "good": [],
+            "usage": pass1["usage"],
+            "raw_output": pass1["raw_output"],
+        }
+        if trace_path:
+            _trace_emit(trace_path, review_input, pass1, final, usage,
+                        v_usage, candidate_ids, v_content, None, str(e), 2)
+        return final
+
+    final_findings, _removed = _apply_verification_policy(
+        pass1["findings"], verdicts)
+    final = dict(pass1)
+    final["findings"] = final_findings
+    final["assessment"] = (
+        "ISSUES_FOUND"
+        if any(f["severity"] == "blocking" for f in final_findings)
+        else "CLEAR")  # CASE B: recompute from trusted surviving findings
     if trace_path:
-        _trace_emit(trace_path, review_input, result, usage)
-    return result
+        _trace_emit(trace_path, review_input, pass1, final, usage,
+                    v_usage, candidate_ids, v_content, verdicts, None, 2)
+    return final
 
 
 def main(argv):

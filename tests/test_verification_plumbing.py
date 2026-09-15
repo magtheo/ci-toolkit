@@ -245,11 +245,15 @@ def test_verification_context_matches_pass1_effective_input(monkeypatch):
                    "files_note": files_note, "trunc_note": trunc_note}
 
 
-def test_verification_prompts_refuse_without_protocol():
-    assert engine.VERIFICATION_PROTOCOL is None
-    with pytest.raises(RuntimeError, match="25c"):
-        engine._build_verification_prompts(
-            _input(), engine._blocking_candidates(_findings()))
+def test_verification_protocol_is_installed_and_complete():
+    # 25c activation: the protocol must exist and carry the five
+    # questions + strict output contract (design §2.2)
+    proto = engine.VERIFICATION_PROTOCOL
+    assert proto and isinstance(proto, str)
+    for fragment in ("five questions", "1.", "2.", "3.", "4.", "5.",
+                     '"refuted"', '"confirmed"', "bare JSON object",
+                     "no Markdown fences", "exactly once"):
+        assert fragment in proto
 
 
 def test_verification_prompts_embed_protocol_and_allegations(monkeypatch):
@@ -307,6 +311,8 @@ def test_trace_set_result_unchanged_record_complete(tmp_path, monkeypatch):
     assert len(lines) == 1
     rec = json.loads(lines[0])
     assert rec["trace_version"] == engine.TRACE_VERSION
+    assert rec["model_id"] == "m"
+    assert rec["verification_error"] is None
     assert rec["pass1_review_result"] == result
     assert rec["final_review_result"] == result
     assert rec["pass1_usage"] == usage
@@ -316,10 +322,10 @@ def test_trace_set_result_unchanged_record_complete(tmp_path, monkeypatch):
     assert rec["pass2_usage"] is None
     assert rec["provider_call_count"] == 1  # logical stages, not attempts
     assert set(rec) == {
-        "trace_version", "review_input_digest", "pass1_review_result",
-        "pass1_usage", "candidate_ids", "verifier_raw_response",
-        "verifier_parsed", "pass2_usage", "final_review_result",
-        "provider_call_count"}
+        "trace_version", "model_id", "review_input_digest",
+        "pass1_review_result", "pass1_usage", "candidate_ids",
+        "verifier_raw_response", "verifier_parsed", "verification_error",
+        "pass2_usage", "final_review_result", "provider_call_count"}
 
 
 def test_trace_digest_stable_and_effective_input_scoped(tmp_path,
@@ -362,8 +368,10 @@ def test_trace_preflight_fails_before_provider_call(tmp_path, monkeypatch):
 
 def test_trace_emit_runtime_failure_is_hard(no_trace_env):
     with pytest.raises(SystemExit) as ei:
-        engine._trace_emit(str(pathlib.Path("/nonexistent-dir/t.jsonl")),
-                           _input(), {"assessment": "CLEAR"}, None)
+        engine._trace_emit(
+            str(pathlib.Path("/nonexistent-dir/t.jsonl")), _input(),
+            {"assessment": "CLEAR"}, {"assessment": "CLEAR"}, None, None,
+            [], None, None, None, 1)
     assert ei.value.code == 1
 
 
