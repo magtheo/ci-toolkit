@@ -1,7 +1,7 @@
 {
  "frozen_before_call_1": true,
  "freeze_timestamp": "2026-09-15",
- "freeze_revision": 1,
+ "freeze_revision": 2,
  "stage": "25d — iteration-4 governed campaign freeze (documentation/evidence only; zero governed calls at freeze time)",
  "subject_sha": "d1a2ef1bdc1661c880b9373380ffa2b639251023",
  "subject_note": "merge commit of #60 (25c activation; head 23177aa is a parent). Reviewer-behavior delta vs the pre-iteration-4 subject: 25b verification plumbing (inert without activation) + 25c conditional pass-2 blocker verification. Pass-1 prompts/parse are byte-identical to the reverted layer-(b) subject; rubric.md is byte-identical (blob 2d194a404c0f142ec6ed0c29bf08e1493a6e477e).",
@@ -108,23 +108,27 @@
  },
  "run_commands": {
   "checkout": "git checkout d1a2ef1bdc1661c880b9373380ffa2b639251023 (subject run via --subject-dir of this checkout; oracle stays in the harness checkout)",
-  "haiku": "OPENROUTER_API_KEY=<key> AI_REVIEW_TRACE_PATH=<dir>/haiku-trace.jsonl python3 eval/run_corpus.py --model anthropic/claude-haiku-4.5 --n 5 --out <dir>/haiku-n5.json --subject-dir <subject checkout>",
-  "sonnet": "OPENROUTER_API_KEY=<key> AI_REVIEW_TRACE_PATH=<dir>/sonnet-trace.jsonl python3 eval/run_corpus.py --model anthropic/claude-sonnet-4.5 --n 5 --out <dir>/sonnet-n5.json --subject-dir <subject checkout>",
-  "environment": "no other AI_REVIEW_* variables; no retries beyond the engine's standing transport policy"
+  "haiku": "env -u AI_REVIEW_MAX_FILES -u AI_REVIEW_MAX_DIFF -u AI_REVIEW_MODEL OPENROUTER_API_KEY=<key> AI_REVIEW_TRACE_PATH=<dir>/haiku-trace.jsonl python3 eval/run_corpus.py --model anthropic/claude-haiku-4.5 --n 5 --out <dir>/haiku-n5.json --subject-dir <subject checkout>",
+  "sonnet": "env -u AI_REVIEW_MAX_FILES -u AI_REVIEW_MAX_DIFF -u AI_REVIEW_MODEL OPENROUTER_API_KEY=<key> AI_REVIEW_TRACE_PATH=<dir>/sonnet-trace.jsonl python3 eval/run_corpus.py --model anthropic/claude-sonnet-4.5 --n 5 --out <dir>/sonnet-n5.json --subject-dir <subject checkout>",
+  "environment_preflight": "before call 1, verify `env | grep '^AI_REVIEW_'` shows ONLY AI_REVIEW_TRACE_PATH (the env -u cleanup above is mechanical, not advisory); AI_REVIEW_MODEL is also unset because --model dominates it, and unsetting makes the contract auditable",
+  "budget_pin": "with the variables unset, the engine defaults apply and are part of the frozen subject-visible input: AI_REVIEW_MAX_FILES=200, AI_REVIEW_MAX_DIFF=120000 (engine.py _budget on d1a2ef1). Any other value changes the model-visible input and therefore the experiment; the frozen identity assumes these defaults.",
+  "other_environment": "no other AI_REVIEW_* variables; no retries beyond the engine's standing transport policy"
  },
  "success_criteria": [
-  "1. zero GATING violations on both profiles (C4/C5/C7)",
-  "2. every Deviation 6 per-positive sensitivity floor met on both profiles (aggregates haiku 51/90, sonnet 66/90 as summary form; per-positive floors normative, fixture-level detection)",
-  "3. sonnet M17 = 5/5 (hard invariant)",
-  "4. speculative-consequence false blockers <= 53 haiku / <= 50 sonnet / <= 103 aggregate; overall control false blockers <= 78 haiku / <= 112 sonnet",
-  "5. every confirmed family demonstrates separation, with pair integrity (no positive promotable while its paired control fails)",
-  "6. causal non-vacuity, measured in the same campaign via the frozen trace: among control fixtures where pass 1 produced a blocking candidate, verification must REFUTE (remove) at least one such candidate in at least two confirmed families (pass1_review_result joined to final_review_result via review_input_digest)"
+  "1. zero GATING violations on both profiles (C4/C5/C7);",
+  "2. every Deviation 6 per-positive sensitivity floor met on both profiles (haiku 51/90, sonnet 66/90 aggregates as the summary form; per-positive floors normative);",
+  "3. sonnet M17 = 5/5 (hard invariant);",
+  "4. speculative-consequence FBs <= 53 haiku / 50 sonnet / 103 aggregate; overall control FBs <= 78 / 112;",
+  "5. every confirmed family shows separation (per-family table), with pair integrity (no positive promotable while its control fails);",
+  "6. causal non-vacuity (measured in the same campaign): among control fixtures where pass 1 produced a blocking candidate, verification must REFUTE (remove) at least one such candidate in at least two confirmed families - i.e. the new layer demonstrably CAUSED an improvement across multiple families. Evidence channel: the frozen trace sidecar (design section 2.5) - pass1_review_result joined to final_review_result via review_input_digest; the harness's final-only view cannot supply this, which is precisely why the trace is part of the frozen identity. This gate exists because pass 1 is unchanged: retention must not be earned by a lucky first-pass draw with an always-confirm verifier."
  ],
- "criteria_source": "copied verbatim from the approved design rev 3 §4 — frozen, not reinterpreted; KEEP requires ALL SIX; no confirmation-rate gate exists and none may be added after seeing results (telemetry: confirmation/refutation rates, pre->post deltas, per-family effects — descriptive only)",
+ "criteria_source": "criteria 1-6 are copied LITERALLY from the approved design rev 3 section 4; that design text remains authoritative. Operational clarifications are NON-NORMATIVE and live in criteria_notes; they add no threshold and may not be read to relax any criterion.",
  "interpretation": {
-  "KEEP": "all six criteria pass -> freeze raw evidence + trace; then check predicate alignment so this same campaign earns the binding T1.2 reference and the T1.3 stage exit where predicates align; then T1.4 (blind holdout)",
-  "REVERT": "anything else -> freeze raw evidence FIRST, then revert the mechanism components completely (engine pass-2 policy/prompt, verifier parsing, trace stays inert), and record the failure mode (rubber-stamping / over-suppression / GATING / caps / floors); the next mechanism is decided only afterward",
-  "no_partial_keeps": true
+  "KEEP": "ALL six criteria pass in a COMPLETED campaign -> freeze raw evidence + trace; then check predicate alignment so this same campaign earns the binding T1.2 reference and the T1.3 stage exit where predicates align; then T1.4 (blind holdout)",
+  "INFRASTRUCTURE_ABORT": "transport exhaustion or process failure prevents completing the 360-invocation campaign -> preserve ALL partial evidence; neither KEEP nor REVERT may be concluded; no quiet retry; any rerun requires explicit fresh human authorization against the SAME frozen identity, with the abort recorded. Rationale: infrastructure failure is never semantic reviewer evidence (design rev 3 section 2.2)",
+  "REVERT": "a COMPLETED campaign failing any of the six criteria -> freeze raw evidence FIRST, then revert the mechanism components completely (engine pass-2 policy/prompt, verifier parsing; trace stays inert), and record the failure mode (rubber-stamping / over-suppression / GATING / caps / floors); the next mechanism is decided only afterward",
+  "no_partial_keeps": true,
+  "no_post_hoc_criterion_editing": true
  },
  "accounting": {
   "review_invocations": "360 = 36 fixtures x N=5 x 2 profiles",
@@ -132,10 +136,20 @@
   "transport_note": "provider_call_count is logical stages, NOT raw HTTP requests; transport retries follow the pre-existing retry policy and are NOT additional governed semantic samples",
   "spend_derivation": "spend is derived from frozen-trace usage/accounting and must remain <= the authorized monetary cap",
   "spend_cap_usd": 7.0,
-  "spend_estimate_note": "one-time authorization requested at <= $7.00; the layer-(b) 360-stage campaign cost $3.06 upper bound. If the estimated cost before execution exceeds the frozen cap: STOP rather than silently extend.",
-  "one_campaign": "exactly one authorized campaign; no retries, no re-authoring, no second campaign after seeing results"
+  "one_campaign": "exactly one authorized campaign; no retries, no re-authoring, no second campaign after seeing results",
+  "spend_cap_semantics": "the $7.00 cap is a PRE-RUN authorization and projection boundary: run_corpus.py has no live dollar-budget enforcement — it executes the campaign and records invocation/token totals afterward. 'Stop before exceeding' therefore applies to the pre-execution estimate check; if the estimate exceeds $7.00 before launch, STOP rather than extend. Mid-campaign, only INFRASTRUCTURE_ABORT (not cost) can halt the campaign.",
+  "spend_projection_note": "projection basis: the layer-(b) 360-stage campaign cost $3.06 upper bound; iteration 4 adds at most one verifier stage per blocker-bearing invocation -> <= $7.00 projected ceiling, authorized one time"
  },
  "authorization_boundary": "25d merged -> verify frozen SHA/hashes on the merged head -> HUMAN authorizes the one governed spend -> run exactly once. The campaign is never run as part of the merge.",
  "governed_calls_made_at_freeze_time": 0,
- "governed_calls_note": "zero governed evaluation/corpus calls were made for this freeze. Normal PR dogfood review, if it runs on this head, is separate and is never governed evidence."
+ "governed_calls_note": "zero governed evaluation/corpus calls were made for this freeze. Normal PR dogfood review, if it runs on this head, is separate and is never governed evidence.",
+ "freeze_revision_2_timestamp": "2026-09-15",
+ "freeze_revision_2_note": "pre-call corrections from the #61 review, 0 governed calls: (1) INFRASTRUCTURE_ABORT outcome added — transport exhaustion is never semantic evidence; (2) execution environment made mechanically deterministic (explicit env -u cleanup + preflight assertion; budget defaults pinned); (3) criteria 1-6 now copied LITERALLY from design rev 3 section 4 with operational notes moved to non-normative fields; (4) $7.00 cap stated as a pre-run authorization/projection boundary, not runtime monetary enforcement.",
+ "criteria_notes": {
+  "normative_status": "NON-NORMATIVE operational notes — the six criteria above are the gates",
+  "detection_convention": "fixture-level detection: a run counts toward a positive's floor only when ALL of that fixture's expected entries are detected on that run (never summed per-entry hits); controls have no expected entries",
+  "family_cap_provenance": "criterion 4 caps are the repair-5-adjudicated interpretation of the frozen #40 measurement (54/50 with the haiku M11 r0f1 reclassification)",
+  "gating_definition": "GATING states are C4/C5/C7 per eval/states.json at oracle cb6870c5a4c635b2",
+  "telemetry": "internal telemetry (confirmation/refutation rates per family and positive/control, pre->post candidate deltas, per-family effects) is mandatory and descriptive only, derived from the frozen trace; design section 4: 'There is no confirmation-rate band - an arbitrary interval would be exactly the benchmark-shaped proxy this project avoids; outcome gates decide.' No threshold may be added after seeing results."
+ }
 }

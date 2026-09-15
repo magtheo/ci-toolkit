@@ -485,3 +485,22 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
   -> HUMAN authorizes the one governed spend -> run exactly once.
   KEEP = all six criteria; anything else = full mechanism revert with
   the failure mode recorded. No governed calls made for this freeze.
+
+### Freeze revision 2 (2026-09-15, pre-call, 0 governed calls) — #61 review corrections
+
+1. INFRASTRUCTURE_ABORT outcome: transport exhaustion/process failure
+   prevents campaign completion -> preserve all partial evidence,
+   neither KEEP nor REVERT concluded, no quiet retry, rerun only by
+   explicit fresh human authorization against the same frozen identity
+   (infrastructure is never semantic evidence).
+2. Environment made mechanically deterministic: frozen commands use
+   `env -u AI_REVIEW_MAX_FILES -u AI_REVIEW_MAX_DIFF -u AI_REVIEW_MODEL`
+   plus a preflight asserting AI_REVIEW_TRACE_PATH is the only
+   AI_REVIEW_* variable; budget defaults (200 files / 120000 chars)
+   pinned as part of the subject-visible input.
+3. Criteria 1–6 now copied LITERALLY from design rev 3 §4 (the
+   authoritative text); operational clarifications moved to
+   non-normative criteria_notes.
+4. $7.00 cap restated as a pre-run authorization/projection boundary
+   (run_corpus.py has no live dollar-budget enforcement); mid-campaign
+   only INFRASTRUCTURE_ABORT can halt.
