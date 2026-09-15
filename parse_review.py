@@ -34,6 +34,69 @@ INCONCLUSIVE = "INCONCLUSIVE"
 
 RESULT_SCHEMA_VERSION = 1
 
+# ---- iteration-4 plumbing: strict verifier-result parsing (25b) ----------
+# The pass-2 verification verdict object (design §2.2). Parsing is
+# fail-closed in the same direction as the assessment parser: unusable
+# verification must never confirm a blocker. The exception (not a
+# verdict) is the contract — the caller (25c activation) converts a
+# VerificationParseError into an INCONCLUSIVE review.
+
+VERIFICATION_VERDICTS = ("confirmed", "refuted")
+VERDICT_FIELDS = ("evidence_establishes", "applicable_requirement",
+                  "contradiction", "unstated_assumption",
+                  "correct_implementation_possible", "verdict")
+
+
+class VerificationParseError(ValueError):
+    """Verifier output is unusable — the review becomes INCONCLUSIVE."""
+
+
+def extract_verdicts(content, expected_ids):
+    """Verifier output text -> {candidate_id: verdict record}.
+
+    Strict: every expected id exactly once; verdict in the enum; every
+    reconstruction field present and typed (non-empty strings; bool
+    for correct_implementation_possible). Anything else raises
+    VerificationParseError — malformed verification is semantic
+    failure (INCONCLUSIVE), never a silent keep.
+    """
+    obj = parse_model_output(content)
+    verdicts = obj.get("verdicts") if obj else None
+    if not isinstance(verdicts, dict):
+        raise VerificationParseError("no verdicts object in verifier output")
+    got = set(verdicts)
+    want = set(expected_ids)
+    if got != want:
+        raise VerificationParseError(
+            "candidate id mismatch: missing={0} extra={1}".format(
+                sorted(want - got), sorted(got - want)))
+    out = {}
+    for cid in expected_ids:
+        v = verdicts[cid]
+        if not isinstance(v, dict):
+            raise VerificationParseError(
+                "verdict for {0} is not an object".format(cid))
+        if set(v) != set(VERDICT_FIELDS):
+            raise VerificationParseError(
+                "verdict fields for {0}: missing={1} extra={2}".format(
+                    cid,
+                    sorted(set(VERDICT_FIELDS) - set(v)),
+                    sorted(set(v) - set(VERDICT_FIELDS))))
+        if v["verdict"] not in VERIFICATION_VERDICTS:
+            raise VerificationParseError(
+                "invalid verdict for {0}: {1!r}".format(cid, v["verdict"]))
+        for field in VERDICT_FIELDS[:4]:
+            if not isinstance(v[field], str) or not v[field].strip():
+                raise VerificationParseError(
+                    "field {0} for {1} must be a non-empty string".format(
+                        field, cid))
+        if not isinstance(v["correct_implementation_possible"], bool):
+            raise VerificationParseError(
+                "correct_implementation_possible for {0} must be "
+                "boolean".format(cid))
+        out[cid] = dict(v)
+    return out
+
 
 def valid_lines_from_patch(patch):
     """New-side line numbers addressable by review comments."""
