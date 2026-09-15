@@ -504,3 +504,20 @@ oracle 1ef8dc90badc27bd -> cb6870c5a4c635b2 · 0 model calls
 4. $7.00 cap restated as a pre-run authorization/projection boundary
    (run_corpus.py has no live dollar-budget enforcement); mid-campaign
    only INFRASTRUCTURE_ABORT can halt.
+
+### Iteration-4 governed campaign EXECUTED (2026-09-15) — outcome: REVERT
+
+The single authorized campaign (freeze.json rev 2, subject d1a2ef1) ran to
+completion after explicit human spend authorization: 360 invocations, 614
+logical stages, $4.3119 actual (<= $7.00 cap). Campaign COMPLETED — no
+INFRASTRUCTURE_ABORT. Frozen criteria applied mechanically: 1, 2, 3, 5, 6
+FAIL; 4 satisfied vacuously. **Verdict: REVERT** — the verifier emitted
+fenced JSON in 100% of pass-2 calls (254/254), the strict bare-JSON parser
+rejected all, every verification failed semantically, and the mechanism
+blocked nothing final (detection 0). Evidence frozen at
+eval/evidence/track1-t13-iter4-measurement-2026-09-15/ (raw/ SHA256-frozen,
+derived/campaign-analysis.json + RESULTS.md). Mechanism components
+(engine pass-2 policy/prompt, verifier parsing) revert in the follow-up
+PR; the next mechanism is decided only after this negative result is
+reviewed. Iteration 4 joins iterations 1, 2, and layer (b) as a measured
+and rejected mechanism.
