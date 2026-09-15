@@ -146,7 +146,30 @@ def test_all_refuted_clears_case_b(no_trace, monkeypatch):
     result = engine.run_review(_input())
     assert result["assessment"] == "CLEAR"  # CASE B recomputation
     assert result["findings"] == []
-    assert result["summary"] == "s" and result["good"] == ["g"]
+    # stale pass-1 summary is discarded: it may restate the refuted
+    # defect, and render.py prints it verbatim on the CLEAR path
+    assert result["summary"] == ""
+    assert result["good"] == ["g"]  # strengths are independent, kept
+
+
+def test_all_confirmed_preserves_summary(no_trace, monkeypatch):
+    findings = [_blocker("b1")]
+    _DoubleCall(monkeypatch, _pass1(findings),
+                _verdicts_body(v1="confirmed"))
+    result = engine.run_review(_input())
+    assert result["assessment"] == "ISSUES_FOUND"
+    assert result["summary"] == "s"  # nothing refuted -> intact
+
+
+def test_one_refuted_clears_summary_keeps_survivors(no_trace, monkeypatch):
+    findings = [_blocker("b1"), _blocker("b2", "b.py")]
+    _DoubleCall(monkeypatch, _pass1(findings),
+                _verdicts_body(v1="refuted", v2="confirmed"))
+    result = engine.run_review(_input())
+    assert result["assessment"] == "ISSUES_FOUND"
+    assert [f["comment"] for f in result["findings"]] == ["b2"]
+    assert result["summary"] == ""  # partially stale -> discarded
+    assert result["good"] == ["g"]
 
 
 def test_mixed_verdicts_remove_only_refuted(no_trace, monkeypatch):

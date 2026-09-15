@@ -231,10 +231,11 @@ def _post_with_retries(payload, what):
     - the LAST status is reported on exhaustion (status is never
       reset inside the loop);
     - exhaustion and non-retryable HTTP statuses are hard failures;
-    - a 200 with empty message content returns content None — the
-      CALLER decides the failure domain (pass 1: hard failure; pass 2:
-      empty content flows to the strict parser and fails closed into
-      INCONCLUSIVE — semantic, not transport).
+    - a 200 with empty message content returns content None plus the
+      RAW BODY — the CALLER decides the failure domain (pass 1: hard
+      failure with the legacy body diagnostic; pass 2: empty content
+      flows to the strict parser and fails closed into INCONCLUSIVE —
+      semantic, not transport). Returns (content, usage, raw_body).
     """
     status = 0  # pre-loop init only; never reset inside the loop
     body = b""
@@ -266,7 +267,7 @@ def _post_with_retries(payload, what):
     resp = json.loads(body)
     content = (resp.get("choices") or [{}])[0].get("message", {}) \
         .get("content")
-    return content, resp.get("usage")
+    return content, resp.get("usage"), body
 
 
 def _call_model(review_input):
@@ -283,10 +284,11 @@ def _call_model(review_input):
             {"role": "user", "content": user_prompt},
         ],
     }
-    content, usage = _post_with_retries(payload, "call")
+    content, usage, raw_body = _post_with_retries(payload, "call")
     if not content:
         print("OpenRouter returned 200 but no message content:",
               file=sys.stderr)
+        sys.stderr.write(raw_body.decode("utf-8", "replace") + "\n")
         sys.exit(1)
     return content, usage
 
@@ -309,7 +311,8 @@ def _call_verifier(review_input, candidates):
             {"role": "user", "content": user_prompt},
         ],
     }
-    content, usage = _post_with_retries(payload, "verification call")
+    content, usage, _raw_body = _post_with_retries(payload,
+                                                   "verification call")
     return (content or ""), usage
 
 
@@ -515,10 +518,17 @@ def run_review(review_input):
                         v_usage, candidate_ids, v_content, None, str(e), 2)
         return final
 
-    final_findings, _removed = _apply_verification_policy(
+    final_findings, removed = _apply_verification_policy(
         pass1["findings"], verdicts)
     final = dict(pass1)
     final["findings"] = final_findings
+    if removed:
+        # refuted candidates invalidate pass-1's synthesized narrative:
+        # the summary can restate defects verification just disproved,
+        # and render.py prints it verbatim on the CLEAR path. Discard
+        # it (good/ strengths are independent and stay). The original
+        # pass-1 summary remains in the trace for audit.
+        final["summary"] = ""
     final["assessment"] = (
         "ISSUES_FOUND"
         if any(f["severity"] == "blocking" for f in final_findings)
