@@ -1,15 +1,27 @@
 # T1.3 iteration 4 mechanism design — bounded blocker-verification pass
 
-Status: PROPOSAL (rev 2, after #56 review) — zero model calls, zero
-eval changes. On approval this doc becomes the implementation plan
-for the next T1.3 mechanism. The main plan pre-declares candidate
-layer (d): *"dedicated discrimination pass — only if the single-pass
-form is measured insufficient; a layer must earn its existence."*
-Three measured failures (iter-1, iter-2, layer b) are that
-measurement.
+Status: PROPOSAL (rev 3, after #56 rev-2 review) — zero model calls,
+zero eval changes. Rev 2 was conceptually approved; rev 3 resolves
+the remaining contract/evidence plumbing:
 
-Rev-2 corrections from the #56 review (each verified against the
-Phase-1 code, not memory):
+6. **REFUTED → removal, not demotion:** ReviewResult findings have no
+   reason field, so a `verification_refuted` marker cannot exist
+   without a schema change; and an advisory that confidently states a
+   refuted defect is misleading noise. Refuted candidates are removed
+   from final findings; the original candidate + verifier reasoning
+   are preserved in the trace channel (§2.5).
+7. **Post-verification assessment is a NEW deterministic policy,**
+   stated as two explicit cases (§2.1) — not "existing semantics."
+8. **Engine-owned trace sidecar** (§2.5) gives criterion 6,
+   reconstruction telemetry, and TRUE provider-call accounting an
+   evidence channel while `run_corpus.py` and `oracle_version` stay
+   unchanged.
+9. **25b is plumbing-only** (production behavior unchanged); 25c
+   activates pass 2 — no knowingly incomplete intermediate reviewer
+   is merged (§3).
+
+Earlier corrections (rev 2, each verified against the Phase-1
+code, not memory):
 
 1. the two-call loop lives in **`engine.py`**, not `review.sh` —
    the engine has always owned the model transport (`_call_model` /
@@ -51,7 +63,7 @@ Deviation 6 floors.
 **H1 is falsified by the governed campaign if** verification behaves
 as (a) a rubber stamp (refutations ~never occur; false-blocker counts
 do not fall below caps; criterion 6 non-vacuity fails) or (b) an
-over-trigger (verification demotes genuine findings; any Deviation 6
+over-trigger (verification removes genuine findings; any Deviation 6
 floor violated; sonnet M17 below 5/5). Either outcome rejects the
 mechanism under the frozen keep/revert lifecycle; neither can be
 engineered away mid-campaign.
@@ -121,10 +133,44 @@ deterministic: any blocking candidates?
          ↓
        strict verification parse (parse_review)
          ↓
-       apply keep/demote policy
+       apply keep/REMOVE policy
          ↓
        final ReviewResult (unchanged shape)
 ```
+
+**Verdict application (rev 3):**
+
+- `confirmed` → the finding is preserved **byte-for-byte** in the
+  final findings.
+- `refuted` → the candidate is **removed** from the final findings.
+  It is NOT converted to an advisory: findings carry no reason field,
+  so a refutation marker would require a schema change, and an
+  advisory confidently stating a disproven defect is misleading
+  noise. The original candidate and the verifier's reconstruction
+  survive in the trace channel (§2.5).
+- semantic verdict failure → the review is INCONCLUSIVE (§2.2).
+
+**Final-assessment policy (rev 3: two explicit cases, tested
+separately in 25c):**
+
+```text
+CASE A (no pass 2): pass-1 output with zero blocking candidates —
+  including pass-1 ISSUES_FOUND with only advisory findings — is
+  emitted exactly as parsed today. The existing parser rule
+  (ISSUES_FOUND + no validated blocking finding → INCONCLUSIVE)
+  applies UNCHANGED on this path.
+
+CASE B (pass 2 ran, ≥1 candidate existed): final assessment is
+  RECOMPUTED from the trusted post-verification findings by the same
+  deterministic mapping the parser uses (any remaining blocking
+  finding → ISSUES_FOUND; none → CLEAR). In particular: pass 2
+  verifies all candidates and all are REFUTED → final review is
+  CLEAR — the verifier can actually repair a false-blocking control
+  instead of degrading it to INCONCLUSIVE.
+```
+
+Case B is a new, intentional post-verification policy; it does not
+modify the parser's CASE-A behavior.
 
 Hard invariants, all deterministic and testable without model calls:
 
@@ -134,16 +180,14 @@ Hard invariants, all deterministic and testable without model calls:
 - **Zero-blocking-candidate reviews are byte-identical end to end**:
   exactly one model call, one normalization pass, ReviewResult equal
   to today's.
-- Verification can only **keep or demote**. It never upgrades, never
-  creates findings, never edits finding text. Demoted findings use
-  the canonical `non-blocking` severity with truthful reason
-  `verification_refuted`.
-- All-blockers-demoted → CLEAR retains its existing engine semantics;
-  label is recomputed from final findings, so C7-style label/evidence
-  mismatch remains possible and remains INCONCLUSIVE under the
-  existing rule.
+- Verification can only **keep or remove**. It never upgrades, never
+  creates findings, never edits finding text; refuted candidates are
+  removed outright (rev 3).
+- Post-verification assessment follows the rev-3 two-case policy
+  above: CASE A is byte-identical today-semantics; CASE B recomputes
+  from trusted post-verification findings (all refuted → CLEAR).
 - The Deviation 6 floors remain the anti-vacuity guard: wholesale
-  demotion collapses floors and fails the campaign by construction.
+  refutation collapses floors and fails the campaign by construction.
 
 ### 2.2 Verification stage (verifier input, protocol, output)
 
@@ -226,11 +270,53 @@ parse_review.py       adds strict verifier-result parsing (INCONCLUSIVE
                       fail-closed semantics)
 eval/run_corpus.py    UNCHANGED (same run_review path)
 ReviewInput v1        UNCHANGED
-ReviewResult v1       UNCHANGED (demotion = existing severity/reason
-                      vocabulary)
+ReviewResult v1       UNCHANGED (refuted candidates removed; no new
+                      fields)
 renderer              UNCHANGED
 tests/                new deterministic suites for the above
 ```
+
+### 2.5 Engine-owned trace sidecar (evidence channel)
+
+The harness sees only `run_review`'s final return value, and
+`run_corpus.py` must stay unchanged (touching it mechanically changes
+`oracle_version`). Criterion 6, reconstruction telemetry, pre→post
+deltas, and true provider-call accounting therefore need a
+**subject-side evidence channel**, defined in 25b:
+
+```text
+AI_REVIEW_TRACE_PATH=<file>   (optional environment variable)
+```
+
+When set, `engine.run_review()` appends one JSONL record per review:
+
+```text
+review_input_digest       deterministic digest of the effective input
+                          (exact construction pinned at 25d freeze)
+pass1_review_result       the pass-1 parsed result, pre-verification
+pass1_usage               tokens + finish status of call 1
+candidate_ids             blocking candidates submitted to pass 2
+verifier_raw_response     pass-2 body, verbatim
+verifier_parsed           reconstruction fields + verdicts per id
+pass2_usage               tokens + finish status of call 2
+final_review_result       the emitted ReviewResult
+provider_call_count       1 or 2 — TRUE provider-call accounting
+```
+
+Failure semantics:
+
+- **Variable unset** → production behavior unchanged, no file
+  written, ReviewResult unchanged.
+- **Variable set but the record cannot be written** → hard failure.
+  The governed campaign must never silently lose the evidence needed
+  to apply criterion 6.
+
+Accounting (stated prominently in the 25d evidence bundle): the
+harness's legacy `spend["calls"]` counts **review invocations** (one
+per fixture run) and remains unchanged; **provider-call and token
+totals for iteration 4 come from the frozen trace**
+(`provider_call_count`, per-call usage). No number in the bundle may
+mix the two.
 
 ### 2.4 Cost shape
 
@@ -245,18 +331,27 @@ frozen identity — never assumed here.
 
 ```text
 25a  this design PR (reviewer-side design only; zero calls)
-25b  engine orchestration (conditional pass 2 + policy) +
-     parse_review verifier parsing + deterministic tests
-     (byte-identity invariants; keep/demote policy unit tests;
-     semantic-INCONCLUSIVE vs transport-failure split tests)
-25c  verifier prompt/protocol surface ONLY (pass-2 prompt builder
-     content; separately reviewed for reviewability)
-25d  freeze (identity: new subject, same oracle
-     cb6870c5a4c635b2 UNCHANGED, same corpus 72035a00b8db828d
-     UNCHANGED) → ONE governed campaign, N=5 dual-profile, spend
-     authorized exactly once → frozen interpretation applied
-     verbatim → keep or revert
+25b  PLUMBING ONLY — verification-request construction, strict
+     verifier parsing, keep/remove policy helpers, trace-sidecar
+     machinery, deterministic tests (byte-identity, policy,
+     semantic-vs-transport split, trace failure semantics).
+     run_review PRODUCTION BEHAVIOR UNCHANGED in 25b: pass 2 is
+     built and tested, not activated.
+25c  ACTIVATION — pass-2 protocol/prompt surface + the small
+     run_review change that conditions pass 2 on blocking
+     candidates; pass 1 remains byte-identical; CASE-A/CASE-B
+     assessment policy tested explicitly here.
+25d  freeze (identity: exact subject INCLUDING the trace contract
+     and digest construction; oracle cb6870c5a4c635b2 UNCHANGED;
+     corpus 72035a00b8db828d UNCHANGED) → ONE governed campaign,
+     N=5 dual-profile, spend authorized exactly once (provider-call
+     ceiling stated against trace accounting) → frozen
+     interpretation applied verbatim → keep or revert
 ```
+
+No knowingly incomplete intermediate reviewer is merged: 25b leaves
+production behavior untouched, 25c is the only PR that changes
+reviewer-visible behavior, and pass 1 is byte-identical in both.
 
 `rubric.md` and `review.sh` change in **no** PR of this series. Eval
 semantics (fixtures, harness, states, floors) change in **no** PR of
@@ -279,16 +374,20 @@ KEEP requires ALL of, in the single authorized campaign:
    pair integrity (no positive promotable while its control fails);
 6. **causal non-vacuity (measured in the same campaign):** among
    control fixtures where pass 1 produced a blocking candidate,
-   verification must refute/demote at least one such candidate in at
-   least two confirmed families — i.e. the new layer demonstrably
-   CAUSED an improvement across multiple families, with pre- and
-   post-verification ReviewResults both recorded. This gate exists
-   because pass 1 is unchanged: retention must not be earned by a
-   lucky first-pass draw with an always-confirm verifier.
+   verification must REFUTE (remove) at least one such candidate in
+   at least two confirmed families — i.e. the new layer demonstrably
+   CAUSED an improvement across multiple families. Evidence channel:
+   the frozen trace sidecar (§2.5) — `pass1_review_result` joined to
+   `final_review_result` via `review_input_digest`; the harness's
+   final-only view cannot supply this, which is precisely why the
+   trace is part of the frozen identity. This gate exists because
+   pass 1 is unchanged: retention must not be earned by a lucky
+   first-pass draw with an always-confirm verifier.
 
 Internal telemetry is mandatory but never gated numerically:
 confirmation/refutation rates per family and positive/control,
-pre→post candidate deltas, per-family effects. There is **no**
+pre→post candidate deltas, per-family effects — all derived
+deterministically from the frozen trace. There is **no**
 confirmation-rate band — an arbitrary interval would be exactly the
 benchmark-shaped proxy this project avoids; outcome gates decide.
 
@@ -311,8 +410,11 @@ second campaign is run merely to duplicate identical gates.
   refutations whose `contradiction` merely restates the allegation
   are visible as low-quality verification in the evidence.
 - **Over-suppression (layer-b echo):** a strict entailment challenge
-  may demote genuine findings — falsified by the Deviation 6 floors
+  may remove genuine findings — falsified by the Deviation 6 floors
   (criterion 2) exactly as layer (b) was.
+- **Evidence loss:** a governed campaign without the trace cannot
+  apply criterion 6 or true spend accounting — hence trace-unwritable
+  is a hard failure (§2.5), never a silent skip.
 - **Latency/fragility:** two calls double the timeout surface.
   Transport failure keeps its own failure domain (retry → hard run
   failure), so infrastructure flakiness costs wall-clock time, never
