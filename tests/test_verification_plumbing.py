@@ -133,7 +133,7 @@ def _verifier_body(by_id):
     return json.dumps({"verdicts": by_id})
 
 
-def test_extract_verdicts_valid_full_record():
+def test_extract_verdicts_valid_bare_object():
     body = _verifier_body({"v1": _verdict("v1", "refuted"),
                            "v2": _verdict("v2", "confirmed")})
     out = extract_verdicts(body, ["v1", "v2"])
@@ -143,11 +143,30 @@ def test_extract_verdicts_valid_full_record():
     assert out["v2"]["correct_implementation_possible"] is False
 
 
-def test_extract_verdicts_wrapped_in_surrounding_text():
+def test_extract_verdicts_surrounding_prose_is_rejected():
     body = ("Verification follows.\n"
             + _verifier_body({"v1": _verdict("v1")})
             + "\nEnd.")
-    assert extract_verdicts(body, ["v1"])["v1"]["verdict"] == "confirmed"
+    with pytest.raises(VerificationParseError):
+        extract_verdicts(body, ["v1"])
+
+
+def test_extract_verdicts_markdown_fence_is_rejected():
+    body = "```json\n" + _verifier_body({"v1": _verdict("v1")}) + "\n```"
+    with pytest.raises(VerificationParseError):
+        extract_verdicts(body, ["v1"])
+
+
+def test_extract_verdicts_extra_top_level_field_is_rejected():
+    body = json.dumps({"verdicts": {"v1": _verdict("v1")},
+                       "notes": "also looked fine"})
+    with pytest.raises(VerificationParseError, match="extra=.*notes"):
+        extract_verdicts(body, ["v1"])
+
+
+def test_extract_verdicts_missing_top_level_verdicts_is_rejected():
+    with pytest.raises(VerificationParseError, match="missing=.*verdicts"):
+        extract_verdicts(json.dumps({"results": {}}), ["v1"])
 
 
 @pytest.mark.parametrize("body", [

@@ -54,14 +54,34 @@ class VerificationParseError(ValueError):
 def extract_verdicts(content, expected_ids):
     """Verifier output text -> {candidate_id: verdict record}.
 
-    Strict: every expected id exactly once; verdict in the enum; every
-    reconstruction field present and typed (non-empty strings; bool
-    for correct_implementation_possible). Anything else raises
-    VerificationParseError — malformed verification is semantic
-    failure (INCONCLUSIVE), never a silent keep.
+    STRICT at the top level, by design (design §2.2: a strict JSON
+    object and nothing else — unlike the pass-1 extraction, which
+    deliberately tolerates surrounding prose for compatibility): the
+    whole content must be one bare JSON object whose top-level keys
+    are exactly {"verdicts"}. Prose wrappers, Markdown fences, refusal
+    text, and extra top-level fields are all semantic failure. Inside,
+    every expected id appears exactly once; verdict is in the enum;
+    every reconstruction field is present and typed (non-empty
+    strings; bool for correct_implementation_possible). Any
+    malformation raises VerificationParseError — malformed
+    verification is semantic failure (INCONCLUSIVE), never a silent
+    keep.
     """
-    obj = parse_model_output(content)
-    verdicts = obj.get("verdicts") if obj else None
+    try:
+        obj = json.loads(content.strip())
+    except (json.JSONDecodeError, AttributeError):
+        raise VerificationParseError(
+            "verifier output is not a bare JSON object")
+    if not isinstance(obj, dict):
+        raise VerificationParseError(
+            "verifier output is not a JSON object")
+    if set(obj) != {"verdicts"}:
+        raise VerificationParseError(
+            "verifier top-level keys must be exactly ['verdicts']: "
+            "missing={0} extra={1}".format(
+                sorted({"verdicts"} - set(obj)),
+                sorted(set(obj) - {"verdicts"})))
+    verdicts = obj["verdicts"]
     if not isinstance(verdicts, dict):
         raise VerificationParseError("no verdicts object in verifier output")
     got = set(verdicts)
