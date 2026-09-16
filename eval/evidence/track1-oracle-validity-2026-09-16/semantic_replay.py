@@ -25,11 +25,19 @@ Replayed populations (frozen, committed, zero model calls):
       {haiku,sonnet}-trace.jsonl (pass-1 records; joined via
       (model_id, digest) exactly as pass1_rescore.py did)
 
-Built-in fail-closed validity: the S0 recomputation of #36 must
-reproduce the frozen normative floors (repair-4 witness-replay.json
-per_positive_detections, aggregates 51/90 and 66/90) exactly, and the
-S0 recomputation of #62 must reproduce #64's retrospective headline
-(36/90 and 47/90) exactly — before any S1 number is reported.
+Built-in fail-closed validity: before any candidate-semantics number
+is produced, (a) the S0/AND recomputation of #62 must reproduce #64's
+retrospective headline (36/90 and 47/90 — computed by
+pass1_rescore.py under the all-entries convention), and (b) exactly
+one of the two candidate semantics must reproduce the frozen
+normative floors (repair-4 witness-replay.json
+per_positive_detections, aggregates 51/90 and 66/90) from the #36 raw
+reports — ambiguity between them aborts. NOTE: the opening revision
+of this docstring assumed S0 would be that semantics; the parity
+check DISCOVERED instead that the frozen floors equal the S1/OR
+rescore (the repairs' original entries were byte-preserved, so the
+added alternative entries can only add matches). The implementation
+always discovered the truth; only this prose had to catch up.
 
 Usage: python3 semantic_replay.py   (writes oracle-validity-replay.json)
 """

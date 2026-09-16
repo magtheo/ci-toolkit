@@ -31,13 +31,17 @@ Sources (all committed, frozen):
 
 Built-in fail-closed validity (`semantic_replay.py`): before any
 candidate-semantics number is produced, the comparator must
-byte-reproduce
 
-1. the frozen normative floors
+1. reproduce #64's retrospective headline (36/90, 47/90) from the #62
+   traces under S0/AND (the convention `pass1_rescore.py` actually
+   used), and
+2. reproduce the frozen normative floors
    (`track1-oracle-repair4-2026-09-07/witness-replay.json`,
-   `replay.per_positive_detections`) **per-positive** from the #36
-   raw reports, and
-2. #64's retrospective headline (36/90, 47/90) from the #62 traces.
+   `replay.per_positive_detections`) per-positive from the #36 raw
+   reports under **exactly one** of the two candidate semantics —
+   ambiguity aborts. The comparator discovers which: it is **S1/OR**
+   (S0 gives 36/90 and 52/90 and provably does not reproduce them;
+   see Finding 2).
 
 Both hold, so every delta below is attributable to entry semantics
 alone, not to a reimplementation drift.
