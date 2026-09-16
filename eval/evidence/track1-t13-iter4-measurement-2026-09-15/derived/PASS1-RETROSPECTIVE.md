@@ -8,7 +8,7 @@ Zero model calls. Derived deterministically from the byte-frozen raw traces.
 
 Equivalence proofs: rubric blob and prompt/budget/post functions byte-identical across post-revert HEAD, campaign subject `d1a2ef1`, and #36 subject `4b07246`; request payload shape identical; harness sampling settings identical; digest construction identical. parse_review pass-1 semantics AST-identical (the campaign subject's pass-2 parser additions are off the pass-1 path and were stripped for comparison). A changed result is therefore meaningful as stochastic/provider/model drift, not reviewer-code change.
 
-Join: 360/360 unique joins, N=5 everywhere, no ambiguity
+Join: 360/360 unique (model_id, digest) joins, every trace model_id validated, N=5 everywhere, no ambiguity
 
 ## Layer 2 — observed measurements and frozen comparisons
 
@@ -53,7 +53,7 @@ Join: 360/360 unique joins, N=5 everywhere, no ambiguity
 | M8 | positive | 5/5 | 0 | 5 | C0/I0/F5 | GATING-capable |
 | M9 | positive | 1/1 | 0 | 0 | C0/I4/F1 | KNOWN_GAP |
 
-detection total: **36/90** vs floor 51/66 aggregate (haiku); floor violations: ['M12', 'M16', 'M3']; GATING violations: ['C7']; pair-integrity violations: [{'positive': 'M1', 'control': 'C1', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M10', 'control': 'C10', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M2', 'control': 'C2', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M8', 'control': 'C8', 'reason': 'control fails — detection indistinguishable from over-triggering'}]; control FBs: 91 (caps 78/112); family FBs: {'speculative-consequence': 12, 'risk-boilerplate': 15, 'severity-inflation': 3, 'hallucinated-fact': 2, 'unattributed': 1}
+detection total: **36/90** vs floor 51/66 aggregate (haiku); floor violations: ['M12', 'M16', 'M3']; GATING violations: ['C7']; pair-integrity violations: [{'positive': 'M1', 'control': 'C1', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M10', 'control': 'C10', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M2', 'control': 'C2', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M8', 'control': 'C8', 'reason': 'control fails — detection indistinguishable from over-triggering'}]; control FBs: 91 (caps 78/112); positive-side family FBs: {'hallucinated-fact': 2, 'risk-boilerplate': 15, 'severity-inflation': 3, 'speculative-consequence': 12, 'unattributed': 1}; control-side family FBs: {'hallucinated-fact': 20, 'risk-boilerplate': 34, 'severity-inflation': 6, 'speculative-consequence': 29, 'unattributed': 2}; controls failing: 13/18
 
 ## sonnet
 
@@ -96,7 +96,7 @@ detection total: **36/90** vs floor 51/66 aggregate (haiku); floor violations: [
 | M8 | positive | 5/5 | 0 | 6 | C0/I0/F5 | GATING-capable |
 | M9 | positive | 5/5 | 1 | 2 | C0/I0/F5 | KNOWN_GAP |
 
-detection total: **47/90** vs floor 51/66 aggregate (sonnet); floor violations: ['M11', 'M12', 'M13', 'M16', 'M3']; GATING violations: ['C7']; pair-integrity violations: [{'positive': 'M2', 'control': 'C2', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M8', 'control': 'C8', 'reason': 'control fails — detection indistinguishable from over-triggering'}]; control FBs: 139 (caps 78/112); family FBs: {'risk-boilerplate': 21, 'hallucinated-fact': 8, 'speculative-consequence': 12, 'severity-inflation': 17, 'unattributed': 10}
+detection total: **47/90** vs floor 51/66 aggregate (sonnet); floor violations: ['M11', 'M12', 'M13', 'M16', 'M3']; GATING violations: ['C7']; pair-integrity violations: [{'positive': 'M2', 'control': 'C2', 'reason': 'control fails — detection indistinguishable from over-triggering'}, {'positive': 'M8', 'control': 'C8', 'reason': 'control fails — detection indistinguishable from over-triggering'}]; control FBs: 139 (caps 78/112); positive-side family FBs: {'hallucinated-fact': 8, 'risk-boilerplate': 21, 'severity-inflation': 17, 'speculative-consequence': 12, 'unattributed': 10}; control-side family FBs: {'hallucinated-fact': 37, 'risk-boilerplate': 44, 'severity-inflation': 31, 'speculative-consequence': 20, 'unattributed': 7}; controls failing: 12/18
 
 ## Layer 3 — diagnostic interpretation (hypotheses, not conclusions)
 
@@ -104,11 +104,11 @@ detection total: **47/90** vs floor 51/66 aggregate (sonnet); floor violations: 
 
 Candidate hypotheses the distribution supports (each requires its own evidence before becoming a mechanism decision):
 
-1. **Speculative-consequence remains the dominant positive-side family** (12 FBs on both profiles) — consistent with the standing taxonomy; it has survived four mechanisms.
-2. **Risk-boilerplate over-triggering dominates control false blockers** (haiku 15, sonnet 21) — the reviewer reads boilerplate as risk. Severity-inflation is sonnet's second control-side family (17).
-3. **The repair-4 matcher-extension families collapsed**: M12/M16/M3 at 0/5 (haiku) and M3/M12/M16 at 0/5 (sonnet) against floors of 5 earned by #36-era outputs. Whatever phrasing those needles were extended to recognize, the current provider's outputs no longer contain it — the strongest direct drift signal in this sample. (Alternative: #36-era hits were partly matcher-tolerance artifacts; the witness-replay invariants argue against but do not exclude this.)
-4. **Absolute-consistency detection (M17) recovered on sonnet** relative to iterations 1–2 but not to the full 5/5 floor; haiku M17 remains at floor 0 as frozen.
-5. **Over-blocking is the global failure shape, not under-detection of real defects**: controls fail 15/18 (haiku) and 17/18 (sonnet) while most positives still detect their expected entries — the single-stage surface's defect is disproportionately false positives, which is also what made the layer-(b) and iteration-2 caps fail.
+1. **Speculative-consequence remains a dominant positive-side family** (12 FBs haiku, 12 sonnet) — consistent with the standing taxonomy; it has survived four mechanisms.
+2. **Over-blocking is the global failure shape, not under-detection of real defects**: 13/18 controls carry false blockers on haiku and 12/18 on sonnet, while most positives still detect their expected entries — the single-stage surface's defect is disproportionately false positives, which is also what made the layer-(b) and iteration-2 caps fail.
+3. **The repair-4 matcher-extension families collapsed**: M12/M16/M3 at 0/5 on both profiles against floors of 5 earned by #36-era outputs. Whatever phrasing those needles were extended to recognize, the current provider's outputs no longer contain it — the strongest direct drift signal in this sample. (Alternative: #36-era hits were partly matcher-tolerance artifacts; the witness-replay invariants argue against but do not exclude this.)
+4. **Sonnet M17 detection meets its frozen floor** (5/5 vs floor 5); haiku M17 remains at its frozen floor of 0. Absolute-consistency detection is therefore not part of the current failure distribution on sonnet.
+5. **Control-side family distribution**: risk-boilerplate leads haiku control FBs (34) and sonnet control FBs (44); severity-inflation is sonnet's second (31). All positive/control splits are in pass1-rescore.json.
 
-Reviewer-surface caveat: all comparisons are against #36-era numbers produced by the same rubric/prompt/settings bytes; differences are therefore attributable to the model/provider sampling layer, not to reviewer code. What no retrospective can answer: whether a *fresh* run would reproduce these exact numbers (single-sample variance is unquantified here) — one more reason this stays diagnostic and any binding claim needs a new frozen campaign.
+Reviewer-surface caveat: all comparisons are against #36-era numbers produced by the same rubric/prompt/settings bytes AND byte-equal model-facing fixture inputs (proven in Layer 1); differences are therefore attributable to the model/provider sampling layer, not to reviewer code. What no retrospective can answer: whether a *fresh* run would reproduce these exact numbers (single-sample variance is unquantified here) — one more reason this stays diagnostic and any binding claim needs a new frozen campaign.
 

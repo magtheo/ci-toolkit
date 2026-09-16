@@ -232,18 +232,65 @@ def equivalence_proofs():
     return eq
 
 
+def fixture_input_equivalence():
+    """Prove all 36 model-facing fixture inputs are byte-equal between
+    the #36-era corpus and the current one. The corpus identity changed
+    across the repair cycle (9fae85b2 -> 72035a00), so input equality
+    must be demonstrated, not inferred: the demonstrated equality is
+    what makes the drift comparison and the frozen floors per-fixture
+    comparable."""
+    files = subprocess.run(
+        ["git", "ls-tree", "--name-only", SUBJECT_36, "eval/fixtures/"],
+        capture_output=True, text=True).stdout.split()
+    if len(files) != 36:
+        fail("#36-era corpus has {0} fixture files, expected 36".format(
+            len(files)))
+    mismatches, current_ids = [], set()
+    for fx in harness.load_corpus(ROOT / "eval" / "fixtures"):
+        current_ids.add(fx["id"])
+        old = json.loads(git_show(SUBJECT_36,
+                                  "eval/fixtures/{0}.json".format(fx["id"])))
+        if fx["input"] != old.get("input"):
+            mismatches.append(fx["id"])
+    if current_ids != {f.split("/")[-1][:-5] for f in files}:
+        fail("fixture id sets differ between #36 and current")
+    if mismatches:
+        fail("model-facing fixture inputs differ vs #36: {0}".format(
+            sorted(mismatches)))
+    return {"method": "per-fixture 'input' object equality "
+                      "(title/body/files as embedded in prompts)",
+            "fixtures_compared": 36,
+            "result": "all 36 model-facing inputs byte-equal between "
+                      "#36-era corpus and current corpus",
+            "corpus_identity_note": "corpus hash changed across the "
+                                    "repair cycle (oracle-side only: "
+                                    "expected/matchers); inputs did not"}
+
+
 # ------------------------------------------------------------- 2. join proof
 def load_traces():
     traces = {}
     for prof in PROFILES:
         path = RAW / "{0}-trace.jsonl".format(prof)
         records = [json.loads(l) for l in path.read_text().splitlines() if l]
+        for r in records:
+            if r.get("model_id") != PROFILES[prof]:
+                fail("{0}: record model_id {1!r} != expected {2}".format(
+                    prof, r.get("model_id"), PROFILES[prof]))
         traces[prof] = records
+    seen_models = {r["model_id"] for recs in traces.values()
+                   for r in recs}
+    if seen_models != set(PROFILES.values()):
+        fail("unexpected model_id set in traces: {0}".format(seen_models))
     return traces
 
 
 def join_proof(traces, fixtures):
-    jp = {"expected_records": 360, "per_profile": {}, "digests": {}}
+    """Join is strictly (model_id, digest): each digest must map to
+    exactly one fixture, and each (profile, fixture) group must hold
+    exactly N=5 records — validated before any score is produced."""
+    jp = {"expected_records": 360, "join_key": "(model_id, digest)",
+          "per_profile": {}, "digests": {}}
     digest_of = {}
     for fx in fixtures:
         ri = harness._review_input(fx, "x")
@@ -260,7 +307,8 @@ def join_proof(traces, fixtures):
                 len(records), prof))
         groups = collections.Counter()
         for r in records:
-            d = r["review_input_digest"]
+            key = (r["model_id"], r["review_input_digest"])
+            d = key[1]
             if d not in by_digest:
                 fail("{0}: digest {1} joins to no fixture".format(prof, d))
             groups[(by_digest[d])] += 1
@@ -271,12 +319,15 @@ def join_proof(traces, fixtures):
             fail("{0}: joined {1} fixtures, expected {2}".format(
                 prof, len(groups), len(fixtures)))
         jp["per_profile"][prof] = {
+            "model_id": PROFILES[prof],
             "records": len(records), "fixtures_joined": len(groups)}
         total += len(records)
     if total != 360:
         fail("expected 360 records total, got {0}".format(total))
     jp["total_records"] = total
-    jp["status"] = "360/360 unique joins, N=5 everywhere, no ambiguity"
+    jp["status"] = ("360/360 unique (model_id, digest) joins, every "
+                    "trace model_id validated, N=5 everywhere, no "
+                    "ambiguity")
     return jp
 
 
@@ -336,16 +387,16 @@ def adjudicate(traces, fixtures):
         violations = {k: v for k, v in floor_rows.items()
                       if v["retrospective"] < v["floor"]}
 
-        fam_fb = collections.Counter()
-        ctrl_fb = 0
+        pos_fam_fb = collections.Counter()
+        ctl_fam_fb = collections.Counter()
         for r in per_fixture:
             fx = next(f for f in fixtures if f["id"] == r["id"])
+            fam = fx.get("family", "unattributed")
             if r["false_blockers"]:
                 if fx["kind"] == "control":
-                    ctrl_fb += r["false_blockers"]
+                    ctl_fam_fb[fam] += r["false_blockers"]
                 else:
-                    fam_fb[fx.get("family", "unattributed")] += \
-                        r["false_blockers"]
+                    pos_fam_fb[fam] += r["false_blockers"]
 
         out["profiles"][prof] = {
             "per_fixture": per_fixture,
@@ -356,14 +407,21 @@ def adjudicate(traces, fixtures):
             "floor_aggregate": {"haiku": 51, "sonnet": 66}[prof],
             "per_positive_vs_floor": floor_rows,
             "floor_violations": violations,
-            "family_false_blockers": dict(fam_fb),
-            "control_false_blockers": ctrl_fb,
+            "positive_fixture_false_blockers_by_family": dict(
+                sorted(pos_fam_fb.items())),
+            "control_false_blockers_by_family": dict(
+                sorted(ctl_fam_fb.items())),
+            "control_false_blockers_total": sum(ctl_fam_fb.values()),
+            "controls_failing": sum(
+                1 for r in per_fixture
+                if r["kind"] == "control" and r["false_blockers"]),
         }
     return out
 
 
 def main():
     proofs = equivalence_proofs()
+    proofs["fixture_inputs_vs_36"] = fixture_input_equivalence()
     fixtures = harness.load_corpus(ROOT / "eval" / "fixtures")
     if len(fixtures) != 36:
         fail("expected 36 fixtures")
@@ -437,56 +495,82 @@ def main():
                   "detection total: **{0}/90** vs floor 51/66 aggregate "
                   "({1}); floor violations: {2}; GATING violations: {3}; "
                   "pair-integrity violations: {4}; control FBs: {5} "
-                  "(caps 78/112); family FBs: {6}".format(
+                  "(caps 78/112); positive-side family FBs: {6}; "
+                  "control-side family FBs: {7}; controls failing: "
+                  "{8}/18".format(
                       data["fixture_level_detection_total"],
                       prof, list(data["floor_violations"]) or "none",
                       data["gating_violations"] or "none",
                       data["pair_integrity_violations"] or "none",
-                      data["control_false_blockers"],
-                      data["family_false_blockers"]), ""]
+                      data["control_false_blockers_total"],
+                      data["positive_fixture_false_blockers_by_family"],
+                      data["control_false_blockers_by_family"],
+                      data["controls_failing"]), ""]
+    h = adj["profiles"]["haiku"]
+    s = adj["profiles"]["sonnet"]
+    m17s = s["per_positive_vs_floor"].get("M17", {})
     lines += [
         "## Layer 3 — diagnostic interpretation (hypotheses, not "
         "conclusions)",
         "",
         "**Decision-matrix outcome: pass-1 clearly fails on both "
-        "profiles.** Detection 36/90 vs the 51 floor (haiku) and 47/90 "
-        "vs the 66 floor (sonnet); C7 GATING violated on both; control "
-        "FBs 91/139 vs the 78/112 caps and vs #36's 90/135. Per the "
-        "agreed sequence: **no paid pass-1 confirmation campaign**; the "
-        "next step is an iteration-5 design decision informed by this "
-        "distribution. That decision belongs to the maintainer.",
+        "profiles.** Detection {0}/90 vs the 51 floor (haiku) and "
+        "{1}/90 vs the 66 floor (sonnet); C7 GATING violated on both; "
+        "control FBs {2}/{3} vs the 78/112 caps and vs #36's 90/135. "
+        "Per the agreed sequence: **no paid pass-1 confirmation "
+        "campaign**; the next step is an iteration-5 design decision "
+        "informed by this distribution. That decision belongs to the "
+        "maintainer.".format(
+            h["fixture_level_detection_total"],
+            s["fixture_level_detection_total"],
+            h["control_false_blockers_total"],
+            s["control_false_blockers_total"]),
         "",
         "Candidate hypotheses the distribution supports (each requires "
         "its own evidence before becoming a mechanism decision):",
         "",
-        "1. **Speculative-consequence remains the dominant positive-"
-        "side family** (12 FBs on both profiles) — consistent with the "
-        "standing taxonomy; it has survived four mechanisms.",
-        "2. **Risk-boilerplate over-triggering dominates control "
-        "false blockers** (haiku 15, sonnet 21) — the reviewer reads "
-        "boilerplate as risk. Severity-inflation is sonnet's second "
-        "control-side family (17).",
+        "1. **Speculative-consequence remains a dominant positive-"
+        "side family** ({0} FBs haiku, {1} sonnet) — consistent with "
+        "the standing taxonomy; it has survived four mechanisms."
+        .format(h["positive_fixture_false_blockers_by_family"].get(
+                    "speculative-consequence", 0),
+                s["positive_fixture_false_blockers_by_family"].get(
+                    "speculative-consequence", 0)),
+        "2. **Over-blocking is the global failure shape, not "
+        "under-detection of real defects**: {0}/18 controls carry "
+        "false blockers on haiku and {1}/18 on sonnet, while most "
+        "positives still detect their expected entries — the "
+        "single-stage surface's defect is disproportionately false "
+        "positives, which is also what made the layer-(b) and "
+        "iteration-2 caps fail.".format(h["controls_failing"],
+                                        s["controls_failing"]),
         "3. **The repair-4 matcher-extension families collapsed**: "
-        "M12/M16/M3 at 0/5 (haiku) and M3/M12/M16 at 0/5 (sonnet) "
-        "against floors of 5 earned by #36-era outputs. Whatever "
-        "phrasing those needles were extended to recognize, the "
-        "current provider's outputs no longer contain it — the "
-        "strongest direct drift signal in this sample. (Alternative: "
-        "#36-era hits were partly matcher-tolerance artifacts; the "
-        "witness-replay invariants argue against but do not exclude "
-        "this.)",
-        "4. **Absolute-consistency detection (M17) recovered on "
-        "sonnet** relative to iterations 1–2 but not to the full 5/5 "
-        "floor; haiku M17 remains at floor 0 as frozen.",
-        "5. **Over-blocking is the global failure shape, not "
-        "under-detection of real defects**: controls fail 15/18 "
-        "(haiku) and 17/18 (sonnet) while most positives still detect "
-        "their expected entries — the single-stage surface's defect "
-        "is disproportionately false positives, which is also what "
-        "made the layer-(b) and iteration-2 caps fail.",
+        "M12/M16/M3 at 0/5 on both profiles against floors of 5 "
+        "earned by #36-era outputs. Whatever phrasing those needles "
+        "were extended to recognize, the current provider's outputs "
+        "no longer contain it — the strongest direct drift signal in "
+        "this sample. (Alternative: #36-era hits were partly "
+        "matcher-tolerance artifacts; the witness-replay invariants "
+        "argue against but do not exclude this.)",
+        "4. **Sonnet M17 detection meets its frozen floor** ({0}/5 vs "
+        "floor {1}); haiku M17 remains at its frozen floor of 0. "
+        "Absolute-consistency detection is therefore not part of the "
+        "current failure distribution on sonnet.".format(
+            m17s.get("retrospective"), m17s.get("floor")),
+        "5. **Control-side family distribution**: risk-boilerplate "
+        "leads haiku control FBs ({0}) and sonnet control FBs ({1}); "
+        "severity-inflation is sonnet's second ({2}). All "
+        "positive/control splits are in pass1-rescore.json."
+        .format(h["control_false_blockers_by_family"].get(
+                    "risk-boilerplate", 0),
+                s["control_false_blockers_by_family"].get(
+                    "risk-boilerplate", 0),
+                s["control_false_blockers_by_family"].get(
+                    "severity-inflation", 0)),
         "",
         "Reviewer-surface caveat: all comparisons are against #36-era "
-        "numbers produced by the same rubric/prompt/settings bytes; "
+        "numbers produced by the same rubric/prompt/settings bytes AND "
+        "byte-equal model-facing fixture inputs (proven in Layer 1); "
         "differences are therefore attributable to the model/provider "
         "sampling layer, not to reviewer code. What no retrospective "
         "can answer: whether a *fresh* run would reproduce these "

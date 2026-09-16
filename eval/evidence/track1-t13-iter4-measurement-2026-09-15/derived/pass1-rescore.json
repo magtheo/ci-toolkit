@@ -65,16 +65,25 @@
   "harness_MAX_TOKENS": [
    "2000"
   ],
-  "digest_construction_current_equals_frozen": true
+  "digest_construction_current_equals_frozen": true,
+  "fixture_inputs_vs_36": {
+   "method": "per-fixture 'input' object equality (title/body/files as embedded in prompts)",
+   "fixtures_compared": 36,
+   "result": "all 36 model-facing inputs byte-equal between #36-era corpus and current corpus",
+   "corpus_identity_note": "corpus hash changed across the repair cycle (oracle-side only: expected/matchers); inputs did not"
+  }
  },
  "join_proof": {
   "expected_records": 360,
+  "join_key": "(model_id, digest)",
   "per_profile": {
    "haiku": {
+    "model_id": "anthropic/claude-haiku-4.5",
     "records": 180,
     "fixtures_joined": 36
    },
    "sonnet": {
+    "model_id": "anthropic/claude-sonnet-4.5",
     "records": 180,
     "fixtures_joined": 36
    }
@@ -82,7 +91,7 @@
   "digests": {},
   "distinct_fixture_digests": 36,
   "total_records": 360,
-  "status": "360/360 unique joins, N=5 everywhere, no ambiguity"
+  "status": "360/360 unique (model_id, digest) joins, every trace model_id validated, N=5 everywhere, no ambiguity"
  },
  "adjudication": {
   "profiles": {
@@ -4877,14 +4886,22 @@
       "floor": 5
      }
     },
-    "family_false_blockers": {
-     "speculative-consequence": 12,
+    "positive_fixture_false_blockers_by_family": {
+     "hallucinated-fact": 2,
      "risk-boilerplate": 15,
      "severity-inflation": 3,
-     "hallucinated-fact": 2,
+     "speculative-consequence": 12,
      "unattributed": 1
     },
-    "control_false_blockers": 91
+    "control_false_blockers_by_family": {
+     "hallucinated-fact": 20,
+     "risk-boilerplate": 34,
+     "severity-inflation": 6,
+     "speculative-consequence": 29,
+     "unattributed": 2
+    },
+    "control_false_blockers_total": 91,
+    "controls_failing": 13
    },
    "sonnet": {
     "per_fixture": [
@@ -10697,14 +10714,22 @@
       "floor": 5
      }
     },
-    "family_false_blockers": {
-     "risk-boilerplate": 21,
+    "positive_fixture_false_blockers_by_family": {
      "hallucinated-fact": 8,
-     "speculative-consequence": 12,
+     "risk-boilerplate": 21,
      "severity-inflation": 17,
+     "speculative-consequence": 12,
      "unattributed": 10
     },
-    "control_false_blockers": 139
+    "control_false_blockers_by_family": {
+     "hallucinated-fact": 37,
+     "risk-boilerplate": 44,
+     "severity-inflation": 31,
+     "speculative-consequence": 20,
+     "unattributed": 7
+    },
+    "control_false_blockers_total": 139,
+    "controls_failing": 12
    }
   },
   "floors_source": "eval/evidence/track1-oracle-repair4-2026-09-07/witness-replay.json"
