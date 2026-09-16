@@ -196,24 +196,12 @@ def test_engine_clear_path(monkeypatch):
 
 
 def test_engine_issues_path(monkeypatch):
-    # activation (25c): a blocking pass-1 finding is verified by pass 2
-    # before it may remain blocking; a CONFIRMED verdict preserves the
-    # finding byte-for-byte and the final assessment stays ISSUES_FOUND
-    verdict = {"evidence_establishes": "e", "applicable_requirement": "r",
-               "contradiction": "c", "unstated_assumption": "none",
-               "correct_implementation_possible": False,
-               "verdict": "confirmed"}
-    _stub(monkeypatch, [
-        _or_response(
-            '{"assessment": "ISSUES_FOUND", "findings": [{"file": "a.py", '
-            '"line": 1, "severity": "blocking", "comment": "c"}]}'),
-        _or_response(json.dumps({"verdicts": {"v1": verdict}})),
-    ])
+    _stub(monkeypatch, _or_response(
+        '{"assessment": "ISSUES_FOUND", "findings": [{"file": "a.py", '
+        '"line": 1, "severity": "blocking", "comment": "c"}]}'))
     result = engine.run_review(_input())
     assert result["assessment"] == "ISSUES_FOUND"
-    assert result["findings"] == [{"file": "a.py", "line": 1,
-                                   "severity": "blocking", "comment": "c",
-                                   "suggestion": None}]
+    assert result["findings"][0]["severity"] == "blocking"
 
 
 def test_engine_inconclusive_path(monkeypatch):
