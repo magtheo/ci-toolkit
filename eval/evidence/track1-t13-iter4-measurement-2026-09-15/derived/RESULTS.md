@@ -13,7 +13,7 @@ actual spend **$4.3119** <= $7.00.
 | 2 | Deviation-6 floors | **FAIL** | haiku 0/90 (floor 51), sonnet 0/90 (floor 66) |
 | 3 | sonnet M17 = 5/5 | **FAIL** | 0/5 |
 | 4 | FB caps | satisfied (vacuous) | final FBs 0 ≤ caps; mechanism blocked nothing final |
-| 5 | family separation + pair integrity | **FAIL** | zero confirmed families |
+| 5 | family separation + pair integrity | **FAIL** | all five confirmed families failed to demonstrate separation (final positive detection 0); pair integrity: no violations, no promotable positives — does not rescue the criterion |
 | 6 | causal non-vacuity | **FAIL** | zero refutations: 254/254 verifier outputs rejected |
 
 **KEEP requires all six → verdict: REVERT** (full mechanism revert: engine

@@ -226,7 +226,7 @@
   },
   "5_family_separation": {
    "verdict": "FAIL",
-   "evidence": "zero confirmed families -> no separation, pair integrity unmeasurable"
+   "evidence": "all five confirmed failure families failed to demonstrate separation because final positive detection was zero on both profiles; pair integrity produced no violations and no promotable positives, which does not rescue the separation criterion"
   },
   "6_causal_nonvacuity": {
    "verdict": "FAIL",
