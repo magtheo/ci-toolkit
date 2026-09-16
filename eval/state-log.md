@@ -550,3 +550,27 @@ tests removed, 6 trace-sidecar tests retained
 (files, states, harness) touched in this PR. Iteration 4 is now
 measured, rejected, and reverted — the next mechanism is a design-
 cycle decision requiring a new plan and new authorization.
+
+### Pass-1 retrospective rescore (2026-09-15) — DIAGNOSTIC, NOT BINDING
+
+Zero-call derivation from the frozen #62 raw traces
+(derived/pass1_rescore.py committed alongside its outputs; script is
+the reproducibility artifact requested in the #62 review). Join proof
+fail-closed and clean: 360/360 unique (model_id, digest) joins, N=5
+everywhere, 36 distinct fixture digests. Equivalence proofs: rubric
+and prompt/budget/post bytes identical across post-#63 HEAD, campaign
+subject d1a2ef1, and #36 subject 4b07246 — differences are
+attributable to the model/provider sampling layer, not reviewer code.
+
+Observed (fixture-level detection, Deviation-6 convention): haiku
+36/90 vs floor 51 (M12/M16/M3 at 0 vs floor 5); sonnet 47/90 vs
+floor 66 (M3/M12/M16 0/5, M11 2/5, M13 0/1). C7 GATING violated on
+both. Control FBs 91 (haiku) / 139 (sonnet) vs caps 78/112 and #36's
+90/135; risk-boilerplate dominates control-side FBs; speculative-
+consequence remains the dominant positive-side family (12 both).
+
+Decision per the agreed matrix: pass-1 CLEARLY FAILS on both
+profiles — no paid pass-1 confirmation campaign. The distribution
+goes to the iteration-5 design decision (maintainer's call). The
+rescore remains diagnostic: not a T1.2 result, no state promotions,
+no floor edits, frozen artifacts untouched.
