@@ -574,3 +574,36 @@ profiles — no paid pass-1 confirmation campaign. The distribution
 goes to the iteration-5 design decision (maintainer's call). The
 rescore remains diagnostic: not a T1.2 result, no state promotions,
 no floor edits, frozen artifacts untouched.
+
+### Failure-attribution audit (2026-09-15) — zero-call causal diagnostic
+
+Evidence-only derivation from the frozen #62 pass-1 traces joined via
+the #64 mapping: 331 records (91/139 control FBs reconciled exactly to
+#64; 101 positive-side contamination FBs reconciled by family; 38
+sensitivity-regression run diagnostics). Machine extraction, human
+attribution (claim table + diagnostic layer, explicitly non-
+algorithmic), and deterministic aggregation are separate files; the
+derivation script is committed alongside its outputs.
+
+Control-side result (primary buckets, haiku/sonnet combined):
+severity-miscalibration 25%, speculative-harm-chain 23%,
+counterevidence-present 19%, necessary-evidence-absent 18%,
+external-semantic-knowledge 15%. Case-5 (mixed) outcome: no single
+dominant bucket; decision-policy failures (severity + speculation,
+~48%) outweigh evidence problems; counterevidence-present shows
+documented contracts and visible guards being argued past;
+necessary-evidence-absent concentrates in opaque-parameter contracts
+(session/repo adapters, called-workflow internals, JSON producer
+schemas). Layer (c) context enrichment is NOT the primary justified
+iteration-5 direction on this evidence.
+
+Sensitivity side: 25/38 non-detecting runs are
+expressed-but-not-matched-by-oracle-wording — the defect was stated
+in non-frozen vocabulary (repair-4 exact bigrams). Reported as an
+oracle-vocabulary-rigidity observation for maintainer review; NOT
+patched (frozen-matchers rule). Remainder: attention/salience
+failures (sonnet M13 security chains consumed every run; the missing
+tag input was never noticed).
+
+Diagnostic only: no mechanism selected, no state promotions, no
+oracle changes, #64 not reinterpreted as binding.

@@ -1,0 +1,261 @@
+{
+ "status": "DIAGNOSTIC causal-attribution audit; zero model calls; #64 remains non-binding",
+ "taxonomy": {
+  "A": "counterevidence-present",
+  "B": "necessary-evidence-absent",
+  "C": "external-semantic-knowledge",
+  "D": "severity-miscalibration",
+  "E": "speculative-harm-chain",
+  "F": "mixed-or-ambiguous"
+ },
+ "reconciliation": {
+  "control_false_blockers": {
+   "haiku": 91,
+   "sonnet": 139
+  },
+  "expected": {
+   "haiku": 91,
+   "sonnet": 139
+  },
+  "record_total": 331,
+  "status": "RECONCILED",
+  "positive_by_family": {
+   "haiku": {
+    "speculative-consequence": 12,
+    "risk-boilerplate": 15,
+    "severity-inflation": 3,
+    "hallucinated-fact": 2,
+    "unattributed": 1
+   },
+   "sonnet": {
+    "risk-boilerplate": 21,
+    "hallucinated-fact": 8,
+    "speculative-consequence": 12,
+    "severity-inflation": 17,
+    "unattributed": 10
+   }
+  }
+ },
+ "control_side": {
+  "by_attribution_per_profile": {
+   "haiku": {
+    "external-semantic-knowledge": 23,
+    "counterevidence-present": 21,
+    "severity-miscalibration": 25,
+    "speculative-harm-chain": 14,
+    "necessary-evidence-absent": 8
+   },
+   "sonnet": {
+    "speculative-harm-chain": 38,
+    "counterevidence-present": 23,
+    "necessary-evidence-absent": 34,
+    "severity-miscalibration": 32,
+    "external-semantic-knowledge": 12
+   }
+  },
+  "by_family_x_attribution": {
+   "risk-boilerplate": {
+    "external-semantic-knowledge": 19,
+    "counterevidence-present": 3,
+    "severity-miscalibration": 12,
+    "speculative-harm-chain": 35,
+    "necessary-evidence-absent": 9
+   },
+   "hallucinated-fact": {
+    "external-semantic-knowledge": 11,
+    "counterevidence-present": 17,
+    "severity-miscalibration": 18,
+    "speculative-harm-chain": 8,
+    "necessary-evidence-absent": 3
+   },
+   "speculative-consequence": {
+    "severity-miscalibration": 16,
+    "speculative-harm-chain": 2,
+    "counterevidence-present": 17,
+    "necessary-evidence-absent": 14
+   },
+   "severity-inflation": {
+    "speculative-harm-chain": 7,
+    "necessary-evidence-absent": 12,
+    "severity-miscalibration": 10,
+    "counterevidence-present": 3,
+    "external-semantic-knowledge": 5
+   },
+   "unattributed": {
+    "necessary-evidence-absent": 4,
+    "counterevidence-present": 4,
+    "severity-miscalibration": 1
+   }
+  },
+  "by_profile_x_family_x_attribution": {},
+  "profile_x_family_x_attribution": {
+   "haiku/hallucinated-fact": {
+    "external-semantic-knowledge": 8,
+    "counterevidence-present": 7,
+    "severity-miscalibration": 3,
+    "speculative-harm-chain": 2
+   },
+   "haiku/risk-boilerplate": {
+    "external-semantic-knowledge": 15,
+    "counterevidence-present": 1,
+    "severity-miscalibration": 9,
+    "speculative-harm-chain": 9
+   },
+   "haiku/severity-inflation": {
+    "speculative-harm-chain": 2,
+    "necessary-evidence-absent": 2,
+    "severity-miscalibration": 1,
+    "counterevidence-present": 1
+   },
+   "haiku/speculative-consequence": {
+    "severity-miscalibration": 12,
+    "speculative-harm-chain": 1,
+    "counterevidence-present": 12,
+    "necessary-evidence-absent": 4
+   },
+   "haiku/unattributed": {
+    "necessary-evidence-absent": 2
+   },
+   "sonnet/hallucinated-fact": {
+    "counterevidence-present": 10,
+    "severity-miscalibration": 15,
+    "external-semantic-knowledge": 3,
+    "speculative-harm-chain": 6,
+    "necessary-evidence-absent": 3
+   },
+   "sonnet/risk-boilerplate": {
+    "speculative-harm-chain": 26,
+    "counterevidence-present": 2,
+    "necessary-evidence-absent": 9,
+    "external-semantic-knowledge": 4,
+    "severity-miscalibration": 3
+   },
+   "sonnet/severity-inflation": {
+    "external-semantic-knowledge": 5,
+    "severity-miscalibration": 9,
+    "speculative-harm-chain": 5,
+    "necessary-evidence-absent": 10,
+    "counterevidence-present": 2
+   },
+   "sonnet/speculative-consequence": {
+    "necessary-evidence-absent": 10,
+    "counterevidence-present": 5,
+    "severity-miscalibration": 4,
+    "speculative-harm-chain": 1
+   },
+   "sonnet/unattributed": {
+    "counterevidence-present": 4,
+    "necessary-evidence-absent": 2,
+    "severity-miscalibration": 1
+   }
+  }
+ },
+ "positive_side": {
+  "by_attribution_per_profile": {
+   "haiku": {
+    "mixed-or-ambiguous": 1,
+    "speculative-harm-chain": 11,
+    "necessary-evidence-absent": 7,
+    "counterevidence-present": 8,
+    "severity-miscalibration": 6
+   },
+   "sonnet": {
+    "necessary-evidence-absent": 29,
+    "severity-miscalibration": 15,
+    "speculative-harm-chain": 7,
+    "external-semantic-knowledge": 12,
+    "counterevidence-present": 3,
+    "mixed-or-ambiguous": 2
+   }
+  },
+  "profile_x_family_x_attribution": {
+   "haiku/hallucinated-fact": {
+    "counterevidence-present": 2
+   },
+   "haiku/risk-boilerplate": {
+    "speculative-harm-chain": 9,
+    "counterevidence-present": 1,
+    "severity-miscalibration": 5
+   },
+   "haiku/severity-inflation": {
+    "speculative-harm-chain": 1,
+    "necessary-evidence-absent": 1,
+    "severity-miscalibration": 1
+   },
+   "haiku/speculative-consequence": {
+    "mixed-or-ambiguous": 1,
+    "speculative-harm-chain": 1,
+    "necessary-evidence-absent": 5,
+    "counterevidence-present": 5
+   },
+   "haiku/unattributed": {
+    "necessary-evidence-absent": 1
+   },
+   "sonnet/hallucinated-fact": {
+    "severity-miscalibration": 4,
+    "counterevidence-present": 2,
+    "mixed-or-ambiguous": 2
+   },
+   "sonnet/risk-boilerplate": {
+    "necessary-evidence-absent": 6,
+    "severity-miscalibration": 4,
+    "external-semantic-knowledge": 7,
+    "speculative-harm-chain": 3,
+    "counterevidence-present": 1
+   },
+   "sonnet/severity-inflation": {
+    "external-semantic-knowledge": 5,
+    "severity-miscalibration": 6,
+    "necessary-evidence-absent": 6
+   },
+   "sonnet/speculative-consequence": {
+    "necessary-evidence-absent": 7,
+    "speculative-harm-chain": 4,
+    "severity-miscalibration": 1
+   },
+   "sonnet/unattributed": {
+    "necessary-evidence-absent": 10
+   }
+  }
+ },
+ "sensitivity_regressions": {
+  "diagnoses_legend": [
+   "expected-evidence-present-but-missed",
+   "expected-evidence-absent-insufficient-input",
+   "expressed-but-not-matched-by-oracle-wording",
+   "model-semantic-misunderstanding",
+   "other-ambiguous"
+  ],
+  "runs_non_detecting": 38,
+  "by_fixture_profile": {
+   "haiku/M12": {
+    "expected-evidence-present-but-missed": 4,
+    "expressed-but-not-matched-by-oracle-wording": 1
+   },
+   "haiku/M16": {
+    "expected-evidence-present-but-missed": 1,
+    "expressed-but-not-matched-by-oracle-wording": 4
+   },
+   "haiku/M3": {
+    "expressed-but-not-matched-by-oracle-wording": 5
+   },
+   "sonnet/M11": {
+    "expressed-but-not-matched-by-oracle-wording": 3
+   },
+   "sonnet/M12": {
+    "expressed-but-not-matched-by-oracle-wording": 4,
+    "expected-evidence-present-but-missed": 1
+   },
+   "sonnet/M13": {
+    "expected-evidence-present-but-missed": 5
+   },
+   "sonnet/M16": {
+    "expected-evidence-present-but-missed": 5
+   },
+   "sonnet/M3": {
+    "expressed-but-not-matched-by-oracle-wording": 5
+   }
+  },
+  "note": "entry-level: a run fails when ANY expected entry is undetected; these diagnostics cover the specific undetected entries of #64's floor-violation fixtures (M3, M12, M16 both profiles; sonnet M11, sonnet M13)"
+ }
+}
