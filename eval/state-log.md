@@ -521,3 +521,32 @@ derived/campaign-analysis.json + RESULTS.md). Mechanism components
 PR; the next mechanism is decided only after this negative result is
 reviewed. Iteration 4 joins iterations 1, 2, and layer (b) as a measured
 and rejected mechanism.
+
+### Iteration-4 mechanism REVERTED (2026-09-15) — frozen interpretation executed
+
+Per the frozen interpretation (REVERT = full removal of the mechanism
+components after a completed failing campaign), the follow-up to the
+campaign PR removes:
+
+- engine pass-2 policy/prompt: VERIFICATION_PROTOCOL, _call_verifier,
+  _blocking_candidates, _build_verification_prompts,
+  _apply_verification_policy, and the two-stage run_review flow
+  (single-stage restored);
+- verifier parsing: parse_review.py is byte-identical to its
+  pre-iteration-4 state (blob a280883c…, hash-verified).
+
+Carved out by the freeze ("trace stays inert"): the trace sidecar
+(TRACE_ENV/TRACE_VERSION, _trace_preflight/_trace_emit/
+_review_input_digest/_verification_context) is retained as dormant
+measurement infrastructure — unset env => no file, unchanged
+behavior; the frozen v2 record schema is kept with pass-2 fields
+always empty/None and provider_call_count = 1. The #60 transport
+refactor (_post_with_retries) is transport, not mechanism, and stays.
+
+Untouched and hash-verified byte-identical to pre-iteration-4:
+rubric.md, review.sh, render.py, ai-review.yml. Tests: 45 mechanism
+tests removed, 6 trace-sidecar tests retained
+(tests/test_trace_sidecar.py); suite 158 passing. No eval-semantics
+(files, states, harness) touched in this PR. Iteration 4 is now
+measured, rejected, and reverted — the next mechanism is a design-
+cycle decision requiring a new plan and new authorization.
