@@ -12,8 +12,11 @@ to the machine-derived population (population.jsonl), fail-closed:
     91 haiku / 139 sonnet control FBs, plus the #64 positive-side
     by-family totals
   - sensitivity-regression diagnostics are authored separately
-    (sensitivity-diagnostics.jsonl) and validated against the #64
-    entry-detection matrix
+    (sensitivity-diagnostics.jsonl) and validated against the
+    entry-detection matrix (sensitivity-matrix.json), which is
+    deterministically derived from the frozen #62 traces + corpus +
+    #64 rescore by derive_sensitivity.py and must byte-reconstruct
+    from those frozen inputs at build time (no agent-local inputs)
 
 Outputs: failure-attribution.jsonl (record-level, provenance +
 attribution), failure-attribution-summary.json (aggregation +
@@ -42,6 +45,13 @@ import claims as claims_mod  # noqa: E402
 def fail(msg):
     sys.stderr.write("FAIL-CLOSED: {0}\n".format(msg))
     sys.exit(1)
+
+
+def pct(n, d):
+    """All reported percentages are generated from counts."""
+    if d == 0:
+        fail("pct with zero denominator")
+    return round(100 * n / d)
 
 
 def load_population():
@@ -120,9 +130,19 @@ def classify(population):
 def validate_sensitivity():
     path = HERE / "sensitivity-diagnostics.jsonl"
     diags = [json.loads(l) for l in path.read_text().splitlines() if l]
-    # reconcile against the #64 entry-detection matrix
-    matrix = json.load(open("/tmp/opencode/attribution-work/"
-                            "sensitivity-runs.json"))
+    # the entry-detection matrix must reconstruct byte-exactly from
+    # frozen committed inputs (raw #62 traces + corpus + frozen #64
+    # rescore); the committed sensitivity-matrix.json is the derived
+    # evidence artifact this audit consumes — no agent-local inputs
+    import derive_sensitivity
+    matrix, _ = derive_sensitivity.build_matrix()
+    committed = HERE / "sensitivity-matrix.json"
+    if not committed.exists():
+        fail("committed sensitivity-matrix.json missing; run "
+             "derive_sensitivity.py")
+    if derive_sensitivity.canon(matrix) + "\n" != committed.read_text():
+        fail("committed sensitivity-matrix.json does not "
+             "byte-reconstruct from frozen inputs")
     seen = set()
     for d in diags:
         key = (d["profile"], d["fixture"], d["run"])
@@ -226,15 +246,25 @@ def main():
     sens = collections.defaultdict(dict)
     for (prof, fid, diag), n in dd.items():
         sens["{0}/{1}".format(prof, fid)][diag] = n
+    wording = collections.Counter(d["diagnosis"] for d in diags)
     summary["sensitivity_regressions"] = {
         "diagnoses_legend": list(DIAGNOSES),
         "runs_non_detecting": len(diags),
+        "expressed_but_unmatched_by_oracle_wording":
+            wording["expressed-but-not-matched-by-oracle-wording"],
+        "expected_evidence_present_but_missed":
+            wording["expected-evidence-present-but-missed"],
         "by_fixture_profile": {k: dict(v) for k, v in sorted(sens.items())},
         "note": "entry-level: a run fails when ANY expected entry is "
                 "undetected; these diagnostics cover the specific "
                 "undetected entries of #64's floor-violation fixtures "
                 "(M3, M12, M16 both profiles; sonnet M11, sonnet M13)",
     }
+    sr = summary["sensitivity_regressions"]
+    if (sr["expressed_but_unmatched_by_oracle_wording"] +
+            sr["expected_evidence_present_but_missed"]) != len(diags):
+        fail("sensitivity diagnosis counts do not sum to the "
+             "diagnostic total")
 
     (HERE / "failure-attribution-summary.json").write_text(
         json.dumps(summary, indent=1, ensure_ascii=False) + "\n")
@@ -277,24 +307,30 @@ def write_report(summary, ctrl, pos, diags):
     A("- Every distinct finding cluster matched exactly one authored "
       "claim rule (fail-closed: uncovered clusters abort the build; "
       "overlapping patterns resolve first-match-wins, same attribution).")
-    A("- All 331 records carry a known taxonomy bucket; every "
-      "necessary-evidence-absent record names the missing information.")
+    A("- All {0} records carry a known taxonomy bucket; every "
+      "necessary-evidence-absent record names the missing "
+      "information.".format(rc["record_total"]))
     A("- Sensitivity diagnostics cover all {0} non-detecting runs of "
-      "#64's floor-violation fixtures, validated against the frozen "
-      "entry-detection matrix.".format(len(diags)))
+      "#64's floor-violation fixtures, validated against the "
+      "entry-detection matrix, which byte-reconstructs from the frozen "
+      "#62 traces + corpus + #64 rescore (derive_sensitivity.py; "
+      "clean-checkout reproducible, no agent-local inputs).".format(
+          len(diags)))
     A("")
     A("## Layer 2 — observed attribution (descriptive)")
     A("")
     A("### Control false blockers by primary attribution")
     A("")
-    A("| bucket | haiku (91) | | sonnet (139) | |")
+    nh = rc["control_false_blockers"]["haiku"]
+    ns = rc["control_false_blockers"]["sonnet"]
+    A("| bucket | haiku ({0}) | | sonnet ({1}) | |".format(nh, ns))
     A("|---|---|---|---|---|")
     hb = summary["control_side"]["by_attribution_per_profile"]["haiku"]
     sb = summary["control_side"]["by_attribution_per_profile"]["sonnet"]
     for k in sorted(set(hb) | set(sb), key=lambda x: -(hb.get(x, 0) + sb.get(x, 0))):
         A("| {0} | {1} | {2}% | {3} | {4}% |".format(
-            k, hb.get(k, 0), 100 * hb.get(k, 0) // 91,
-            sb.get(k, 0), 100 * sb.get(k, 0) // 139))
+            k, hb.get(k, 0), pct(hb.get(k, 0), nh),
+            sb.get(k, 0), pct(sb.get(k, 0), ns)))
     A("")
     A("### Family x attribution cross-tab (control side; full table in "
       "the summary JSON)")
@@ -332,60 +368,69 @@ def write_report(summary, ctrl, pos, diags):
     sev = ha.get("severity-miscalibration", 0) + sa.get("severity-miscalibration", 0)
     sp = ha.get("speculative-harm-chain", 0) + sa.get("speculative-harm-chain", 0)
     sem = ha.get("external-semantic-knowledge", 0) + sa.get("external-semantic-knowledge", 0)
+    policy = sev + sp
     A("Combined control-side shares: severity-miscalibration {0}% "
       "({1}/{2}), speculative-harm-chain {3}% ({4}), counterevidence-"
       "present {5}% ({6}), necessary-evidence-absent {7}% ({8}), "
       "external-semantic-knowledge {9}% ({10}).".format(
-          100 * sev // tot, sev, tot, 100 * sp // tot, sp,
-          100 * ce // tot, ce, 100 * ab // tot, ab,
-          100 * sem // tot, sem))
+          pct(sev, tot), sev, tot, pct(sp, tot), sp,
+          pct(ce, tot), ce, pct(ab, tot), ab,
+          pct(sem, tot), sem))
     A("")
     A("**Answer to the framing question: Case 5 — mixed, with a clear "
       "center of gravity against pure evidence-absence.** No single "
       "bucket dominates; the two largest (severity-miscalibration and "
-      "speculative-harm-chain, ~48% combined) are decision-policy "
+      "speculative-harm-chain, {0}% combined) are decision-policy "
       "failures — the reviewer converts defensible observations and "
       "hypothetical misuse chains into blocking severity — not evidence "
-      "problems. counterevidence-present (~19%) shows the reviewer "
+      "problems. counterevidence-present ({1}%) shows the reviewer "
       "dismissing guards and contracts printed in its own input "
-      "(reconciliation failures), and necessary-evidence-absent (~18%) "
+      "(reconciliation failures), and necessary-evidence-absent ({2}%) "
       "is real but concentrated in opaque-parameter contracts "
       "(session/repo adapters, called-workflow internals, field "
-      "schemas) rather than broad context starvation.")
+      "schemas) rather than broad context starvation.".format(
+          pct(policy, tot), pct(ce, tot), pct(ab, tot)))
     A("")
     A("**Layer (c) 'evidence representation / context enrichment': NOT "
       "causally justified as the primary iteration-5 direction.** It "
-      "addresses at most the ~18% absent-evidence share, and the "
+      "addresses at most the {0}% absent-evidence share, and the "
       "audit's strict criterion (never counting ignored evidence as "
       "absent) is exactly what keeps that share honest. The "
-      "distribution instead supports hypotheses in this order:")
+      "distribution instead supports hypotheses in this order:".format(
+          pct(ab, tot)))
     A("")
     A("1. **Decision-policy / severity governance**: the largest share "
-      "(~48% with speculative chains) — mechanisms that separate "
+      "({0}% with speculative chains) — mechanisms that separate "
       "observation from blocking justification, enforce "
       "defect-present-vs-hypothetical distinctions, and reserve "
-      "blocking for demonstrated failure paths.")
+      "blocking for demonstrated failure paths.".format(
+          pct(policy, tot)))
     A("2. **Reconciliation of visibly-present counterevidence** "
-      "(~19%): documented contracts and visible guards being argued "
+      "({0}%): documented contracts and visible guards being argued "
       "past rather than with — salience/claim-vs-evidence structure, "
-      "not more context.")
-    A("3. **Contract-completion for opaque parameters** (~18%, mostly "
+      "not more context.".format(pct(ce, tot)))
+    A("3. **Contract-completion for opaque parameters** ({0}%, mostly "
       "sonnet): if pursued, the targeted form is interface-contract "
       "information (adapter/service schemas), not general context "
-      "enrichment.")
+      "enrichment.".format(pct(ab, tot)))
     A("")
+    sr = summary["sensitivity_regressions"]
+    w_n = sr["expressed_but_unmatched_by_oracle_wording"]
+    m_n = sr["expected_evidence_present_but_missed"]
+    d_n = sr["runs_non_detecting"]
     A("**Sensitivity side is a different phenomenon, as required:** "
-      "25 of 38 non-detecting runs are `expressed-but-not-matched-by-"
-      "oracle-wording` — the model substantively stated the defect but "
-      "not in the frozen repair-4 vocabulary (exact bigrams like "
-      "'filesystem metadata', 'indistinguishable from a successful', "
-      "'{\"ok\"}', 'suppress/exit code'). This is an **oracle-vocabulary "
-      "rigidity observation reported for maintainer review, not "
-      "patched here** (frozen-matchers rule); it confounds floor "
-      "comparisons to an unquantified degree. The remaining runs are "
-      "attention failures (sonnet M13: security chains consumed the "
-      "budget; the missing tag input was never noticed — salience, "
-      "evidence present).")
+      "{0} of {1} non-detecting runs are `expressed-but-not-matched-by-"
+      "oracle-wording` ({2}%) — the model substantively stated the "
+      "defect but not in the frozen repair-4 vocabulary (exact bigrams "
+      "like 'filesystem metadata', 'indistinguishable from a "
+      "successful', '{{\"ok\"}}', 'suppress/exit code'). This is an "
+      "**oracle-vocabulary rigidity observation reported for "
+      "maintainer review, not patched here** (frozen-matchers rule); "
+      "it confounds floor comparisons to an unquantified degree. The "
+      "remaining {3} runs are attention failures (sonnet M13: security "
+      "chains consumed the budget; the missing tag input was never "
+      "noticed — salience, evidence present).".format(
+          w_n, d_n, pct(w_n, d_n), m_n))
     A("")
     A("**Methodological limits:** attributions are single-auditor human "
       "judgment with recorded rationale and evidence pointers (reviewable, "
@@ -394,6 +439,15 @@ def write_report(summary, ctrl, pos, diags):
       "variance estimate); nothing here reinterprets #64 as binding "
       "T1.2 evidence, and the sensitivity floors remain the frozen "
       "normative reference.")
+    A("")
+    A("Reproduce from a clean checkout (no agent-local inputs, zero "
+      "model calls):")
+    A("")
+    A("```")
+    A("python3 derive_population.py          # frozen #62 traces + #64 mapping")
+    A("python3 derive_sensitivity.py --check # matrix byte-reconstructs")
+    A("python3 build_summary.py              # re-derives matrix, fail-closed")
+    A("```")
     A("")
     (HERE / "FAILURE-ATTRIBUTION.md").write_text("\n".join(L) + "\n")
 

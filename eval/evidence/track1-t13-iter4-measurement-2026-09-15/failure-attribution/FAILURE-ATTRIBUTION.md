@@ -10,7 +10,7 @@ Attributions are **human judgment** (claim table `claims.py`, sensitivity layer 
 - Positive-side contamination: 101 records; by-family totals reconcile to #64 (see summary JSON).
 - Every distinct finding cluster matched exactly one authored claim rule (fail-closed: uncovered clusters abort the build; overlapping patterns resolve first-match-wins, same attribution).
 - All 331 records carry a known taxonomy bucket; every necessary-evidence-absent record names the missing information.
-- Sensitivity diagnostics cover all 38 non-detecting runs of #64's floor-violation fixtures, validated against the frozen entry-detection matrix.
+- Sensitivity diagnostics cover all 38 non-detecting runs of #64's floor-violation fixtures, validated against the entry-detection matrix, which byte-reconstructs from the frozen #62 traces + corpus + #64 rescore (derive_sensitivity.py; clean-checkout reproducible, no agent-local inputs).
 
 ## Layer 2 — observed attribution (descriptive)
 
@@ -20,9 +20,9 @@ Attributions are **human judgment** (claim table `claims.py`, sensitivity layer 
 |---|---|---|---|---|
 | severity-miscalibration | 25 | 27% | 32 | 23% |
 | speculative-harm-chain | 14 | 15% | 38 | 27% |
-| counterevidence-present | 21 | 23% | 23 | 16% |
-| necessary-evidence-absent | 8 | 8% | 34 | 24% |
-| external-semantic-knowledge | 23 | 25% | 12 | 8% |
+| counterevidence-present | 21 | 23% | 23 | 17% |
+| necessary-evidence-absent | 8 | 9% | 34 | 24% |
+| external-semantic-knowledge | 23 | 25% | 12 | 9% |
 
 ### Family x attribution cross-tab (control side; full table in the summary JSON)
 
@@ -59,17 +59,25 @@ Legend: expected-evidence-present-but-missed; expected-evidence-absent-insuffici
 
 ## Layer 3 — design implications (hypotheses, not conclusions)
 
-Combined control-side shares: severity-miscalibration 24% (57/230), speculative-harm-chain 22% (52), counterevidence-present 19% (44), necessary-evidence-absent 18% (42), external-semantic-knowledge 15% (35).
+Combined control-side shares: severity-miscalibration 25% (57/230), speculative-harm-chain 23% (52), counterevidence-present 19% (44), necessary-evidence-absent 18% (42), external-semantic-knowledge 15% (35).
 
-**Answer to the framing question: Case 5 — mixed, with a clear center of gravity against pure evidence-absence.** No single bucket dominates; the two largest (severity-miscalibration and speculative-harm-chain, ~48% combined) are decision-policy failures — the reviewer converts defensible observations and hypothetical misuse chains into blocking severity — not evidence problems. counterevidence-present (~19%) shows the reviewer dismissing guards and contracts printed in its own input (reconciliation failures), and necessary-evidence-absent (~18%) is real but concentrated in opaque-parameter contracts (session/repo adapters, called-workflow internals, field schemas) rather than broad context starvation.
+**Answer to the framing question: Case 5 — mixed, with a clear center of gravity against pure evidence-absence.** No single bucket dominates; the two largest (severity-miscalibration and speculative-harm-chain, 47% combined) are decision-policy failures — the reviewer converts defensible observations and hypothetical misuse chains into blocking severity — not evidence problems. counterevidence-present (19%) shows the reviewer dismissing guards and contracts printed in its own input (reconciliation failures), and necessary-evidence-absent (18%) is real but concentrated in opaque-parameter contracts (session/repo adapters, called-workflow internals, field schemas) rather than broad context starvation.
 
-**Layer (c) 'evidence representation / context enrichment': NOT causally justified as the primary iteration-5 direction.** It addresses at most the ~18% absent-evidence share, and the audit's strict criterion (never counting ignored evidence as absent) is exactly what keeps that share honest. The distribution instead supports hypotheses in this order:
+**Layer (c) 'evidence representation / context enrichment': NOT causally justified as the primary iteration-5 direction.** It addresses at most the 18% absent-evidence share, and the audit's strict criterion (never counting ignored evidence as absent) is exactly what keeps that share honest. The distribution instead supports hypotheses in this order:
 
-1. **Decision-policy / severity governance**: the largest share (~48% with speculative chains) — mechanisms that separate observation from blocking justification, enforce defect-present-vs-hypothetical distinctions, and reserve blocking for demonstrated failure paths.
-2. **Reconciliation of visibly-present counterevidence** (~19%): documented contracts and visible guards being argued past rather than with — salience/claim-vs-evidence structure, not more context.
-3. **Contract-completion for opaque parameters** (~18%, mostly sonnet): if pursued, the targeted form is interface-contract information (adapter/service schemas), not general context enrichment.
+1. **Decision-policy / severity governance**: the largest share (47% with speculative chains) — mechanisms that separate observation from blocking justification, enforce defect-present-vs-hypothetical distinctions, and reserve blocking for demonstrated failure paths.
+2. **Reconciliation of visibly-present counterevidence** (19%): documented contracts and visible guards being argued past rather than with — salience/claim-vs-evidence structure, not more context.
+3. **Contract-completion for opaque parameters** (18%, mostly sonnet): if pursued, the targeted form is interface-contract information (adapter/service schemas), not general context enrichment.
 
-**Sensitivity side is a different phenomenon, as required:** 25 of 38 non-detecting runs are `expressed-but-not-matched-by-oracle-wording` — the model substantively stated the defect but not in the frozen repair-4 vocabulary (exact bigrams like 'filesystem metadata', 'indistinguishable from a successful', '{"ok"}', 'suppress/exit code'). This is an **oracle-vocabulary rigidity observation reported for maintainer review, not patched here** (frozen-matchers rule); it confounds floor comparisons to an unquantified degree. The remaining runs are attention failures (sonnet M13: security chains consumed the budget; the missing tag input was never noticed — salience, evidence present).
+**Sensitivity side is a different phenomenon, as required:** 22 of 38 non-detecting runs are `expressed-but-not-matched-by-oracle-wording` (58%) — the model substantively stated the defect but not in the frozen repair-4 vocabulary (exact bigrams like 'filesystem metadata', 'indistinguishable from a successful', '{"ok"}', 'suppress/exit code'). This is an **oracle-vocabulary rigidity observation reported for maintainer review, not patched here** (frozen-matchers rule); it confounds floor comparisons to an unquantified degree. The remaining 16 runs are attention failures (sonnet M13: security chains consumed the budget; the missing tag input was never noticed — salience, evidence present).
 
 **Methodological limits:** attributions are single-auditor human judgment with recorded rationale and evidence pointers (reviewable, not algorithmic truth); findings are treated as primary-bucket exclusive by design; #64 is a single diagnostic sample (no variance estimate); nothing here reinterprets #64 as binding T1.2 evidence, and the sensitivity floors remain the frozen normative reference.
+
+Reproduce from a clean checkout (no agent-local inputs, zero model calls):
+
+```
+python3 derive_population.py          # frozen #62 traces + #64 mapping
+python3 derive_sensitivity.py --check # matrix byte-reconstructs
+python3 build_summary.py              # re-derives matrix, fail-closed
+```
 

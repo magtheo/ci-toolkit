@@ -227,6 +227,8 @@
    "other-ambiguous"
   ],
   "runs_non_detecting": 38,
+  "expressed_but_unmatched_by_oracle_wording": 22,
+  "expected_evidence_present_but_missed": 16,
   "by_fixture_profile": {
    "haiku/M12": {
     "expected-evidence-present-but-missed": 4,

@@ -597,8 +597,10 @@ necessary-evidence-absent concentrates in opaque-parameter contracts
 schemas). Layer (c) context enrichment is NOT the primary justified
 iteration-5 direction on this evidence.
 
-Sensitivity side: 25/38 non-detecting runs are
-expressed-but-not-matched-by-oracle-wording — the defect was stated
+Sensitivity side: 22/38 non-detecting runs are
+expressed-but-not-matched-by-oracle-wording (58%; mechanically
+computed from the diagnostics, corrected from the initially
+transcribed 25/38) — the defect was stated
 in non-frozen vocabulary (repair-4 exact bigrams). Reported as an
 oracle-vocabulary-rigidity observation for maintainer review; NOT
 patched (frozen-matchers rule). Remainder: attention/salience
