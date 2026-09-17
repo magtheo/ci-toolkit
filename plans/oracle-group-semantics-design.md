@@ -1,10 +1,15 @@
 # Oracle repair design — explicit semantic-group matching
 
-Status: PROPOSAL (rev 1) — eval semantics only; reviewer untouched;
-zero model calls. Follows the human-directed oracle-validity audit
-(#66, head `eb023bf`) and the failure-attribution audit (#65). This
-document is the design for the next oracle-repair phase; it patches
-nothing itself.
+Status: PROPOSAL (rev 2, after human review of rev 1) — eval
+semantics only; reviewer untouched; zero model calls. Follows the
+human-directed oracle-validity audit (#66, head `eb023bf`) and the
+failure-attribution audit (#65). This document is the design for the
+next oracle-repair phase; it patches nothing itself.
+
+Rev 2 corrections: controls migrate to **zero groups** (rev 1's
+"all others → 1×1" wrongly manufactured a positive expectation inside
+clean controls), with explicit loader invariants and pinned
+control-semantics tests; acceptance bar extended accordingly.
 
 ## 0. Problem statement (established by #66)
 
@@ -72,19 +77,29 @@ Semantics, precisely:
   blocking finding matching **any accepted alternative in any group**
   is expected, not a false blocker. Today's per-finding union
   semantics is preserved bit-for-bit.
+- **Controls have zero groups — no synthetic expectation:** a control
+  fixture carries `groups: []`. There is no defect the reviewer is
+  expected to detect; the assessment must remain CLEAR; **any
+  blocking finding on a `groups: []` control remains a false
+  blocker**. A dummy 1×1 group would manufacture a positive
+  expectation inside a clean control and change control semantics —
+  prohibited.
 
-Concrete migration of the five multi-entry positives:
+Migration cardinality (all 36 fixtures accounted for):
+
+| Fixture class | New representation |
+|---|---|
+| 18 controls (C1–C18) | **0 groups** (`groups: []`) |
+| M2 | **2 groups × 1 alternative** |
+| M3, M11, M12, M16 | **1 group × 2 alternatives** |
+| remaining 13 positives | **1 group × 1 alternative** (scoring identical to today, by construction) |
+
+Loader invariants (fail-closed, explicit):
 
 ```text
-M2:  group(trigger defect) AND group(floating-ref defect)     — 2 groups
-M3:  group(mtime/contract  OR  filesystem-metadata/parse-date) — 1 group
-M11: group(status/hardcoded OR status-less suppression)        — 1 group
-M12: group(mask/raise      OR  stale-without-distinguishing)   — 1 group
-M16: group(false-success   OR  returned-on-failure {"ok})      — 1 group
+positive fixture: groups must be non-empty
+control fixture:  groups must be exactly []
 ```
-
-Every single-entry fixture migrates to **1 group × 1 alternative**
-(scoring identical to today, by construction).
 
 ### 1.2 Explicit migration — no heuristics
 
@@ -95,7 +110,8 @@ migration script (one commit, all 36 fixtures):
   needles (`severity`, `comment_all`, `comment_any`) are
   **byte-identical** — only structure changes;
 - the mapping is asserted against the #66 semantic-unit table
-  (M2 → 2 groups; M3/M11/M12/M16 → 1 group of 2; all others → 1×1)
+  (18 controls → `groups: []`; M2 → 2 groups × 1; M3/M11/M12/M16 →
+  1 group × 2; remaining 13 positives → 1 × 1)
   and the build fails closed on any deviation;
 - the loader (`load_corpus`) accepts **only** the new schema — old
   flat form is a load error, preventing silent mixed states;
@@ -148,19 +164,27 @@ every item demonstrates green:
    (deterministic test with synthetic ablations).
 3. **M3/M11/M12/M16 alternatives**: each phrasing extension is
    accepted as an alternative of its group (deterministic tests).
-4. **#62 pass-1 rescore**: haiku 51/90, sonnet 65/90.
-5. **Residual floor violations**: only sonnet M13 (0 < 1).
-6. **#62 REVERT stands**: verdict artifacts untouched; no criterion
+4. **Control semantics pinned** (the clean-control contract, made
+   hard to weaken):
+   - `CLEAR` + `groups: []` + no blocker **passes**;
+   - any blocking finding on a `groups: []` control **remains a
+     false blocker**;
+   - the loader **rejects** a control fixture containing any
+     semantic group;
+   - the loader **rejects** a positive fixture with zero groups.
+5. **#62 pass-1 rescore**: haiku 51/90, sonnet 65/90.
+6. **Residual floor violations**: only sonnet M13 (0 < 1).
+7. **#62 REVERT stands**: verdict artifacts untouched; no criterion
    re-evaluation in this repair.
-7. **Control FB and attribution totals unchanged**: C7/control-FB
+8. **Control FB and attribution totals unchanged**: C7/control-FB
    story untouched; the #65 population derivation re-reconciles
    91/139 + family totals against the migrated corpus.
-8. **oracle_version changes; frozen floor values do not.**
-9. **Witness soundness holds** (the false-acceptance guard): #35 →
-   16 genuine accepted / 11 negatives rejected; #36 → 214 matched
-   (211 expected-expression + 3 adjudicated), 324/324 false blockers
-   rejected; #40 replay parity (197 matched; 272/273 FBs rejected).
-10. **Old evidence immutable**: no frozen bundle or floor value
+9. **oracle_version changes; frozen floor values do not.**
+10. **Witness soundness holds** (the false-acceptance guard): #35 →
+    16 genuine accepted / 11 negatives rejected; #36 → 214 matched
+    (211 expected-expression + 3 adjudicated), 324/324 false blockers
+    rejected; #40 replay parity (197 matched; 272/273 FBs rejected).
+11. **Old evidence immutable**: no frozen bundle or floor value
     modified; git history is the proof; state-log records, never
     rewrites.
 
