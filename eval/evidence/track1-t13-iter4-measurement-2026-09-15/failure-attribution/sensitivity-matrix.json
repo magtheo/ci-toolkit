@@ -1,0 +1,1005 @@
+{
+ "haiku/M12": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [],
+    "comment_any": [
+     "mask",
+     "swallow",
+     "{}",
+     "KeyError",
+     "silently",
+     "docstring",
+     "instead of raising",
+     "empty dict",
+     "contradicts the",
+     "returns {}",
+     "masks"
+    ]
+   },
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "stale"
+    ],
+    "comment_any": [
+     "without distinguishing",
+     "different failure mode"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "session.get(CONFIG_URL) is awaited but will not raise OriginError on network/5xx failures — the exception type is defined but never actually raised by the code. The try-except catches OriginError that will never occur, masking the real failure mode. The docstring promises 'on origin failure serve last-good cached config' but the mechanism to detect origin failure is missing.",
+     "The fallback returns an empty dict `{}` when cache miss occurs, but the docstring explicitly states 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve.' This violates the stated contract: a fresh failure with no cached config should raise, not return `{}`.",
+     "The global `_cache` dict is mutated without synchronization in an async function. Multiple concurrent calls to load_config() can race on the `_cache[\"last_good\"] = cfg` write, leading to lost updates or inconsistent state. This is a concurrency bug.",
+     "The except clause catches OriginError and ParseError, but OriginError is never raised by the code path — only ParseError can be raised by _decode(). The exception handling is incomplete: actual HTTP/network errors from session.get() are not caught and will propagate uncaught."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "session.get(CONFIG_URL) is awaited but the return value is treated as raw string/bytes. HTTP session.get() typically returns a Response object, not raw content. This will pass a Response object to json.loads(), causing a TypeError that is not caught by the except clause, leading to an unhandled exception instead of graceful fallback.",
+     "The except clause catches (OriginError, ParseError) but OriginError is never raised in this function. The session.get() call will raise a different exception type (e.g., aiohttp.ClientError, asyncio.TimeoutError, or others) on network failure. These will not be caught, causing the function to crash instead of falling back to cached config. The docstring promises fallback on 'origin failure' but the implementation does not deliver it.",
+     "The docstring states 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve.' However, line 33 returns an empty dict {} instead of raising. This directly contradicts the stated contract and silently masks origin errors on first failure, violating the resilience design.",
+     "Global mutable _cache dict is not thread-safe or async-safe. Concurrent calls to load_config() could race on cache reads/writes. Consider using asyncio.Lock or a thread-safe structure if concurrent access is expected.",
+     "No tests are visible in this diff. New resilience logic (fallback on failure, cache behavior, error contract) requires test coverage to verify the stated behavior actually works."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Exception handler catches both OriginError and ParseError identically, returning cached config for both. Per the docstring, a fresh origin error with empty cache should raise, not silently return {}. The current code violates the stated resilience contract by masking origin failures when no cache exists.",
+     "session.get(CONFIG_URL) is awaited but the return value is treated as raw JSON string. No HTTP status code check occurs. A 5xx response or network timeout will not raise OriginError as intended — the code assumes session.get() raises on failure, which is not standard behavior for aiohttp or similar libraries. This breaks the error classification logic.",
+     "Docstring states 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve.' But line 32 returns {} (empty dict) when cache is empty, contradicting the contract. This silently masks a fresh origin failure instead of raising.",
+     "No test coverage visible for the new module. Core behaviors (cache hit, cache miss with origin error, parse error fallback, empty cache exception) are untested. The fallback logic is resilience-critical and must have explicit test cases."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "OriginError is caught but never raised anywhere in this code. The `session.get()` call will not raise OriginError on network or 5xx failures — it will raise a different exception (likely aiohttp.ClientError or similar). This means the except clause never actually catches OriginError, making it dead code and breaking the stated resilience contract.",
+     "The docstring states 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve.' However, the code returns an empty dict `{}` when cache is empty, silently masking the error. This directly contradicts the stated contract and will cause downstream code to operate on invalid/empty config without warning.",
+     "ParseError is caught but the code does not distinguish between a parse error (which should probably be fatal or logged) and an origin error (which should trigger fallback). Silently falling back to cache on a parse error masks data corruption or a compromised origin returning garbage. The resilience contract should only apply to transient origin failures, not to malformed payloads.",
+     "No test coverage provided for the new module. Core behavior (fallback on origin error, raising when cache empty, cache update on success) must be tested to prevent regressions."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Exception handler catches (OriginError, ParseError) but the docstring at line 25-26 claims 'a fresh origin error must not be silently masked when there is nothing valid to serve' — yet that is exactly what happens here. When cache is empty and origin fails, the function returns {} instead of raising. This violates the stated resilience contract and masks real failures.",
+     "session.get(CONFIG_URL) is called but never checked for HTTP status. A 500 error response will not raise OriginError — it will return a response object that json.loads() will fail on, caught as ParseError instead. This conflates network/server failures with malformed payloads, breaking error semantics.",
+     "New file has no test coverage. Core resilience logic (fallback on failure, cache behavior, empty-cache raise contract) must be tested to prevent regressions.",
+     "Unclear whether session.get() returns raw text or a response object. If it returns a response, line 28 passes a response object to _decode() which expects a string, causing a silent failure. Needs clarification or explicit .text() / .content call."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   }
+  ]
+ },
+ "haiku/M16": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [],
+    "comment_any": [
+     "swallow",
+     "silently",
+     "ignor",
+     "fabricat",
+     "false success",
+     "fake success",
+     "misleading",
+     "mask",
+     "returns {",
+     "falsely claiming success",
+     "no labels were actually updated",
+     "indistinguishable from a successful"
+    ]
+   },
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "{\"ok\""
+    ],
+    "comment_any": [
+     "returned when an exception",
+     "even when the put request failed",
+     "not when the sync succeed"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Bare `except Exception: pass` swallows all errors (network failures, auth errors, malformed responses) without logging or signaling failure to the caller. The function then returns a fake success dict, making the caller believe labels were synced when they were not. This violates the contract implied by the return value and breaks observability.",
+     "URL construction using `.format(repo)` is unsafe if `repo` is untrusted or user-controlled. If `repo` contains special characters or is malformed, it could construct an invalid or unintended URL. No validation of the `repo` parameter is performed.",
+     "The fallback return value `{\"ok\": True, \"updated\": len(LABELS)}` is misleading: it claims success and reports labels were updated when the actual HTTP request failed. This creates a false positive that will mask sync failures in monitoring or logs."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The PUT request is made but its response is not validated. If the request fails (4xx/5xx status), the exception handler catches it and returns a fake success response, masking the actual failure. The caller cannot distinguish between a successful sync and a failed one.",
+     "Bare `except Exception` swallows all errors including network timeouts, malformed responses, and unexpected exceptions. This makes debugging impossible and hides real problems. The function should either let exceptions propagate or catch only specific, expected exceptions.",
+     "The fallback return value `{\"ok\": True, \"updated\": len(LABELS)}` is returned after any exception, claiming success when the sync actually failed. This is a correctness bug: callers will believe labels were synced when they were not. The comment acknowledges this is intentional ('best-effort'), but returning false success is worse than propagating the error or returning an explicit failure marker.",
+     "The `repo` parameter is used directly in a format string without validation. If `repo` is untrusted or malformed, it could construct an unintended URL. Verify that `repo` is always a valid, trusted URL base before use."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The PUT request result is returned directly without validation. If the API call fails (non-2xx status, malformed response, network error), the caller receives an unvalidated response object instead of a dict. The try-except on line 9 only catches exceptions, not HTTP error statuses, so a 400/500 response will be returned as-is and misinterpreted by callers expecting the fallback dict structure.",
+     "Bare `except Exception: pass` silently swallows all errors (network failures, auth errors, malformed responses, timeouts) without logging or reporting. Callers cannot distinguish between a successful sync and a complete failure. The fallback dict on line 12 claims success (`\"ok\": True`) even when the sync failed, making the failure invisible to monitoring.",
+     "The fallback return value `{\"ok\": True, \"updated\": len(LABELS)}` is returned after any exception, falsely reporting success. This masks sync failures and will cause the caller to believe labels were updated when they were not. The `\"updated\"` field is also misleading—it reports the count of labels in the constant, not the count actually synced.",
+     "The repo URL is constructed with string formatting but no validation. If `repo` is None, empty, or malformed, the request will fail silently. Consider validating the repo parameter or letting the exception propagate with context."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The PUT request result is returned but never checked for success. If the API call fails (4xx/5xx status), the response object is still returned, and the caller cannot distinguish between success and failure. The exception handler then masks all errors by returning a fake success dict.",
+     "Bare `except Exception` swallows all errors (network failures, timeouts, malformed responses, etc.) and silently returns a fabricated success response. This makes debugging impossible and hides real failures from the caller. The comment acknowledges this is intentional but does not justify masking all errors.",
+     "The fallback return value `{\"ok\": True, \"updated\": len(LABELS)}` is fabricated and returned on any exception, misleading the caller into believing the sync succeeded when it may have failed entirely. This violates the principle of honest error reporting and makes the 'best-effort' claim unverifiable."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Bare `except Exception: pass` swallows all errors silently, including network failures, auth errors, and API errors. Caller cannot distinguish success from failure — the function always returns a truthy dict. This defeats the purpose of 'best-effort' sync, which should at least log or signal partial failure.",
+     "Returns `{\"ok\": True, \"updated\": len(LABELS)}` on exception, which is a lie — no labels were actually updated. Caller will believe sync succeeded when it failed. This is a correctness bug that will mask real failures in production.",
+     "No test coverage for this new core behavior. The PR adds a function that touches external state (repo labels) but provides no tests to verify it works, handles errors, or returns the expected shape. At minimum, tests should cover: successful sync, network failure, auth failure, and the return value shape.",
+     "The `session.put()` call ignores the response status. If the API returns 4xx/5xx, the exception is not raised by requests (only network errors are), so the error silently succeeds. Should check `response.raise_for_status()` or inspect the status code."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   }
+  ]
+ },
+ "haiku/M3": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "mtime"
+    ],
+    "comment_any": [
+     "contract",
+     "document",
+     "comment",
+     "invariant",
+     "date"
+    ]
+   },
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "filesystem metadata"
+    ],
+    "comment_any": [
+     "parse",
+     "date"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The script uses `find ... -mtime -30` to check file modification time, but the comment on lines 2-3 explicitly states the guard should judge freshness from 'the PARSED DATE' in the ROADMAP file (the 'Last reviewed:' field). A file's mtime reflects when it was last edited on disk, not when the roadmap was last reviewed according to its content. This means a ROADMAP edited yesterday but containing a 'Last reviewed: 2024-01-01' entry will incorrectly pass as OK, defeating the anti-rot guard's purpose.",
+     "The condition logic is inverted relative to the output. `find ... -mtime -30` returns files modified in the last 30 days (newer than 30 days old). When this matches (grep -q succeeds), the script outputs 'OK', which is correct. However, if the file does not exist or the find returns nothing, grep fails silently and the script outputs 'STALE'. If a repo has no ROADMAP.md file at all, it will be flagged as STALE rather than skipped or reported as missing, which may be unintended."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Logic error: the comment states the script should flag repositories whose ROADMAP 'Last reviewed:' date is OLDER than 30 days, parsed from the file content. However, the implementation uses `find ... -mtime -30` which checks the file's modification time (not parsed content) and returns files modified in the LAST 30 days. The grep -q then echoes 'OK' for fresh files and 'STALE' for old ones, which is correct behavior, but the implementation contradicts the stated contract: it does not parse the 'Last reviewed:' date from the ROADMAP content at all—it only checks filesystem mtime. If a file was reviewed yesterday but has an old 'Last reviewed:' date in its content, it will incorrectly report 'OK'. If a file has a recent 'Last reviewed:' date but old mtime, it will incorrectly report 'STALE'.",
+     "No tests are included for this new script. Core behavior (freshness detection, output format, edge cases like missing ROADMAP files or malformed dates) should be covered by tests to prevent regressions."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The script uses `find ... -mtime -30` to check file modification time, but the comment on lines 2-3 explicitly states the guard should flag repositories based on the PARSED DATE from the 'Last reviewed:' field in ROADMAP.md content, not filesystem mtime. A repo reviewed yesterday but with a ROADMAP dated last month will not be flagged as intended. This is a correctness failure — the implementation contradicts its own contract.",
+     "The logic is inverted: `find ... -mtime -30` returns files modified in the last 30 days. When grep finds a match (exit 0), the script echoes 'OK', meaning files modified recently are marked OK. However, if no files match (grep exit 1), it echoes 'STALE'. This is correct for mtime, but combined with the parsing bug above, it means the script will never actually detect stale ROADMAP content as intended."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The script uses `find ... -mtime -30` to check file modification time, but the documented contract (lines 2-3) requires checking the PARSED DATE from the 'Last reviewed:' field inside ROADMAP.md. A repository reviewed yesterday but with a ROADMAP dated last month will not be flagged as STALE, violating the stated behavior. The comment explicitly says 'judged from the PARSED DATE (so a repo reviewed yesterday but dated last month is still flagged)' — this implementation does the opposite.",
+     "No test coverage is visible for this new script. Given that it implements a guard with specific date-parsing logic, tests should verify: (1) correct parsing of 'Last reviewed:' dates in various formats, (2) correct freshness calculation (exactly 30 days, boundary cases), (3) handling of missing or malformed dates, (4) behavior when ROADMAP.md does not exist."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Logic error: the comment states the script flags repositories whose ROADMAP 'Last reviewed:' date is OLDER than 30 days, but the code checks file modification time with `-mtime -30` (files modified in the last 30 days). This is inverted: the condition `find ... -mtime -30 | grep -q .` returns true for FRESH files (modified within 30 days), then echoes 'OK', and echoes 'STALE' for old files. However, the comment also claims to parse a date from the ROADMAP content ('PARSED DATE'), but the code only checks filesystem mtime, not the content. The script does not implement the stated contract at all.",
+     "The script silently skips repositories without a ROADMAP.md file (no output, no error). Depending on the intended use (CI gate, audit tool), this may mask missing files. Consider whether absence should be flagged or logged."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   }
+  ]
+ },
+ "sonnet/M11": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "status"
+    ],
+    "comment_any": [
+     "always",
+     "hardcoded",
+     "never",
+     "ignored",
+     "swallow",
+     "|| true"
+    ]
+   },
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "|| true"
+    ],
+    "comment_any": [
+     "suppress",
+     "exit code"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The prisma migrate status command result is discarded by '|| true', and the exit code is never captured to update the $status variable. This means the script will always report status as 'ok' even when migrations are pending or failed, defeating the purpose of checking migration state.",
+     "The status variable is hardcoded to 'ok' and never modified, making the JSON output constant and useless for pipeline composition. The script claims to report migration state but provides no actual state information."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": true
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The migration check result is discarded by `|| true` and never captured. The script will always report status='ok' even when migrations are pending or failed, defeating its purpose of wrapping migrate status for the pipeline.",
+     "The status variable is hardcoded to 'ok' and never updated based on the migration check outcome. This makes the JSON output meaningless as it will always be {\"status\":\"ok\"} regardless of actual migration state."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The migration status check result is discarded by `|| true` and never captured. The `status` variable remains hardcoded to 'ok' regardless of whether migrations are pending, failed, or successful. This breaks the contract stated in the PR description ('report migration state') and the script's own comment ('report the outcome as JSON').",
+     "Hardcoded status='ok' means the script will always report success, making it useless as a migration state checker. The variable should be set based on the actual command result."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The migration check result is discarded by `|| true` and never captured. The script will always report status='ok' even when migrations are pending or failed, making it useless for detecting migration state.",
+     "The status variable is hardcoded to 'ok' and never updated based on the actual migration check, contradicting the PR's stated purpose of reporting migration state."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "The migrate status command output is discarded and its exit code is suppressed with '|| true', but the status variable is never updated based on the result. This means the script will always report '{\"status\":\"ok\"}' even when migrations are pending or failed.",
+     "The status variable is hardcoded to 'ok' and never modified, making the entire check meaningless. The script claims to report migration state but provides no actual information about whether migrations are applied, pending, or in error."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": true
+     }
+    ]
+   }
+  ]
+ },
+ "sonnet/M12": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [],
+    "comment_any": [
+     "mask",
+     "swallow",
+     "{}",
+     "KeyError",
+     "silently",
+     "docstring",
+     "instead of raising",
+     "empty dict",
+     "contradicts the",
+     "returns {}",
+     "masks"
+    ]
+   },
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "stale"
+    ],
+    "comment_any": [
+     "without distinguishing",
+     "different failure mode"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Contract violation: docstring promises 'An empty cache raises' but code returns {} instead. On fresh origin failure with empty cache, this silently provides an empty config rather than propagating the error, creating a dangerous silent-failure mode where the application continues with no configuration.",
+     "session.get() is assumed to raise OriginError on network/5xx failures, but this is never validated. If session.get() returns error status codes as values or raises different exceptions (standard aiohttp raises ClientError, not OriginError), those errors will not be caught and the cache will not be used.",
+     "Catching ParseError in the same handler as OriginError means a malformed response from origin will serve stale cached config. This masks data corruption or API contract breaks — parse errors should fail loudly, not fall back silently.",
+     "Module-level mutable dict as cache creates shared state across all callers with no synchronization. In async context with concurrent load_config() calls, race conditions can occur: multiple coroutines may fetch simultaneously, last write wins unpredictably, and cache updates are not atomic.",
+     "No validation that cfg is a dict or has expected structure before caching. If origin returns valid JSON that is not a dict (e.g., list, null, string), it will be cached and returned, potentially breaking callers that expect dict-like config."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Contract violation: lines 24-25 state 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve', but line 32 returns {} (empty dict) when cache is empty instead of raising. This silently masks fresh origin failures, exactly what the contract forbids.",
+     "Incomplete error handling: session.get() can raise network errors, timeouts, or HTTP errors beyond what OriginError covers. These exceptions will propagate uncaught instead of triggering fallback. The except clause on line 31 only catches OriginError and ParseError, but line 28 can raise arbitrary exceptions from the session layer.",
+     "Security/correctness: returning a mutable dict reference from the cache allows callers to corrupt the cached config. If caller modifies the returned dict, _cache['last_good'] is also modified, breaking future fallbacks. Should return a deep copy or immutable structure.",
+     "Cache corruption risk: storing cfg directly in _cache without validation means a successfully parsed but semantically invalid config (e.g., missing required keys) becomes the 'last_good' config. The cache update happens before any validation of the config structure.",
+     "Module-level mutable state (_cache) makes testing difficult and creates implicit global coupling. Consider dependency injection or explicit cache parameter to enable isolated testing and concurrent usage patterns."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "session.get() is called but never wrapped in error handling to raise OriginError on network failures or 5xx responses. The except block on line 32 catches OriginError, but nothing in this code ever raises it — network errors from session.get() will propagate uncaught, breaking the resilience contract.",
+     "Contract violation: the docstring (lines 23-26) explicitly states 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve', but this line returns an empty dict {} when cache is empty, silently masking the error. This should raise when last_good is absent.",
+     "Catching ParseError here means a malformed config from origin will serve stale cached data instead of failing fast. If the origin is up but returning garbage, callers get silently served old config with no indication the origin is broken — this masks a different class of failure than network outages.",
+     "No validation that cfg is a dict or has expected structure before caching. If _decode returns a valid JSON primitive (string, number, null, array), it gets cached and returned, potentially breaking callers that expect dict-like config.",
+     "Module-level mutable _cache makes testing difficult (state persists across tests) and prevents per-instance configuration in multi-tenant scenarios. Consider instance-based caching or explicit cache management."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "session.get(CONFIG_URL) will not raise OriginError on network failures or 5xx responses — it likely raises library-specific exceptions (aiohttp.ClientError, httpx.RequestError, etc.). OriginError is never raised, so the except block on line 32 cannot catch origin failures as intended.",
+     "Contradicts the documented contract on lines 24-26. The contract states 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve', but this line returns {} (empty dict) when cache is empty, silently masking the failure instead of raising.",
+     "Missing validation that session.get returned a successful status code. A 4xx/5xx response body would be passed to _decode, likely causing ParseError instead of OriginError, misclassifying the failure type.",
+     "Module-level mutable _cache dict creates shared state across all callers. In concurrent scenarios (multiple async tasks calling load_config), this could lead to race conditions where one task's cache write affects another's read. Consider thread-safe caching or per-session state.",
+     "Catching ParseError in the fallback path means a malformed response from origin will silently serve stale config. This masks data corruption issues — ParseError should likely propagate or be handled separately from OriginError."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "session.get() is not defined to raise OriginError. The except block on line 32 will never catch origin failures because the actual HTTP library exceptions (network errors, 5xx responses) are not being caught or translated to OriginError. The fallback mechanism is unreachable.",
+     "Contract violation: the docstring explicitly states 'An empty cache raises — a fresh origin error must not be silently masked when there is nothing valid to serve', but this line returns an empty dict {} when cache is empty instead of raising. This silently masks origin failures on cold start, contradicting the stated resilience contract.",
+     "Missing error handling: session.get() can fail in multiple ways (network timeout, DNS failure, connection refused, HTTP 5xx) but none are handled. The code needs to catch the actual exceptions from the HTTP library and translate them to OriginError, or the fallback will never trigger.",
+     "Missing tests: this PR adds a new file with critical fallback logic but includes no tests. The fallback behavior (cache hit vs miss), error translation, and contract enforcement all need test coverage before merge.",
+     "The except clause catches ParseError but then returns cached config or empty dict. If the origin returns malformed JSON, this silently serves stale data without logging or alerting. Consider whether parse errors should be treated differently from network errors (e.g., fail fast rather than serve stale)."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   }
+  ]
+ },
+ "sonnet/M13": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "pin"
+    ],
+    "comment_any": [
+     "floating",
+     "tag",
+     "SHA",
+     "immutable",
+     "v4"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Security: pull_request_target runs in the context of the base repository with write permissions, even for PRs from forks. This allows an attacker to submit a PR that modifies .github/workflows/publish.yml itself to exfiltrate REGISTRY_TOKEN or push malicious images. The fork check on line 9 does not prevent this because pull_request_target evaluates the workflow file from the base branch, not the PR branch.",
+     "Scope violation: PR description says 'publish images on merge' but pull_request_target triggers on PR open/update, not on merge. This will attempt to publish on every PR update to main, not after merge.",
+     "Logic error: the fork check '!github.event.pull_request.head.repo.fork' does not protect against the pull_request_target security issue. An attacker can open a PR from a fork that modifies this workflow file; pull_request_target will run the modified version from the PR with base repo permissions."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Security: pull_request_target runs in the context of the base repository with write permissions, even for PRs from forks. Combined with packages:write permission (line 7) and REGISTRY_TOKEN secret access (line 15), this allows any external contributor to publish arbitrary images to your registry by opening a PR. The fork check on line 9 does not prevent this because pull_request_target always reports the base repo context. Use 'pull_request' trigger instead, or move to 'push' trigger on merge to main.",
+     "Scope violation: PR description says 'publish images on merge' but pull_request_target triggers on PR open/update, not on merge. This will attempt to publish on every PR push, contradicting the stated purpose. Should trigger on 'push' to main branch instead.",
+     "Logic error: the fork check '!github.event.pull_request.head.repo.fork' does not work as intended with pull_request_target. In pull_request_target context, github.event.pull_request.head.repo refers to the fork, but the workflow runs with base repo permissions regardless, so this check only prevents the job from running, not the security issue. The workflow should not use pull_request_target at all for publishing."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "pull_request_target triggers on PR open/update, not on merge. The PR description says 'publish images on merge' but this will fire when PRs are opened/synchronized against main, not when they merge. For merge events, use 'push: branches: [main]' instead.",
+     "pull_request_target is a security risk: it runs in the context of the base repo with write permissions (line 7) but executes workflow code from the PR head. Even with the fork check (line 9), a malicious PR from a branch in the same repo could exfiltrate REGISTRY_TOKEN or publish malicious images. Use 'pull_request' or 'push' trigger instead.",
+     "The fork check prevents execution from forks but does not prevent malicious PRs from branches within the same repository. Combined with pull_request_target and secrets access, this creates a privilege escalation path where any contributor with branch push access can steal REGISTRY_TOKEN.",
+     "No test coverage for this workflow. Publishing infrastructure should have validation (e.g., test job that validates workflow syntax, or integration test that verifies the reusable workflow is called with correct parameters)."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Security: pull_request_target runs in the context of the base repository with write permissions, even for PRs from forks. This allows an attacker to submit a PR that modifies this workflow file itself (or other workflows) to exfiltrate REGISTRY_TOKEN or gain write access to packages. The fork check on line 9 does not prevent this because pull_request_target evaluates the workflow from the base branch, not the PR branch.",
+     "Scope violation: PR description says 'publish images on merge' but pull_request_target triggers on PR open/update, not on merge. This publishes images for every PR update to main, not after merge.",
+     "Logic error: the fork check prevents publishing from forks but does not address the security issue. An attacker can submit a PR from a fork that modifies .github/workflows/publish.yml itself to remove this check or exfiltrate secrets, and pull_request_target will execute that modified workflow with full permissions."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Security: pull_request_target runs in the context of the base repository with write permissions, even for PRs from forks. This allows an attacker to submit a malicious PR that modifies the reusable workflow call or exploits the REGISTRY_TOKEN. The fork check on line 9 does not prevent the workflow from running with elevated permissions in the target repo context. For publishing on merge, use 'push' trigger with 'branches: [main]' instead.",
+     "Scope violation: PR description says 'publish images on merge' but this triggers on pull request creation/update, not on merge. This will attempt to publish on every PR update to main, not after merge completes.",
+     "Insufficient protection: the fork check prevents execution but the workflow still runs with write permissions in the base repo context when pull_request_target is used. An attacker can modify the workflow file itself in their PR to bypass this check or exploit the elevated context before this condition is evaluated."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": false
+     }
+    ]
+   }
+  ]
+ },
+ "sonnet/M16": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [],
+    "comment_any": [
+     "swallow",
+     "silently",
+     "ignor",
+     "fabricat",
+     "false success",
+     "fake success",
+     "misleading",
+     "mask",
+     "returns {",
+     "falsely claiming success",
+     "no labels were actually updated",
+     "indistinguishable from a successful"
+    ]
+   },
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "{\"ok\""
+    ],
+    "comment_any": [
+     "returned when an exception",
+     "even when the put request failed",
+     "not when the sync succeed"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Incorrect GitHub API usage: PUT to /labels endpoint does not exist. Label sync requires GET existing labels, then POST (create) or PATCH (update) each label individually to /repos/{owner}/{repo}/labels or /repos/{owner}/{repo}/labels/{name}. This will fail with 404 or 405.",
+     "Bare except catches all exceptions including network errors, authentication failures, and API errors, then silently continues. This violates the 'best-effort' contract by hiding what went wrong and preventing any retry or logging logic.",
+     "Returns a fake success dictionary when an exception occurred. The caller receives {'ok': True, 'updated': 2} even if the API call failed completely (auth error, network timeout, 404). This is misleading and prevents the caller from detecting failures.",
+     "Return value format inconsistency: success path returns a requests.Response object (line 7), but failure path returns a dict. Caller cannot handle both uniformly without type checking.",
+     "Missing tests: no test coverage for this new function. Should verify correct API calls, exception handling, and return values for both success and failure paths."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Incorrect HTTP method: GitHub API requires POST to create labels (/repos/{owner}/{repo}/labels) or PATCH to update existing ones (/repos/{owner}/{repo}/labels/{name}). PUT is not a valid method for label operations and will fail with 404 or 405.",
+     "Exception swallowing: bare except with pass silently hides all failures (network errors, auth failures, API errors). Caller receives fake success data and cannot detect or handle actual failures.",
+     "Misleading return value: GitHub API responses are Response objects, not dicts with 'ok'/'updated' keys. This fabricated dict masks the actual failure in the except block, making the function lie about success when it failed.",
+     "Logic error: attempting to PUT a dict of all labels in one call. Label APIs require individual operations per label (create or update each label separately by name). This single call cannot sync multiple labels.",
+     "Hardcoded label set: no way to remove labels that exist in the repo but not in LABELS dict. 'Sync' implies bidirectional reconciliation, but this only attempts creation/update."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Incorrect URL construction: `repo` parameter is concatenated directly with '/labels' using string formatting, but `session.put()` expects a full URL. If `repo` is just a name like 'myrepo', this produces an invalid URL '/myrepo/labels'. Should construct full GitHub API URL or document that `repo` must be a complete base URL.",
+     "Bare except with pass swallows all exceptions including network errors, authentication failures, and malformed responses. Caller has no way to know sync failed. This violates the 'best-effort' contract by hiding failures completely.",
+     "Returns fabricated success dictionary when exception occurred. This is a lie to the caller: no labels were updated, but the return claims 'ok': True and 'updated': 2. The actual successful response from session.put() would be a requests.Response object, not a dict, creating type inconsistency.",
+     "GitHub API endpoint for creating/updating labels is typically POST to '/repos/{owner}/{repo}/labels' for creation or PATCH to '/repos/{owner}/{repo}/labels/{name}' for updates. PUT to '/labels' is not a standard GitHub API endpoint. Verify the intended API operation.",
+     "LABELS dictionary maps label names to colors, but GitHub label API requires additional fields like 'description'. The current structure may not match the expected API payload format."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Incorrect URL construction: `repo` parameter is concatenated directly without a base URL. This will fail unless `repo` is already a full URL (e.g., 'https://api.github.com/repos/owner/name'), which contradicts typical API patterns. Should likely be `f'{base_url}/repos/{repo}/labels'` or similar.",
+     "Bare `except Exception: pass` silently swallows all errors including network failures, authentication errors, and malformed responses. This makes debugging impossible and violates best-effort semantics by hiding what went wrong.",
+     "Returns a fake success dictionary `{'ok': True, 'updated': len(LABELS)}` when an exception occurred. This misleads the caller into thinking the sync succeeded when it actually failed, breaking the contract and potentially causing silent data loss or incorrect status reporting.",
+     "Missing tests: no test coverage visible for this new function. Core behaviors that need testing: successful sync, network failure, authentication failure, malformed repo parameter, and verification that the return value accurately reflects what happened.",
+     "The function returns different types on success (requests.Response object from session.put) vs. error path (dict). This inconsistency will confuse callers who expect a uniform interface."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Incorrect URL construction. The `repo` parameter is likely a base URL or repo identifier, but string formatting with '/labels' creates an invalid endpoint. Should use proper URL joining (e.g., f'{repo}/labels' if repo is base URL, or construct full GitHub API URL if repo is 'owner/name').",
+     "Bare except swallows all exceptions including network errors, authentication failures, and malformed responses. The function silently fails and returns a fake success response, hiding real problems from the caller. This is a correctness and maintainability issue.",
+     "Returns a fabricated success dictionary on exception, lying to the caller about operation success. The return type is inconsistent: success path returns a requests.Response object (line 7), error path returns a dict. Caller cannot reliably determine if sync succeeded.",
+     "Missing tests. This function performs external API calls with error handling and has multiple code paths (success/exception), but no tests are included in this PR to verify correct behavior, error handling, or the return value contract.",
+     "LABELS dictionary uses PUT semantics but GitHub's label API typically requires individual label creation/update via POST/PATCH per label, not bulk PUT. Verify this endpoint exists and accepts this payload format."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   }
+  ]
+ },
+ "sonnet/M3": {
+  "expected": [
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "mtime"
+    ],
+    "comment_any": [
+     "contract",
+     "document",
+     "comment",
+     "invariant",
+     "date"
+    ]
+   },
+   {
+    "severity": "blocking",
+    "comment_all": [
+     "filesystem metadata"
+    ],
+    "comment_any": [
+     "parse",
+     "date"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "run": 0,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Logic error: the script claims to judge freshness from the 'PARSED DATE' in the 'Last reviewed:' field (lines 2-3), but actually checks filesystem mtime with `find -mtime`. A repo reviewed yesterday with an old 'Last reviewed:' date would pass this check, opposite of the stated behavior. The contract says 'a repo reviewed yesterday but dated last month is still flagged' — this implementation would NOT flag it.",
+     "The `find -mtime -30` condition is inverted: it returns files NEWER than 30 days (modified within the last 30 days), so the script reports 'OK' for fresh files and 'STALE' for old files — but the logic structure suggests it should flag old dates as stale. Combined with the mtime vs. parsed-date bug, this creates double confusion about what is actually being checked.",
+     "Missing else branch: if ROADMAP.md does not exist, the script silently skips the repo with no output. A guard script should probably report missing roadmaps or at least acknowledge the skip for auditability."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 1,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Logic error: `find -mtime` checks filesystem modification time, not the 'Last reviewed:' date inside ROADMAP.md. The comment on line 3 explicitly says 'judged from the PARSED DATE', but no parsing occurs. A file modified yesterday with a 60-day-old 'Last reviewed:' date would pass incorrectly.",
+     "The condition is inverted: `find -mtime -30` returns files modified WITHIN the last 30 days (fresh), but the script says 'OK' for those. If the intent is to flag stale files (>30 days), the logic should be reversed or use `+30` instead of `-30`.",
+     "Missing error handling: if the file exists but is unreadable, the script will fail silently or produce misleading output. Consider adding a readability check or explicit error message."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 2,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Logic error: `find -mtime -30` checks filesystem modification time, not the 'Last reviewed:' date inside ROADMAP.md. The comment on line 3 explicitly says 'judged from the PARSED DATE', but no parsing occurs. A file modified yesterday with 'Last reviewed: 2023-01-01' would pass incorrectly.",
+     "The entire freshness check block (lines 8-12) needs replacement to actually parse and compare the date string from the file content against the current date, as the script's own documentation promises.",
+     "Missing tests: no test coverage for the core freshness logic, edge cases (missing date field, malformed dates, exactly 30 days old), or the claimed behavior of flagging repos 'reviewed yesterday but dated last month'."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Logic error: `find -mtime` checks filesystem modification time, not the 'Last reviewed:' date inside ROADMAP.md. The comment on line 3 explicitly says 'judged from the PARSED DATE', but no parsing occurs. A file modified yesterday with a 6-month-old 'Last reviewed:' date would incorrectly pass. This breaks the stated contract.",
+     "The example in the comment ('a repo reviewed yesterday but dated last month is still flagged') describes the intended behavior, but the implementation does the opposite: it would NOT flag such a repo because `-mtime -30` checks recent file modification, not the date string inside the file.",
+     "Missing test: no validation that ROADMAP.md contains a 'Last reviewed:' line. If the file exists but lacks this field, the script should fail or warn rather than silently pass/fail based on mtime."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   },
+   {
+    "run": 4,
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+     "Logic error: `find -mtime` checks filesystem modification time, not the 'Last reviewed:' date inside ROADMAP.md. The comment on line 3 explicitly says 'judged from the PARSED DATE', but no parsing occurs. A file modified yesterday with a 'Last reviewed: 2023-01-01' date would incorrectly pass. This defeats the stated purpose of the guard.",
+     "The entire freshness check logic (lines 8-12) needs replacement. After parsing the date, you must compute days-since and compare to 30. Current implementation cannot fulfill the contract described in lines 2-3.",
+     "Exit code handling: script will exit 0 even when repositories are STALE. Consider `exit 1` after echoing STALE or accumulating failures to return non-zero if any repo is stale, so CI can fail the build."
+    ],
+    "entries": [
+     {
+      "entry": 0,
+      "detected": true
+     },
+     {
+      "entry": 1,
+      "detected": false
+     }
+    ]
+   }
+  ]
+ }
+}

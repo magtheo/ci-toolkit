@@ -1,0 +1,52 @@
+{
+ "reconciliation": {
+  "control_false_blockers": {
+   "haiku": 91,
+   "sonnet": 139
+  },
+  "expected": {
+   "haiku": 91,
+   "sonnet": 139
+  },
+  "positive_by_family": {
+   "haiku": {
+    "speculative-consequence": 12,
+    "risk-boilerplate": 15,
+    "severity-inflation": 3,
+    "hallucinated-fact": 2,
+    "unattributed": 1
+   },
+   "sonnet": {
+    "risk-boilerplate": 21,
+    "hallucinated-fact": 8,
+    "speculative-consequence": 12,
+    "severity-inflation": 17,
+    "unattributed": 10
+   }
+  },
+  "expected_positive_by_family": {
+   "haiku": {
+    "risk-boilerplate": 15,
+    "speculative-consequence": 12,
+    "severity-inflation": 3,
+    "hallucinated-fact": 2,
+    "unattributed": 1
+   },
+   "sonnet": {
+    "risk-boilerplate": 21,
+    "speculative-consequence": 12,
+    "severity-inflation": 17,
+    "hallucinated-fact": 8,
+    "unattributed": 10
+   }
+  },
+  "status": "totals reconcile exactly to #64"
+ },
+ "population_size": 331,
+ "by_profile_layer": {
+  "haiku/control": 91,
+  "haiku/positive": 33,
+  "sonnet/control": 139,
+  "sonnet/positive": 68
+ }
+}
