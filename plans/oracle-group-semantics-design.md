@@ -1,6 +1,6 @@
 # Oracle repair design — explicit semantic-group matching
 
-Status: PROPOSAL (rev 2, after human review of rev 1) — eval
+Status: PROPOSAL (rev 3, after human review of rev 2) — eval
 semantics only; reviewer untouched; zero model calls. Follows the
 human-directed oracle-validity audit (#66, head `eb023bf`) and the
 failure-attribution audit (#65). This document is the design for the
@@ -10,6 +10,12 @@ Rev 2 corrections: controls migrate to **zero groups** (rev 1's
 "all others → 1×1" wrongly manufactured a positive expectation inside
 clean controls), with explicit loader invariants and pinned
 control-semantics tests; acceptance bar extended accordingly.
+
+Rev 3 precision fixes: the fixture-level threshold is stated exactly
+((N+2)//2; N=5 → 3 of 5 — not "2/3"), kept separate from lifecycle
+promotion rules (e.g. 4/5); and the all-groups helper is barred from
+vacuously reporting detection on zero-group controls (`all([])`
+truth), with a pinned deterministic test.
 
 ## 0. Problem statement (established by #66)
 
@@ -72,7 +78,18 @@ Semantics, precisely:
 - **Detection stability (fixture level, `evaluate()`):** per semantic
   group, count runs in which the group is detected; the fixture
   passes sensitivity only if **every required group** reaches the
-  usual threshold (N=5 → 2/3 majority, unchanged).
+  existing harness majority threshold — **unchanged**:
+  `(N + 2) // 2` (N=3 → 2 of 3; N=5 → 3 of 5). Separate promotion
+  requirements (e.g. 4/5) are lifecycle rules outside this repair and
+  remain untouched.
+- **No vacuous detection on controls:** the all-groups-per-run helper
+  is defined for **positive fixtures only**. For a control
+  (`groups: []`), sensitivity detection is **not applicable** — the
+  helper must either refuse controls or return N/A/false, and the
+  vacuous `all([]) == True` of a naïve implementation must never be
+  surfaced as "the control detected its expected defect." Controls
+  have no expected defect; their pass logic stays CLEAR + zero
+  blockers, unchanged. A deterministic test pins this.
 - **False-blocker classification (union-based, unchanged):** a
   blocking finding matching **any accepted alternative in any group**
   is expected, not a false blocker. Today's per-finding union
@@ -171,7 +188,10 @@ every item demonstrates green:
      false blocker**;
    - the loader **rejects** a control fixture containing any
      semantic group;
-   - the loader **rejects** a positive fixture with zero groups.
+   - the loader **rejects** a positive fixture with zero groups;
+   - the all-groups helper **never returns a positive detection for
+     a control** — no vacuous `all([])` truth; on `groups: []` it
+     returns N/A/false or refuses, by deterministic test.
 5. **#62 pass-1 rescore**: haiku 51/90, sonnet 65/90.
 6. **Residual floor violations**: only sonnet M13 (0 < 1).
 7. **#62 REVERT stands**: verdict artifacts untouched; no criterion
