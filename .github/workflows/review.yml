@@ -31,6 +31,5 @@ jobs:
     uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@e59239f485fd2d4d3ef3a2647b791c53cb3a5963
     with:
       toolkit_ref: e59239f485fd2d4d3ef3a2647b791c53cb3a5963
-      model: z-ai/glm-5.3-flash
     secrets:
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
