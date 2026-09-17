@@ -17,9 +17,11 @@ Boundary (transport vs semantics):
 Model profiles are REVIEWED CONFIGURATION, not runtime discovery:
 model_profiles.json is versioned in this repo and travels with the
 pinned toolkit_ref. Unknown model slugs resolve to the default
-profile, which reproduces the legacy request exactly (max_tokens
-2000, no reasoning control, no structured output) — the default
-reviewer path is unchanged byte-for-byte.
+profile, which reproduces the legacy request object-for-object (same
+JSON structure and values: max_tokens 2000, no reasoning control, no
+structured output) — the default reviewer path is semantically
+unchanged. (Wire serialization is Python's json, not jq's; the
+object is what is pinned, not the byte stream.)
 """
 
 import json
@@ -107,6 +109,42 @@ def classify_response(resp):
     return facts
 
 
+def escalation_decision(facts, profile):
+    """One deterministic budget escalation, applies to BOTH exhaustion
+    shapes: no final content AND truncated partial content (both are
+    finish_reason "length" — partial JSON that fails validation is the
+    same budget failure, and deserves the same recovery attempt).
+    Effort is never changed here; only the caller decides (profile
+    flag), never the model's behavior mid-review.
+    """
+    return (facts.get("finish_reason") == "length"
+            and bool(profile.get("retry_budget_escalation")))
+
+
+def failure_reason(facts):
+    """Map a non-OK envelope to (reason_code, detail).
+
+    Explicit contract:
+      MALFORMED  -> UPSTREAM_ERROR (malformed envelope detail)
+      REFUSAL    -> UPSTREAM_ERROR (content_filter detail)
+      length     -> OUTPUT_BUDGET_EXHAUSTED
+      otherwise  -> NO_FINAL_CONTENT
+    """
+    state = facts.get("state")
+    if state == "MALFORMED":
+        return ("UPSTREAM_ERROR",
+                "The response envelope was malformed (no choices array).")
+    if state == "REFUSAL":
+        return ("UPSTREAM_ERROR",
+                "The provider refused generation (finish_reason: "
+                "content_filter).")
+    if facts.get("finish_reason") == "length":
+        return ("OUTPUT_BUDGET_EXHAUSTED",
+                "The model exhausted its generation budget before "
+                "producing a final review (finish_reason: length).")
+    return "NO_FINAL_CONTENT", "The model returned success but no final content."
+
+
 def inconclusive_payload(model, head_sha, reason_code, detail):
     """Transport-generated INCONCLUSIVE review payload.
 
@@ -147,6 +185,8 @@ def main(argv):
              "       transport.py request MODEL SYSTEM_FILE USER_FILE"
              " [--max-tokens N]\n"
              "       transport.py classify RESPONSE_FILE\n"
+             "       transport.py policy MODEL   (state JSON on stdin)\n"
+             "       transport.py failure        (state JSON on stdin)\n"
              "       transport.py inconclusive HEAD_SHA MODEL"
              " REASON_CODE DETAIL\n")
     if len(argv) < 2:
@@ -173,6 +213,15 @@ def main(argv):
     if cmd == "classify" and len(argv) == 3:
         with open(argv[2]) as fh:
             print(json.dumps(classify_response(json.load(fh))))
+        return 0
+    if cmd == "policy" and len(argv) == 3:
+        facts = json.load(sys.stdin)
+        print(json.dumps(
+            {"escalate": escalation_decision(facts, load_profile(argv[2]))}))
+        return 0
+    if cmd == "failure" and len(argv) == 2:
+        code, detail = failure_reason(json.load(sys.stdin))
+        print(json.dumps({"reason_code": code, "detail": detail}))
         return 0
     if cmd == "inconclusive" and len(argv) == 6:
         print(json.dumps(inconclusive_payload(argv[3], argv[2],

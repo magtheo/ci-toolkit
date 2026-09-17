@@ -209,40 +209,38 @@ fi
 
 # ---- terminal-state interpretation ---------------------------------------
 # Transport owns the ENVELOPE (did generation complete?); parse_review
-# owns semantic trust. One deterministic budget-escalation retry when
-# the profile allows it and reasoning exhausted the completion budget;
-# effort stays FIXED during a review (quality is a profile decision,
-# not a recovery knob).
+# owns semantic trust. Escalation policy and failure mapping live in
+# transport.py (unit-tested). ONE budget escalation, applying to BOTH
+# exhaustion shapes — no final content AND truncated partial content
+# (both are finish_reason=length). Effort stays FIXED during a review.
+# Infrastructure failures during escalation are HARD failures (exit 1):
+# a dead network never masquerades as a generation verdict.
 state_of() { python3 "$TOOLKIT_DIR/transport.py" classify "$or_resp"; }
 STATE=$(state_of)
 provider=$(jq -r '.provider // "unknown"' <<<"$STATE")
 jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file"
 
-if [ ! -s "$content_file" ] \
-   && [ "$(jq -r '.finish_reason' <<<"$STATE")" = "length" ] \
-   && [ "$(jq -r '.retry_budget_escalation' <<<"$PROFILE")" = "true" ]; then
+if [ "$(python3 "$TOOLKIT_DIR/transport.py" policy "$MODEL" <<<"$STATE" \
+        | jq -r '.escalate')" = "true" ]; then
   echo "generation budget exhausted (finish_reason=length) — one retry at 2x budget" >&2
   attempts=2
   python3 "$TOOLKIT_DIR/transport.py" request "$MODEL" \
     "$sys_file" "$user_file" --max-tokens "$((MAX_TOKENS * 2))" > prompt.json
-  if or_call; then
-    STATE=$(state_of)
-    jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file" || true
+  if ! or_call; then
+    echo "escalation attempt failed on infrastructure (last http $http_code, curl rc $rc) — failing closed" >&2
+    jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
+    exit 1
   fi
+  STATE=$(state_of)
+  provider=$(jq -r '.provider // "unknown"' <<<"$STATE")
+  jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file" || true
 fi
 
 if [ ! -s "$content_file" ]; then
+  failure=$(python3 "$TOOLKIT_DIR/transport.py" failure <<<"$STATE")
+  reason_code=$(jq -r '.reason_code' <<<"$failure")
+  detail=$(jq -r '.detail' <<<"$failure")
   finish_reason=$(jq -r '.finish_reason // "none"' <<<"$STATE")
-  if [ "$finish_reason" = "length" ]; then
-    reason_code="OUTPUT_BUDGET_EXHAUSTED"
-    detail="The model exhausted its generation budget before producing a final review (finish_reason: length)."
-  elif [ "$(jq -r '.state' <<<"$STATE")" = "REFUSAL" ]; then
-    reason_code="UPSTREAM_ERROR"
-    detail="The provider refused generation (finish_reason: content_filter)."
-  else
-    reason_code="NO_FINAL_CONTENT"
-    detail="The model returned success but no final content."
-  fi
   echo "transport generation failure: $reason_code (finish_reason: $finish_reason)" >&2
   python3 "$TOOLKIT_DIR/transport.py" inconclusive "$head_sha" "$MODEL" \
     "$reason_code" "$detail" > review.json

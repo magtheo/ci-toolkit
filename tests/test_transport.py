@@ -56,7 +56,9 @@ def test_glm_profile_adds_reasoning_schema_and_provider_requirement():
     body = transport.build_request_body(
         "z-ai/glm-5.3-flash", "sys", "user",
         transport.load_profile("z-ai/glm-5.3-flash"))
-    assert body["reasoning"] == {"effort": "medium"}
+    # 'low': the slug supports low/high/max — unsupported values fall
+    # back to max reasoning and recreate the exhaustion failure.
+    assert body["reasoning"] == {"effort": "low"}
     assert body["max_tokens"] == 8000
     assert body["provider"] == {"require_parameters": True}
     rf = body["response_format"]
@@ -70,7 +72,7 @@ def test_budget_escalation_only_changes_max_tokens():
         "z-ai/glm-5.3-flash", "sys", "user",
         transport.load_profile("z-ai/glm-5.3-flash"), max_tokens=16000)
     assert body["max_tokens"] == 16000
-    assert body["reasoning"] == {"effort": "medium"}  # effort stays fixed
+    assert body["reasoning"] == {"effort": "low"}  # effort stays fixed
 
 
 # ---- envelope classification ----------------------------------------------
@@ -124,6 +126,43 @@ def test_schema_is_strict_closed_world():
     assert inner["additionalProperties"] is False
     assert set(inner["required"]) == \
         {"assessment", "summary", "findings", "good"}
+
+
+# ---- escalation + failure policy (the recovery contract) -----------------
+
+def test_escalation_applies_to_truncated_partial_content():
+    """Regression: finish_reason=length WITH partial content is the
+    same budget exhaustion as content-null and must get the same 2x
+    recovery attempt, not go straight to parse-and-relabel."""
+    facts = transport.classify_response(fixture("glm_partial_truncated.json"))
+    profile = transport.load_profile("z-ai/glm-5.3-flash")
+    assert transport.escalation_decision(facts, profile) is True
+
+
+def test_escalation_is_length_and_profile_gated():
+    profile = transport.load_profile("z-ai/glm-5.3-flash")
+    default = transport.load_profiles()["default"]
+    assert transport.escalation_decision(
+        {"finish_reason": "stop"}, profile) is False
+    assert transport.escalation_decision(  # default profile: no escalation
+        {"finish_reason": "length"}, default) is False
+    assert transport.escalation_decision(
+        {"finish_reason": "length", "state": "NO_CONTENT"}, profile) is True
+
+
+def test_failure_reason_mapping_contract():
+    code, _ = transport.failure_reason({"state": "NO_CONTENT",
+                                        "finish_reason": "length"})
+    assert code == "OUTPUT_BUDGET_EXHAUSTED"
+    code, _ = transport.failure_reason({"state": "NO_CONTENT",
+                                        "finish_reason": "stop"})
+    assert code == "NO_FINAL_CONTENT"
+    code, detail = transport.failure_reason({"state": "REFUSAL"})
+    assert code == "UPSTREAM_ERROR" and "content_filter" in detail
+    # explicit contract: malformed envelope is UPSTREAM_ERROR, folded
+    # nowhere else
+    code, detail = transport.failure_reason({"state": "MALFORMED"})
+    assert code == "UPSTREAM_ERROR" and "malformed" in detail
 
 
 # ---- reason-coded INCONCLUSIVE (additive; parser stays owner) ----------
