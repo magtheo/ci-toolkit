@@ -1,0 +1,14 @@
+{
+  "provider": "baseten",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "message": {"role": "assistant", "content": "{\"assessment\": \"CLEAR\", \"summary\": \"ok\", \"findings\": [], \"good\": []}"}
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 30000,
+    "completion_tokens": 150,
+    "completion_tokens_details": {"reasoning_tokens": 400}
+  }
+}

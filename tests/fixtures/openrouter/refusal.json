@@ -1,0 +1,10 @@
+{
+  "provider": "baseten",
+  "choices": [
+    {
+      "finish_reason": "content_filter",
+      "message": {"role": "assistant", "content": null}
+    }
+  ],
+  "usage": {"prompt_tokens": 100, "completion_tokens": 10}
+}

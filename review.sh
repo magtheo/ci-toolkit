@@ -43,12 +43,19 @@ HDR_DIR="$(mktemp -d)"
 cleanup() {
     rm -rf "$HDR_DIR"
     rm -f "${files_jsonl:-}" "${content_file:-}" "${or_resp:-}" \
-          prompt.json review.json
+          prompt.json review.json "${sys_file:-}" "${user_file:-}" \
+          "${parse_err:-}"
 }
 trap cleanup EXIT
 ( umask 077
   printf 'Authorization: Bearer %s' "$TOKEN" > "$HDR_DIR/gh"
   printf 'Authorization: Bearer %s' "$OPENROUTER_API_KEY" > "$HDR_DIR/llm" )
+
+# ---- model profile: reviewed configuration, travels with the pin ----
+# Unknown slugs resolve to the default profile (legacy request
+# unchanged). No runtime discovery, no caller-side overrides.
+PROFILE=$(python3 "$TOOLKIT_DIR/transport.py" profile "$MODEL")
+MAX_TOKENS=$(jq -r '.max_tokens' <<<"$PROFILE")
 
 curl_gh() { curl -sS -f --connect-timeout 10 --max-time 60 \
   -H @"$HDR_DIR/gh" \
@@ -147,66 +154,124 @@ $diff_text
 
 Respond with the rubric's STRICT JSON object and nothing else."
 
-jq -n --arg model "$MODEL" \
-  --arg system "$system_prompt" --arg user "$user_prompt" \
-  '{model: $model, temperature: 0.2, max_tokens: 2000,
-    messages: [{role: "system", content: $system},
-               {role: "user",   content: $user}]}' > prompt.json
+sys_file=$(mktemp)
+user_file=$(mktemp)
+parse_err=$(mktemp)
+printf '%s' "$system_prompt" >"$sys_file"
+printf '%s' "$user_prompt" >"$user_file"
 
-# ---- model call: retry transient failures (network + 429/5xx) ------------
+# Request shape from the profile (reasoning control / structured
+# output are added here, never hand-rolled in shell). PR-derived text
+# travels via temp files, not argv.
+python3 "$TOOLKIT_DIR/transport.py" request "$MODEL" \
+  "$sys_file" "$user_file" > prompt.json
+
+# ---- model call: retry transient failures (network + 429/5xx) ----
 http_code=000
 rc=0
-for attempt in 1 2 3; do
-  set +e
-  http_code=$(curl -sS --connect-timeout 10 --max-time 180 \
-    -o "$or_resp" -w '%{http_code}' \
-    -H @"$HDR_DIR/llm" \
-    -H "Content-Type: application/json" -d @prompt.json \
-    https://openrouter.ai/api/v1/chat/completions)
-  rc=$?
-  set -e
-  if [ "$rc" -eq 0 ] && [ "$http_code" = "200" ]; then
-    break
-  elif [ "$rc" -ne 0 ]; then
-    echo "network failure (curl rc $rc), attempt $attempt — retrying after backoff" >&2
-  else
-    case "$http_code" in
-      429|500|502|503|504)
-        echo "OpenRouter attempt $attempt failed (http $http_code) — retrying after backoff" >&2
-        ;;
-      *)
-        echo "OpenRouter call failed: http $http_code, curl rc $rc" >&2
-        jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
-        exit 1
-        ;;
-    esac
-  fi
-  sleep $((attempt * 10))
-done
-if [ "$http_code" != "200" ]; then
+or_call() {
+  for attempt in 1 2 3; do
+    set +e
+    http_code=$(curl -sS --connect-timeout 10 --max-time 300 \
+      -o "$or_resp" -w '%{http_code}' \
+      -H @"$HDR_DIR/llm" \
+      -H "Content-Type: application/json" -d @prompt.json \
+      https://openrouter.ai/api/v1/chat/completions)
+    rc=$?
+    set -e
+    if [ "$rc" -eq 0 ] && [ "$http_code" = "200" ]; then
+      return 0
+    elif [ "$rc" -ne 0 ]; then
+      echo "network failure (curl rc $rc), attempt $attempt — retrying after backoff" >&2
+    else
+      case "$http_code" in
+        429|500|502|503|504)
+          echo "OpenRouter attempt $attempt failed (http $http_code) — retrying after backoff" >&2
+          ;;
+        *)
+          echo "OpenRouter call failed: http $http_code, curl rc $rc" >&2
+          jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
+          exit 1
+          ;;
+      esac
+    fi
+    sleep $((attempt * 10))
+  done
+  return 1
+}
+
+attempts=1
+if ! or_call; then
   echo "OpenRouter retries exhausted (last http $http_code, curl rc $rc)" >&2
   jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
   exit 1
 fi
 
+# ---- terminal-state interpretation ---------------------------------------
+# Transport owns the ENVELOPE (did generation complete?); parse_review
+# owns semantic trust. One deterministic budget-escalation retry when
+# the profile allows it and reasoning exhausted the completion budget;
+# effort stays FIXED during a review (quality is a profile decision,
+# not a recovery knob).
+state_of() { python3 "$TOOLKIT_DIR/transport.py" classify "$or_resp"; }
+STATE=$(state_of)
+provider=$(jq -r '.provider // "unknown"' <<<"$STATE")
 jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file"
-if [ ! -s "$content_file" ]; then
-  echo "OpenRouter returned 200 but no message content:" >&2
-  jq . <"$or_resp" >&2 || true
-  exit 1
+
+if [ ! -s "$content_file" ] \
+   && [ "$(jq -r '.finish_reason' <<<"$STATE")" = "length" ] \
+   && [ "$(jq -r '.retry_budget_escalation' <<<"$PROFILE")" = "true" ]; then
+  echo "generation budget exhausted (finish_reason=length) — one retry at 2x budget" >&2
+  attempts=2
+  python3 "$TOOLKIT_DIR/transport.py" request "$MODEL" \
+    "$sys_file" "$user_file" --max-tokens "$((MAX_TOKENS * 2))" > prompt.json
+  if or_call; then
+    STATE=$(state_of)
+    jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file" || true
+  fi
 fi
 
-# ---- validate + build the review payload ---------------------------------
-python3 "$TOOLKIT_DIR/parse_review.py" "$content_file" "$files_jsonl" \
-  "$head_sha" "$MODEL" > review.json
+if [ ! -s "$content_file" ]; then
+  finish_reason=$(jq -r '.finish_reason // "none"' <<<"$STATE")
+  if [ "$finish_reason" = "length" ]; then
+    reason_code="OUTPUT_BUDGET_EXHAUSTED"
+    detail="The model exhausted its generation budget before producing a final review (finish_reason: length)."
+  elif [ "$(jq -r '.state' <<<"$STATE")" = "REFUSAL" ]; then
+    reason_code="UPSTREAM_ERROR"
+    detail="The provider refused generation (finish_reason: content_filter)."
+  else
+    reason_code="NO_FINAL_CONTENT"
+    detail="The model returned success but no final content."
+  fi
+  echo "transport generation failure: $reason_code (finish_reason: $finish_reason)" >&2
+  python3 "$TOOLKIT_DIR/transport.py" inconclusive "$head_sha" "$MODEL" \
+    "$reason_code" "$detail" > review.json
+else
+  # ---- validate + build the review payload (parser owns INCONCLUSIVE) ----
+  python3 "$TOOLKIT_DIR/parse_review.py" "$content_file" "$files_jsonl" \
+    "$head_sha" "$MODEL" > review.json 2>"$parse_err" || true
+  reason_code=$(sed -n 's/^PARSE_REASON: //p' "$parse_err" | tail -1)
+  # A truncated response that fails validation is a budget failure,
+  # not a schema failure — report the root cause.
+  if [ "$reason_code" = "STRUCTURED_OUTPUT_INVALID" ] \
+     && [ "$(jq -r '.finish_reason' <<<"$STATE")" = "length" ]; then
+    reason_code="OUTPUT_BUDGET_EXHAUSTED"
+  fi
+fi
 
 # ---- post exactly one COMMENT review -------------------------------------
 posted=$(curl_gh -X POST "$REPO_API/pulls/$PR_NUMBER/reviews" \
   -H "Content-Type: application/json" -d @review.json)
 
+# ---- diagnostics (operational facts only; never the reasoning trace) ----
 {
   echo "### AI review posted"
   echo "- model: \`$MODEL\`"
   echo "- assessment: $(jq -r .body <<<"$posted" | head -1 | sed 's/^## AI review · //')"
   echo "- inline comments: $(jq '.comments | length' <<<"$posted")"
+  echo "- provider: \`${provider:-unknown}\` · finish_reason: \`$(jq -r '.finish_reason // "none"' <<<"$STATE")\`"
+  echo "- tokens: prompt $(jq -r '.prompt_tokens // "?"' <<<"$STATE") · completion $(jq -r '.completion_tokens // "?"' <<<"$STATE") · reasoning $(jq -r '.reasoning_tokens // "?"' <<<"$STATE") · attempts $attempts"
+  if [ -n "${reason_code:-}" ]; then
+    echo "- reason: \`$reason_code\`"
+  fi
 } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"

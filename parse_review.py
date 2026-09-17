@@ -125,6 +125,19 @@ def assess(obj):
     return "CLEAR", findings
 
 
+def inconclusive_reason(obj):
+    """Machine-readable reason for the INCONCLUSIVE path.
+
+    Diagnostic only: verdict semantics live in assess(); this adds no
+    authority and changes no verdict. Emitted on stderr so the
+    transport can attach a reason code to summaries — the parser
+    remains the sole owner of INCONCLUSIVE.
+    """
+    if not obj or _validate_findings(obj) is None:
+        return "STRUCTURED_OUTPUT_INVALID"
+    return "SEMANTIC_CONTRADICTION"
+
+
 def _ref(entry):
     if entry.get("line"):
         return "`{0}:{1}`".format(entry["file"], entry["line"])
@@ -232,6 +245,7 @@ def build_payload(content, files, head_sha, model):
              for f in files if f.get("patch")}
 
     if assessment == INCONCLUSIVE:
+        sys.stderr.write("PARSE_REASON: %s\n" % inconclusive_reason(obj))
         body, _ = _build_inconclusive(model, head_sha)
         return {"commit_id": head_sha, "body": body,
                 "event": "COMMENT", "comments": []}

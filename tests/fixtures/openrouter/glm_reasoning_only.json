@@ -1,0 +1,17 @@
+{
+  "provider": "baseten",
+  "model": "z-ai/glm-5.3-flash",
+  "choices": [
+    {
+      "finish_reason": "length",
+      "message": {"role": "assistant", "content": null,
+                  "reasoning_content": "the diff touches..."},
+      "native_finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 30000,
+    "completion_tokens": 2000,
+    "completion_tokens_details": {"reasoning_tokens": 2000}
+  }
+}

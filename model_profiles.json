@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "comment": "Reviewed inference profiles — deployed subject configuration, not runtime discovery. Unknown model slugs resolve to 'default', which reproduces the legacy request exactly. Change only via reviewed PR; enforced by tests/test_transport.py. The z-ai profile is PROVISIONAL pending measured effort/budget selection (transport PR rationale); finalize it from the qualification sweep before relying on it.",
+  "profiles": {
+    "default": {
+      "max_tokens": 2000,
+      "reasoning_effort": null,
+      "structured_output": false,
+      "retry_budget_escalation": false
+    },
+    "z-ai/glm-5.3-flash": {
+      "_provisional": "pending measured profile selection; see transport PR",
+      "max_tokens": 8000,
+      "reasoning_effort": "medium",
+      "structured_output": true,
+      "retry_budget_escalation": true
+    }
+  }
+}
