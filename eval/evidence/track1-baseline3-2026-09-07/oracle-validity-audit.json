@@ -1,0 +1,417 @@
+{
+ "expected_finding_misses": [
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 0,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 1,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 2,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 3,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 4,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 0,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 1,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 2,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 3,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 4,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 0,
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 1,
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 2,
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 4,
+   "reason": "protocol: JSON decode failure (json.loads: Expecting ',' delimiter (col 55)) -> parser INCONCLUSIVE"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 0,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 1,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 2,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 4,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 0,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 1,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 2,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 3,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 4,
+   "reason": "reviewer-miss: blockers fired but none expressed the defect"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 0,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 1,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 2,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 3,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 4,
+   "reason": "reviewer-miss: CLEAR with defect present"
+  }
+ ],
+ "summary": {
+  "haiku|protocol": 4,
+  "haiku|reviewer-miss": 35,
+  "sonnet|reviewer-miss": 24
+ },
+ "matcher_gap_findings": [
+  {
+   "fixture": "M12",
+   "profile": "sonnet",
+   "run": 2,
+   "finding": 2,
+   "narrative": "ParseError is caught and triggers fallback, but malformed config from origin is a different failure mode than origin unreachability...",
+   "note": "expresses the masking defect ('serves stale without distinguishing'); M12 any-list lacks this phrasing family"
+  },
+  {
+   "fixture": "M16",
+   "profile": "haiku",
+   "run": 4,
+   "finding": 1,
+   "narrative": "Returns {\"ok\": True...} on exception, which is indistinguishable from a successful PUT. The caller has no way to know the sync failed.",
+   "note": "third genuine phrasing family ('indistinguishable / no way to know'); needles still miss it"
+  },
+  {
+   "fixture": "M3",
+   "profile": "sonnet",
+   "run": 3,
+   "finding": 1,
+   "narrative": "...needs replacement to actually parse and compare the date string from the file content... not rely on filesystem metadata.",
+   "note": "expresses the parsed-date-invariant defect; all-of needle 'mtime' absent from this phrasing"
+  }
+ ],
+ "unexpected_blockers": {
+  "verdict": "all 324 false blockers human-coded; no control fixture was found to contain a genuine defect (no fixture-validity escape); the six sonnet C7 blockers adjudicated individually in c7-sonnet-adjudication.json \u2014 all six false blockers"
+ },
+ "matcher_gap_note": "3 confirmed candidates. The haiku M16 run2 finding2 (response-vs-dict shape) is EXCLUDED per the frozen #35 negative-witness ruling \u2014 that semantic angle is not_expected_expression and is coded as a false blocker (severity-inflation); frozen rulings are not reversed by later runs."
+}

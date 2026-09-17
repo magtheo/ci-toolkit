@@ -1,0 +1,51 @@
+{
+  "id": "M2",
+  "kind": "positive",
+  "origin": "real (ci-toolkit PR #3, miss #2)",
+  "paired_with": "C2",
+  "family": "risk-boilerplate",
+  "input": {
+    "title": "review: simplify trigger and references",
+    "body": "Use a plain pull_request trigger and track main.",
+    "files": [
+      {
+        "path": ".github/workflows/ai-review.yml",
+        "status": "modified",
+        "patch": "--- a/.github/workflows/ai-review.yml\n+++ b/.github/workflows/ai-review.yml\n@@ -1,11 +1,11 @@\n name: ai-review\n on:\n-  pull_request_target:\n+  pull_request:\n     branches: [main]\n jobs:\n   review:\n-    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd\n+    uses: some-org/ci-toolkit/.github/workflows/ai-review.yml@main\n     with:\n-      toolkit_ref: 4c7f2ab91d83e560af2b7c94d1e8360a5c2f19bd\n+      toolkit_ref: main\n     secrets:\n       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}\n"
+      }
+    ]
+  },
+  "expected": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "severity": "blocking",
+        "comment_all": [
+          "pull_request"
+        ],
+        "comment_any": [
+          "trigger",
+          "trusted base",
+          "trusted-base",
+          "pull_request_target"
+        ]
+      },
+      {
+        "severity": "blocking",
+        "comment_any": [
+          "pin",
+          "floating",
+          "immutable",
+          "@main",
+          "mutable",
+          "toolkit_ref",
+          "supply chain",
+          "supply-chain",
+          "the latest"
+        ],
+        "comment_all": []
+      }
+    ]
+  },
+  "note": "Two intended defects, both matched: (1) pull_request trigger puts PR-controlled workflow code in the secret-bearing run; (2) floating refs defeat the immutable-supply-chain review. Nothing else can block."
+}

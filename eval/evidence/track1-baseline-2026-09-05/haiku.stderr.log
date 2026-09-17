@@ -1,0 +1,4 @@
+corpus: 36 fixtures (18 positive / 18 control), N=5, model=anthropic/claude-haiku-4.5, oracle=92683f53fb1f7e30
+spend: 180 calls, 241115 prompt tok, 76389 completion tok
+report: eval/evidence/track1-baseline-2026-09-05/haiku-n5.json
+GATING VIOLATIONS: C4, C7

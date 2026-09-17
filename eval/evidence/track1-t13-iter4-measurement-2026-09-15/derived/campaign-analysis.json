@@ -1,0 +1,240 @@
+{
+ "campaign": "iteration-4 blocker-verification, frozen per freeze.json rev 2",
+ "subject": "d1a2ef1bdc1661c880b9373380ffa2b639251023",
+ "executed": "2026-09-15",
+ "authorization": "human spend authorization received before call 1; pre-run projection $6.12 <= $7.00 recorded",
+ "outcome": "COMPLETED",
+ "infrastructure_abort": false,
+ "total_invocations": 360,
+ "total_logical_stages": 614,
+ "total_cost_usd": 4.3119,
+ "cost_cap_usd": 7.0,
+ "profiles": {
+  "haiku": {
+   "invocations": 180,
+   "logical_stages": 300,
+   "pass2_invocations": 120,
+   "verifier_parsed_ok": 0,
+   "verification_errors": {
+    "verifier output is not a bare JSON object": 120
+   },
+   "verdict_counts": {},
+   "final_issues_found_invocations": 0,
+   "pass1_issues_found_invocations": 120,
+   "positive_detection_total": 0,
+   "per_positive": {
+    "M1": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M10": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M11": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M12": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M13": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M14": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M15": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M16": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M17": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M18": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M2": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M3": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M4": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M5": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M6": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M7": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M8": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M9": {
+     "detect": 0,
+     "runs": 5
+    }
+   },
+   "gating_violations": [
+    "C7"
+   ],
+   "pair_integrity_violations": [],
+   "spend_calls": 180,
+   "spend_prompt_tokens": 243615,
+   "spend_completion_tokens": 79496,
+   "cost_usd": 1.0256,
+   "trace_key_schema_ok": true,
+   "distinct_digests": 36,
+   "m17_detect": 0
+  },
+  "sonnet": {
+   "invocations": 180,
+   "logical_stages": 314,
+   "pass2_invocations": 134,
+   "verifier_parsed_ok": 0,
+   "verification_errors": {
+    "verifier output is not a bare JSON object": 134
+   },
+   "verdict_counts": {},
+   "final_issues_found_invocations": 0,
+   "pass1_issues_found_invocations": 134,
+   "positive_detection_total": 0,
+   "per_positive": {
+    "M1": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M10": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M11": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M12": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M13": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M14": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M15": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M16": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M17": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M18": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M2": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M3": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M4": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M5": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M6": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M7": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M8": {
+     "detect": 0,
+     "runs": 5
+    },
+    "M9": {
+     "detect": 0,
+     "runs": 5
+    }
+   },
+   "gating_violations": [
+    "C7"
+   ],
+   "pair_integrity_violations": [],
+   "spend_calls": 180,
+   "spend_prompt_tokens": 243615,
+   "spend_completion_tokens": 75733,
+   "cost_usd": 3.2863,
+   "trace_key_schema_ok": true,
+   "distinct_digests": 36,
+   "m17_detect": 0
+  }
+ },
+ "criteria": {
+  "1_zero_gating": {
+   "verdict": "FAIL",
+   "evidence": "C7 GATING violation on both profiles"
+  },
+  "2_deviation6_floors": {
+   "verdict": "FAIL",
+   "evidence": "haiku 0/90 (floor 51), sonnet 0/90 (floor 66); detection 0 on every positive, both profiles"
+  },
+  "3_sonnet_m17": {
+   "verdict": "FAIL",
+   "evidence": "sonnet M17 detect 0/5 (hard invariant requires 5/5)"
+  },
+  "4_fb_caps": {
+   "verdict": "SATISFIED_VACUOUS",
+   "evidence": "final FBs 0 <= caps (53/50/103 spec, 78/112 control); vacuous because the mechanism blocked nothing final"
+  },
+  "5_family_separation": {
+   "verdict": "FAIL",
+   "evidence": "all five confirmed failure families failed to demonstrate separation because final positive detection was zero on both profiles; pair integrity produced no violations and no promotable positives, which does not rescue the separation criterion"
+  },
+  "6_causal_nonvacuity": {
+   "verdict": "FAIL",
+   "evidence": "zero refutations (254/254 verifier outputs failed strict parse)"
+  }
+ },
+ "verdict": "REVERT",
+ "failure_mode": "verifier protocol/parsing interaction: despite the bare-JSON-only verification protocol, both profiles wrapped verdict JSON in code fences in 100% of pass-2 calls (haiku 120/120, sonnet 134/134); the deliberately strict parser (bare-JSON-only, #59) rejected every output -> semantic verification failure per design -> INCONCLUSIVE per invocation -> no keep/remove applied -> final reviewer blocked nothing (0 ISSUES_FOUND across 360 invocations) -> detection 0. The mechanism as frozen cannot confirm any finding; per the frozen interpretation this is a completed-campaign failure -> full mechanism revert (engine pass-2 policy/prompt, verifier parsing; trace stays inert).",
+ "non_gating_telemetry": "pass-1 blocking behavior itself was present (haiku 120, sonnet 134 ISSUES_FOUND pass-1 invocations); whether a pass-1-only subject would have met floors is a question for the NEXT design cycle and is explicitly NOT part of the frozen gate.",
+ "raw_manifest": "derived/SHA256SUMS"
+}

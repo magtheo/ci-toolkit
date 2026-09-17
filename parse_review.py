@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Build the GitHub review payload from model output + diff data.
+"""Semantic normalization of reviewer model output (engine stage).
 
-Semantic model (2026-08-28, interface-vocabulary redesign):
+Semantic model (2026-08-28, interface-vocabulary redesign; engine
+boundary extraction 2026-08-29, reviewer-eval-baseline Phase 1):
 
 - the reviewer produces an ASSESSMENT — CLEAR, ISSUES_FOUND, or
   INCONCLUSIVE — never an approval or decision;
@@ -10,17 +11,15 @@ Semantic model (2026-08-28, interface-vocabulary redesign):
   trusted (malformed, missing, or self-contradictory);
 - deterministic consistency rules are ASYMMETRIC and fail-closed:
   blocking evidence overrides an optimistic label (CLEAR + blocking
-  finding -> Issues found), but a contradictory ISSUES_FOUND label
+  finding -> ISSUES_FOUND), but a contradictory ISSUES_FOUND label
   with no validated blocking finding is INCONCLUSIVE — never Clear;
   parser failure can never result in CLEAR;
 - user-facing language: Clear / Issues found / Inconclusive,
-  Blocking / Advisory. No LGTM, no approval vocabulary;
-- the review event is the literal "COMMENT" — never derived from
-  model output, arguments, or environment (approvals impossible by
-  construction);
-- inline comments only attach to (file, line) pairs that exist in the
-  diff hunks (new-side numbering); anything else degrades gracefully
-  into the review body.
+  Blocking / Advisory. No LGTM, no approval vocabulary.
+
+This module is transport-free: it knows nothing about GitHub, HTTP
+posting, or presentation. Rendering lives in render.py; the model
+call and prompt construction live in engine.py.
 
 All inputs are DATA. Nothing in this module executes or evaluates PR
 content.
@@ -28,11 +27,12 @@ content.
 
 import json
 import re
-import sys
 
 MODEL_ASSESSMENTS = ("CLEAR", "ISSUES_FOUND")
 SEVERITIES = ("blocking", "non-blocking")
 INCONCLUSIVE = "INCONCLUSIVE"
+
+RESULT_SCHEMA_VERSION = 1
 
 
 def valid_lines_from_patch(patch):
@@ -125,164 +125,25 @@ def assess(obj):
     return "CLEAR", findings
 
 
-def _ref(entry):
-    if entry.get("line"):
-        return "`{0}:{1}`".format(entry["file"], entry["line"])
-    return "`{0}`".format(entry["file"])
+def normalize(content):
+    """Model output text -> ReviewResult fragment (schema v1).
 
-
-def _metadata_block(model, head_sha, assessment):
-    return (
-        "<details>\n<summary>Review metadata</summary>\n\n"
-        "Reviewer: ci-toolkit\n"
-        "Model: {0}\n"
-        "Commit: {1}\n"
-        "Assessment: {2}\n\n"
-        "</details>"
-    ).format(model, head_sha, assessment)
-
-
-def _build_clear(summary, advisory, good, model, head_sha):
-    n_adv = len(advisory)
-    lines = [
-        "## AI review · Clear",
-        "",
-        "No blocking issues found.",
-        "",
-        "0 blocking · {0} advisory".format(n_adv),
-        "",
-        "<details>",
-        "<summary>Review details</summary>",
-        "",
-    ]
-    if summary:
-        lines += [summary, ""]
-    if advisory:
-        lines += ["### Advisory", ""]
-        lines += ["- {0} — {1}".format(_ref(e), e["comment"])
-                  for e in advisory]
-        lines += [""]
-    if good:
-        lines += ["### Evidence-backed strengths", ""]
-        lines += ["- {0}".format(g) for g in good]
-        lines += [""]
-    lines += ["</details>", "", _metadata_block(model, head_sha, "CLEAR")]
-    return "\n".join(lines), []
-
-
-def _build_issues(summary, blocking, advisory, good, model, head_sha):
-    lines = [
-        "## AI review · Issues found",
-        "",
-        "{0} blocking {1} · {2} advisory".format(
-            len(blocking),
-            "issue" if len(blocking) == 1 else "issues",
-            len(advisory)),
-        "",
-    ]
-    lines += ["### Blocking", ""]
-    lines += ["- {0} — {1}".format(_ref(e), e["comment"])
-              for e in blocking] or ["- none"]
-    lines += [""]
-    if advisory:
-        lines += ["### Advisory", ""]
-        lines += ["- {0} — {1}".format(_ref(e), e["comment"])
-                  for e in advisory]
-        lines += [""]
-    lines += ["<details>", "<summary>Review details</summary>", ""]
-    if summary:
-        lines += [summary, ""]
-    if good:
-        lines += ["### Evidence-backed strengths", ""]
-        lines += ["- {0}".format(g) for g in good]
-        lines += [""]
-    lines += ["</details>", "",
-              _metadata_block(model, head_sha, "ISSUES_FOUND")]
-    return "\n".join(lines), blocking, advisory
-
-
-def _build_inconclusive(model, head_sha):
-    body = "\n".join([
-        "## AI review · Inconclusive",
-        "",
-        "A reliable semantic review could not be produced.",
-        "",
-        "Do not treat this review as clear.",
-        "",
-        "<details>",
-        "<summary>Technical details</summary>",
-        "",
-        "Reason: reviewer response was malformed, incomplete, or "
-        "self-contradictory (assessment missing/unknown, or issues "
-        "claimed without evidence).",
-        "",
-        "</details>",
-        "",
-        _metadata_block(model, head_sha, INCONCLUSIVE),
-    ])
-    return body, []
-
-
-def build_payload(content, files, head_sha, model):
-    """files: list of {"filename": str, "patch": str|None} dicts."""
+    The deterministic normalization stage of the engine: parse,
+    validate, classify. Untrusted (INCONCLUSIVE) output carries no
+    summary, strengths, or findings. The engine (engine.py) adds
+    usage/raw_output; render.py consumes the full ReviewResult.
+    """
     obj = parse_model_output(content)
     assessment, findings = assess(obj)
-
-    valid = {f["filename"]: valid_lines_from_patch(f["patch"])
-             for f in files if f.get("patch")}
-
     if assessment == INCONCLUSIVE:
-        body, _ = _build_inconclusive(model, head_sha)
-        return {"commit_id": head_sha, "body": body,
-                "event": "COMMENT", "comments": []}
-
-    summary = str(obj.get("summary", "")).strip()
-    good = [str(g) for g in obj.get("good", []) if str(g).strip()]
-
-    blocking, advisory, inline = [], [], []
-    for fd in findings:
-        fname, comment = fd["file"], fd["comment"]
-        sev = fd["severity"]
-        entry = {"sev": sev, "file": fname, "comment": comment,
-                 "line": fd.get("line")}
-        (blocking if sev == "blocking" else advisory).append(entry)
-        sug = str(fd.get("suggestion") or "").strip()
-        ln = fd.get("line")
-        if fname in valid and isinstance(ln, int) and ln in valid[fname]:
-            body = "**{0}**: {1}".format(
-                "Blocking" if sev == "blocking" else "Advisory", comment)
-            if sug:
-                body += "\n```suggestion\n" + sug + "\n```"
-            inline.append({"path": fname, "line": ln, "body": body})
-        elif sug:
-            entry["comment"] += "\n```suggestion\n" + sug + "\n```"
-
-    if assessment == "CLEAR":
-        body, _ = _build_clear(summary, advisory, good, model, head_sha)
+        summary, good = "", []
     else:
-        body, _, _ = _build_issues(
-            summary, blocking, advisory, good, model, head_sha)
-
-    return {"commit_id": head_sha, "body": body,
-            "event": "COMMENT", "comments": inline}
-
-
-def main(argv):
-    if len(argv) != 5:
-        sys.stderr.write(
-            "usage: parse_review.py CONTENT_FILE FILES_JSONL HEAD_SHA MODEL\n")
-        return 2
-    content_file, files_jsonl, head_sha, model = argv[1:5]
-    with open(content_file) as fh:
-        content = fh.read()
-    files = []
-    with open(files_jsonl) as fh:
-        for line in fh:
-            if line.strip():
-                files.append(json.loads(line))
-    print(json.dumps(build_payload(content, files, head_sha, model)))
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+        summary = str(obj.get("summary", "")).strip()
+        good = [str(g) for g in obj.get("good", []) if str(g).strip()]
+    return {
+        "schema_version": RESULT_SCHEMA_VERSION,
+        "assessment": assessment,
+        "findings": findings,
+        "summary": summary,
+        "good": good,
+    }

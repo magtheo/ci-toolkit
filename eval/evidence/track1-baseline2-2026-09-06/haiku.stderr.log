@@ -1,0 +1,3 @@
+corpus: 36 fixtures (18 positive / 18 control), N=5, model=anthropic/claude-haiku-4.5, oracle=9fae85b26ff45dc6
+spend: 180 calls, 243615 prompt tok, 79430 completion tok
+report: eval/evidence/track1-baseline2-2026-09-06/haiku-n5.json
