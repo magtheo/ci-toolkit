@@ -125,7 +125,8 @@ ok("2-m2-and", removal="either group alone -> KNOWN_GAP",
 acc = {}
 for mid in ("M3", "M11", "M12", "M16"):
     groups = fixtures[mid]["expected"]["groups"]
-    assert len(groups) == 1 and len(groups[0]) == 2
+    assert len(groups) == 1
+    assert len(groups[0]["alternatives"]) == 2
     hits = []
     for alt in groups[0]["alternatives"]:
         runs = [run("ISSUES_FOUND", [synth_comment(alt)])] * 3
@@ -181,7 +182,7 @@ with tempfile.TemporaryDirectory() as td:
     expect_reject("empty-alternatives",
                   {"id": "X1", "kind": "positive", "paired_with": "X1",
                    "expected": {"assessment": "ISSUES_FOUND",
-                                "groups": [[]]}},
+                                "groups": [{"alternatives": []}]}},
                   "non-empty alternatives")
 
 if rc.groups_reach_threshold([], 2) is not False \
