@@ -609,3 +609,42 @@ tag input was never noticed).
 
 Diagnostic only: no mechanism selected, no state promotions, no
 oracle changes, #64 not reinterpreted as binding.
+
+## 2026-09-16 — Oracle-validity audit: expected-entry semantics (DIAGNOSTIC, 0 calls)
+
+Bundle: eval/evidence/track1-oracle-validity-2026-09-16/
+(semantic_replay.py + oracle-validity-replay.json + ORACLE-VALIDITY.md).
+Zero model calls; no oracle/matcher/rubric/threshold change; #62/#64
+frozen artifacts untouched.
+
+Question: do multi-entry expected.findings (M2/M3/M11/M12/M16) mean
+independent required defects (AND) or alternative phrasings of one
+defect (OR)? History-based answer: M2 = AND (both entries since T1.1
+creation, two independent facets); M3/M11/M12/M16 = OR (repair-4/5
+entries added as documented phrasing-family extensions of the SAME
+defect; witness adjudications classify them as genuine-detection
+matcher misclassifications).
+
+Findings: (1) the harness cannot express alternative wordings —
+evaluate() and the #64 run-level convention read the OR-intended
+entries as independently required; (2) the frozen Deviation-6 floors
+provably equal the OR-semantics rescore of #36 (exact per-positive
+reproduction; AND gives 36/52 and does not reproduce them), while
+#64's retrospective applied AND against those OR floors.
+
+Convention-consistent replay: haiku meets every floor under both
+conventions (36/36 AND, 51/51 OR) — the recorded haiku regression was
+entirely representation. Sonnet under intended semantics: 65/90 vs
+floor 66/90 — the single residual violation is M13 (0 < 1), a
+single-entry fixture and a genuine salience failure. 33 of the 38
+entry-level #65 diagnostics correspond to runs that detect under
+intended semantics.
+
+Blast radius: #64 comparison corrected (measurements untouched, still
+diagnostic); #62 campaign verdict and revert unaffected (detection 0
+under any semantics; C7/control criteria entry-semantics-
+independent); #65 FB attribution unaffected (per-finding matching).
+EXPOSED: future qualification would judge AND (harness) against OR
+(floors) — the #64 distortion embedded in the gate. Repair options
+recorded in ORACLE-VALIDITY.md §4; NO repair executed. Stopped at
+diagnosis per human direction; oracle trust decision is the human's.
