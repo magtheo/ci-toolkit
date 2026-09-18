@@ -125,13 +125,37 @@ its outcome alone.
 | HTTP retries bound | ≤2 extra raw attempts per generation (legacy 3-attempt policy) |
 | planned output tokens (no escalation) | 324 × 8,000 = 2.59M |
 | credible worst-case output bound | 7.78M (every review escalates and exhausts 8k+16k) |
-| estimated prompt tokens | ~14.4M (chars/4 heuristic from measured manifests) |
-| estimated expected spend | **TBD — unit pricing to be recorded with source+date at authorization time**; cost = (prompt_tokens·p_in + completion_tokens·p_out)/1e6 |
-| wall-clock / load | 324 sequential generations at observed 15–60s smoke latencies ⇒ roughly 1.5–5.5h per effort; backoff sleeps add under load |
+| input tokens, no escalation | ~14.4M (chars/4 heuristic from measured manifests; 324 generations) |
+| input tokens, all reviews escalate | ~28.8M (escalation re-sends the prompt: ≤648 generations) |
 
-`--live` is mechanically refused without
-`PM_QUALIFY_LIVE_AUTHORIZED=1`. **Do not infer authorization from the
-#74 merge.**
+**Pricing observed 2026-09-18, OpenRouter model page for
+`z-ai/glm-5.3-flash`** (openrouter.ai; discounted listing):
+
+| | input / 1M | output / 1M |
+|---|---|---|
+| current discounted | $0.075 | $0.25 |
+| listed undiscounted | $0.15 | $0.50 |
+
+Conservative **token-cap ceilings** (every token consumed at list
+rates, every review escalating in the escalation rows) — these are
+NOT expected spend; actual Stage-A cost is measured and recorded
+from the run telemetry:
+
+| ceiling | discounted | undiscounted fallback |
+|---|---|---|
+| no escalation (~14.4M in + 2.59M out) | ≈ $1.73 | ≈ $3.46 |
+| full escalation (~28.8M in + 7.78M out) | ≈ $4.10 | ≈ $8.21 |
+
+These ceilings do NOT constitute spend authorization. Stage A runs
+only after explicit human authorization.
+
+Wall-clock / load: 324 sequential generations at observed 15–60s
+smoke latencies ⇒ roughly 1.5–5.5h per effort; backoff sleeps add
+under load.
+
+`--live` is mechanically refused without BOTH `--live` AND
+`PM_QUALIFY_LIVE_AUTHORIZED=1` (the env var alone is never a live
+invocation). **Do not infer authorization from the #74 merge.**
 
 ## Known measurement-validity concerns
 

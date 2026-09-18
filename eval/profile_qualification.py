@@ -308,28 +308,97 @@ def dry_run(out_dir, fixtures, runs, model, profile, overrides):
 def engine_http(engine):
     """Production-faithful HTTP attempt via the subject engine.
 
-    Wraps engine._post_chat ONLY to count raw attempts; the retry
-    policy itself is engine._post_with_retries, unchanged (one
-    source). Returns (raw_body, http_retries, latency_s).
+    Wraps engine._post_chat ONLY to count raw attempts of THIS
+    provider generation; the retry policy itself is
+    engine._post_with_retries, unchanged (one source). The counted
+    wrapper is installed and restored around EVERY post_payload
+    invocation, so escalation generations and later logical reviews
+    each count their own raw attempts.
+    Returns (raw_body, http_retries, latency_s).
     """
-    counter = {"attempts": 0}
     original = engine._post_chat
 
-    def counted(payload):
-        counter["attempts"] += 1
-        return original(payload)
-
-    engine._post_chat = counted
-
     def post_payload(body):
+        local = {"attempts": 0}
+
+        def counted(payload):
+            local["attempts"] += 1
+            return original(payload)
+
+        engine._post_chat = counted
         t0 = time.monotonic()
         try:
             _, _, raw = engine._post_with_retries(body, "qualification")
         finally:
             engine._post_chat = original
-        return raw, counter["attempts"] - 1, round(time.monotonic() - t0, 3)
+        return raw, local["attempts"] - 1, round(time.monotonic() - t0, 3)
 
     return post_payload
+
+
+REDUCER_FIELDS = (
+    "logical_reviews", "provider_generations", "http_retries",
+    "prompt_tokens", "completion_tokens", "reasoning_tokens",
+    "length_exhaustions", "escalations", "post_escalation_exhaustions",
+    "final_inconclusive", "transport_failures", "wall_s",
+)
+
+
+def reduce_records(records):
+    """The ONE aggregation: complete campaign state from persisted
+    records (records.jsonl is the source of truth). Used for every
+    summary.json — final and intermediate — so a resumed campaign
+    reports the whole campaign, not just the suffix. Deterministic:
+    pure function of the record list; floats are rounded to defeat
+    order-dependent last-ulp drift."""
+    agg = {field: 0 for field in REDUCER_FIELDS}
+    seen = set()
+    halted = False
+    for r in records:
+        if r.get("terminal_state") == "TRANSPORT_FAILURE":
+            agg["transport_failures"] += 1
+            halted = True
+            continue
+        key = (r["fixture"], r["run_index"])
+        if key in seen:
+            raise SystemExit(
+                "duplicate completed review key %r in records.jsonl "
+                "(fail closed — evidence integrity)" % (key,))
+        seen.add(key)
+        agg["logical_reviews"] += 1
+        agg["provider_generations"] += len(r["attempts"])
+        agg["http_retries"] += r.get("http_retries") or 0
+        for a in r["attempts"]:
+            for k in ("prompt_tokens", "completion_tokens",
+                      "reasoning_tokens"):
+                agg[k] += a.get(k) or 0
+            if a.get("finish_reason") == "length":
+                agg["length_exhaustions"] += 1
+                if a.get("kind") == "escalated":
+                    agg["post_escalation_exhaustions"] += 1
+        if r.get("escalated"):
+            agg["escalations"] += 1
+        if r.get("result") and \
+                r["result"].get("assessment") == INCONCLUSIVE:
+            agg["final_inconclusive"] += 1
+        agg["wall_s"] += r.get("wall_s") or 0.0
+    agg["wall_s"] = round(agg["wall_s"], 3)
+    agg["campaign_halted"] = halted
+    return agg
+
+
+def _load_records(records_path):
+    if not records_path.exists():
+        return []
+    return [json.loads(line) for line in
+            records_path.read_text().splitlines() if line.strip()]
+
+
+def _write_summary(out_dir, fixtures, runs, model, profile):
+    records = _load_records(out_dir / "records.jsonl")
+    _write_json(out_dir / "summary.json",
+                _meta(reduce_records(records), fixtures, runs,
+                      model, profile))
 
 
 def live(out_dir, fixtures, runs, model, profile, overrides):
@@ -341,59 +410,76 @@ def live(out_dir, fixtures, runs, model, profile, overrides):
     engine = load_subject_engine()
     post_payload = engine_http(engine)
     records_path = out_dir / "records.jsonl"
-    done = set()
-    if records_path.exists():
-        for line in records_path.read_text().splitlines():
-            if line.strip():
-                r = json.loads(line)
-                if r.get("terminal_state") != "TRANSPORT_FAILURE":
-                    done.add((r["fixture"], r["run_index"]))
 
-    agg = {
-        "logical_reviews": 0, "provider_generations": 0,
-        "http_retries": 0, "prompt_tokens": 0, "completion_tokens": 0,
-        "reasoning_tokens": 0, "length_exhaustions": 0,
-        "escalations": 0, "post_escalation_exhaustions": 0,
-        "final_inconclusive": 0, "transport_failures": 0,
-        "wall_s": 0.0, "cost": None,
-    }
+    # Fail closed on evidence-integrity problems BEFORE running
+    # anything: a persisted TRANSPORT_FAILURE is a campaign halt
+    # under preregistered D1 — it is reported and stops pending
+    # human direction, never silently retried; duplicate completed
+    # (fixture, run_index) keys mean the log was tampered or
+    # double-written — refuse.
+    existing = _load_records(records_path)
+    for r in existing:
+        if r.get("terminal_state") == "TRANSPORT_FAILURE":
+            raise SystemExit(
+                "campaign halted: records.jsonl carries a "
+                "TRANSPORT_FAILURE for (%s, run %s) — preregistered "
+                "disqualifier D1 territory. Report and stop pending "
+                "human direction; do not silently resume."
+                % (r.get("fixture"), r.get("run_index")))
+    done = set()
+    for r in existing:
+        key = (r["fixture"], r["run_index"])
+        if key in done:
+            raise SystemExit(
+                "duplicate completed review key %r in records.jsonl "
+                "(fail closed — evidence integrity)" % (key,))
+        done.add(key)
 
     def sink(record):
         with records_path.open("a") as fh:
             fh.write(json.dumps(record, sort_keys=True) + "\n")
 
-    for fixture in fixtures:
-        for run_index in range(runs):
-            if (fixture["id"], run_index) in done:
-                continue
-            try:
-                rec = logical_review(
+    try:
+        for fixture in fixtures:
+            for run_index in range(runs):
+                if (fixture["id"], run_index) in done:
+                    continue
+                logical_review(
                     engine, fixture, run_index, model, profile,
                     overrides, post_payload, sink)
-            except SystemExit:
-                agg["transport_failures"] += 1
-                _write_json(out_dir / "summary.json",
-                            _meta(agg, fixtures, runs, model, profile))
-                raise
-            agg["logical_reviews"] += 1
-            agg["provider_generations"] += len(rec["attempts"])
-            agg["http_retries"] += rec["http_retries"]
-            for a in rec["attempts"]:
-                for k in ("prompt_tokens", "completion_tokens",
-                          "reasoning_tokens"):
-                    agg[k] += a.get(k) or 0
-                if a["finish_reason"] == "length":
-                    agg["length_exhaustions"] += 1
-                    if a["kind"] == "escalated":
-                        agg["post_escalation_exhaustions"] += 1
-            agg["escalations"] += 1 if rec["escalated"] else 0
-            if rec["result"] and \
-                    rec["result"].get("assessment") == INCONCLUSIVE:
-                agg["final_inconclusive"] += 1
-            agg["wall_s"] += rec["wall_s"]
-    _write_json(out_dir / "summary.json",
-                _meta(agg, fixtures, runs, model, profile))
+    except SystemExit:
+        _write_summary(out_dir, fixtures, runs, model, profile)
+        raise
+    _write_summary(out_dir, fixtures, runs, model, profile)
     return out_dir
+
+
+def resolve_mode(args):
+    """The mode gate — decided BEFORE any output or network exists.
+
+    dry-run: --dry-run present, --live absent (no authorization
+    needed — zero calls by construction);
+    live:    --live present, --dry-run absent, AND
+             PM_QUALIFY_LIVE_AUTHORIZED=1 (both gates required;
+             the env var alone is NEVER sufficient);
+    anything else: refused.
+    """
+    if args.dry_run and args.live:
+        raise SystemExit("--dry-run and --live are mutually exclusive")
+    if args.dry_run:
+        return "dry-run"
+    if args.live:
+        if os.environ.get("PM_QUALIFY_LIVE_AUTHORIZED") != "1":
+            raise SystemExit(
+                "live measurement refused: --live requires "
+                "PM_QUALIFY_LIVE_AUTHORIZED=1 (explicit human spend "
+                "authorization)")
+        return "live"
+    raise SystemExit(
+        "no mode selected: pass --dry-run (zero model calls) or "
+        "--live together with PM_QUALIFY_LIVE_AUTHORIZED=1; an "
+        "authorized env var without --live is deliberately NOT a "
+        "live invocation")
 
 
 def main(argv=None):
@@ -409,12 +495,11 @@ def main(argv=None):
     ap.add_argument("--dry-run", action="store_true",
                     help="Q0: construct requests only; zero model calls")
     ap.add_argument("--live", action="store_true",
-                    help="require PM_QUALIFY_LIVE_AUTHORIZED=1")
+                    help="live mode; requires PM_QUALIFY_LIVE_AUTHORIZED=1")
     args = ap.parse_args(argv)
+    mode = resolve_mode(args)
     if args.runs < 1:
         raise SystemExit("--runs must be >= 1")
-    if args.dry_run and args.live:
-        raise SystemExit("--dry-run and --live are mutually exclusive")
     profile, overrides = measurement_profile(
         args.model, args.reasoning_effort, args.max_tokens)
     fixtures = corpus()
@@ -424,7 +509,7 @@ def main(argv=None):
         if not fixtures:
             raise SystemExit("no fixtures matched --fixtures")
     out_dir = pathlib.Path(args.out)
-    if args.dry_run:
+    if mode == "dry-run":
         dry_run(out_dir, fixtures, args.runs, args.model, profile, overrides)
     else:
         live(out_dir, fixtures, args.runs, args.model, profile, overrides)
