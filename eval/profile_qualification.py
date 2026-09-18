@@ -243,6 +243,44 @@ def corpus():
     return rc.load_corpus(ROOT / "eval" / "fixtures")
 
 
+SUBJECT_IDENTITY_FILES = ("engine.py", "parse_review.py", "render.py",
+                          "rubric.md")
+
+
+def subject_content_ref():
+    """Content identity of the reviewer subject: sha256 over the
+    sorted (name, bytes) of the files whose semantics define the
+    subject. Content hashes, not commit SHAs — valid on any checkout
+    including shallow CI."""
+    h = hashlib.sha256()
+    for rel in sorted(SUBJECT_IDENTITY_FILES):
+        h.update(rel.encode("utf-8"))
+        h.update((ROOT / rel).read_bytes())
+    return h.hexdigest()
+
+
+def campaign_identity(model, profile, runs):
+    """Everything a persisted evidence set must match to be resumed:
+    profile under measurement + oracle/subject/transport identity.
+    Written once per output directory BEFORE the first record;
+    compared exactly on every resume — a mismatch refuses before any
+    provider call, so a low/8k directory can never be silently
+    continued as high/8k."""
+    fixtures = corpus()
+    return {
+        "model": model,
+        "reasoning_effort": profile["reasoning_effort"],
+        "initial_max_tokens": profile["max_tokens"],
+        "N": runs,
+        "oracle_version": rc.oracle_version(),
+        "oracle_checkout_sha": ORACLE_CHECKOUT_SHA,
+        "subject_content_ref": subject_content_ref(),
+        "transport_sha": TRANSPORT_SHA,
+        "rubric_sha256": _sha((ROOT / "rubric.md").read_text()),
+        "corpus_sha256": rc.corpus_hash(fixtures),
+    }
+
+
 def planned_bounds(fixtures, runs, model, profile):
     logical = len(fixtures) * runs
     escalatable = bool(profile["retry_budget_escalation"])
@@ -401,6 +439,142 @@ def _write_summary(out_dir, fixtures, runs, model, profile):
                       model, profile))
 
 
+AGGREGATE_DETECTION_DEFINITION = (
+    "sum over positive fixtures and runs of "
+    "run_detects_all_groups(groups, result); denominator is "
+    "(number of positive fixtures) x N — 18 x 3 = 54 at Stage A. "
+    "Comparability definition for the historical 51/90 and 66/90 "
+    "references. rc.evaluate() remains authoritative for fixture "
+    "pass/fail: per-group STABILITY ((N+2)//2 of N) is deliberately "
+    "a different, stronger concept than run-level detection.")
+
+
+def stage_a_report(records, runs):
+    """Deterministic Stage-A reduction: records.jsonl -> oracle
+    metrics + hard-disqualifier results + the lexicographic
+    selection tuple. NO oracle semantics are reimplemented — each
+    fixture's ReviewResults are reconstructed from the persisted
+    records and fed through eval.run_corpus's evaluate(),
+    pair_integrity() and the 25k group helpers, the same functions
+    the harness and every frozen replay use."""
+    fixtures = {f["id"]: f for f in corpus()}
+    states = json.loads((ROOT / "eval" / "states.json").read_text())
+
+    by_fixture = {}
+    for r in records:
+        if r.get("terminal_state") in (None, "TRANSPORT_FAILURE",
+                                       "DRY_RUN"):
+            continue
+        by_fixture.setdefault(r["fixture"], {})[r["run_index"]] = \
+            r["result"]
+    per_fixture, missing_runs, fixtures_absent = [], [], []
+    ordered_results = {}
+    for fid in sorted(fixtures):
+        runs_by_idx = by_fixture.get(fid, {})
+        results = [runs_by_idx[i] for i in sorted(runs_by_idx)]
+        ordered_results[fid] = results
+        if not runs_by_idx:
+            fixtures_absent.append(fid)
+        elif set(runs_by_idx) != set(range(runs)):
+            missing_runs.append({"fixture": fid,
+                                 "present": sorted(runs_by_idx)})
+        if results:
+            per_fixture.append(rc.evaluate(fixtures[fid], results))
+
+    gating_violations = [r["id"] for r in per_fixture
+                         if states.get(r["id"]) == "GATING"
+                         and not r["passes_policy"]]
+    control_false_blocks = [
+        {"id": r["id"], "false_blockers": r["false_blockers"],
+         "assessments": r["assessments"]}
+        for r in per_fixture
+        if r["kind"] == "control" and r["false_blockers"]]
+    pi_violations, promotion_eligible = rc.pair_integrity(per_fixture)
+
+    positives = [f for f in fixtures.values() if f["kind"] == "positive"]
+    detected = 0
+    per_positive = {}
+    per_group_hits = {}
+    for fid in sorted(fixtures):
+        f = fixtures[fid]
+        results = ordered_results[fid]
+        if not results:
+            continue
+        groups = f["expected"]["groups"]
+        per_group_hits[fid] = rc.per_group_hits(groups, results)
+        if f["kind"] == "positive":
+            n_det = sum(1 for res in results
+                        if rc.run_detects_all_groups(groups, res))
+            per_positive[fid] = n_det
+            detected += n_det
+
+    fb_on_positives = sum(r["false_blockers"] for r in per_fixture
+                          if r["kind"] == "positive")
+    stability = {"CLEAR": 0, "ISSUES_FOUND": 0, "INCONCLUSIVE": 0}
+    for r in per_fixture:
+        for k in stability:
+            stability[k] += r["assessment_stability"][k]
+
+    transport = reduce_records(records)
+    logical = transport["logical_reviews"]
+    d1 = {
+        "fired": bool(transport["transport_failures"])
+                 or (logical > 0 and transport["final_inconclusive"]
+                     / logical > 0.10),
+        "final_inconclusive": transport["final_inconclusive"],
+        "logical_reviews": logical,
+        "transport_failures": transport["transport_failures"],
+    }
+    d2 = {"fired": bool(gating_violations),
+          "gating_violations": gating_violations}
+    d3 = {"fired": bool(control_false_blocks),
+          "zero_tolerance": "any unexpected blocking finding on any "
+                            "control run disqualifies (repaired-oracle "
+                            "control semantics; no tolerance was "
+                            "invented here)",
+          "violations": control_false_blocks}
+    esc = transport["escalations"]
+    post_esc = transport["post_escalation_exhaustions"]
+    d4 = {"fired": bool(esc and post_esc / esc > 0.05),
+          "escalations": esc, "post_escalation_exhaustions": post_esc}
+
+    output_tokens = (transport["completion_tokens"]
+                     + transport["reasoning_tokens"])
+    selection_tuple = [
+        -detected, fb_on_positives, -len(promotion_eligible),
+        output_tokens, transport["wall_s"]]
+
+    return {
+        "runs_requested": runs,
+        "complete": not missing_runs and not fixtures_absent,
+        "missing_runs": missing_runs,
+        "fixtures_absent": fixtures_absent,
+        "aggregate_positive_detection": {
+            "definition": AGGREGATE_DETECTION_DEFINITION,
+            "detected": detected,
+            "denominator": len(positives) * runs,
+            "per_positive": per_positive},
+        "per_group_hits": per_group_hits,
+        "false_blockers_on_positives": fb_on_positives,
+        "assessment_stability": stability,
+        "inconclusive_runs": stability["INCONCLUSIVE"],
+        "gating_violations": gating_violations,
+        "pair_integrity_violations": pi_violations,
+        "promotion_eligible": promotion_eligible,
+        "control_false_blocks": control_false_blocks,
+        "transport": transport,
+        "hard_disqualifiers": {"D1_transport_viability": d1,
+                               "D2_gating_regression": d2,
+                               "D3_control_false_block": d3,
+                               "D4_post_escalation_exhaustion": d4},
+        "selection_tuple": selection_tuple,
+        "selection_tuple_order": (
+            "[-aggregate_positive_detection, false_blockers_on_positives,"
+            " -promotion_eligible, output_tokens, wall_s]; "
+            "lexicographic among non-disqualified profiles"),
+    }
+
+
 def live(out_dir, fixtures, runs, model, profile, overrides):
     if os.environ.get("PM_QUALIFY_LIVE_AUTHORIZED") != "1":
         raise SystemExit(
@@ -411,12 +585,30 @@ def live(out_dir, fixtures, runs, model, profile, overrides):
     post_payload = engine_http(engine)
     records_path = out_dir / "records.jsonl"
 
+    # Campaign identity: persisted before the first record, compared
+    # exactly on every resume — BEFORE any provider call.
+    identity = campaign_identity(model, profile, runs)
+    campaign_path = out_dir / "campaign.json"
+    if campaign_path.exists():
+        persisted = json.loads(campaign_path.read_text())
+        if persisted != identity:
+            diff = [k for k in sorted(set(persisted) | set(identity))
+                    if persisted.get(k) != identity.get(k)]
+            raise SystemExit(
+                "campaign identity mismatch in %s (differing fields: "
+                "%s) — refusing to mix profiles in one evidence set; "
+                "use a fresh --out directory for the new profile"
+                % (campaign_path, ", ".join(diff)))
+    else:
+        _write_json(campaign_path, identity)
+
     # Fail closed on evidence-integrity problems BEFORE running
     # anything: a persisted TRANSPORT_FAILURE is a campaign halt
     # under preregistered D1 — it is reported and stops pending
     # human direction, never silently retried; duplicate completed
     # (fixture, run_index) keys mean the log was tampered or
-    # double-written — refuse.
+    # double-written — refuse; records from another profile must
+    # never blend into this evidence set.
     existing = _load_records(records_path)
     for r in existing:
         if r.get("terminal_state") == "TRANSPORT_FAILURE":
@@ -426,6 +618,16 @@ def live(out_dir, fixtures, runs, model, profile, overrides):
                 "disqualifier D1 territory. Report and stop pending "
                 "human direction; do not silently resume."
                 % (r.get("fixture"), r.get("run_index")))
+        if (r.get("model"), r.get("reasoning_effort"),
+                r.get("initial_max_tokens")) != \
+                (identity["model"], identity["reasoning_effort"],
+                 identity["initial_max_tokens"]):
+            raise SystemExit(
+                "records.jsonl carries a record from a different "
+                "campaign profile (%s/%s/%s) — refusing to blend "
+                "evidence sets"
+                % (r.get("model"), r.get("reasoning_effort"),
+                   r.get("initial_max_tokens")))
     done = set()
     for r in existing:
         key = (r["fixture"], r["run_index"])
@@ -491,15 +693,32 @@ def main(argv=None):
     ap.add_argument("--runs", type=int, default=3)
     ap.add_argument("--fixtures", default=None,
                     help="comma-separated fixture ids; default all")
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--out", default=None,
+                    help="output directory (required for --dry-run/--live)")
     ap.add_argument("--dry-run", action="store_true",
                     help="Q0: construct requests only; zero model calls")
     ap.add_argument("--live", action="store_true",
                     help="live mode; requires PM_QUALIFY_LIVE_AUTHORIZED=1")
+    ap.add_argument("--report", default=None, metavar="RECORDS_JSONL",
+                    help="deterministic Stage-A reduction of a "
+                         "records.jsonl (read-only; zero calls)")
     args = ap.parse_args(argv)
+    if args.report:
+        recs_path = pathlib.Path(args.report)
+        records = _load_records(recs_path)
+        camp_path = recs_path.parent / "campaign.json"
+        campaign = (json.loads(camp_path.read_text())
+                    if camp_path.exists() else {})
+        report = stage_a_report(records, campaign.get("N", 3))
+        report["campaign"] = campaign
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0
     mode = resolve_mode(args)
-    if args.runs < 1:
-        raise SystemExit("--runs must be >= 1")
+    if not args.report:
+        if not args.out:
+            raise SystemExit("--out is required for --dry-run/--live")
+        if args.runs < 1:
+            raise SystemExit("--runs must be >= 1")
     profile, overrides = measurement_profile(
         args.model, args.reasoning_effort, args.max_tokens)
     fixtures = corpus()

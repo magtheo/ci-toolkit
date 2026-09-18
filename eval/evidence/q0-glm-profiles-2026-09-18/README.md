@@ -21,7 +21,7 @@ identity proofs.
 `oracle_version` hashes `eval/run_corpus.py` + fixtures +
 `states.json` only; recomputation at HEAD returns `9e20730cb0436002`.
 
-## What was proven (deterministic, 22 new tests; suite 206/206)
+## What was proven (deterministic; suite count tracked in the PR — 222 passed at rev 3)
 
 - **Request equivalence (§6)**: low/8k request pins the exact
   production #70 shape — `model`, `temperature 0.2`, `max_tokens
@@ -55,6 +55,23 @@ initial budget: 8000           N: 3
 corpus: full repaired 36-fixture corpus
 logical reviews: 36 x 3 x 3 = 324
 ```
+
+**Balanced execution order (pre-registered)** — efforts are NOT run
+in three contiguous blocks; that would confound effort with time and
+provider-routing drift (OpenRouter routes among many GLM upstreams;
+automatic routing is part of the production environment and is
+recorded per generation, not pinned). Instead, a deterministic
+cyclic schedule per fixture:
+
+```
+run 0: low  -> high -> max
+run 1: high -> max  -> low
+run 2: max  -> low  -> high
+```
+
+Each effort's records land in its own --out directory (campaign
+identity makes cross-profile directory mixing impossible); the
+schedule is the invocation interleaving the operator follows.
 
 Measured request sizes (dry-run manifests): 178,015 prompt chars
 across 36 fixtures ⇒ ~44.5k prompt tokens per review-set pass ⇒
@@ -93,8 +110,13 @@ token usage; latency; provider distribution; cost.
   reviews, or any unresolved transport failure (campaign halt);
 - D2 GATING regression: any GATING fixture failing its oracle
   stability requirement at that effort;
-- D3 control false-block on ≥2/3 runs of any control (controls gate
-  alone);
+- D3 discrimination failure (zero tolerance): ANY unexpected
+  blocking finding on ANY control run disqualifies the effort. This
+  is the repaired oracle's actual control semantics
+  (`evaluate(): passes = CLEAR-stability == N and no false
+  blockers`) — no tolerance was invented; controls still gate alone.
+  D2 remains the separate regression check against the recorded
+  GATING states;
 - D4 post-escalation exhaustion on >5% of escalated reviews
   (escalation not rescuing ⇒ budget misfit).
 
@@ -150,8 +172,9 @@ These ceilings do NOT constitute spend authorization. Stage A runs
 only after explicit human authorization.
 
 Wall-clock / load: 324 sequential generations at observed 15–60s
-smoke latencies ⇒ roughly 1.5–5.5h per effort; backoff sleeps add
-under load.
+smoke latencies ⇒ 108 logical reviews per effort ≈ 0.45–1.8h per
+effort, ≈ 1.35–5.4h for the whole three-effort campaign before
+escalations/retries; backoff sleeps add under load.
 
 `--live` is mechanically refused without BOTH `--live` AND
 `PM_QUALIFY_LIVE_AUTHORIZED=1` (the env var alone is never a live

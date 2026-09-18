@@ -581,17 +581,13 @@ def test_duplicate_completed_keys_fail_closed(tmp_path, monkeypatch):
     _canned_http(monkeypatch)
     out = tmp_path / "dup"
     out.mkdir()
+    rec = {"fixture": "C1", "run_index": 0, "model": MODEL,
+           "reasoning_effort": "low", "initial_max_tokens": 8000,
+           "terminal_state": "OK_CONTENT", "attempts": [],
+           "escalated": False, "http_retries": 0, "wall_s": 0.0,
+           "result": {"assessment": "CLEAR"}}
     (out / "records.jsonl").write_text(
-        json.dumps({"fixture": "C1", "run_index": 0,
-                    "terminal_state": "OK_CONTENT", "attempts": [],
-                    "escalated": False, "http_retries": 0,
-                    "wall_s": 0.0,
-                    "result": {"assessment": "CLEAR"}}) + "\n" +
-        json.dumps({"fixture": "C1", "run_index": 0,
-                    "terminal_state": "OK_CONTENT", "attempts": [],
-                    "escalated": False, "http_retries": 0,
-                    "wall_s": 0.0,
-                    "result": {"assessment": "CLEAR"}}) + "\n")
+        json.dumps(rec) + "\n" + json.dumps(rec) + "\n")
     with pytest.raises(SystemExit, match="duplicate completed review"):
         pq.live(out, [_fixture("C1")], 1, MODEL,
                 _low_profile()[0], _low_profile()[1])
@@ -623,3 +619,210 @@ def test_transport_failure_halts_and_blocks_silent_resume(
                 _low_profile()[0], _low_profile()[1])
     records = (out / "records.jsonl").read_text().splitlines()
     assert len(records) == 1  # nothing appended on the refused resume
+
+
+# ---- campaign identity: fail-closed resume across profiles ------------------
+
+def test_campaign_identity_persisted_before_first_record(
+        tmp_path, monkeypatch):
+    _canned_http(monkeypatch)
+    out = tmp_path / "camp"
+    pq.live(out, [_fixture("C1")], 1, MODEL, _low_profile()[0],
+            _low_profile()[1])
+    identity = json.loads((out / "campaign.json").read_text())
+    assert identity == {
+        "model": MODEL,
+        "reasoning_effort": "low",
+        "initial_max_tokens": 8000,
+        "N": 1,
+        "oracle_version": "9e20730cb0436002",
+        "oracle_checkout_sha": pq.ORACLE_CHECKOUT_SHA,
+        "subject_content_ref": pq.subject_content_ref(),
+        "transport_sha": pq.TRANSPORT_SHA,
+        "rubric_sha256": identity["rubric_sha256"],
+        "corpus_sha256": identity["corpus_sha256"]}
+    # deterministic content ref over subject files
+    assert pq.subject_content_ref() == pq.subject_content_ref()
+
+
+def test_resume_refuses_profile_change_in_same_dir(tmp_path, monkeypatch):
+    _canned_http(monkeypatch)
+    out = tmp_path / "mix"
+    pq.live(out, [_fixture("C1")], 1, MODEL, _low_profile()[0],
+            _low_profile()[1])
+    before_records = (out / "records.jsonl").read_bytes()
+    before_campaign = (out / "campaign.json").read_bytes()
+    high, ovh = pq.measurement_profile(MODEL, reasoning_effort="high")
+    with pytest.raises(SystemExit, match="campaign identity mismatch"):
+        pq.live(out, [_fixture("C1")], 1, MODEL, high, ovh)
+    assert (out / "records.jsonl").read_bytes() == before_records
+    assert (out / "campaign.json").read_bytes() == before_campaign
+
+
+def test_resume_refuses_records_from_other_profile(tmp_path, monkeypatch):
+    _canned_http(monkeypatch)
+    out = tmp_path / "blend"
+    pq.live(out, [_fixture("C1")], 1, MODEL, _low_profile()[0],
+            _low_profile()[1])
+    lines = (out / "records.jsonl").read_text().splitlines()
+    rec = json.loads(lines[0])
+    rec["fixture"] = "C2"
+    rec["reasoning_effort"] = "max"  # forged/blended record
+    (out / "records.jsonl").write_text("\n".join(lines + [json.dumps(rec)])
+                                       + "\n")
+    with pytest.raises(SystemExit, match="different campaign profile"):
+        pq.live(out, [_fixture("C1"), _fixture("C2")], 1, MODEL,
+                _low_profile()[0], _low_profile()[1])
+
+
+# ---- Stage-A semantic/selection reducer (through the REAL oracle) -----------
+
+def _det_result(findings, assessment="ISSUES_FOUND"):
+    return {"schema_version": 1, "assessment": assessment,
+            "findings": findings, "summary": "s", "good": []}
+
+
+def _m2_detect_result():
+    m2 = _fixture("M2")
+    a0 = m2["expected"]["groups"][0]["alternatives"][0]
+    a1 = m2["expected"]["groups"][1]["alternatives"][0]
+    return _det_result([
+        {"file": "x.yml", "severity": a0["severity"],
+         "comment": "pull_request_target trigger runs untrusted code"},
+        {"file": "x.yml", "severity": a1["severity"],
+         "comment": "action pins a floating toolkit_ref"}])
+
+
+def _records_for(spec, runs=3):
+    """spec: {fixture_id: [result, ...]} -> campaign-shaped records."""
+    out = []
+    for fid, results in spec.items():
+        for i, res in enumerate(results[:runs]):
+            out.append({
+                "fixture": fid, "run_index": i, "model": MODEL,
+                "reasoning_effort": "low", "initial_max_tokens": 8000,
+                "terminal_state": "OK_CONTENT",
+                "attempts": [{"kind": "initial", "max_tokens": 8000,
+                              "finish_reason": "stop",
+                              "state": "OK_CONTENT",
+                              "provider": "p", "latency_s": 0.01,
+                              "prompt_tokens": 10,
+                              "completion_tokens": 5,
+                              "reasoning_tokens": 0}],
+                "http_retries": 0, "escalated": False, "wall_s": 0.01,
+                "result": res})
+    return out
+
+
+def _auto_detect_result(fixture):
+    """A result whose findings hit the FIRST alternative of every
+    required group (needles embedded verbatim in the comment)."""
+    findings = []
+    for group in fixture["expected"]["groups"]:
+        alt = group["alternatives"][0]
+        parts = list(alt.get("comment_all", []))
+        if alt.get("comment_any"):
+            parts.append(alt["comment_any"][0])
+        findings.append({"file": "x", "severity": alt["severity"],
+                         "comment": " ".join(parts)})
+    return _det_result(findings)
+
+
+def test_stage_a_report_full_clean_campaign_through_real_oracle():
+    spec = {}
+    for f in rc.load_corpus(REPO / "eval" / "fixtures"):
+        if f["kind"] == "positive":
+            spec[f["id"]] = [_auto_detect_result(f)] * 3
+        else:
+            spec[f["id"]] = [_det_result([], assessment="CLEAR")] * 3
+    report = pq.stage_a_report(_records_for(spec), runs=3)
+    assert report["complete"] is True
+    assert report["missing_runs"] == [] and report["fixtures_absent"] == []
+    agg = report["aggregate_positive_detection"]
+    assert agg["detected"] == 54 and agg["denominator"] == 54
+    assert set(agg["per_positive"].values()) == {3}
+    assert len(agg["per_positive"]) == 18
+    assert report["per_group_hits"]["M2"] == [3, 3]
+    assert report["gating_violations"] == []
+    assert report["control_false_blocks"] == []
+    assert report["pair_integrity_violations"] == []
+    assert len(report["promotion_eligible"]) == 18
+    assert report["false_blockers_on_positives"] == 0
+    assert report["assessment_stability"]["CLEAR"] == 54
+    assert report["assessment_stability"]["ISSUES_FOUND"] == 54
+    assert report["inconclusive_runs"] == 0
+    fired = [k for k, v in report["hard_disqualifiers"].items()
+             if v["fired"]]
+    assert fired == []
+    assert report["selection_tuple"][0] == -54  # full detection
+    assert report["selection_tuple"][2] == -18
+
+
+def test_stage_a_report_d3_zero_tolerance_control_false_block():
+    clear = _det_result([], assessment="CLEAR")
+    poisoned = _det_result(
+        [{"file": "y.py", "severity": "blocking",
+          "comment": "totally unrelated blocking claim"}])
+    records = _records_for({"C1": [clear, poisoned, clear]})
+    report = pq.stage_a_report(records, runs=3)
+    d3 = report["hard_disqualifiers"]["D3_control_false_block"]
+    assert d3["fired"] is True
+    assert report["control_false_blocks"][0]["id"] == "C1"
+    assert report["control_false_blocks"][0]["false_blockers"] == 1
+
+
+def test_stage_a_report_d2_gating_regression_without_d3():
+    # C4 is a recorded GATING control: INCONCLUSIVE on every run
+    # fails the control (cannot review clean code) with ZERO false
+    # blockers — D2 fires, D3 stays clean. Two separate concepts.
+    inc = _det_result([], assessment="INCONCLUSIVE")
+    records = _records_for({"C4": [inc] * 3})
+    report = pq.stage_a_report(records, runs=3)
+    assert report["hard_disqualifiers"]["D2_gating_regression"][
+        "fired"] is True
+    assert report["gating_violations"] == ["C4"]
+    assert report["hard_disqualifiers"]["D3_control_false_block"][
+        "fired"] is False
+
+
+def test_stage_a_report_d1_and_d4_transport_disqualifiers():
+    clear = _det_result([], assessment="CLEAR")
+    inc = _det_result([], assessment="INCONCLUSIVE")
+    records = _records_for({"C1": [inc, inc, clear]})
+    # forged transport counters: 2/3 INCONCLUSIVE finals (66% > 10%)
+    # and 1 escalated review that exhausted again at 16k (100% > 5%)
+    for r in records:
+        r["escalated"] = True
+    records[0]["attempts"] = [
+        {"kind": "initial", "max_tokens": 8000, "finish_reason": "length",
+         "state": "NO_CONTENT", "provider": "p", "latency_s": 1.0,
+         "prompt_tokens": 10, "completion_tokens": 0,
+         "reasoning_tokens": 8000},
+        {"kind": "escalated", "max_tokens": 16000,
+         "finish_reason": "length", "state": "NO_CONTENT",
+         "provider": "p", "latency_s": 2.0, "prompt_tokens": 10,
+         "completion_tokens": 0, "reasoning_tokens": 16000}]
+    report = pq.stage_a_report(records, runs=3)
+    dq = report["hard_disqualifiers"]
+    assert dq["D1_transport_viability"]["fired"] is True
+    assert dq["D1_transport_viability"]["final_inconclusive"] == 2
+    assert dq["D4_post_escalation_exhaustion"]["fired"] is True
+    assert report["selection_tuple"][0] == 0  # no positives in spec
+
+
+def test_report_cli_reads_records_and_campaign(tmp_path, monkeypatch):
+    _canned_http(monkeypatch)
+    out = tmp_path / "cli"
+    pq.live(out, [_fixture("C1")], 1, MODEL, _low_profile()[0],
+            _low_profile()[1])
+    import io, contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc_code = pq.main(["--report", str(out / "records.jsonl")])
+    assert rc_code == 0
+    report = json.loads(buf.getvalue())
+    assert report["campaign"]["reasoning_effort"] == "low"
+    assert report["complete"] is False  # 1 of 36 fixtures only
+    assert "selection_tuple" in report and "hard_disqualifiers" in report
+    assert "run_detects_all_groups" in report[
+        "aggregate_positive_detection"]["definition"]
