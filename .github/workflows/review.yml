@@ -28,8 +28,9 @@ permissions:
 jobs:
   ai-review:
     if: ${{ !github.event.pull_request.head.repo.fork }}
-    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@e59239f485fd2d4d3ef3a2647b791c53cb3a5963
+    uses: magtheo/ci-toolkit/.github/workflows/ai-review.yml@b663bfd3139bb04a70f95d661c96ee150f534513
     with:
-      toolkit_ref: e59239f485fd2d4d3ef3a2647b791c53cb3a5963
+      toolkit_ref: b663bfd3139bb04a70f95d661c96ee150f534513
+      model: z-ai/glm-5.3-flash
     secrets:
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
