@@ -36,6 +36,33 @@ MODEL = "z-ai/glm-5.3-flash"
 ORACLE_SHA = "4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25"
 TRANSPORT_SHA = "b663bfd3139bb04a70f95d661c96ee150f534513"
 
+# Byte-identity pins: sha256 of each subject file at the oracle
+# checkout (4b116a7) and each transport file at the pinned #70 merge
+# (b663bfd). Content hashes make these tests hermetic — they hold on
+# any checkout (CI fetches shallow history) without needing the
+# ancestor commits. A legitimate subject/transport bump is a
+# reviewed change to these constants.
+FILE_PINS = {
+    # subject @ oracle checkout
+    "engine.py":
+        "ef69514cb4964e3df5c584486ba4578835c373fb7b7b97be5f7b5361ae3be346",
+    "render.py":
+        "31f32f07b77a55eb5aaad34e7481339bc15afca2b65793ec25f7674ad948b264",
+    "rubric.md":
+        "415d8a38cfed9d3a826c81d158d6b6883b1c0c4b598e1b81a51e98afae0b3eeb",
+    "parse_review.py":
+        "78333641c1b5c70bcc0745ed5993867ad35b4ea87ce2f5faba63c1664883d4e5",
+    "review.sh":
+        "834d950bde63b5710ef5ab12183045dc14c5b6b06bd2d27ea95106077af0089f",
+    # transport @ pinned #70 merge
+    "transport.py":
+        "a8d53f24ee5bc6a3270ab128cf8ada72b614e45cae2a344f9a1808d241a2756c",
+    "model_profiles.json":
+        "821878ad3e795320017449e1af4afc87608cf9276d59cb855a44f1027aa8621a",
+    "review_result_schema.json":
+        "b1a3596b9ce0c52cfe4ed922c7302dde1cbf8cd01d4a2948adae814f3e83d9cc",
+}
+
 
 def _fixture(fid):
     matches = [f for f in rc.load_corpus(REPO / "eval" / "fixtures")
@@ -252,29 +279,20 @@ def test_prompts_invariant_to_measurement_overrides():
 
 # ---- oracle / subject / transport separation (Q0 directive §7) --------------
 
-def _changed_between(base, paths):
-    out = subprocess.run(
-        ["git", "diff", "--name-only", "%s..HEAD" % base, "--"] + paths,
-        capture_output=True, text=True, check=True, cwd=str(REPO))
-    return [l for l in out.stdout.splitlines() if l.strip()]
+def _file_sha(rel):
+    return pq._sha((REPO / rel).read_text())
 
 
 def test_oracle_inputs_untouched_and_version_stable():
-    assert rc.oracle_version() == pq.ORACLE_VERSION
-    assert _changed_between(ORACLE_SHA, [
-        "eval/run_corpus.py", "eval/fixtures", "eval/states.json"]) == []
+    # oracle_version is a content hash of run_corpus.py + every
+    # fixture byte + states.json: equality with the pinned constant
+    # IS byte-identity with the oracle checkout — no history needed.
+    assert rc.oracle_version() == pq.ORACLE_VERSION == "9e20730cb0436002"
 
 
-def test_subject_files_untouched_vs_oracle_checkout():
-    assert _changed_between(ORACLE_SHA, [
-        "engine.py", "render.py", "rubric.md", "parse_review.py",
-        "review.sh"]) == []
-
-
-def test_transport_files_untouched_vs_pinned_transport():
-    assert _changed_between(TRANSPORT_SHA, [
-        "transport.py", "model_profiles.json",
-        "review_result_schema.json"]) == []
+def test_subject_and_transport_files_byte_identical_to_pins():
+    for rel, expected in FILE_PINS.items():
+        assert _file_sha(rel) == expected, rel
 
 
 # ---- dry run: zero network, deterministic -----------------------------------
@@ -334,14 +352,12 @@ def test_dry_run_and_live_are_exclusive(tmp_path):
 
 
 def test_deployed_profile_file_not_mutated_by_measurement():
-    pinned = subprocess.run(
-        ["git", "show", "%s:model_profiles.json" % TRANSPORT_SHA],
-        capture_output=True, text=True, check=True, cwd=str(REPO)).stdout
-    assert (REPO / "model_profiles.json").read_text() == pinned
+    pinned_sha = FILE_PINS["model_profiles.json"]
+    assert _file_sha("model_profiles.json") == pinned_sha
     profile, _ = _low_profile(effort="max", budget=12000)
     assert profile["reasoning_effort"] == "max"
     assert profile["max_tokens"] == 12000
-    assert (REPO / "model_profiles.json").read_text() == pinned
+    assert _file_sha("model_profiles.json") == pinned_sha
 
 
 def test_record_carries_no_reasoning_text_and_full_accounting():
