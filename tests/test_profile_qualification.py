@@ -588,6 +588,11 @@ def test_duplicate_completed_keys_fail_closed(tmp_path, monkeypatch):
            "result": {"assessment": "CLEAR"}}
     (out / "records.jsonl").write_text(
         json.dumps(rec) + "\n" + json.dumps(rec) + "\n")
+    # a consistent campaign.json so the rebind guard passes and the
+    # duplicate check itself is what fires
+    profile, overrides = _low_profile()
+    pq._write_json(out / "campaign.json",
+                   pq.campaign_identity(MODEL, profile, 1))
     with pytest.raises(SystemExit, match="duplicate completed review"):
         pq.live(out, [_fixture("C1")], 1, MODEL,
                 _low_profile()[0], _low_profile()[1])
@@ -639,6 +644,7 @@ def test_campaign_identity_persisted_before_first_record(
         "oracle_checkout_sha": pq.ORACLE_CHECKOUT_SHA,
         "subject_content_ref": pq.subject_content_ref(),
         "transport_sha": pq.TRANSPORT_SHA,
+        "transport_content_ref": pq.transport_content_ref(),
         "rubric_sha256": identity["rubric_sha256"],
         "corpus_sha256": identity["corpus_sha256"]}
     # deterministic content ref over subject files
@@ -826,3 +832,71 @@ def test_report_cli_reads_records_and_campaign(tmp_path, monkeypatch):
     assert "selection_tuple" in report and "hard_disqualifiers" in report
     assert "run_detects_all_groups" in report[
         "aggregate_positive_detection"]["definition"]
+
+
+# ---- rev 4: evidence-set rebind + balanced schedule realizability -----------
+
+def test_resume_refuses_records_without_campaign_json(
+        tmp_path, monkeypatch):
+    """An existing evidence set must never be rebound to a freshly
+    generated campaign identity (old subject/oracle records would
+    acquire today's identity retroactively)."""
+    _canned_http(monkeypatch)
+    out = tmp_path / "orphan"
+    out.mkdir()
+    rec = {"fixture": "C1", "run_index": 0, "model": MODEL,
+           "reasoning_effort": "low", "initial_max_tokens": 8000,
+           "terminal_state": "OK_CONTENT", "attempts": [],
+           "escalated": False, "http_retries": 0, "wall_s": 0.0,
+           "result": {"assessment": "CLEAR"}}
+    (out / "records.jsonl").write_text(json.dumps(rec) + "\n")
+    with pytest.raises(SystemExit, match="without campaign.json"):
+        pq.live(out, [_fixture("C1")], 1, MODEL, _low_profile()[0],
+                _low_profile()[1])
+    assert not (out / "campaign.json").exists()  # nothing was created
+    assert len((out / "records.jsonl").read_text().splitlines()) == 1
+
+
+def test_run_index_executes_the_preregistered_balanced_schedule(
+        tmp_path, monkeypatch):
+    """The preregistered cyclic schedule must be operationally
+    realizable: single-run-index invocations populate three per-effort
+    campaign directories (N=3 pinned in each campaign.json) in the
+    documented interleaving."""
+    _canned_http(monkeypatch)
+    dirs = {e: tmp_path / e for e in ("low", "high", "max")}
+    profiles = {}
+    for e in dirs:
+        profiles[e] = pq.measurement_profile(MODEL, reasoning_effort=e)
+    schedule = [["low", "high", "max"],
+                ["high", "max", "low"],
+                ["max", "low", "high"]]
+    fixtures = [_fixture("C1"), _fixture("C2")]
+    for run_index, order in enumerate(schedule):
+        for effort in order:
+            profile, overrides = profiles[effort]
+            pq.live(dirs[effort], fixtures, 3, MODEL, profile,
+                    overrides, run_index=run_index)
+    for effort, out in dirs.items():
+        records = [json.loads(l) for l in
+                   (out / "records.jsonl").read_text().splitlines()]
+        assert sorted(r["run_index"] for r in records) == [0, 0, 1, 1, 2, 2]
+        assert {r["fixture"] for r in records} == {"C1", "C2"}
+        assert {r["reasoning_effort"] for r in records} == {effort}
+        campaign = json.loads((out / "campaign.json").read_text())
+        assert campaign["N"] == 3
+        assert campaign["reasoning_effort"] == effort
+    # finishing: one more full pass per effort completes all runs
+    # (the resume path dedupes against persisted records)
+
+
+def test_run_index_validation(tmp_path, monkeypatch):
+    _canned_http(monkeypatch)
+    monkeypatch.setenv("PM_QUALIFY_LIVE_AUTHORIZED", "1")
+    profile, overrides = _low_profile()
+    with pytest.raises(SystemExit, match="run-index must satisfy"):
+        pq.live(tmp_path / "x", [_fixture("C1")], 3, MODEL, profile,
+                overrides, run_index=3)
+    with pytest.raises(SystemExit, match="applies to --live only"):
+        pq.main(["--dry-run", "--run-index", "0", "--reasoning-effort",
+                 "low", "--out", str(tmp_path / "y")])

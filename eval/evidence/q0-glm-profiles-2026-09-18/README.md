@@ -123,9 +123,13 @@ token usage; latency; provider distribution; cost.
 **Selection metrics** among survivors, lexicographic:
 
 1. (B) reviewer sensitivity: aggregate positive detection (higher is
-   better). Frozen Haiku/Sonnet floors (51/90, 66/90) are
-   **references only** — no governed rule makes them cross-model
-   qualification thresholds.
+   better; run-level definition pinned by
+   `AGGREGATE_DETECTION_DEFINITION`, denominator 54). Frozen
+   Haiku/Sonnet floors (51/90, 66/90) are **methodological context,
+   not numerically comparable thresholds** — different aggregate
+   denominators/populations; no governed rule makes them cross-model
+   qualification thresholds and they must not be normalized onto the
+   54-run aggregate.
 2. (C) discrimination: false blockers on positives (lower), then
    paired-control clean count (higher).
 3. (D) cost + latency: total tokens then wall time (tie-break).

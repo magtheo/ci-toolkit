@@ -245,18 +245,32 @@ def corpus():
 
 SUBJECT_IDENTITY_FILES = ("engine.py", "parse_review.py", "render.py",
                           "rubric.md")
+TRANSPORT_IDENTITY_FILES = ("transport.py", "model_profiles.json",
+                            "review_result_schema.json")
 
 
-def subject_content_ref():
-    """Content identity of the reviewer subject: sha256 over the
-    sorted (name, bytes) of the files whose semantics define the
-    subject. Content hashes, not commit SHAs — valid on any checkout
-    including shallow CI."""
+def _content_ref(files):
+    """Content identity: sha256 over the sorted (name, bytes) of the
+    given files. Content hashes, not commit SHAs — valid on any
+    checkout including shallow CI, and they move the moment the file
+    content moves (provenance constants alone would not)."""
     h = hashlib.sha256()
-    for rel in sorted(SUBJECT_IDENTITY_FILES):
+    for rel in sorted(files):
         h.update(rel.encode("utf-8"))
         h.update((ROOT / rel).read_bytes())
     return h.hexdigest()
+
+
+def subject_content_ref():
+    return _content_ref(SUBJECT_IDENTITY_FILES)
+
+
+def transport_content_ref():
+    """Runtime content identity of the transport trio. TRANSPORT_SHA
+    is provenance (which PR reviewed this transport); this ref proves
+    the CURRENT bytes still are that transport — plan stop-condition
+    'transport byte drift' is detectable at resume time."""
+    return _content_ref(TRANSPORT_IDENTITY_FILES)
 
 
 def campaign_identity(model, profile, runs):
@@ -276,6 +290,7 @@ def campaign_identity(model, profile, runs):
         "oracle_checkout_sha": ORACLE_CHECKOUT_SHA,
         "subject_content_ref": subject_content_ref(),
         "transport_sha": TRANSPORT_SHA,
+        "transport_content_ref": transport_content_ref(),
         "rubric_sha256": _sha((ROOT / "rubric.md").read_text()),
         "corpus_sha256": rc.corpus_hash(fixtures),
     }
@@ -443,10 +458,13 @@ AGGREGATE_DETECTION_DEFINITION = (
     "sum over positive fixtures and runs of "
     "run_detects_all_groups(groups, result); denominator is "
     "(number of positive fixtures) x N — 18 x 3 = 54 at Stage A. "
-    "Comparability definition for the historical 51/90 and 66/90 "
-    "references. rc.evaluate() remains authoritative for fixture "
-    "pass/fail: per-group STABILITY ((N+2)//2 of N) is deliberately "
-    "a different, stronger concept than run-level detection.")
+    "The historical 51/90 (haiku) and 66/90 (sonnet) floors are "
+    "methodological CONTEXT, not numerically comparable thresholds: "
+    "they aggregate different populations/denominators and must not "
+    "be normalized onto this metric without a governed rule. "
+    "rc.evaluate() remains authoritative for fixture pass/fail: "
+    "per-group STABILITY ((N+2)//2 of N) is deliberately a "
+    "different, stronger concept than run-level detection.")
 
 
 def stage_a_report(records, runs):
@@ -575,18 +593,25 @@ def stage_a_report(records, runs):
     }
 
 
-def live(out_dir, fixtures, runs, model, profile, overrides):
+def live(out_dir, fixtures, runs, model, profile, overrides,
+         run_index=None):
     if os.environ.get("PM_QUALIFY_LIVE_AUTHORIZED") != "1":
         raise SystemExit(
             "live measurement refused: set PM_QUALIFY_LIVE_AUTHORIZED=1 "
             "(explicit human spend authorization) and pass --live")
     out_dir.mkdir(parents=True, exist_ok=True)
     engine = load_subject_engine()
-    post_payload = engine_http(engine)
     records_path = out_dir / "records.jsonl"
+    existing = _load_records(records_path)
 
-    # Campaign identity: persisted before the first record, compared
-    # exactly on every resume — BEFORE any provider call.
+    # Campaign identity — READ the evidence set's history BEFORE
+    # creating anything. An existing records.jsonl without
+    # campaign.json must never be rebound to a freshly generated
+    # identity (that would let old-subject/old-oracle records
+    # acquire today's identity retroactively): refuse. Identity is
+    # created only for an evidence set with zero records, and then
+    # compared exactly on every resume — all before any provider
+    # call.
     identity = campaign_identity(model, profile, runs)
     campaign_path = out_dir / "campaign.json"
     if campaign_path.exists():
@@ -599,8 +624,18 @@ def live(out_dir, fixtures, runs, model, profile, overrides):
                 "%s) — refusing to mix profiles in one evidence set; "
                 "use a fresh --out directory for the new profile"
                 % (campaign_path, ", ".join(diff)))
+    elif existing:
+        raise SystemExit(
+            "records.jsonl exists without campaign.json — refusing to "
+            "rebind an existing evidence set to a freshly generated "
+            "campaign identity (fail closed); restore the original "
+            "campaign.json or use a fresh --out directory")
     else:
         _write_json(campaign_path, identity)
+
+    if run_index is not None and not 0 <= run_index < runs:
+        raise SystemExit(
+            "--run-index must satisfy 0 <= run-index < N (N=%d)" % runs)
 
     # Fail closed on evidence-integrity problems BEFORE running
     # anything: a persisted TRANSPORT_FAILURE is a campaign halt
@@ -609,7 +644,7 @@ def live(out_dir, fixtures, runs, model, profile, overrides):
     # (fixture, run_index) keys mean the log was tampered or
     # double-written — refuse; records from another profile must
     # never blend into this evidence set.
-    existing = _load_records(records_path)
+    done = set()
     for r in existing:
         if r.get("terminal_state") == "TRANSPORT_FAILURE":
             raise SystemExit(
@@ -628,8 +663,6 @@ def live(out_dir, fixtures, runs, model, profile, overrides):
                 "evidence sets"
                 % (r.get("model"), r.get("reasoning_effort"),
                    r.get("initial_max_tokens")))
-    done = set()
-    for r in existing:
         key = (r["fixture"], r["run_index"])
         if key in done:
             raise SystemExit(
@@ -641,13 +674,15 @@ def live(out_dir, fixtures, runs, model, profile, overrides):
         with records_path.open("a") as fh:
             fh.write(json.dumps(record, sort_keys=True) + "\n")
 
+    post_payload = engine_http(engine)
+    indices = range(runs) if run_index is None else [run_index]
     try:
         for fixture in fixtures:
-            for run_index in range(runs):
-                if (fixture["id"], run_index) in done:
+            for ri in indices:
+                if (fixture["id"], ri) in done:
                     continue
                 logical_review(
-                    engine, fixture, run_index, model, profile,
+                    engine, fixture, ri, model, profile,
                     overrides, post_payload, sink)
     except SystemExit:
         _write_summary(out_dir, fixtures, runs, model, profile)
@@ -699,6 +734,11 @@ def main(argv=None):
                     help="Q0: construct requests only; zero model calls")
     ap.add_argument("--live", action="store_true",
                     help="live mode; requires PM_QUALIFY_LIVE_AUTHORIZED=1")
+    ap.add_argument("--run-index", type=int, default=None, metavar="I",
+                    help="live only: execute ONLY run index I of the "
+                         "campaign (N stays fixed in campaign.json); the "
+                         "balanced low/high/max schedule is orchestrated "
+                         "with repeated single-run-index invocations")
     ap.add_argument("--report", default=None, metavar="RECORDS_JSONL",
                     help="deterministic Stage-A reduction of a "
                          "records.jsonl (read-only; zero calls)")
@@ -719,6 +759,13 @@ def main(argv=None):
             raise SystemExit("--out is required for --dry-run/--live")
         if args.runs < 1:
             raise SystemExit("--runs must be >= 1")
+        if args.run_index is not None:
+            if args.dry_run:
+                raise SystemExit("--run-index applies to --live only")
+            if not 0 <= args.run_index < args.runs:
+                raise SystemExit(
+                    "--run-index must satisfy 0 <= run-index < N "
+                    "(N=%d)" % args.runs)
     profile, overrides = measurement_profile(
         args.model, args.reasoning_effort, args.max_tokens)
     fixtures = corpus()
@@ -731,7 +778,8 @@ def main(argv=None):
     if mode == "dry-run":
         dry_run(out_dir, fixtures, args.runs, args.model, profile, overrides)
     else:
-        live(out_dir, fixtures, args.runs, args.model, profile, overrides)
+        live(out_dir, fixtures, args.runs, args.model, profile, overrides,
+             run_index=args.run_index)
     return 0
 
 
