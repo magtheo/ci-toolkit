@@ -43,12 +43,19 @@ HDR_DIR="$(mktemp -d)"
 cleanup() {
     rm -rf "$HDR_DIR"
     rm -f "${files_jsonl:-}" "${content_file:-}" "${or_resp:-}" \
-          prompt.json review.json
+          prompt.json review.json "${sys_file:-}" "${user_file:-}" \
+          "${parse_err:-}"
 }
 trap cleanup EXIT
 ( umask 077
   printf 'Authorization: Bearer %s' "$TOKEN" > "$HDR_DIR/gh"
   printf 'Authorization: Bearer %s' "$OPENROUTER_API_KEY" > "$HDR_DIR/llm" )
+
+# ---- model profile: reviewed configuration, travels with the pin ----
+# Unknown slugs resolve to the default profile (legacy request
+# unchanged). No runtime discovery, no caller-side overrides.
+PROFILE=$(python3 "$TOOLKIT_DIR/transport.py" profile "$MODEL")
+MAX_TOKENS=$(jq -r '.max_tokens' <<<"$PROFILE")
 
 curl_gh() { curl -sS -f --connect-timeout 10 --max-time 60 \
   -H @"$HDR_DIR/gh" \
@@ -147,66 +154,131 @@ $diff_text
 
 Respond with the rubric's STRICT JSON object and nothing else."
 
-jq -n --arg model "$MODEL" \
-  --arg system "$system_prompt" --arg user "$user_prompt" \
-  '{model: $model, temperature: 0.2, max_tokens: 2000,
-    messages: [{role: "system", content: $system},
-               {role: "user",   content: $user}]}' > prompt.json
+sys_file=$(mktemp)
+user_file=$(mktemp)
+parse_err=$(mktemp)
+printf '%s' "$system_prompt" >"$sys_file"
+printf '%s' "$user_prompt" >"$user_file"
 
-# ---- model call: retry transient failures (network + 429/5xx) ------------
+# Request shape from the profile (reasoning control / structured
+# output are added here, never hand-rolled in shell). PR-derived text
+# travels via temp files, not argv.
+python3 "$TOOLKIT_DIR/transport.py" request "$MODEL" \
+  "$sys_file" "$user_file" > prompt.json
+
+# ---- model call: retry transient failures (network + 429/5xx) ----
 http_code=000
 rc=0
-for attempt in 1 2 3; do
-  set +e
-  http_code=$(curl -sS --connect-timeout 10 --max-time 180 \
-    -o "$or_resp" -w '%{http_code}' \
-    -H @"$HDR_DIR/llm" \
-    -H "Content-Type: application/json" -d @prompt.json \
-    https://openrouter.ai/api/v1/chat/completions)
-  rc=$?
-  set -e
-  if [ "$rc" -eq 0 ] && [ "$http_code" = "200" ]; then
-    break
-  elif [ "$rc" -ne 0 ]; then
-    echo "network failure (curl rc $rc), attempt $attempt — retrying after backoff" >&2
-  else
-    case "$http_code" in
-      429|500|502|503|504)
-        echo "OpenRouter attempt $attempt failed (http $http_code) — retrying after backoff" >&2
-        ;;
-      *)
-        echo "OpenRouter call failed: http $http_code, curl rc $rc" >&2
-        jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
-        exit 1
-        ;;
-    esac
-  fi
-  sleep $((attempt * 10))
-done
-if [ "$http_code" != "200" ]; then
+or_call() {
+  for attempt in 1 2 3; do
+    set +e
+    http_code=$(curl -sS --connect-timeout 10 --max-time 300 \
+      -o "$or_resp" -w '%{http_code}' \
+      -H @"$HDR_DIR/llm" \
+      -H "Content-Type: application/json" -d @prompt.json \
+      https://openrouter.ai/api/v1/chat/completions)
+    rc=$?
+    set -e
+    if [ "$rc" -eq 0 ] && [ "$http_code" = "200" ]; then
+      return 0
+    elif [ "$rc" -ne 0 ]; then
+      echo "network failure (curl rc $rc), attempt $attempt — retrying after backoff" >&2
+    else
+      case "$http_code" in
+        429|500|502|503|504)
+          echo "OpenRouter attempt $attempt failed (http $http_code) — retrying after backoff" >&2
+          ;;
+        *)
+          echo "OpenRouter call failed: http $http_code, curl rc $rc" >&2
+          jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
+          exit 1
+          ;;
+      esac
+    fi
+    sleep $((attempt * 10))
+  done
+  return 1
+}
+
+attempts=1
+if ! or_call; then
   echo "OpenRouter retries exhausted (last http $http_code, curl rc $rc)" >&2
   jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
   exit 1
 fi
 
+# ---- terminal-state interpretation ---------------------------------------
+# Transport owns the ENVELOPE (did generation complete?); parse_review
+# owns semantic trust. Escalation policy and failure mapping live in
+# transport.py (unit-tested). ONE budget escalation, applying to BOTH
+# exhaustion shapes — no final content AND truncated partial content
+# (both are finish_reason=length). Effort stays FIXED during a review.
+# Infrastructure failures during escalation are HARD failures (exit 1):
+# a dead network never masquerades as a generation verdict.
+state_of() { python3 "$TOOLKIT_DIR/transport.py" classify "$or_resp"; }
+STATE=$(state_of)
+provider=$(jq -r '.provider // "unknown"' <<<"$STATE")
 jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file"
-if [ ! -s "$content_file" ]; then
-  echo "OpenRouter returned 200 but no message content:" >&2
-  jq . <"$or_resp" >&2 || true
-  exit 1
+
+if [ "$(python3 "$TOOLKIT_DIR/transport.py" policy "$MODEL" <<<"$STATE" \
+        | jq -r '.escalate')" = "true" ]; then
+  echo "generation budget exhausted (finish_reason=length) — one retry at 2x budget" >&2
+  attempts=2
+  python3 "$TOOLKIT_DIR/transport.py" request "$MODEL" \
+    "$sys_file" "$user_file" --max-tokens "$((MAX_TOKENS * 2))" > prompt.json
+  if ! or_call; then
+    echo "escalation attempt failed on infrastructure (last http $http_code, curl rc $rc) — failing closed" >&2
+    jq . <"$or_resp" >&2 2>/dev/null || cat "$or_resp" >&2
+    exit 1
+  fi
+  STATE=$(state_of)
+  provider=$(jq -r '.provider // "unknown"' <<<"$STATE")
+  jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file" || true
 fi
 
-# ---- validate + build the review payload ---------------------------------
-python3 "$TOOLKIT_DIR/parse_review.py" "$content_file" "$files_jsonl" \
-  "$head_sha" "$MODEL" > review.json
+# REFUSAL wins regardless of content presence (stated state machine):
+# a content-filtered response is not reviewable even if the provider
+# also emitted text.
+if [ "$(jq -r '.state' <<<"$STATE")" = "REFUSAL" ] \
+   || [ ! -s "$content_file" ]; then
+  failure=$(python3 "$TOOLKIT_DIR/transport.py" failure <<<"$STATE")
+  reason_code=$(jq -r '.reason_code' <<<"$failure")
+  detail=$(jq -r '.detail' <<<"$failure")
+  finish_reason=$(jq -r '.finish_reason // "none"' <<<"$STATE")
+  echo "transport generation failure: $reason_code (finish_reason: $finish_reason)" >&2
+  python3 "$TOOLKIT_DIR/transport.py" inconclusive "$head_sha" "$MODEL" \
+    "$reason_code" "$detail" > review.json
+else
+  # ---- validate + build the review payload (parser owns INCONCLUSIVE) ----
+  python3 "$TOOLKIT_DIR/parse_review.py" "$content_file" "$files_jsonl" \
+    "$head_sha" "$MODEL" > review.json 2>"$parse_err" || true
+  reason_code=$(sed -n 's/^PARSE_REASON: //p' "$parse_err" | tail -1)
+  # A truncated response that fails validation is a budget failure,
+  # not a schema failure — report the root cause. Decoration is
+  # narrow: the parser's verdict/event/findings are untouched; only
+  # the Reason code line gains the transport's root cause (parser
+  # reason preserved as provenance).
+  if [ "$reason_code" = "STRUCTURED_OUTPUT_INVALID" ] \
+     && [ "$(jq -r '.finish_reason' <<<"$STATE")" = "length" ]; then
+    reason_code="OUTPUT_BUDGET_EXHAUSTED"
+    python3 "$TOOLKIT_DIR/transport.py" decorate review.json \
+      OUTPUT_BUDGET_EXHAUSTED "finish_reason: length" || exit 1
+  fi
+fi
 
 # ---- post exactly one COMMENT review -------------------------------------
 posted=$(curl_gh -X POST "$REPO_API/pulls/$PR_NUMBER/reviews" \
   -H "Content-Type: application/json" -d @review.json)
 
+# ---- diagnostics (operational facts only; never the reasoning trace) ----
 {
   echo "### AI review posted"
   echo "- model: \`$MODEL\`"
   echo "- assessment: $(jq -r .body <<<"$posted" | head -1 | sed 's/^## AI review · //')"
   echo "- inline comments: $(jq '.comments | length' <<<"$posted")"
+  echo "- provider: \`${provider:-unknown}\` · finish_reason: \`$(jq -r '.finish_reason // "none"' <<<"$STATE")\`"
+  echo "- tokens: prompt $(jq -r '.prompt_tokens // "?"' <<<"$STATE") · completion $(jq -r '.completion_tokens // "?"' <<<"$STATE") · reasoning $(jq -r '.reasoning_tokens // "?"' <<<"$STATE") · attempts $attempts"
+  if [ -n "${reason_code:-}" ]; then
+    echo "- reason: \`$reason_code\`"
+  fi
 } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
