@@ -17,18 +17,22 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "eu-nord"
-        ],
-        "comment_any": [
-          "typo",
-          "misspelled",
-          "wrong",
-          "invalid",
-          "rejects"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "eu-nord"
+            ],
+            "comment_any": [
+              "typo",
+              "misspelled",
+              "wrong",
+              "invalid",
+              "rejects"
+            ]
+          }
         ]
       }
     ]

@@ -17,19 +17,23 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "jq"
-        ],
-        "comment_any": [
-          "jsonl",
-          "per-line",
-          "each line",
-          "one object per line",
-          "slurp",
-          "line by line"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "jq"
+            ],
+            "comment_any": [
+              "jsonl",
+              "per-line",
+              "each line",
+              "one object per line",
+              "slurp",
+              "line by line"
+            ]
+          }
         ]
       }
     ]

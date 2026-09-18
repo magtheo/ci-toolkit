@@ -16,7 +16,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: the claim is strictly self-scoped \u2014 it asserts nothing about code outside the diff."
 }

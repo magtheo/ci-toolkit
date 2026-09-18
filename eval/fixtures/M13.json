@@ -17,18 +17,22 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "pin"
-        ],
-        "comment_any": [
-          "floating",
-          "tag",
-          "SHA",
-          "immutable",
-          "v4"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "pin"
+            ],
+            "comment_any": [
+              "floating",
+              "tag",
+              "SHA",
+              "immutable",
+              "v4"
+            ]
+          }
         ]
       }
     ]

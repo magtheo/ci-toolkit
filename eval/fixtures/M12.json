@@ -17,32 +17,36 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [],
-        "comment_any": [
-          "mask",
-          "swallow",
-          "{}",
-          "KeyError",
-          "silently",
-          "docstring",
-          "instead of raising",
-          "empty dict",
-          "contradicts the",
-          "returns {}",
-          "masks"
-        ]
-      },
-      {
-        "severity": "blocking",
-        "comment_all": [
-          "stale"
-        ],
-        "comment_any": [
-          "without distinguishing",
-          "different failure mode"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [],
+            "comment_any": [
+              "mask",
+              "swallow",
+              "{}",
+              "KeyError",
+              "silently",
+              "docstring",
+              "instead of raising",
+              "empty dict",
+              "contradicts the",
+              "returns {}",
+              "masks"
+            ]
+          },
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "stale"
+            ],
+            "comment_any": [
+              "without distinguishing",
+              "different failure mode"
+            ]
+          }
         ]
       }
     ]

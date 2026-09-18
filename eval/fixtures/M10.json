@@ -17,18 +17,22 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [],
-        "comment_any": [
-          "anchor",
-          "start",
-          "beginning",
-          "prefix",
-          "anywhere in the",
-          "matches anywhere",
-          "not anchored"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [],
+            "comment_any": [
+              "anchor",
+              "start",
+              "beginning",
+              "prefix",
+              "anywhere in the",
+              "matches anywhere",
+              "not anchored"
+            ]
+          }
         ]
       }
     ]

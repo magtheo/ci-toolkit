@@ -17,7 +17,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: -se slurps the JSONL into one array."
 }

@@ -17,33 +17,41 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "pull_request"
-        ],
-        "comment_any": [
-          "trigger",
-          "trusted base",
-          "trusted-base",
-          "pull_request_target"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "pull_request"
+            ],
+            "comment_any": [
+              "trigger",
+              "trusted base",
+              "trusted-base",
+              "pull_request_target"
+            ]
+          }
         ]
       },
       {
-        "severity": "blocking",
-        "comment_any": [
-          "pin",
-          "floating",
-          "immutable",
-          "@main",
-          "mutable",
-          "toolkit_ref",
-          "supply chain",
-          "supply-chain",
-          "the latest"
-        ],
-        "comment_all": []
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "pin",
+              "floating",
+              "immutable",
+              "@main",
+              "mutable",
+              "toolkit_ref",
+              "supply chain",
+              "supply-chain",
+              "the latest"
+            ],
+            "comment_all": []
+          }
+        ]
       }
     ]
   },

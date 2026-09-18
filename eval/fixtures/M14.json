@@ -17,19 +17,23 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "token"
-        ],
-        "comment_any": [
-          "argv",
-          "command line",
-          "cmdline",
-          "log",
-          "process list",
-          "exposed"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "token"
+            ],
+            "comment_any": [
+              "argv",
+              "command line",
+              "cmdline",
+              "log",
+              "process list",
+              "exposed"
+            ]
+          }
         ]
       }
     ]

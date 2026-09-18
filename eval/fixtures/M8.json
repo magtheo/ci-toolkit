@@ -17,16 +17,20 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_any": [
-          "course",
-          "resume",
-          "frame",
-          "order",
-          "lifecycle",
-          "listen"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "course",
+              "resume",
+              "frame",
+              "order",
+              "lifecycle",
+              "listen"
+            ]
+          }
         ]
       }
     ]

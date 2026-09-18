@@ -17,16 +17,20 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_any": [
-          "every commit",
-          "no human",
-          "automatic",
-          "contradict",
-          "approval",
-          "unqualif"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "every commit",
+              "no human",
+              "automatic",
+              "contradict",
+              "approval",
+              "unqualif"
+            ]
+          }
         ]
       }
     ]

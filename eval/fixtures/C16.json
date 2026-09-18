@@ -17,7 +17,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: narrow except, logged, None returned \u2014 the documented best-effort contract; TODO is advisory-grade."
 }

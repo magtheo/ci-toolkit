@@ -17,11 +17,15 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "inherit"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "inherit"
+            ]
+          }
         ]
       }
     ]

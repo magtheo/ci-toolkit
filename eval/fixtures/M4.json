@@ -16,17 +16,21 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_any": [
-          "cannot verify",
-          "unverifiable",
-          "not visible in the diff",
-          "outside the diff",
-          "cross-file",
-          "no evidence in the diff",
-          "isn't in the diff"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "cannot verify",
+              "unverifiable",
+              "not visible in the diff",
+              "outside the diff",
+              "cross-file",
+              "no evidence in the diff",
+              "isn't in the diff"
+            ]
+          }
         ]
       }
     ]

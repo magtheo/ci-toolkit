@@ -17,15 +17,19 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_any": [
-          "every pull request",
-          "all pull requests",
-          "unqualif",
-          "absolute",
-          "contradict"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "every pull request",
+              "all pull requests",
+              "unqualif",
+              "absolute",
+              "contradict"
+            ]
+          }
         ]
       }
     ]

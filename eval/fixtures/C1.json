@@ -17,7 +17,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: identical except the explicit single-secret mapping. Self-contained as presented: least-privilege permissions, fork guard, full-SHA pins both layers, explicit secret mapping."
 }

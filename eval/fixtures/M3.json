@@ -17,28 +17,32 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "mtime"
-        ],
-        "comment_any": [
-          "contract",
-          "document",
-          "comment",
-          "invariant",
-          "date"
-        ]
-      },
-      {
-        "severity": "blocking",
-        "comment_all": [
-          "filesystem metadata"
-        ],
-        "comment_any": [
-          "parse",
-          "date"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "mtime"
+            ],
+            "comment_any": [
+              "contract",
+              "document",
+              "comment",
+              "invariant",
+              "date"
+            ]
+          },
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "filesystem metadata"
+            ],
+            "comment_any": [
+              "parse",
+              "date"
+            ]
+          }
         ]
       }
     ]

@@ -17,26 +17,30 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "merged"
-        ],
-        "comment_any": [
-          "inverted",
-          "swapped",
-          "reversed",
-          "wrong direction",
-          "== null",
-          "contradicts the condition",
-          "message contradicts",
-          "opposite of the",
-          "wrong branch",
-          "executes when",
-          "runs when",
-          "claims",
-          "abort"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "merged"
+            ],
+            "comment_any": [
+              "inverted",
+              "swapped",
+              "reversed",
+              "wrong direction",
+              "== null",
+              "contradicts the condition",
+              "message contradicts",
+              "opposite of the",
+              "wrong branch",
+              "executes when",
+              "runs when",
+              "claims",
+              "abort"
+            ]
+          }
         ]
       }
     ]

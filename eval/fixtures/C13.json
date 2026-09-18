@@ -17,7 +17,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: full-SHA pin, least-privilege permissions, fork guard, explicit single-secret mapping."
 }

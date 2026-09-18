@@ -17,29 +17,33 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_all": [
-          "status"
-        ],
-        "comment_any": [
-          "always",
-          "hardcoded",
-          "never",
-          "ignored",
-          "swallow",
-          "|| true"
-        ]
-      },
-      {
-        "severity": "blocking",
-        "comment_all": [
-          "|| true"
-        ],
-        "comment_any": [
-          "suppress",
-          "exit code"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "status"
+            ],
+            "comment_any": [
+              "always",
+              "hardcoded",
+              "never",
+              "ignored",
+              "swallow",
+              "|| true"
+            ]
+          },
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "|| true"
+            ],
+            "comment_any": [
+              "suppress",
+              "exit code"
+            ]
+          }
         ]
       }
     ]

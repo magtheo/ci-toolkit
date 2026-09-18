@@ -17,15 +17,19 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
+    "groups": [
       {
-        "severity": "blocking",
-        "comment_any": [
-          "all api responses",
-          "every response",
-          "absolute",
-          "unqualif",
-          "contradict"
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "all api responses",
+              "every response",
+              "absolute",
+              "unqualif",
+              "contradict"
+            ]
+          }
         ]
       }
     ]

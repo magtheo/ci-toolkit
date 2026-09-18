@@ -152,8 +152,9 @@ def test_matcher_repair_semantics_via_frozen_witnesses():
     fixtures = {f["id"]: f for f in rc.load_corpus(FIXTURES)}
     genuine = rejected = 0
     for w in witnesses:
-        entry = fixtures[w["fixture"]]["expected"]["findings"][
-            w["finding_index"]]
+        entry = list(rc.iter_alternatives(
+            fixtures[w["fixture"]]["expected"]["groups"]))[
+                w["finding_index"]]
         hit = rc._finding_matches(
             entry, {"severity": "blocking", "comment": w["comment"]})
         if w["ruling"] == "genuine_expected_expression":
@@ -240,8 +241,9 @@ def _fx(kind="positive"):
             "expected": {
                 "assessment": "CLEAR" if kind == "control"
                 else "ISSUES_FOUND",
-                "findings": [] if kind == "control" else [
-                    {"severity": "blocking", "comment_any": ["inherit"]}]}}
+                "groups": [] if kind == "control" else [
+                    {"alternatives": [{"severity": "blocking",
+                                       "comment_any": ["inherit"]}]}]}}
 
 
 def test_positive_passes_at_two_of_three_detection():
@@ -348,8 +350,9 @@ def test_positive_with_missed_finding_is_known_gap_not_pass():
     # auto-pass via an empty-expectations hack
     fx = {"id": "X1", "kind": "positive",
           "expected": {"assessment": "ISSUES_FOUND",
-                       "findings": [{"severity": "blocking",
-                                     "comment_all": ["inherit"]}]}}
+                       "groups": [{"alternatives": [
+                           {"severity": "blocking",
+                            "comment_all": ["inherit"]}]}]}}
     runs = [_result("CLEAR")] * 3
     r = rc.evaluate(fx, runs)
     assert not r["passes_policy"]
@@ -360,7 +363,7 @@ def test_control_fails_when_reviewer_is_inconclusive():
     # a reviewer answering INCONCLUSIVE on everything cannot pass a
     # clean control — expected assessment is enforced, not decorative
     fx = {"id": "C1", "kind": "control",
-          "expected": {"assessment": "CLEAR", "findings": []}}
+          "expected": {"assessment": "CLEAR", "groups": []}}
     runs = [_result("INCONCLUSIVE")] * 3
     r = rc.evaluate(fx, runs)
     assert not r["passes_policy"]
@@ -369,7 +372,7 @@ def test_control_fails_when_reviewer_is_inconclusive():
 
 def test_control_passes_only_when_all_runs_clear():
     fx = {"id": "C1", "kind": "control",
-          "expected": {"assessment": "CLEAR", "findings": []}}
+          "expected": {"assessment": "CLEAR", "groups": []}}
     ok = rc.evaluate(fx, [_result("CLEAR", [dict(ADV)])] * 3)
     assert ok["passes_policy"]          # advisories are compatible
     assert ok["advisory_noise"] == 3
@@ -381,8 +384,9 @@ def test_control_passes_only_when_all_runs_clear():
 def test_positive_requires_assessment_stability_too():
     fx = {"id": "X1", "kind": "positive",
           "expected": {"assessment": "ISSUES_FOUND",
-                       "findings": [{"severity": "blocking",
-                                     "comment_all": ["inherit"]}]}}
+                       "groups": [{"alternatives": [
+                           {"severity": "blocking",
+                            "comment_all": ["inherit"]}]}]}}
     # detection 2/3 ok, but one INCONCLUSIVE run is a miss only if
     # it pushes assessment below threshold: 2 ISSUES_FOUND of 3 -> ok
     runs = [_result("ISSUES_FOUND", [dict(BLOCK)]),
@@ -411,13 +415,48 @@ def _loader_case(kind, expected):
             "expected": expected}
 
 
-def test_loader_rejects_positive_without_expected_findings(tmp_path):
+def test_loader_rejects_positive_without_required_groups(tmp_path):
     bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
-                                    "findings": []})
+                                    "groups": []})
     d = tmp_path / "f"
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(bad))
-    with pytest.raises(AssertionError, match="expected finding"):
+    with pytest.raises(AssertionError, match=">= 1 required"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_old_findings_schema(tmp_path):
+    # fail closed on the pre-25k schema — even a well-formed one
+    bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
+                                    "findings": [{"severity": "blocking",
+                                                  "comment_any": ["x"]}]})
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(bad))
+    with pytest.raises(AssertionError, match="old expected.findings"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_mixed_schema(tmp_path):
+    bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
+                                    "findings": [],
+                                    "groups": [{"alternatives": [
+                                        {"severity": "blocking",
+                                         "comment_any": ["x"]}]}]})
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(bad))
+    with pytest.raises(AssertionError, match="old expected.findings"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_group_with_zero_alternatives(tmp_path):
+    bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
+                                    "groups": [{"alternatives": []}]})
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(bad))
+    with pytest.raises(AssertionError, match="non-empty alternatives"):
         rc.load_corpus(d)
 
 
@@ -425,8 +464,22 @@ def test_loader_rejects_control_with_findings_or_non_clear(tmp_path):
     d = tmp_path / "f"
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(_loader_case(
-        "control", {"assessment": "ISSUES_FOUND", "findings": []})))
+        "control", {"assessment": "ISSUES_FOUND", "groups": []})))
     with pytest.raises(AssertionError, match="CLEAR"):
+        rc.load_corpus(d)
+
+
+def test_loader_rejects_groups_on_control(tmp_path):
+    # groups on a control would manufacture a positive expectation in
+    # a clean fixture — rejected outright
+    d = tmp_path / "f"
+    d.mkdir()
+    (d / "X1.json").write_text(json.dumps(_loader_case(
+        "control", {"assessment": "CLEAR",
+                    "groups": [{"alternatives": [
+                        {"severity": "blocking",
+                         "comment_any": ["x"]}]}]})))
+    with pytest.raises(AssertionError, match="groups == .."):
         rc.load_corpus(d)
 
 
@@ -435,7 +488,8 @@ def test_loader_rejects_matcher_without_all_or_any(tmp_path):
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(_loader_case(
         "positive", {"assessment": "ISSUES_FOUND",
-                     "findings": [{"severity": "blocking"}]})))
+                     "groups": [{"alternatives": [
+                         {"severity": "blocking"}]}]})))
     with pytest.raises(AssertionError, match="comment_all"):
         rc.load_corpus(d)
 
@@ -445,8 +499,8 @@ def test_loader_rejects_any_assessment_sentinel(tmp_path):
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(_loader_case(
         "positive", {"assessment": "ANY",
-                     "findings": [{"severity": "blocking",
-                                   "comment_any": ["x"]}]})))
+                     "groups": [[{"severity": "blocking",
+                                  "comment_any": ["x"]}]]})))
     with pytest.raises(AssertionError, match="assessment"):
         rc.load_corpus(d)
 
@@ -456,10 +510,10 @@ def test_real_corpus_passes_strict_validation():
     for f in fixtures:
         if f["kind"] == "control":
             assert f["expected"]["assessment"] == "CLEAR"
-            assert f["expected"]["findings"] == []
+            assert f["expected"]["groups"] == []
         else:
-            assert f["expected"]["findings"]
-            for e in f["expected"]["findings"]:
+            assert f["expected"]["groups"]
+            for e in rc.iter_alternatives(f["expected"]["groups"]):
                 assert e.get("comment_all") or e.get("comment_any")
 
 
@@ -524,7 +578,7 @@ def test_report_captures_raw_findings_for_analysis():
     # the baseline's key question is WHAT the reviewer said, not just
     # how often — false blockers must be inspectable post-hoc
     fx = {"id": "X1", "kind": "control",
-          "expected": {"assessment": "CLEAR", "findings": []}}
+          "expected": {"assessment": "CLEAR", "groups": []}}
     runs = [_result("ISSUES_FOUND", [dict(BLOCK)])]
     r = rc.evaluate(fx, runs)
     assert r["runs_detail"][0]["findings"][0]["comment"] == \
@@ -543,8 +597,8 @@ def test_m16_matcher_repair_via_adjudicated_witnesses():
     witnesses = json.loads(
         (FIXTURES.parent / "evidence" / "track1-oracle-repair3-2026-09-06" /
          "m16-witnesses.json").read_text())["witnesses"]
-    entry = {f["id"]: f for f in rc.load_corpus(FIXTURES)}["M16"] \
-        ["expected"]["findings"][0]
+    m16 = {f["id"]: f for f in rc.load_corpus(FIXTURES)}["M16"]
+    entry = list(rc.iter_alternatives(m16["expected"]["groups"]))[0]
     assert "falsely claiming success" in entry["comment_any"]
     assert "no labels were actually updated" in entry["comment_any"]
     # broad forms must not be present as needles
@@ -616,9 +670,9 @@ def test_oracle_repair4_witness_replay():
     # replay through the ACTUAL matcher over the full frozen population
     matched = set()
     for ptr, text in raw.items():
-        entries = fixtures[ptr[1]]["expected"].get("findings", [])
-        if any(rc._finding_matches(e, {"severity": "blocking", "comment": text})
-               for e in entries):
+        groups = fixtures[ptr[1]]["expected"]["groups"]
+        if rc.matches_any_alternative(
+                groups, {"severity": "blocking", "comment": text}):
             matched.add(ptr)
     assert matched == set(ee) | adj          # exactly 214
     assert len(matched & set(fb)) == 0       # all 324 FBs rejected
@@ -626,13 +680,14 @@ def test_oracle_repair4_witness_replay():
     # zero collateral: nothing outside the adjudicated three changed
 
     # #35 contract remains intact through the actual matcher
+    # (M16 = 1 group x 2 alternatives; union matching, order-stable)
     w35 = _json.loads(
         (FIXTURES.parent / "evidence" / "track1-oracle-repair3-2026-09-06" /
          "m16-witnesses.json").read_text())["witnesses"]
-    entry16 = fixtures["M16"]["expected"]["findings"][0]
+    groups16 = fixtures["M16"]["expected"]["groups"]
     for w in w35:
-        hit = rc._finding_matches(entry16, {"severity": "blocking",
-                                            "comment": w["comment"]})
+        hit = rc.matches_any_alternative(
+            groups16, {"severity": "blocking", "comment": w["comment"]})
         assert hit == (w["ruling"] == "genuine_expected_expression")
     assert sum(1 for w in w35
                if w["ruling"] == "genuine_expected_expression") == 16
@@ -640,18 +695,19 @@ def test_oracle_repair4_witness_replay():
                if w["ruling"] == "not_expected_expression") == 11
 
     # structured-entry discipline: context required, not bare needles
-    e2 = fixtures["M12"]["expected"]["findings"][1]
+    # (M12/M3/M16 alternatives preserve the original entries verbatim)
+    alts12 = list(rc.iter_alternatives(fixtures["M12"]["expected"]["groups"]))
+    e2 = alts12[1]
     assert e2["comment_all"] == ["stale"]
     assert set(e2["comment_any"]) == {"without distinguishing",
                                       "different failure mode"}
-    m3 = fixtures["M3"]["expected"]["findings"]
-    assert m3[0]["comment_all"] == ["mtime"]          # original untouched
-    assert m3[1]["comment_all"] == ["filesystem metadata"]
-    assert set(m3[1]["comment_any"]) == {"parse", "date"}
-    assert "indistinguishable from a successful" in \
-        fixtures["M16"]["expected"]["findings"][0]["comment_any"]
-    assert "falsely claiming" not in \
-        fixtures["M16"]["expected"]["findings"][0]["comment_any"]
+    alts3 = list(rc.iter_alternatives(fixtures["M3"]["expected"]["groups"]))
+    assert alts3[0]["comment_all"] == ["mtime"]       # original untouched
+    assert alts3[1]["comment_all"] == ["filesystem metadata"]
+    assert set(alts3[1]["comment_any"]) == {"parse", "date"}
+    alts16 = list(rc.iter_alternatives(fixtures["M16"]["expected"]["groups"]))
+    assert "indistinguishable from a successful" in alts16[0]["comment_any"]
+    assert "falsely claiming" not in alts16[0]["comment_any"]
 
 
 def _load_blocking_population(evdir):
@@ -694,10 +750,9 @@ def test_oracle_repair5_witness_replay():
                 if v["class"] == "defect-expression-unmatched"}
         matched = set()
         for ptr, text in raw.items():
-            entries = fixtures[ptr[1]]["expected"].get("findings", [])
-            if any(rc._finding_matches(e, {"severity": "blocking",
-                                           "comment": text})
-                   for e in entries):
+            groups = fixtures[ptr[1]]["expected"]["groups"]
+            if rc.matches_any_alternative(groups, {"severity": "blocking",
+                                                   "comment": text}):
                 matched.add(ptr)
         if tag == "#36":
             # repair-4's three adjudicated gaps stay accepted; repair 5
@@ -718,22 +773,23 @@ def test_oracle_repair5_witness_replay():
     # #35 contract through the actual matcher
     w35 = _json.loads((ev / "track1-oracle-repair3-2026-09-06" /
                        "m16-witnesses.json").read_text())["witnesses"]
-    entries16 = fixtures["M16"]["expected"]["findings"]
+    groups16 = fixtures["M16"]["expected"]["groups"]
     for w in w35:
-        hit = any(rc._finding_matches(e, {"severity": "blocking",
-                                          "comment": w["comment"]})
-                  for e in entries16)
+        hit = rc.matches_any_alternative(
+            groups16, {"severity": "blocking", "comment": w["comment"]})
         assert hit == (w["ruling"] == "genuine_expected_expression")
 
-    # structured-entry discipline: context required, originals intact
-    m11 = fixtures["M11"]["expected"]["findings"]
-    assert m11[0]["comment_all"] == ["status"]
-    assert m11[1]["comment_all"] == ["|| true"]
-    assert set(m11[1]["comment_any"]) == {"suppress", "exit code"}
-    m16 = fixtures["M16"]["expected"]["findings"]
-    assert "indistinguishable from a successful" in m16[0]["comment_any"]
-    assert m16[1]["comment_all"] == ['{"ok"']
-    assert "falsely claiming" not in m16[0]["comment_any"]
+    # structured-entry discipline: context required, originals intact.
+    # M11/M16 are 1 group x 2 alternatives (phrasing-family OR) —
+    # alternatives preserve the original entries verbatim.
+    alts11 = list(rc.iter_alternatives(fixtures["M11"]["expected"]["groups"]))
+    assert alts11[0]["comment_all"] == ["status"]
+    assert alts11[1]["comment_all"] == ["|| true"]
+    assert set(alts11[1]["comment_any"]) == {"suppress", "exit code"}
+    alts16 = list(rc.iter_alternatives(fixtures["M16"]["expected"]["groups"]))
+    assert "indistinguishable from a successful" in alts16[0]["comment_any"]
+    assert alts16[1]["comment_all"] == ['{"ok"']
+    assert "falsely claiming" not in alts16[0]["comment_any"]
 
 
 def test_repair5_evidence_hardening():
@@ -781,11 +837,10 @@ def test_repair5_evidence_hardening():
         for pf in rep["per_fixture"]:
             if pf["kind"] != "positive":
                 continue
-            entries = fixtures[pf["id"]]["expected"].get("findings", [])
+            groups = fixtures[pf["id"]]["expected"]["groups"]
             recomputed[prof][pf["id"]] = sum(
                 1 for r in pf["runs_detail"]
-                if any(rc._finding_matches(e, f)
-                       for f in r.get("findings", []) for e in entries))
+                if rc.run_detects_all_groups(groups, r))
     assert recomputed == art["floor_rescore_under_repaired_oracle"]
     r4 = _json.loads((ev / "track1-oracle-repair4-2026-09-07" /
                       "witness-replay.json").read_text())
@@ -795,3 +850,111 @@ def test_repair5_evidence_hardening():
         assert pos == recomputed[prof]
     assert sum(recomputed["haiku"].values()) == 51
     assert sum(recomputed["sonnet"].values()) == 66
+
+
+# ---- 25k semantic-group semantics (AND-of-groups / OR-of-alternatives) -----
+
+def _group_fx(groups, kind="positive"):
+    return {"id": "X1", "kind": kind, "paired_with": "X2",
+            "expected": {
+                "assessment": "ISSUES_FOUND" if kind == "positive"
+                else "CLEAR",
+                "groups": groups}}
+
+
+GA = [{"severity": "blocking", "comment_all": ["pull_request"],
+       "comment_any": ["trigger", "trusted base"]}]
+GB = [{"severity": "blocking", "comment_any": ["pin", "floating"]}]
+G1 = [{"alternatives": GA}]
+G2 = [{"alternatives": GB}]
+
+
+def test_two_required_groups_are_and_at_fixture_level():
+    # M2 shape: both groups must EACH reach the majority threshold
+    both = [_result("ISSUES_FOUND", [
+        {"severity": "blocking", "comment": "pull_request trigger"},
+        {"severity": "blocking", "comment": "pin to a sha"}])] * 3
+    assert rc.evaluate(_group_fx([{"alternatives": GA},
+                                   {"alternatives": GB}]), both)["passes_policy"]
+    # only group 1 ever detected -> group 2 at 0 hits -> fail
+    only_g1 = [_result("ISSUES_FOUND", [
+        {"severity": "blocking", "comment": "pull_request trigger"}])] * 3
+    r = rc.evaluate(_group_fx([{"alternatives": GA},
+                            {"alternatives": GB}]), only_g1)
+    assert not r["passes_policy"]
+    assert r["expected_detection"][1]["hits"] == 0
+    # only group 2 ever detected -> symmetric fail
+    only_g2 = [_result("ISSUES_FOUND", [
+        {"severity": "blocking", "comment": "pin to a sha"}])] * 3
+    assert not rc.evaluate(_group_fx([{"alternatives": GA},
+                                       {"alternatives": GB}]),
+                            only_g2)["passes_policy"]
+
+
+def test_per_group_stability_is_not_run_level_all_groups():
+    # THE distinction pinned: per-group independent stability vs
+    # run-level all-groups counting answer different questions.
+    # run1: only G1 · run2: only G2 · run3: both — no single run
+    # detects ALL groups twice, yet each group independently hits 3/3.
+    runs = [_result("ISSUES_FOUND", [
+                {"severity": "blocking", "comment": "pull_request trigger"}]),
+            _result("ISSUES_FOUND", [
+                {"severity": "blocking", "comment": "pin to a sha"}]),
+            _result("ISSUES_FOUND", [
+                {"severity": "blocking", "comment": "pull_request trigger"},
+                {"severity": "blocking", "comment": "pin to a sha"}])]
+    r = rc.evaluate(_group_fx([{"alternatives": GA},
+                            {"alternatives": GB}]), runs)
+    assert r["passes_policy"]
+    # each group independently at the majority threshold (2 of 3),
+    # even though run-level all-groups detection happened only once
+    assert [p["hits"] for p in r["expected_detection"]] == [2, 2]
+    # and the run-level counter agrees only 1 run detected all groups
+    assert sum(1 for run in runs
+               if rc.run_detects_all_groups(
+        [{"alternatives": GA}, {"alternatives": GB}], run)) == 1
+
+
+def test_alternatives_are_or_within_one_group():
+    # M3/M11/M12/M16 shape: phrasing-family alternatives — EITHER
+    # accepted phrasing satisfies the single required group
+    group = [{"alternatives": [
+        {"severity": "blocking", "comment_all": ["mtime"],
+         "comment_any": ["date"]},
+        {"severity": "blocking", "comment_all": ["filesystem metadata"],
+         "comment_any": ["parse"]}]}]
+    alt1 = [_result("ISSUES_FOUND", [{"severity": "blocking",
+                                      "comment": "mtime of the date"}])] * 3
+    r = rc.evaluate(_group_fx(group), alt1)
+    assert r["passes_policy"] and r["expected_detection"][0]["hits"] == 3
+    alt2 = [_result("ISSUES_FOUND", [{"severity": "blocking",
+                                      "comment": "filesystem metadata parse"}])] * 3
+    r = rc.evaluate(_group_fx(group), alt2)
+    assert r["passes_policy"] and r["expected_detection"][0]["hits"] == 3
+    neither = [_result("ISSUES_FOUND", [{"severity": "blocking",
+                                         "comment": "something unrelated"}])] * 3
+    r = rc.evaluate(_group_fx(group), neither)
+    assert not r["passes_policy"]
+
+
+def test_no_vacuous_detection_for_empty_groups():
+    # all([]) is True in Python — the group helpers must never let a
+    # zero-group fixture become 'detected'
+    assert rc.groups_reach_threshold([], 2) is False
+    assert rc.groups_reach_threshold([], 1) is False
+    assert rc.run_detects_all_groups([], _result("ISSUES_FOUND")) is False
+    assert rc.group_detected_in_run(
+        {"alternatives": []}, _result("ISSUES_FOUND")) is False
+    # defense in depth: evaluate() itself cannot pass a zero-group
+    # positive even if a loader bug ever let one through
+    r = rc.evaluate(_group_fx([]), [_result("ISSUES_FOUND")] * 5)
+    assert not r["passes_policy"]
+
+
+def test_control_with_empty_groups_passes_only_via_clean_semantics():
+    # groups: [] is valid only for controls; detection never enters
+    # the control path — CLEAR stability + zero false blockers only
+    fx = _group_fx([], kind="control")
+    assert rc.evaluate(fx, [_result("CLEAR")] * 3)["passes_policy"]
+    r = rc.evaluate(fx, [_result("ISSUES_FOUND", [dict(BLOCK)])] * 3)
+    assert not r["passes_policy"] and r["false_blockers"] == 3
