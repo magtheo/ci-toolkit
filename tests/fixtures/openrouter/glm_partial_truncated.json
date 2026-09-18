@@ -1,0 +1,14 @@
+{
+  "provider": "baseten",
+  "choices": [
+    {
+      "finish_reason": "length",
+      "message": {"role": "assistant", "content": "{\"assessment\": \"CLE"}
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 30000,
+    "completion_tokens": 2000,
+    "completion_tokens_details": {"reasoning_tokens": 1900}
+  }
+}
