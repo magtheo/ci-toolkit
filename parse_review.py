@@ -129,9 +129,11 @@ def inconclusive_reason(obj):
     """Machine-readable reason for the INCONCLUSIVE path.
 
     Diagnostic only: verdict semantics live in assess(); this adds no
-    authority and changes no verdict. Emitted on stderr so the
-    transport can attach a reason code to summaries — the parser
-    remains the sole owner of INCONCLUSIVE.
+    authority and changes no verdict. Appears in the INCONCLUSIVE
+    body's Technical details block and on stderr — the parser remains
+    the sole owner of INCONCLUSIVE (the transport may re-label the
+    code line with envelope knowledge, never the verdict; see
+    transport.decorate_inconclusive).
     """
     if not obj or _validate_findings(obj) is None:
         return "STRUCTURED_OUTPUT_INVALID"
@@ -214,7 +216,7 @@ def _build_issues(summary, blocking, advisory, good, model, head_sha):
     return "\n".join(lines), blocking, advisory
 
 
-def _build_inconclusive(model, head_sha):
+def _build_inconclusive(model, head_sha, reason_code):
     body = "\n".join([
         "## AI review · Inconclusive",
         "",
@@ -228,6 +230,8 @@ def _build_inconclusive(model, head_sha):
         "Reason: reviewer response was malformed, incomplete, or "
         "self-contradictory (assessment missing/unknown, or issues "
         "claimed without evidence).",
+        "",
+        "Reason code: %s" % reason_code,
         "",
         "</details>",
         "",
@@ -246,7 +250,8 @@ def build_payload(content, files, head_sha, model):
 
     if assessment == INCONCLUSIVE:
         sys.stderr.write("PARSE_REASON: %s\n" % inconclusive_reason(obj))
-        body, _ = _build_inconclusive(model, head_sha)
+        body, _ = _build_inconclusive(model, head_sha,
+                                      inconclusive_reason(obj))
         return {"commit_id": head_sha, "body": body,
                 "event": "COMMENT", "comments": []}
 

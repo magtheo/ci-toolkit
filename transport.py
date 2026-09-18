@@ -26,6 +26,7 @@ object is what is pinned, not the byte stream.)
 
 import json
 import pathlib
+import re
 import sys
 
 TOOLKIT_DIR = pathlib.Path(__file__).resolve().parent
@@ -145,6 +146,35 @@ def failure_reason(facts):
     return "NO_FINAL_CONTENT", "The model returned success but no final content."
 
 
+def decorate_inconclusive(payload, reason_code, note=None):
+    """Narrow transport decoration of an ALREADY-INCONCLUSIVE parser
+    payload: replace the parser's "Reason code:" line with the
+    transport's root-cause code, preserving the parser reason as
+    provenance. Refuses anything that is not a reason-coded
+    INCONCLUSIVE COMMENT payload with no inline comments — the
+    parser's verdict, event, and findings can never change here, only
+    the diagnostic code line (the transport knows the envelope; the
+    parser owns the verdict).
+    """
+    if payload.get("event") != "COMMENT" or payload.get("comments"):
+        raise ValueError(
+            "refusing to decorate a payload that is not a plain COMMENT")
+    body = payload.get("body", "")
+    if "## AI review · Inconclusive" not in body:
+        raise ValueError("refusing to decorate a non-INCONCLUSIVE body")
+    suffix = ("; %s" % note) if note else ""
+
+    def _sub(m):
+        return "Reason code: %s (parser reason: %s%s)" % (
+            reason_code, m.group(1), suffix)
+
+    new_body, n = re.subn(r"Reason code: ([A-Z_]+)", _sub, body, count=1)
+    if n != 1:
+        raise ValueError("no Reason code line found to decorate")
+    payload["body"] = new_body
+    return payload
+
+
 def inconclusive_payload(model, head_sha, reason_code, detail):
     """Transport-generated INCONCLUSIVE review payload.
 
@@ -188,7 +218,8 @@ def main(argv):
              "       transport.py policy MODEL   (state JSON on stdin)\n"
              "       transport.py failure        (state JSON on stdin)\n"
              "       transport.py inconclusive HEAD_SHA MODEL"
-             " REASON_CODE DETAIL\n")
+             " REASON_CODE DETAIL\n"
+             "       transport.py decorate REVIEW_JSON REASON_CODE NOTE\n")
     if len(argv) < 2:
         sys.stderr.write(usage)
         return 2
@@ -226,6 +257,13 @@ def main(argv):
     if cmd == "inconclusive" and len(argv) == 6:
         print(json.dumps(inconclusive_payload(argv[3], argv[2],
                                               argv[4], argv[5])))
+        return 0
+    if cmd == "decorate" and len(argv) == 5:
+        with open(argv[2]) as fh:
+            payload = json.load(fh)
+        decorate_inconclusive(payload, argv[3], argv[4])
+        with open(argv[2], "w") as fh:
+            json.dump(payload, fh)
         return 0
     sys.stderr.write(usage)
     return 2

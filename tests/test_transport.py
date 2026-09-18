@@ -6,11 +6,18 @@ Encodes the transport/semantics boundary (2026-09-17):
   shape from reviewed profiles, diagnostics) and never judges review
   content;
 - parse_review.py stays the sole owner of INCONCLUSIVE semantics;
-  PARSE_REASON on stderr is additive diagnostics;
-- the default profile reproduces the legacy request EXACTLY — the
-  haiku path is locked byte-for-byte;
-- the structured-output schema mirrors the parse contract (no second
-  definition of validity);
+  PARSE_REASON on stderr is additive diagnostics, and transport
+  decoration of an INCONCLUSIVE body is limited to the Reason code
+  line (verdict/event/findings untouchable — refusal enforced by
+  test);
+- the default profile reproduces the legacy request object-for-object
+  (same JSON structure and values) — the haiku path is locked at the
+  object level; wire serialization is Python's json, not jq's;
+- the structured-output schema is the CANONICAL structured shape,
+  stricter than parser acceptance: its enums and semantic vocabulary
+  are pinned to parser constants, while parse_review.py remains
+  tolerant/backward-compatible (it does not require summary/good/
+  line/suggestion; the schema does);
 - terminal-state fixtures are saved from the observed GLM failure
   classes (reasoning-only null content, truncated partial content).
 """
@@ -165,7 +172,89 @@ def test_failure_reason_mapping_contract():
     assert code == "UPSTREAM_ERROR" and "malformed" in detail
 
 
-# ---- reason-coded INCONCLUSIVE (additive; parser stays owner) ----------
+def test_refusal_wins_over_content_presence():
+    """Defensive precedence pin: finish_reason=content_filter is
+    REFUSAL even when the provider also emitted text — the shell must
+    route it to UPSTREAM_ERROR via state, not via empty content."""
+    resp = {"provider": "p", "choices": [{"finish_reason": "content_filter",
+            "message": {"role": "assistant",
+                        "content": "{\"assessment\": \"CLEAR\"}"}}]}
+    facts = transport.classify_response(resp)
+    assert facts["state"] == "REFUSAL"
+    code, detail = transport.failure_reason(facts)
+    assert code == "UPSTREAM_ERROR" and "content_filter" in detail
+
+
+# ---- schema pins parser vocabulary; it is the canonical shape ----------
+
+def test_schema_enums_match_parser_contract():
+    schema = transport.load_schema()["schema"]["properties"]
+    assert schema["assessment"]["enum"] == list(MODEL_ASSESSMENTS)
+    assert schema["findings"]["items"]["properties"]["severity"]["enum"] \
+        == list(SEVERITIES)
+    item = schema["findings"]["items"]
+    assert set(item["required"]) == \
+        {"file", "line", "severity", "comment", "suggestion"}
+
+
+def test_schema_is_strict_closed_world():
+    schema = transport.load_schema()
+    assert schema["strict"] is True
+    inner = schema["schema"]
+    assert inner["additionalProperties"] is False
+    assert set(inner["required"]) == \
+        {"assessment", "summary", "findings", "good"}
+
+
+def test_schema_is_canonical_not_identical_to_parser_acceptance():
+    """Boundary precision: the schema requires summary/good/line/
+    suggestion (canonical structured output); the parser accepts their
+    absence (tolerant, backward-compatible). Same vocabulary, two
+    strictness levels by design."""
+    schema = transport.load_schema()["schema"]
+    required = set(schema["required"])
+    assert required == {"assessment", "summary", "findings", "good"}
+    content = json.dumps({"assessment": "CLEAR", "findings": []})
+    payload = build_payload(content, [], "abc", "m")
+    assert "· Clear" in payload["body"]  # parser tolerates the subset
+
+
+# ---- reason-coded INCONCLUSIVE (parser body + narrow decoration) -------
+
+def test_parser_inconclusive_body_carries_reason_code():
+    payload = build_payload("not json", [], "abc", "m")
+    assert "Reason code: STRUCTURED_OUTPUT_INVALID" in payload["body"]
+    payload = build_payload(json.dumps({
+        "assessment": "ISSUES_FOUND",
+        "findings": [{"file": "a.py", "comment": "x",
+                      "severity": "non-blocking"}]}), [], "abc", "m")
+    assert "Reason code: SEMANTIC_CONTRADICTION" in payload["body"]
+
+
+def test_decorate_replaces_code_keeps_verdict_and_provenance():
+    payload = build_payload("{\"assessment\": \"CLE", [], "abc123", "glm")
+    assert payload["event"] == "COMMENT"
+    decorated = transport.decorate_inconclusive(
+        payload, "OUTPUT_BUDGET_EXHAUSTED", "finish_reason: length")
+    assert "Reason code: OUTPUT_BUDGET_EXHAUSTED " \
+           "(parser reason: STRUCTURED_OUTPUT_INVALID; " \
+           "finish_reason: length)" in decorated["body"]
+    assert "Do not treat this review as clear." in decorated["body"]
+    assert "## AI review · Inconclusive" in decorated["body"]
+
+
+def test_decorate_refuses_non_inconclusive_payloads():
+    clear = build_payload(json.dumps({"assessment": "CLEAR", "findings": []}),
+               [], "abc", "m")
+    for bad in (clear, {"event": "COMMENT", "comments": [{"x": 1}],
+                        "body": "## AI review · Inconclusive",
+                        "commit_id": "abc"}):
+        try:
+            transport.decorate_inconclusive(bad, "X", "n")
+        except ValueError:
+            continue
+        raise AssertionError("decoration must refuse %r" % (bad,))
+
 
 def test_transport_inconclusive_payload_is_comment_failclosed():
     payload = transport.inconclusive_payload(

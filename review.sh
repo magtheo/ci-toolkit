@@ -236,7 +236,11 @@ if [ "$(python3 "$TOOLKIT_DIR/transport.py" policy "$MODEL" <<<"$STATE" \
   jq -r '.choices[0].message.content // empty' <"$or_resp" >"$content_file" || true
 fi
 
-if [ ! -s "$content_file" ]; then
+# REFUSAL wins regardless of content presence (stated state machine):
+# a content-filtered response is not reviewable even if the provider
+# also emitted text.
+if [ "$(jq -r '.state' <<<"$STATE")" = "REFUSAL" ] \
+   || [ ! -s "$content_file" ]; then
   failure=$(python3 "$TOOLKIT_DIR/transport.py" failure <<<"$STATE")
   reason_code=$(jq -r '.reason_code' <<<"$failure")
   detail=$(jq -r '.detail' <<<"$failure")
@@ -250,10 +254,15 @@ else
     "$head_sha" "$MODEL" > review.json 2>"$parse_err" || true
   reason_code=$(sed -n 's/^PARSE_REASON: //p' "$parse_err" | tail -1)
   # A truncated response that fails validation is a budget failure,
-  # not a schema failure — report the root cause.
+  # not a schema failure — report the root cause. Decoration is
+  # narrow: the parser's verdict/event/findings are untouched; only
+  # the Reason code line gains the transport's root cause (parser
+  # reason preserved as provenance).
   if [ "$reason_code" = "STRUCTURED_OUTPUT_INVALID" ] \
      && [ "$(jq -r '.finish_reason' <<<"$STATE")" = "length" ]; then
     reason_code="OUTPUT_BUDGET_EXHAUSTED"
+    python3 "$TOOLKIT_DIR/transport.py" decorate review.json \
+      OUTPUT_BUDGET_EXHAUSTED "finish_reason: length" || exit 1
   fi
 fi
 
