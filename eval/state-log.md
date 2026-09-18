@@ -651,7 +651,7 @@ diagnosis per human direction; oracle trust decision is the human's.
 
 ## 2026-09-18 — 25k oracle repair implemented: semantic groups (AND-of-groups / OR-of-alternatives)
 
-oracle_version cb6870c5a4c635b2 -> 3e4054a1325d6301 (corpus schema +
+oracle_version cb6870c5a4c635b2 -> 9e20730cb0436002 (corpus schema +
 harness semantics changed; states/GATING untouched). All 36 fixtures
 migrated to expected.groups[].alternatives[] by the deterministic
 script eval/migrate_to_groups.py — cardinality exactly per approved
@@ -674,4 +674,5 @@ haiku none / sonnet M13 only (0<1); #62 REVERT unchanged; FB parity
 witness soundness (#35 16/11, #36 214=211+3 with 324/324 FBs
 rejected, #40 197 with 272/273 rejected); frozen hashes byte-
 identical; diff confined to fixtures + harness + migration + tests +
-bundle. Full deterministic suite 167/167.
+state-log + bundle (this entry included in the approved scope). Full
+deterministic suite 167/167.
