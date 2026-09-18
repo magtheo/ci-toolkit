@@ -1,0 +1,12 @@
+{
+  "N": 3,
+  "budget": 8000,
+  "corpus_sha256": "dfabceeea4ae1c91",
+  "model": "z-ai/glm-5.3-flash",
+  "oracle_checkout_sha": "4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25",
+  "oracle_version": "9e20730cb0436002",
+  "reasoning_effort": "low",
+  "rubric_sha256": "415d8a38cfed9d3a826c81d158d6b6883b1c0c4b598e1b81a51e98afae0b3eeb",
+  "subject_sha": "fa068c7fefffaf3f4c6f7da55e0e9eb85838b4a2",
+  "transport_sha": "b663bfd3139bb04a70f95d661c96ee150f534513"
+}

@@ -1,0 +1,11 @@
+{
+  "fixtures": 36,
+  "initial_max_tokens": 8000,
+  "logical_reviews": 108,
+  "max_output_tokens": 2592000,
+  "max_provider_generations": 216,
+  "model": "z-ai/glm-5.3-flash",
+  "note": "output bound is conservative: an escalated generation doubles its budget and the bound assumes every logical review escalates",
+  "reasoning_effort": "low",
+  "runs_per_fixture": 3
+}

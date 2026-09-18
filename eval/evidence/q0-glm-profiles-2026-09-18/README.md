@@ -1,0 +1,153 @@
+# Q0 preflight evidence — GLM reasoning-profile qualification (2026-09-18)
+
+**Zero model calls were made in Q0.** Everything here is produced by
+`eval/profile_qualification.py --dry-run` (deterministic, no network —
+asserted by `tests/test_profile_qualification.py`) plus static
+identity proofs.
+
+## Identity record (directive §7)
+
+| Field | Value |
+|---|---|
+| oracle checkout SHA | `4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25` (#74 merge) |
+| oracle_version | `9e20730cb0436002` (recomputed live in tests; oracle inputs byte-identical to checkout — `git diff` empty) |
+| subject/reviewer | byte-identical to oracle checkout (engine.py, render.py, rubric.md, parse_review.py, review.sh) |
+| transport | `b663bfd3139bb04a70f95d661c96ee150f534513` (#70) — transport.py, model_profiles.json, review_result_schema.json byte-identical |
+| rubric sha256 | see `dry-run-*/meta.json` |
+| corpus sha256 | see `dry-run-*/meta.json` |
+| model | `z-ai/glm-5.3-flash` (provisional deployed profile low/8000 — untouched) |
+
+`eval/profile_qualification.py` is **not an oracle input**:
+`oracle_version` hashes `eval/run_corpus.py` + fixtures +
+`states.json` only; recomputation at HEAD returns `9e20730cb0436002`.
+
+## What was proven (deterministic, 22 new tests; suite 206/206)
+
+- **Request equivalence (§6)**: low/8k request pins the exact
+  production #70 shape — `model`, `temperature 0.2`, `max_tokens
+  8000`, `reasoning.effort`, canonical strict `response_format`
+  schema, `provider.require_parameters=true`, engine prompts
+  verbatim. high and max differ from low by **only**
+  `reasoning.effort`; escalation differs by **only**
+  `max_tokens` (8000→16000).
+- **Escalation semantics (§4)**: `finish_reason=length` → exactly one
+  retry at 2× budget, effort fixed (guaranteed structurally: the
+  profile object is never mutated between attempts); `stop` never
+  escalates; partial truncation escalates identically to null
+  content; a second exhaustion does not produce a third attempt.
+  Logical reviews / provider generations / HTTP retries are counted
+  separately; infra failure is a hard fail-closed
+  (`TRANSPORT_FAILURE`), never an INCONCLUSIVE verdict.
+- **Prompt fidelity (§2)**: golden sha256 pairs for all 36 fixtures'
+  (system,user) prompts — byte-identical through the adapter, and
+  invariant across effort/budget overrides.
+- **Zero-call guarantee**: dry-run completes with `socket.socket`
+  replaced by a trap; two runs are byte-identical.
+- **Governance**: live mode refused without `--live` AND
+  `PM_QUALIFY_LIVE_AUTHORIZED=1`; `model_profiles.json` byte-identity
+  asserted after measurement-profile construction.
+
+## Stage A — pre-registered campaign (directive §8; DO NOT RUN YET)
+
+```
+model: z-ai/glm-5.3-flash      efforts: low, high, max
+initial budget: 8000           N: 3
+corpus: full repaired 36-fixture corpus
+logical reviews: 36 x 3 x 3 = 324
+```
+
+Measured request sizes (dry-run manifests): 178,015 prompt chars
+across 36 fixtures ⇒ ~44.5k prompt tokens per review-set pass ⇒
+~14.4M prompt tokens across Stage A (chars/4 heuristic).
+
+### Transport-metric separation
+
+Transport failure and semantic reviewer failure are NEVER collapsed:
+per-invocation records carry attempts[] (kind, max_tokens,
+finish_reason, state, provider, tokens, latency) plus the normalized
+ReviewResult. Aggregates: logical_reviews, provider_generations,
+http_retries, prompt/completion/reasoning tokens, length_exhaustions,
+escalations, post_escalation_exhaustions, final_inconclusive,
+transport_failures, wall time, cost.
+
+### Reviewer/oracle metrics (oracle semantics only)
+
+per-positive detection counts (N=3); aggregate positive detection;
+per-group detection (25k AND-of-groups / OR-of-alternatives); control
+false blockers; false blockers on positives; paired-control outcomes
+(control pass is necessary for every positive claim); assessment
+stability across N; GATING regressions vs current states; INCONCLUSIVE
+count.
+
+### Transport metrics
+
+length exhaustion rate; escalation frequency; post-escalation
+exhaustion; refusal/malformed counts; infra failures; reasoning/output
+token usage; latency; provider distribution; cost.
+
+## Pre-registered selection rule (directive §9)
+
+**Hard disqualifiers** (any ⇒ effort disqualified):
+
+- D1 transport viability: final INCONCLUSIVE > 10% of logical
+  reviews, or any unresolved transport failure (campaign halt);
+- D2 GATING regression: any GATING fixture failing its oracle
+  stability requirement at that effort;
+- D3 control false-block on ≥2/3 runs of any control (controls gate
+  alone);
+- D4 post-escalation exhaustion on >5% of escalated reviews
+  (escalation not rescuing ⇒ budget misfit).
+
+**Selection metrics** among survivors, lexicographic:
+
+1. (B) reviewer sensitivity: aggregate positive detection (higher is
+   better). Frozen Haiku/Sonnet floors (51/90, 66/90) are
+   **references only** — no governed rule makes them cross-model
+   qualification thresholds.
+2. (C) discrimination: false blockers on positives (lower), then
+   paired-control clean count (higher).
+3. (D) cost + latency: total tokens then wall time (tie-break).
+
+**Descriptive/reference only**: token usage detail, latency, provider
+distribution, cost, historical cross-model floors.
+
+Stage A is profile **screening**: no state promotion, no GATING
+change, no deployment-profile change, no fleet rollout follows from
+its outcome alone.
+
+## Spend gate (directive §10) — AWAITING HUMAN AUTHORIZATION
+
+| Quantity | Value |
+|---|---|
+| planned logical reviews | 324 |
+| max extra generations from escalation | ≤324 (one per logical review; only on length) |
+| max provider generations | 648 |
+| HTTP retries bound | ≤2 extra raw attempts per generation (legacy 3-attempt policy) |
+| planned output tokens (no escalation) | 324 × 8,000 = 2.59M |
+| credible worst-case output bound | 7.78M (every review escalates and exhausts 8k+16k) |
+| estimated prompt tokens | ~14.4M (chars/4 heuristic from measured manifests) |
+| estimated expected spend | **TBD — unit pricing to be recorded with source+date at authorization time**; cost = (prompt_tokens·p_in + completion_tokens·p_out)/1e6 |
+| wall-clock / load | 324 sequential generations at observed 15–60s smoke latencies ⇒ roughly 1.5–5.5h per effort; backoff sleeps add under load |
+
+`--live` is mechanically refused without
+`PM_QUALIFY_LIVE_AUTHORIZED=1`. **Do not infer authorization from the
+#74 merge.**
+
+## Known measurement-validity concerns
+
+1. **Effort fallback**: the GLM slug advertises low/high/max, but the
+   provider may silently fall back to max reasoning for unsupported
+   values (per profile note). Detector: reasoning-token telemetry per
+   effort; no machine-readable provider contract exists.
+2. **Provider routing variance**: OpenRouter may route the slug to
+   different upstreams with different reasoning behavior; provider
+   distribution is recorded; if variance dominates, a provider-pinned
+   Stage A.1 amendment needs separate human approval.
+3. **Token accounting gaps**: some providers omit
+   `reasoning_tokens`; nulls are recorded and excluded from sums.
+4. **Temperature-0.2 non-determinism**: N=3 plus the oracle's
+   ((N+2)//2)-of-N stability semantics is the designed treatment;
+   per-run determinism is not claimed.
+5. **ReviewInput.model metadata**: run_corpus's legacy
+   temperature/max_tokens metadata is not the wire request; the wire
+   request is transport+profile-governed and pinned by tests.
