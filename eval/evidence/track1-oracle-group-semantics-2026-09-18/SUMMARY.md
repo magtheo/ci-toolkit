@@ -24,7 +24,7 @@ Result: **ALL 11 ITEMS PASS** (`acceptance.json`).
 | 6 | Residual floor violations | haiku none; sonnet **M13 only (0 < 1)** |
 | 7 | #62 historical REVERT | unchanged, never rewritten |
 | 8 | FB / #65 attribution parity | 91 / 139 recomputed via new harness; families RECONCILED |
-| 9 | oracle_version moves, floor VALUES don't | `cb6870c5a4c635b2` → `3e4054a1325d6301`; floors hash-pinned |
+| 9 | oracle_version moves, floor VALUES don't | `cb6870c5a4c635b2` → `9e20730cb0436002`; floors hash-pinned |
 | 10 | Witness soundness | #35 16/11; #36 214 matched (211+3), 324/324 FBs rejected; #40 197 matched, 272/273 rejected |
 | 11 | Frozen evidence immutability + needle preservation | 3/3 frozen hashes byte-identical; **36/36 fixtures: base `findings` == flattened `alternatives` verbatim** (order, severity, comment_all, comment_any); diff scope enforced incl. `eval/state-log.md`; working-tree guard |
 
