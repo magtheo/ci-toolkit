@@ -1,0 +1,1465 @@
+{
+  "model": "z-ai/glm-5.3-flash",
+  "overrides": {
+    "base_profile": {
+      "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+      "max_tokens": 8000,
+      "reasoning_effort": "low",
+      "retry_budget_escalation": true,
+      "structured_output": true
+    },
+    "overrides": {
+      "reasoning_effort": "high"
+    }
+  },
+  "profile": {
+    "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+    "max_tokens": 8000,
+    "reasoning_effort": "high",
+    "retry_budget_escalation": true,
+    "structured_output": true
+  },
+  "records": [
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C1",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        911
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "f8cd00e1d49556d49d3bd42d5389916910ce950ce22340666011b3d8facae1d9"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "6a548b061c0586026046c4df6346f12b7c5c9663db644d5435a2cfe4cce1eaf8",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C10",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        691
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "17f1ecd3e155e177e2bc5b67fb76ac5f9060dfa74499e7a94685cdbcc68151c4"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "1862b2289fe532b24c7e66a8b7890b43f71bfd069071e7934779b90928c5e705",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C11",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        859
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "6e6b8ed87d4d8897c70a139cefa1e2ac963b1e9ab681e3fe429afad88578b8ca"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "631f31423ad3ade0cff680399b38647cdd12e13d61a8bfa5d7d1b221c863da3d",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C12",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        1266
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "0d330eb2f8e6bb1086db214f6ff18860b4473077ef4dc12b575d7b425beb9a85"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "4bfd8e12a0a88d32aad301da3dbda53244d4531776b7190557100668ef1d47ef",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C13",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        873
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "414f0a0cf0b0708c94d1208062db50b68e56572a3da06abce772700fe460458b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "7743cd225e55232a280a8e350e40a3cb657bb75446cc684eddfc3b3b43050fa3",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C14",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        940
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "14b4077f8fc80707a314794b03b1bc16f11557bbe70eca2a03257e517dbd22f0"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "695fdd10fc584025777594802713e57e3e0ee098817aaf98abe6e5a0b5e85a62",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C15",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        779
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "8b2729674739ab98f1e7faa54d6e6b40420b2bc4973dfc31cdcdf692c8571fa1"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "7778f53c12c425de0a0f98297f4a990f3954d91f00bd9b696f2816a934288a38",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C16",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        868
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "67ab38fb4c667ba50c5ec0b6eb29fc58842b1861173b93531eade20770663581"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "d72c3c291ceb91bb07637fba3b3276a936c626e515ab1a8dff5a66f442f89aca",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C17",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        714
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "31d4c6b105c31fa165c71122163a0710286f58b13098e3aa36369d68756b8554"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "41a5dbe85c9aa4a8f3538be2589573868e971fbe26c74e89c235441f8d4fcdf1",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C18",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        739
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "3a446b0241a67687d50ae875e828377295ec227135bd8e230e6fae54e07faa58"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "f953f6c6b6079cdcd7b247e9c2f436279458180952109e843707bb5cb7909018",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C2",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        796
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "ef19fa49eb257ceaf1b4f0aaf8fb779b945ae4f719702a3bef591c6fe6925e02"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "15b6cf65b746ffa476a2d420b7507c786ae62ba134355748186554a8afa10bbc",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C3",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        862
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "02d6c54e9e56c0cd8f71ded5f04feca81027f87a3ce1cc4f6aa045bc5bd88d8f"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "158e64b319cdafc4af0b48727da58e2ad055a4fab58db4f1988c4b54bf372bf8",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C4",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        831
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "aad3ea6f6a781204d78e5bd80ca71808b624f82722ff3a35b76eb0f11e122b3b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "0e83fec37d4ec34ef88d6fd4e7b4c54fc2f189f70025a553af81ea3ff0176058",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C5",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        763
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "67dde943501035411362c6dd9f7ad514a5dd6c3da5c6e50f78b12cdaeaa81be2"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "9b86700dacd7317910db547ec015ceac8ce46281ff81ea0e6ce7afa88291161f",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C6",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        692
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "be25ecc9544f94c193e06b4057159c86d65e687280a3d213cfec2d15291f3a1a"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "edbba0050573312836adf29ffefad10c4d3c5ce0d2200afe43f647a241267f31",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C7",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        847
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "a74d2c1c41b3359cc87751de8ae3673f3dc2d1f502c06a4dc8028d1501cb4a70"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "712511322a262103ea1624647163d10de89a6d225a725dff46f8675fd68ee27a",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C8",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        1200
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "1cc6a0aa9c37eca607a65d8f5ebadf4a73c32964b872e823f2b6a3e796611fcb"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "054b69f1b9209e6100576407fb128565b820198d1fbd1346f8fe3fe02f46b331",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "C9",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        798
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "d09b94eae8e49a4982301823252954a8c079b7b8406a95ea8a08c67217c4e947"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "b42363228e31afdbce83fe415c46b2bac8688c007a7fad2e71cc02532c66dbbe",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M1",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        872
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "01758408c896aaa775925852d236caf453a98faff8ba5d774bc7e708c1fe419b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "2feeaf8a41cac518c3125ea0fd5cef29af153bc2f07b6745210d5c773ae8be70",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M10",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        657
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "c1258005f74731ba5b1b6e04c91872c45027e1ce2a4236fb099703d7772f9ba3"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "8877d638c0e7113bf46116fede7c7e1d428b5a01991e9b14645797f7dba6a89b",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M11",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        736
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "6a20f0dd1132c48639fec1be0b15795153f80fed3a6dc05a1c0e21e7b648789b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "8de6828d507520e83bfb1f5485295dbbb9551920d3985b6eace8aaab2b7f685e",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M12",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        1288
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "4ee803e9bbf3dd4506aeb6e4ca3ae6937788d6dc8f0cf1abd8b5f497bdd9844f"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "cfd6ba391b86c6cf1e2f91952d536c6e956d7c33115d38b6fb9102a6ee8fbd28",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M13",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        835
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "ccee211ab5303c58000593251077e64870b55a55bfb4dab0dc213afbacb389cb"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "2ca8c16bb6b12261625d77e36b5e0e12cc2be021be513426cc9a95b52ec49bea",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M14",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        749
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "e78acbf3836be5ca5db4d853fc01d45c3cae8b13612874d57306512cb587e81b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "f28aae71033292a2f42cf762c584454c021516ed76160bd3a136fabd1807119a",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M15",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        778
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "9db6f31bb2925cd77682e96b07d1ab212de9f76dd46702f9afad3e8e8210eb9b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "aab5a14d72eff960dd1cec794486162f33360fca3527727bdc0c79769a0f5226",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M16",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        743
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "05c125802c45bc827f0cfded2ad55d9b8fe45c46bd68bb86357072feeba69924"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "2c19531df40a703e9eff63cfabfdcaa20f438ca443f678aea1fb74792cabbaf7",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M17",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        665
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "df4edb6ff943774a32a3958d9307240f158da8de9b91bd2c7d4507b1d58ef6f2"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "06d847039c6e551c0b2430f63c8245215e4d5cc088961c3539ba07369d206960",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M18",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        719
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "2b3b76b783465e92acf8136bfb8c8b02aef92ccae89019835c5b5d3eb32b478a"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "4214f217c34e2066d2a2e6b99c619cb3d69e7f1ed0e0e9dc8bf962268d56fb52",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M2",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        954
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "5532d6baa2969123a537a5030e005e1e475407e786bfadf27ac586584434ac4b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "81db274ef9e17ef2caa98cfe0f30680cf340dd4884589c7e78aa272e6fc24f66",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M3",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        918
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "2839971c9eb43cbb5665de006e5fad8a2838934795c0dd444efd47ff73f289f2"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "745976512642b8685271b46b30653c7f77cedc15e647f228a59c162cebb42acc",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M4",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        830
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "9858940621394785ab0ae0990474ed8ff8381722584af669315789ae573e0131"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "a5dd4d24e14e0894e3e5d34603f6f2b83fda235045aefe20f210cf17c2eb6b0c",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M5",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        703
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "61f50b54d8f1ceeea13f622a369c40b7f888e18f15baddeae5dfadc75728238b"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "58cb06a7edb90df907da951843fc69a444619ed042845b8ec51ca994605449d4",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M6",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        692
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "cbf33edc9ba212e128b66f23193db1967a5d5a71dca5531c4982dd18a3d5f69a"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "d6460ba9c731aea37d2742488d106f1e1089b05df1be41a036277594ed0ccaa7",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M7",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        993
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "46101bd3be0d9437e2b277ea91cc230168a4f72dcaff79230a92b1cd07f47e11"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "9b6a6526b1f2b31cb59a83a27650cc5ea251ab7d32e51b111a1756db8eec8b77",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M8",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        1056
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "c88e3d5544dcb867f9714fa09d8f1a0fd915ae2fd627945fbbeb0c3f996d85c6"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "55df1ac2df0f5437c6aa6381a5c379740602eabbf0e399c1cee358d34e9e6d3d",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    },
+    {
+      "attempts": [],
+      "base_profile": {
+        "_provisional": "pending measured profile selection; see transport PR. Effort 'low': the slug supports low/high/max \u2014 unsupported values fall back to max reasoning, which recreates the exhaustion failure",
+        "max_tokens": 8000,
+        "reasoning_effort": "low",
+        "retry_budget_escalation": true,
+        "structured_output": true
+      },
+      "escalated": false,
+      "escalation_planned": true,
+      "failure_detail": null,
+      "fixture": "M9",
+      "http_retries": 0,
+      "initial_max_tokens": 8000,
+      "model": "z-ai/glm-5.3-flash",
+      "overrides": {
+        "reasoning_effort": "high"
+      },
+      "prompt_chars": [
+        4100,
+        798
+      ],
+      "prompt_sha256": [
+        "ce93b71c38bfe7da98681e18ebcf725e3ff8c4cc8bfe77d9ba77ee2b31d47dd5",
+        "e1405091efeabe48b3c5e1420359f25c94311b4c695ebf742caf17197260ccb5"
+      ],
+      "reason_code": null,
+      "reasoning_effort": "high",
+      "request_sha256": "43dbc3365ca6b6df0ce5ed5e0e614ab06811e7e8b671c45f00aaabe32169ab24",
+      "result": null,
+      "run_index": 0,
+      "terminal_state": "DRY_RUN",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "wall_s": 0.0
+    }
+  ],
+  "runs_planned": 3
+}
