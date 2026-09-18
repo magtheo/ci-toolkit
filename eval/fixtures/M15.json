@@ -18,21 +18,23 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_all": [
-            "eu-nord"
-          ],
-          "comment_any": [
-            "typo",
-            "misspelled",
-            "wrong",
-            "invalid",
-            "rejects"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "eu-nord"
+            ],
+            "comment_any": [
+              "typo",
+              "misspelled",
+              "wrong",
+              "invalid",
+              "rejects"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defect: allowed tuple misspells eu-north-1 as eu-nord-1 \u2014 valid regions are rejected with ValueError."

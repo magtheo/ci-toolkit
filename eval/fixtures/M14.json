@@ -18,22 +18,24 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_all": [
-            "token"
-          ],
-          "comment_any": [
-            "argv",
-            "command line",
-            "cmdline",
-            "log",
-            "process list",
-            "exposed"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "token"
+            ],
+            "comment_any": [
+              "argv",
+              "command line",
+              "cmdline",
+              "log",
+              "process list",
+              "exposed"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defects: bearer token echoed to stderr and passed in curl argv \u2014 observable in logs and /proc/<pid>/cmdline."

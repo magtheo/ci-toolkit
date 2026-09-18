@@ -18,19 +18,21 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_any": [
-            "course",
-            "resume",
-            "frame",
-            "order",
-            "lifecycle",
-            "listen"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "course",
+              "resume",
+              "frame",
+              "order",
+              "lifecycle",
+              "listen"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defect: the resume target is consumed and dropped before course auto-selection can run in its later frame \u2014 contradicting the PR's own promise for legacy null-course threads."

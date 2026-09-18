@@ -18,22 +18,24 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_all": [
-            "jq"
-          ],
-          "comment_any": [
-            "jsonl",
-            "per-line",
-            "each line",
-            "one object per line",
-            "slurp",
-            "line by line"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "jq"
+            ],
+            "comment_any": [
+              "jsonl",
+              "per-line",
+              "each line",
+              "one object per line",
+              "slurp",
+              "line by line"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defect: without -s, jq reads each JSONL line as its own input; .[] iterates one object's values, .patch on a string errors, and 'if !' turns the error into skipping every PR."

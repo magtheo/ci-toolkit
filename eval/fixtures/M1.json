@@ -18,14 +18,16 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_all": [
-            "inherit"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "inherit"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defect: secrets: inherit hands every repo secret to the reusable workflow instead of the single key it needs. Everything else (trigger, full-SHA pins) is already hardened so only this defect can block. Self-contained as presented: least-privilege permissions, fork guard, full-SHA pins both layers, explicit secret mapping."

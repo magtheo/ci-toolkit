@@ -1,10 +1,16 @@
 # 25k acceptance bundle — oracle semantic groups (2026-09-18)
 
 Zero-call mechanical validation of the 25k oracle repair
-(`expected.groups[].alternatives[]`: **AND of required groups, OR of
-alternatives within a group**), implemented per the approved #67
-design. Run `python3 prove.py` — any violation exits non-zero;
-conditions are never weakened to pass.
+(`expected.groups[].alternatives[]` — a group is an OBJECT carrying
+`alternatives`: **AND of required groups, OR of alternatives within a
+group**), implemented per the approved #67 design.
+
+`prove.py` is exact-head-reproducible by construction: item 11 checks
+the committed diff scope (fixtures + harness + migration + tests +
+state-log + this bundle ONLY) and refuses a working tree dirty
+outside this bundle; the run regenerates `acceptance.json` and exits
+2 until a rerun at the committed head reproduces it byte-identically.
+Any violation exits non-zero; conditions are never weakened to pass.
 
 Result: **ALL 11 ITEMS PASS** (`acceptance.json`).
 
@@ -20,7 +26,7 @@ Result: **ALL 11 ITEMS PASS** (`acceptance.json`).
 | 8 | FB / #65 attribution parity | 91 / 139 recomputed via new harness; families RECONCILED |
 | 9 | oracle_version moves, floor VALUES don't | `cb6870c5a4c635b2` → `3e4054a1325d6301`; floors hash-pinned |
 | 10 | Witness soundness | #35 16/11; #36 214 matched (211+3), 324/324 FBs rejected; #40 197 matched, 272/273 rejected |
-| 11 | Frozen evidence immutability | 3/3 frozen hashes byte-identical; diff confined to fixtures + harness + migration script + tests + this bundle |
+| 11 | Frozen evidence immutability + needle preservation | 3/3 frozen hashes byte-identical; **36/36 fixtures: base `findings` == flattened `alternatives` verbatim** (order, severity, comment_all, comment_any); diff scope enforced incl. `eval/state-log.md`; working-tree guard |
 
 Semantics (single canonical implementation in `eval/run_corpus.py`,
 reused by harness/replays/rescores):

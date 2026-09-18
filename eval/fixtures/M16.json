@@ -18,37 +18,39 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_all": [],
-          "comment_any": [
-            "swallow",
-            "silently",
-            "ignor",
-            "fabricat",
-            "false success",
-            "fake success",
-            "misleading",
-            "mask",
-            "returns {",
-            "falsely claiming success",
-            "no labels were actually updated",
-            "indistinguishable from a successful"
-          ]
-        },
-        {
-          "severity": "blocking",
-          "comment_all": [
-            "{\"ok\""
-          ],
-          "comment_any": [
-            "returned when an exception",
-            "even when the put request failed",
-            "not when the sync succeed"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [],
+            "comment_any": [
+              "swallow",
+              "silently",
+              "ignor",
+              "fabricat",
+              "false success",
+              "fake success",
+              "misleading",
+              "mask",
+              "returns {",
+              "falsely claiming success",
+              "no labels were actually updated",
+              "indistinguishable from a successful"
+            ]
+          },
+          {
+            "severity": "blocking",
+            "comment_all": [
+              "{\"ok\""
+            ],
+            "comment_any": [
+              "returned when an exception",
+              "even when the put request failed",
+              "not when the sync succeed"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defects: bare except swallows every failure and the fall-through fabricates an ok summary \u2014 callers believe labels updated."

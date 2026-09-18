@@ -17,19 +17,21 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_any": [
-            "timeout",
-            "socket",
-            "connect",
-            "wall clock",
-            "urllib",
-            "curl"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "timeout",
+              "socket",
+              "connect",
+              "wall clock",
+              "urllib",
+              "curl"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defect: urllib's socket timeout replaces curl's connect bound (10s) + total deadline (180s); the behavior-preserving claim is false operationally."

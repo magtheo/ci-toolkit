@@ -18,18 +18,20 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_any": [
-            "all api responses",
-            "every response",
-            "absolute",
-            "unqualif",
-            "contradict"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_any": [
+              "all api responses",
+              "every response",
+              "absolute",
+              "unqualif",
+              "contradict"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defect: unqualified absolute ('All API responses') contradicts the probe bypass documented in the same file."

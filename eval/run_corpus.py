@@ -145,10 +145,14 @@ def _validate_fixture(f, ids):
         assert exp["assessment"] == "CLEAR", \
             "{0}: control must expect CLEAR".format(f["id"])
     for gi, group in enumerate(groups):
-        assert isinstance(group, list) and group, \
-            "{0}: group {1} must be a non-empty alternatives list".format(
-                f["id"], gi)
-        for e in group:
+        assert isinstance(group, dict), \
+            "{0}: group {1} must be an object with 'alternatives' " \
+            "(approved groups[].alternatives[] schema)".format(f["id"], gi)
+        alts = group.get("alternatives")
+        assert isinstance(alts, list) and alts, \
+            "{0}: group {1} must carry a non-empty alternatives " \
+            "list".format(f["id"], gi)
+        for e in alts:
             assert e["severity"] in SEVERITIES, e
             has_all = bool(e.get("comment_all"))
             has_any = bool(e.get("comment_any"))
@@ -394,7 +398,7 @@ def iter_alternatives(expected_groups):
     corpus (used by frozen witness sets, which address entries by
     position)."""
     for group in expected_groups:
-        for alt in group:
+        for alt in group["alternatives"]:
             yield alt
 
 
@@ -403,7 +407,8 @@ def group_detected_in_run(group, result):
     matches any finding the reviewer produced in that run."""
     return any(
         _finding_matches(alt, f)
-        for alt in group for f in result.get("findings", []))
+        for alt in group["alternatives"]
+        for f in result.get("findings", []))
 
 
 def per_group_hits(groups, results):

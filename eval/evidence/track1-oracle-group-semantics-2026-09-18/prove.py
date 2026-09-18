@@ -107,7 +107,8 @@ ok("1-floor-parity-36", haiku=item1["haiku"]["aggregate"],
 # ---- item 2: M2 remains AND ----------------------------------------------
 m2 = fixtures["M2"]["expected"]["groups"]
 assert len(m2) == 2 and all(len(g) == 1 for g in m2)
-alt0, alt1 = m2[0][0], m2[1][0]
+alt0, alt1 = (m2[0]["alternatives"][0],
+              m2[1]["alternatives"][0])
 c0, c1 = synth_comment(alt0), synth_comment(alt1)
 only0 = [run("ISSUES_FOUND", [c0])] * 3
 only1 = [run("ISSUES_FOUND", [c1])] * 3
@@ -126,7 +127,7 @@ for mid in ("M3", "M11", "M12", "M16"):
     groups = fixtures[mid]["expected"]["groups"]
     assert len(groups) == 1 and len(groups[0]) == 2
     hits = []
-    for alt in groups[0]:
+    for alt in groups[0]["alternatives"]:
         runs = [run("ISSUES_FOUND", [synth_comment(alt)])] * 3
         res = rc.evaluate(fixtures[mid], runs)
         if not res["passes_policy"]:
@@ -336,29 +337,72 @@ if new_oracle == ORACLE_PRE:
 ok("9-oracle-version", old=ORACLE_PRE, new=new_oracle,
    floor_values="unchanged (frozen witness-replay.json, hash-pinned)")
 
-# ---- item 11: frozen evidence immutability --------------------------------
+# ---- item 11: frozen evidence immutability + needle preservation ----------
 for rel, want in FROZEN_HASHES.items():
     got = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
     if got != want:
         fail("11-immutability", f"{rel} changed")
+
+# Needle preservation, mechanical base-vs-head: every old expected
+# entry must equal the flattened migrated alternatives EXACTLY
+# (order, severity, comment_all, comment_any) in all 36 fixtures.
+needle_ok = 0
+for fid in sorted(fixtures):
+    old = json.loads(subprocess.run(
+        ["git", "show", f"{BASE}:eval/fixtures/{fid}.json"],
+        cwd=ROOT, capture_output=True, text=True,
+        check=True).stdout)["expected"]["findings"]
+    new = list(rc.iter_alternatives(fixtures[fid]["expected"]["groups"]))
+    if old != new:
+        fail("11-immutability", f"{fid}: migrated needles != base")
+    needle_ok += 1
+
+# Git scope: committed changes BASE..HEAD must stay inside the
+# approved 25k surface (state-log appends included); the working tree
+# may only carry regenerated bundle outputs — this makes the
+# pre-commit blind spot that once produced a stale PASS impossible.
+BUNDLE = "eval/evidence/track1-oracle-group-semantics-2026-09-18/"
 changed = subprocess.run(
     ["git", "diff", "--name-only", BASE + "..HEAD"],
     cwd=ROOT, capture_output=True, text=True).stdout.split()
-allowed = (["eval/run_corpus.py", "eval/migrate_to_groups.py"]
-           + [p for p in changed if p.startswith("eval/fixtures/")]
-           + [p for p in changed if p.startswith("tests/")]
-           + [p for p in changed
-              if p.startswith("eval/evidence/track1-oracle-group-"
-                              "semantics-2026-09-18/")])
-disallowed = [p for p in changed if p not in allowed]
-if disallowed:
-    fail("11-immutability", f"unexpected changes: {disallowed}")
+APPROVED_SCOPE = ("eval/run_corpus.py", "eval/migrate_to_groups.py",
+                  "eval/state-log.md")
+
+
+def in_scope(p):
+    return (p in APPROVED_SCOPE
+            or p.startswith(("eval/fixtures/", "tests/", BUNDLE)))
+
+
+stray = [p for p in changed if not in_scope(p)]
+if stray:
+    fail("11-immutability", f"changes outside approved scope: {stray}")
+porcelain = subprocess.run(
+    ["git", "status", "--porcelain"], cwd=ROOT,
+    capture_output=True, text=True).stdout.splitlines()
+dirty = [ln[3:].strip() for ln in porcelain if ln.strip()]
+outside = [p for p in dirty if not p.startswith(BUNDLE)]
+if outside:
+    fail("11-immutability",
+         f"working tree dirty outside this bundle: {outside} — "
+         "commit and rerun prove.py at the exact head")
 ok("11-immutability", frozen_hashes="3/3 byte-identical",
-   diff_scope="fixtures + harness + migration + tests + this bundle only")
+   needles=f"{needle_ok}/36 base==flatten(head) verbatim",
+   diff_scope="fixtures + harness + migration + tests + state-log + "
+              "this bundle only")
 
 # ---- report ----------------------------------------------------------------
 R["oracle_version"] = {"old": ORACLE_PRE, "new": new_oracle}
 R["base"] = BASE
 out = HERE / "acceptance.json"
-out.write_text(json.dumps(R, indent=2, sort_keys=True) + "\n")
-print("\nALL 11 ACCEPTANCE ITEMS PASS ->", out)
+text = json.dumps(R, indent=2, sort_keys=True) + "\n"
+prev = out.read_text() if out.exists() else None
+if prev == text:
+    print("\nALL 11 ACCEPTANCE ITEMS PASS @ committed exact head "
+          "(byte-identical reproduction)")
+else:
+    out.write_text(text)
+    print("\nALL 11 ACCEPTANCE ITEMS PASS — acceptance.json "
+          "REGENERATED; commit it, then rerun prove.py at the new "
+          "exact head (exit 2 until reproduction is byte-identical)")
+    sys.exit(2)

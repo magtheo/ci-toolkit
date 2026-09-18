@@ -242,8 +242,8 @@ def _fx(kind="positive"):
                 "assessment": "CLEAR" if kind == "control"
                 else "ISSUES_FOUND",
                 "groups": [] if kind == "control" else [
-                    [{"severity": "blocking",
-                      "comment_any": ["inherit"]}]]}}
+                    {"alternatives": [{"severity": "blocking",
+                                       "comment_any": ["inherit"]}]}]}}
 
 
 def test_positive_passes_at_two_of_three_detection():
@@ -350,8 +350,9 @@ def test_positive_with_missed_finding_is_known_gap_not_pass():
     # auto-pass via an empty-expectations hack
     fx = {"id": "X1", "kind": "positive",
           "expected": {"assessment": "ISSUES_FOUND",
-                       "groups": [[{"severity": "blocking",
-                                    "comment_all": ["inherit"]}]]}}
+                       "groups": [{"alternatives": [
+                           {"severity": "blocking",
+                            "comment_all": ["inherit"]}]}]}}
     runs = [_result("CLEAR")] * 3
     r = rc.evaluate(fx, runs)
     assert not r["passes_policy"]
@@ -383,8 +384,9 @@ def test_control_passes_only_when_all_runs_clear():
 def test_positive_requires_assessment_stability_too():
     fx = {"id": "X1", "kind": "positive",
           "expected": {"assessment": "ISSUES_FOUND",
-                       "groups": [[{"severity": "blocking",
-                                    "comment_all": ["inherit"]}]]}}
+                       "groups": [{"alternatives": [
+                           {"severity": "blocking",
+                            "comment_all": ["inherit"]}]}]}}
     # detection 2/3 ok, but one INCONCLUSIVE run is a miss only if
     # it pushes assessment below threshold: 2 ISSUES_FOUND of 3 -> ok
     runs = [_result("ISSUES_FOUND", [dict(BLOCK)]),
@@ -438,8 +440,9 @@ def test_loader_rejects_old_findings_schema(tmp_path):
 def test_loader_rejects_mixed_schema(tmp_path):
     bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
                                     "findings": [],
-                                    "groups": [[{"severity": "blocking",
-                                                 "comment_any": ["x"]}]]})
+                                    "groups": [{"alternatives": [
+                                        {"severity": "blocking",
+                                         "comment_any": ["x"]}]}]})
     d = tmp_path / "f"
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(bad))
@@ -449,7 +452,7 @@ def test_loader_rejects_mixed_schema(tmp_path):
 
 def test_loader_rejects_group_with_zero_alternatives(tmp_path):
     bad = _loader_case("positive", {"assessment": "ISSUES_FOUND",
-                                    "groups": [[]]})
+                                    "groups": [{"alternatives": []}]})
     d = tmp_path / "f"
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(bad))
@@ -473,8 +476,9 @@ def test_loader_rejects_groups_on_control(tmp_path):
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(_loader_case(
         "control", {"assessment": "CLEAR",
-                    "groups": [[{"severity": "blocking",
-                                 "comment_any": ["x"]}]]})))
+                    "groups": [{"alternatives": [
+                        {"severity": "blocking",
+                         "comment_any": ["x"]}]}]})))
     with pytest.raises(AssertionError, match="groups == .."):
         rc.load_corpus(d)
 
@@ -484,7 +488,8 @@ def test_loader_rejects_matcher_without_all_or_any(tmp_path):
     d.mkdir()
     (d / "X1.json").write_text(json.dumps(_loader_case(
         "positive", {"assessment": "ISSUES_FOUND",
-                     "groups": [[{"severity": "blocking"}]]})))
+                     "groups": [{"alternatives": [
+                         {"severity": "blocking"}]}]})))
     with pytest.raises(AssertionError, match="comment_all"):
         rc.load_corpus(d)
 
@@ -857,9 +862,11 @@ def _group_fx(groups, kind="positive"):
                 "groups": groups}}
 
 
-G1 = [{"severity": "blocking", "comment_all": ["pull_request"],
+GA = [{"severity": "blocking", "comment_all": ["pull_request"],
        "comment_any": ["trigger", "trusted base"]}]
-G2 = [{"severity": "blocking", "comment_any": ["pin", "floating"]}]
+GB = [{"severity": "blocking", "comment_any": ["pin", "floating"]}]
+G1 = [{"alternatives": GA}]
+G2 = [{"alternatives": GB}]
 
 
 def test_two_required_groups_are_and_at_fixture_level():
@@ -867,17 +874,21 @@ def test_two_required_groups_are_and_at_fixture_level():
     both = [_result("ISSUES_FOUND", [
         {"severity": "blocking", "comment": "pull_request trigger"},
         {"severity": "blocking", "comment": "pin to a sha"}])] * 3
-    assert rc.evaluate(_group_fx([G1, G2]), both)["passes_policy"]
+    assert rc.evaluate(_group_fx([{"alternatives": GA},
+                                   {"alternatives": GB}]), both)["passes_policy"]
     # only group 1 ever detected -> group 2 at 0 hits -> fail
     only_g1 = [_result("ISSUES_FOUND", [
         {"severity": "blocking", "comment": "pull_request trigger"}])] * 3
-    r = rc.evaluate(_group_fx([G1, G2]), only_g1)
+    r = rc.evaluate(_group_fx([{"alternatives": GA},
+                            {"alternatives": GB}]), only_g1)
     assert not r["passes_policy"]
     assert r["expected_detection"][1]["hits"] == 0
     # only group 2 ever detected -> symmetric fail
     only_g2 = [_result("ISSUES_FOUND", [
         {"severity": "blocking", "comment": "pin to a sha"}])] * 3
-    assert not rc.evaluate(_group_fx([G1, G2]), only_g2)["passes_policy"]
+    assert not rc.evaluate(_group_fx([{"alternatives": GA},
+                                       {"alternatives": GB}]),
+                            only_g2)["passes_policy"]
 
 
 def test_per_group_stability_is_not_run_level_all_groups():
@@ -892,35 +903,37 @@ def test_per_group_stability_is_not_run_level_all_groups():
             _result("ISSUES_FOUND", [
                 {"severity": "blocking", "comment": "pull_request trigger"},
                 {"severity": "blocking", "comment": "pin to a sha"}])]
-    r = rc.evaluate(_group_fx([G1, G2]), runs)
+    r = rc.evaluate(_group_fx([{"alternatives": GA},
+                            {"alternatives": GB}]), runs)
     assert r["passes_policy"]
     # each group independently at the majority threshold (2 of 3),
     # even though run-level all-groups detection happened only once
     assert [p["hits"] for p in r["expected_detection"]] == [2, 2]
     # and the run-level counter agrees only 1 run detected all groups
     assert sum(1 for run in runs
-               if rc.run_detects_all_groups([G1, G2], run)) == 1
+               if rc.run_detects_all_groups(
+        [{"alternatives": GA}, {"alternatives": GB}], run)) == 1
 
 
 def test_alternatives_are_or_within_one_group():
     # M3/M11/M12/M16 shape: phrasing-family alternatives — EITHER
     # accepted phrasing satisfies the single required group
-    group = [
+    group = [{"alternatives": [
         {"severity": "blocking", "comment_all": ["mtime"],
          "comment_any": ["date"]},
         {"severity": "blocking", "comment_all": ["filesystem metadata"],
-         "comment_any": ["parse"]}]
+         "comment_any": ["parse"]}]}]
     alt1 = [_result("ISSUES_FOUND", [{"severity": "blocking",
                                       "comment": "mtime of the date"}])] * 3
-    r = rc.evaluate(_group_fx([group]), alt1)
+    r = rc.evaluate(_group_fx(group), alt1)
     assert r["passes_policy"] and r["expected_detection"][0]["hits"] == 3
     alt2 = [_result("ISSUES_FOUND", [{"severity": "blocking",
                                       "comment": "filesystem metadata parse"}])] * 3
-    r = rc.evaluate(_group_fx([group]), alt2)
+    r = rc.evaluate(_group_fx(group), alt2)
     assert r["passes_policy"] and r["expected_detection"][0]["hits"] == 3
     neither = [_result("ISSUES_FOUND", [{"severity": "blocking",
                                          "comment": "something unrelated"}])] * 3
-    r = rc.evaluate(_group_fx([group]), neither)
+    r = rc.evaluate(_group_fx(group), neither)
     assert not r["passes_policy"]
 
 
@@ -930,7 +943,8 @@ def test_no_vacuous_detection_for_empty_groups():
     assert rc.groups_reach_threshold([], 2) is False
     assert rc.groups_reach_threshold([], 1) is False
     assert rc.run_detects_all_groups([], _result("ISSUES_FOUND")) is False
-    assert rc.group_detected_in_run([], _result("ISSUES_FOUND")) is False
+    assert rc.group_detected_in_run(
+        {"alternatives": []}, _result("ISSUES_FOUND")) is False
     # defense in depth: evaluate() itself cannot pass a zero-group
     # positive even if a loader bug ever let one through
     r = rc.evaluate(_group_fx([]), [_result("ISSUES_FOUND")] * 5)

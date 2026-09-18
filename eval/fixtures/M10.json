@@ -18,21 +18,23 @@
   "expected": {
     "assessment": "ISSUES_FOUND",
     "groups": [
-      [
-        {
-          "severity": "blocking",
-          "comment_all": [],
-          "comment_any": [
-            "anchor",
-            "start",
-            "beginning",
-            "prefix",
-            "anywhere in the",
-            "matches anywhere",
-            "not anchored"
-          ]
-        }
-      ]
+      {
+        "alternatives": [
+          {
+            "severity": "blocking",
+            "comment_all": [],
+            "comment_any": [
+              "anchor",
+              "start",
+              "beginning",
+              "prefix",
+              "anywhere in the",
+              "matches anywhere",
+              "not anchored"
+            ]
+          }
+        ]
+      }
     ]
   },
   "note": "Isolated defect: re.search does not anchor \u2014 refs like xfeature/ or hotfix/feature-x pass the privileged-lane check."
