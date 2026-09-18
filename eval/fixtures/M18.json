@@ -17,18 +17,20 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
-      {
-        "severity": "blocking",
-        "comment_any": [
-          "every commit",
-          "no human",
-          "automatic",
-          "contradict",
-          "approval",
-          "unqualif"
-        ]
-      }
+    "groups": [
+      [
+        {
+          "severity": "blocking",
+          "comment_any": [
+            "every commit",
+            "no human",
+            "automatic",
+            "contradict",
+            "approval",
+            "unqualif"
+          ]
+        }
+      ]
     ]
   },
   "note": "Isolated defect: 'no human action is involved' contradicts the required production approval documented in the same file."

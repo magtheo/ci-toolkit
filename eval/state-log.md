@@ -648,3 +648,30 @@ EXPOSED: future qualification would judge AND (harness) against OR
 (floors) — the #64 distortion embedded in the gate. Repair options
 recorded in ORACLE-VALIDITY.md §4; NO repair executed. Stopped at
 diagnosis per human direction; oracle trust decision is the human's.
+
+## 2026-09-18 — 25k oracle repair implemented: semantic groups (AND-of-groups / OR-of-alternatives)
+
+oracle_version cb6870c5a4c635b2 -> 3e4054a1325d6301 (corpus schema +
+harness semantics changed; states/GATING untouched). All 36 fixtures
+migrated to expected.groups[].alternatives[] by the deterministic
+script eval/migrate_to_groups.py — cardinality exactly per approved
+#67 design: 18 controls -> [], M2 -> 2x1 (AND kept), M3/M11/M12/M16
+-> 1x2 (repair-4/5 phrasing families now OR), 13 positives -> 1x1;
+needles preserved verbatim; old/mixed schema rejected fail-closed.
+Controls pass only via clean-control semantics; all([]) vacuous
+detection explicitly guarded (deterministic test). _finding_matches,
+thresholds, N, pair integrity, GATING states, frozen floors, rubric,
+engine/parse/render/review.sh: unchanged.
+
+Zero-call acceptance bundle
+eval/evidence/track1-oracle-group-semantics-2026-09-18/ proves all
+eleven items: #36 floor parity exact (51/90 haiku, 66/90 sonnet,
+18/18 per-positive both profiles); M2 AND ablation; alternatives-OR
+on all four family fixtures; control semantics + 5 loader
+rejections; #62 pass-1 replay 51/90 + 65/90; residual violations
+haiku none / sonnet M13 only (0<1); #62 REVERT unchanged; FB parity
+91/139 recomputed via the new harness with families RECONCILED;
+witness soundness (#35 16/11, #36 214=211+3 with 324/324 FBs
+rejected, #40 197 with 272/273 rejected); frozen hashes byte-
+identical; diff confined to fixtures + harness + migration + tests +
+bundle. Full deterministic suite 167/167.

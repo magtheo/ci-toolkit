@@ -121,30 +121,45 @@ def _validate_fixture(f, ids):
     assert exp["assessment"] in ASSESSMENTS, \
         "{0}: expected.assessment must be CLEAR or ISSUES_FOUND "
     "({1!r})".format(f["id"], exp.get("assessment"))
-    findings = exp["findings"]
+    # Groups schema ONLY (25k oracle repair, per approved #67 design):
+    #   positive -> groups non-empty (each group = list of alternatives)
+    #   control  -> groups == []
+    # The old expected.findings schema is REJECTED — fail closed on old
+    # or mixed schemas; no runtime grouping inference, no historical
+    # heuristics.
+    assert "findings" not in exp, \
+        "{0}: old expected.findings schema rejected — migrate to " \
+        "expected.groups via eval/migrate_to_groups.py".format(f["id"])
+    assert "groups" in exp, \
+        "{0}: expected.groups missing".format(f["id"])
+    groups = exp["groups"]
+    assert isinstance(groups, list), "{0}: groups must be a list".format(
+        f["id"])
     if f["kind"] == "positive":
-        # a positive with no expected finding would be auto-detected
-        # by the old `or [n]` hack — inverting the fixture (a miss
-        # would look like a pass). Positives MUST encode the intended
-        # defect(s); misses then measure as KNOWN_GAP.
-        assert findings, "{0}: positive fixture needs >= 1 expected " \
-            "finding".format(f["id"])
+        assert groups, "{0}: positive fixture needs >= 1 required " \
+            "semantic group".format(f["id"])
     else:
-        assert findings == [], \
-            "{0}: control must expect zero findings".format(f["id"])
+        assert groups == [], \
+            "{0}: control must have groups == [] (groups on a control " \
+            "would manufacture a positive expectation)".format(f["id"])
         assert exp["assessment"] == "CLEAR", \
             "{0}: control must expect CLEAR".format(f["id"])
-    for e in findings:
-        assert e["severity"] in SEVERITIES, e
-        has_all = bool(e.get("comment_all"))
-        has_any = bool(e.get("comment_any"))
-        assert has_all or has_any, \
-            "{0}: matcher needs comment_all and/or comment_any".format(
-                f["id"])
-        for k in ("comment_all", "comment_any"):
-            for needle in e.get(k, []):
-                assert isinstance(needle, str) and needle.strip(), \
-                    "{0}: empty matcher needle in {1}".format(f["id"], k)
+    for gi, group in enumerate(groups):
+        assert isinstance(group, list) and group, \
+            "{0}: group {1} must be a non-empty alternatives list".format(
+                f["id"], gi)
+        for e in group:
+            assert e["severity"] in SEVERITIES, e
+            has_all = bool(e.get("comment_all"))
+            has_any = bool(e.get("comment_any"))
+            assert has_all or has_any, \
+                "{0}: matcher needs comment_all and/or comment_any".format(
+                    f["id"])
+            for k in ("comment_all", "comment_any"):
+                for needle in e.get(k, []):
+                    assert isinstance(needle, str) and needle.strip(), \
+                        "{0}: empty matcher needle in {1}".format(
+                            f["id"], k)
 
 
 def _added_lines(patch):
@@ -368,20 +383,82 @@ def _finding_matches(expected_entry, finding):
     return True
 
 
+# ---- canonical semantic-group helpers (25k oracle repair) ---------------
+# ONE implementation, reused everywhere (harness, rescores, replays,
+# qualification): required semantic groups are AND; alternatives within
+# a group are OR. _finding_matches itself is UNCHANGED and is the only
+# alternative-matching primitive.
+
+def iter_alternatives(expected_groups):
+    """Flatten groups -> alternatives, index-stable with the migrated
+    corpus (used by frozen witness sets, which address entries by
+    position)."""
+    for group in expected_groups:
+        for alt in group:
+            yield alt
+
+
+def group_detected_in_run(group, result):
+    """A group is detected in ONE run when ANY of its alternatives
+    matches any finding the reviewer produced in that run."""
+    return any(
+        _finding_matches(alt, f)
+        for alt in group for f in result.get("findings", []))
+
+
+def per_group_hits(groups, results):
+    """hits[g] = number of runs in which group g was detected."""
+    return [sum(1 for r in results if group_detected_in_run(g, r))
+            for g in groups]
+
+
+def groups_reach_threshold(per_group_hits_, threshold):
+    """Fixture-level stability rule (positive-only): EACH required
+    group INDEPENDENTLY reaches the existing majority threshold
+    (N + 2) // 2.
+
+    Vacuous-truth guard: an empty groups list is a loader-rejected
+    positive shape and must NEVER evaluate as detected — Python's
+    all([]) is True, so the empty case is answered explicitly False.
+    Controls never reach this function (they pass only through the
+    clean-control semantics), but the guard makes the helper safe
+    unconditionally."""
+    if not per_group_hits_:
+        return False
+    return all(h >= threshold for h in per_group_hits_)
+
+
+def run_detects_all_groups(groups, result):
+    """Run-level detection: EVERY required group is detected in this
+    single run. Distinct from fixture-level per-group stability —
+    they answer different questions (one run vs majority of runs).
+    Empty groups never detect."""
+    if not groups:
+        return False
+    return all(group_detected_in_run(g, result) for g in groups)
+
+
+def matches_any_alternative(groups, finding):
+    """False-blocker classification (union-based, unchanged intent): a
+    reviewer finding matching ANY accepted alternative in ANY group is
+    expected."""
+    return any(_finding_matches(alt, finding)
+               for alt in iter_alternatives(groups))
+
+
 def evaluate(fixture, results):
     """results: list of ReviewResult dicts (one per run)."""
     n = len(results)
     expected_assessment = fixture["expected"]["assessment"]
-    expected = fixture["expected"]["findings"]
+    groups = fixture["expected"]["groups"]
     threshold = (n + 2) // 2  # ceil((n+1)/2): N=3 -> 2
 
-    per_expected = []
-    for entry in expected:
-        hits = sum(
-            1 for r in results
-            if any(_finding_matches(entry, f) for f in r.get("findings", [])))
-        per_expected.append({"entry": entry, "hits": hits})
-    detected_ok = all(p["hits"] >= threshold for p in per_expected)
+    per_group = [
+        {"group_index": gi, "alternatives": group, "hits": hits}
+        for gi, (group, hits) in
+        enumerate(zip(groups, per_group_hits(groups, results)))]
+    detected_ok = groups_reach_threshold(
+        [p["hits"] for p in per_group], threshold)
 
     # expected assessment is ENFORCED, not just recorded: a control
     # answered INCONCLUSIVE on every run is a reviewer that cannot
@@ -394,8 +471,7 @@ def evaluate(fixture, results):
     noise = 0
     for idx, r in enumerate(results):
         for f in r.get("findings", []):
-            expected_blocking = any(
-                _finding_matches(e, f) for e in expected)
+            expected_blocking = matches_any_alternative(groups, f)
             if f.get("severity") == "blocking" and not expected_blocking:
                 false_blockers.append(idx)
             elif f.get("severity") != "blocking" and not expected_blocking:
@@ -419,7 +495,7 @@ def evaluate(fixture, results):
              "raw_output": r.get("raw_output", "")}
             for r in results],
         "assessment_stability": assessment_stability,
-        "expected_detection": per_expected,
+        "expected_detection": per_group,
         "false_blockers": len(false_blockers),
         "advisory_noise": noise,
         "passes_policy": passes,

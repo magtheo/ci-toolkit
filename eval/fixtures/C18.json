@@ -17,7 +17,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: automatic-deploy claim carries its approval qualifier, consistent with the Environments section."
 }

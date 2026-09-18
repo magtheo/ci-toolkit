@@ -17,7 +17,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: header-file credential transport (0600, single trap) \u2014 the audited safe pattern."
 }

@@ -17,17 +17,19 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
-      {
-        "severity": "blocking",
-        "comment_any": [
-          "every pull request",
-          "all pull requests",
-          "unqualif",
-          "absolute",
-          "contradict"
-        ]
-      }
+    "groups": [
+      [
+        {
+          "severity": "blocking",
+          "comment_any": [
+            "every pull request",
+            "all pull requests",
+            "unqualif",
+            "absolute",
+            "contradict"
+          ]
+        }
+      ]
     ]
   },
   "note": "Isolated defect: unqualified absolute ('Every pull request') contradicts the exclusions documented in the same file."

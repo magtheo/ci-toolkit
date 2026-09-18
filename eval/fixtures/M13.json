@@ -17,20 +17,22 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
-      {
-        "severity": "blocking",
-        "comment_all": [
-          "pin"
-        ],
-        "comment_any": [
-          "floating",
-          "tag",
-          "SHA",
-          "immutable",
-          "v4"
-        ]
-      }
+    "groups": [
+      [
+        {
+          "severity": "blocking",
+          "comment_all": [
+            "pin"
+          ],
+          "comment_any": [
+            "floating",
+            "tag",
+            "SHA",
+            "immutable",
+            "v4"
+          ]
+        }
+      ]
     ]
   },
   "note": "Isolated defect (single delta vs C13): the reusable workflow is referenced by the floating tag v4 instead of the pinned full SHA \u2014 mutable, not verifiable."

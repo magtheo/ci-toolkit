@@ -17,34 +17,38 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
-      {
-        "severity": "blocking",
-        "comment_all": [
-          "pull_request"
-        ],
-        "comment_any": [
-          "trigger",
-          "trusted base",
-          "trusted-base",
-          "pull_request_target"
-        ]
-      },
-      {
-        "severity": "blocking",
-        "comment_any": [
-          "pin",
-          "floating",
-          "immutable",
-          "@main",
-          "mutable",
-          "toolkit_ref",
-          "supply chain",
-          "supply-chain",
-          "the latest"
-        ],
-        "comment_all": []
-      }
+    "groups": [
+      [
+        {
+          "severity": "blocking",
+          "comment_all": [
+            "pull_request"
+          ],
+          "comment_any": [
+            "trigger",
+            "trusted base",
+            "trusted-base",
+            "pull_request_target"
+          ]
+        }
+      ],
+      [
+        {
+          "severity": "blocking",
+          "comment_any": [
+            "pin",
+            "floating",
+            "immutable",
+            "@main",
+            "mutable",
+            "toolkit_ref",
+            "supply chain",
+            "supply-chain",
+            "the latest"
+          ],
+          "comment_all": []
+        }
+      ]
     ]
   },
   "note": "Two intended defects, both matched: (1) pull_request trigger puts PR-controlled workflow code in the secret-bearing run; (2) floating refs defeat the immutable-supply-chain review. Nothing else can block."

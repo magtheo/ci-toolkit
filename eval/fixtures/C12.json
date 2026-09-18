@@ -17,7 +17,7 @@
   },
   "expected": {
     "assessment": "CLEAR",
-    "findings": []
+    "groups": []
   },
   "note": "Globally clean: stale-on-error is the documented contract; empty cache surfaces KeyError rather than masking the failure. Self-contained as presented: CONFIG_URL, OriginError, ParseError, and the decoder are defined in the file."
 }

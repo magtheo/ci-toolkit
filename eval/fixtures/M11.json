@@ -17,31 +17,33 @@
   },
   "expected": {
     "assessment": "ISSUES_FOUND",
-    "findings": [
-      {
-        "severity": "blocking",
-        "comment_all": [
-          "status"
-        ],
-        "comment_any": [
-          "always",
-          "hardcoded",
-          "never",
-          "ignored",
-          "swallow",
-          "|| true"
-        ]
-      },
-      {
-        "severity": "blocking",
-        "comment_all": [
-          "|| true"
-        ],
-        "comment_any": [
-          "suppress",
-          "exit code"
-        ]
-      }
+    "groups": [
+      [
+        {
+          "severity": "blocking",
+          "comment_all": [
+            "status"
+          ],
+          "comment_any": [
+            "always",
+            "hardcoded",
+            "never",
+            "ignored",
+            "swallow",
+            "|| true"
+          ]
+        },
+        {
+          "severity": "blocking",
+          "comment_all": [
+            "|| true"
+          ],
+          "comment_any": [
+            "suppress",
+            "exit code"
+          ]
+        }
+      ]
     ]
   },
   "note": "Isolated defect: status is hardcoded ok \u2014 the check command's outcome is discarded (|| true), so failed/pending migrations report ok."
