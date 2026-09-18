@@ -18,6 +18,13 @@ for review. See [Data flow](#data-flow-and-external-processing).
 
 ## AI reviewer at a glance
 
+> Live note: the dogfood lane currently runs the GLM-5.3-flash model
+> through the reasoning-model transport (profiles, structured output,
+> reason-coded INCONCLUSIVE) introduced in PR #70. Model choice is
+> deployment configuration; the reviewer remains advisory COMMENT-only.
+
+
+
 Reusable workflow: [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml)
 
 - advisory only — the current payload builder hard-codes the GitHub
