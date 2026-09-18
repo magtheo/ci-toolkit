@@ -19,7 +19,6 @@ import copy
 import json
 import pathlib
 import socket
-import subprocess
 import sys
 
 import pytest
