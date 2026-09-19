@@ -762,11 +762,13 @@ def live(out_dir, fixtures, runs, model, profile, overrides,
             fh.write(json.dumps(record, sort_keys=True) + "\n")
 
     if spend is not None:
-        # campaign-wide ceiling: seed the cumulative cost from the
-        # persisted records so every invocation of the balanced
-        # schedule inherits the spend of all prior ones (tokens are
-        # in the records; cost is recomputed under the identity
-        # protected prices)
+        # per-out_dir ceiling: seed the cumulative cost from the
+        # persisted records of THIS output directory only, so every
+        # run-index invocation of the balanced schedule inherits the
+        # spend of prior invocations under the same identity (tokens
+        # are in the records; cost is recomputed under the identity
+        # protected prices). The ceiling is enforced per out_dir, not
+        # across separate campaign directories.
         for r in existing:
             for a in r.get("attempts") or []:
                 spend.add(a)

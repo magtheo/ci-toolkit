@@ -9,7 +9,6 @@ cd "$(dirname "$0")/../../.."
 export PM_QUALIFY_LIVE_AUTHORIZED=1
 
 EV=eval/evidence/stage-a-glm-profiles-2026-09-19
-PRICE_ARGS="--spend-ceiling-usd 10 --price-input-per-m 0.075 --price-output-per-m 0.25 --price-source 'openrouter.ai z-ai/glm-5.3-flash 2026-09-18 discounted'"
 
 run() { # effort run_index
   local effort=$1 idx=$2
