@@ -278,7 +278,8 @@ the direction document must be re-reviewed at least every 28 days
 WHENEVER the repo is being worked on. Shipped as
 `templates/roadmap-freshness.sh` (unit-tested; the behavioral
 contract) plus `templates/roadmap-freshness.yml` (weekly cron).
-ci-toolkit dogfoods it on its own root `ROADMAP.md`.
+ci-toolkit dogfoods it on both of its authoritative roadmaps (root
+`ROADMAP.md` and `MATURITY_ROADMAP.md`), each checked independently.
 
 ### What happens when
 
