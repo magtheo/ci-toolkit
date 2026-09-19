@@ -111,3 +111,20 @@ def test_installed_guard_runs_the_template_and_pins_checkout():
     assert uses and all(re.fullmatch(r"[0-9a-f]{40}", u) for u in uses)
     assert not (pathlib.Path(__file__).resolve().parents[1]
                 / ".github" / "scripts").exists()
+
+
+AUTHORITATIVE_ROADMAPS = ("ROADMAP.md", "MATURITY_ROADMAP.md")
+
+
+def test_dogfood_covers_every_authoritative_roadmap():
+    # mechanical coverage: the workflow must run the single tested
+    # implementation once per authoritative roadmap — neither file can
+    # silently drop out of the dogfood guard, and no untested invocation
+    # may appear instead
+    import re
+    wf = pathlib.Path(__file__).resolve().parents[1] / \
+        ".github" / "workflows" / "roadmap-freshness.yml"
+    invocations = re.findall(
+        r"run:\s*bash\s+templates/roadmap-freshness\.sh\s+(\S+)",
+        wf.read_text())
+    assert set(invocations) == set(AUTHORITATIVE_ROADMAPS)

@@ -1,0 +1,444 @@
+{
+ "expected_finding_misses": [
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M13",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M15",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M17",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M18",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M4",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M5",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 3,
+   "reason": "protocol"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M6",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 1,
+   "reason": "protocol"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 2,
+   "reason": "protocol"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 3,
+   "reason": "protocol"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "M9",
+   "run": 4,
+   "reason": "protocol"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M13",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M15",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M17",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M17",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M17",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M17",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M17",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M4",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M5",
+   "run": 4,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 0,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 1,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 2,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 3,
+   "reason": "reviewer-miss"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M6",
+   "run": 4,
+   "reason": "reviewer-miss"
+  }
+ ],
+ "matcher_gap_findings": [
+  {
+   "fixture": "M11",
+   "profile": "haiku",
+   "run": 3,
+   "finding": 1,
+   "narrative": "The `|| true` suppresses the exit code of the prisma command, making it impossible to detect migration failures...",
+   "note": "expresses the M11 defect functionally; comment_all requires 'status' which this phrasing never names"
+  },
+  {
+   "fixture": "M16",
+   "profile": "haiku",
+   "run": 2,
+   "finding": 1,
+   "narrative": "The fallback return `{\"ok\": True...}` is returned when an exception occurs, not when the sync succeeded...",
+   "note": "fabricated-success stated as returned-on-failure; distinct phrasing family, not the frozen #35 response-shape negative"
+  },
+  {
+   "fixture": "M16",
+   "profile": "haiku",
+   "run": 4,
+   "finding": 1,
+   "narrative": "The fallback return value `{\"ok\": True...}` is returned even when the PUT request failed...",
+   "note": "same returned-on-exception phrasing family"
+  }
+ ],
+ "m17_floor_regression": {
+  "fixture": "M17",
+  "profile": "sonnet",
+  "floor": 5,
+  "measured": 0,
+  "diagnosis": "not matcher, not parser: sonnet answered CLEAR x5 with documentation-completeness advisories only; the grounding rule chilled a legitimate same-file absolute-consistency detection (unqualified 'All API responses' vs probe bypass). Sensitivity-floor violation on one positive; aggregate sonnet 61/90 vs floor 66/90"
+ },
+ "summary": {
+  "haiku|protocol": 5,
+  "haiku|reviewer-miss": 33,
+  "sonnet|reviewer-miss": 29
+ }
+}

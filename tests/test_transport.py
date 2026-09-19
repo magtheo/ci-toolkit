@@ -29,10 +29,16 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 import transport  # noqa: E402
+# Branch-resolution note: this branch carries the umbrella reviewer
+# stack (parse_review normalize) + the #70 transport module. Tests of
+# the legacy parser CLI (build_payload / PARSE_REASON / decoration)
+# stay with main's stack and are covered here by
+# tests/test_parse_review.py; only transport-module behavior is
+# asserted in this file on this branch.
 from parse_review import (  # noqa: E402
     MODEL_ASSESSMENTS,
     SEVERITIES,
-    build_payload,
+    normalize,
 )
 
 TOOLKIT_ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -215,46 +221,14 @@ def test_schema_is_canonical_not_identical_to_parser_acceptance():
     required = set(schema["required"])
     assert required == {"assessment", "summary", "findings", "good"}
     content = json.dumps({"assessment": "CLEAR", "findings": []})
-    payload = build_payload(content, [], "abc", "m")
-    assert "· Clear" in payload["body"]  # parser tolerates the subset
+    payload = normalize(content)  # parser tolerates the subset
+    assert payload["assessment"] == "CLEAR"
+    assert payload["findings"] == []
 
 
-# ---- reason-coded INCONCLUSIVE (parser body + narrow decoration) -------
-
-def test_parser_inconclusive_body_carries_reason_code():
-    payload = build_payload("not json", [], "abc", "m")
-    assert "Reason code: STRUCTURED_OUTPUT_INVALID" in payload["body"]
-    payload = build_payload(json.dumps({
-        "assessment": "ISSUES_FOUND",
-        "findings": [{"file": "a.py", "comment": "x",
-                      "severity": "non-blocking"}]}), [], "abc", "m")
-    assert "Reason code: SEMANTIC_CONTRADICTION" in payload["body"]
-
-
-def test_decorate_replaces_code_keeps_verdict_and_provenance():
-    payload = build_payload("{\"assessment\": \"CLE", [], "abc123", "glm")
-    assert payload["event"] == "COMMENT"
-    decorated = transport.decorate_inconclusive(
-        payload, "OUTPUT_BUDGET_EXHAUSTED", "finish_reason: length")
-    assert "Reason code: OUTPUT_BUDGET_EXHAUSTED " \
-           "(parser reason: STRUCTURED_OUTPUT_INVALID; " \
-           "finish_reason: length)" in decorated["body"]
-    assert "Do not treat this review as clear." in decorated["body"]
-    assert "## AI review · Inconclusive" in decorated["body"]
-
-
-def test_decorate_refuses_non_inconclusive_payloads():
-    clear = build_payload(json.dumps({"assessment": "CLEAR", "findings": []}),
-               [], "abc", "m")
-    for bad in (clear, {"event": "COMMENT", "comments": [{"x": 1}],
-                        "body": "## AI review · Inconclusive",
-                        "commit_id": "abc"}):
-        try:
-            transport.decorate_inconclusive(bad, "X", "n")
-        except ValueError:
-            continue
-        raise AssertionError("decoration must refuse %r" % (bad,))
-
+# ---- reason-coded INCONCLUSIVE (transport payload; the parser
+# ---- body/decoration contract is covered by tests/test_parse_review.py)
+# -----------------------------------------------------------------------
 
 def test_transport_inconclusive_payload_is_comment_failclosed():
     payload = transport.inconclusive_payload(
@@ -266,20 +240,3 @@ def test_transport_inconclusive_payload_is_comment_failclosed():
     assert "## AI review · Inconclusive" in payload["body"]
     assert "Reason code: OUTPUT_BUDGET_EXHAUSTED" in payload["body"]
     assert "Do not treat this review as clear." in payload["body"]
-
-
-def test_parse_reason_semantic_contradiction(capsys):
-    content = json.dumps({
-        "assessment": "ISSUES_FOUND",
-        "findings": [{"file": "a.py", "comment": "x",
-                      "severity": "non-blocking"}]})
-    payload = build_payload(content, [], "abc", "m")
-    assert "· Inconclusive" in payload["body"]
-    assert "PARSE_REASON: SEMANTIC_CONTRADICTION" in capsys.readouterr().err
-
-
-def test_parse_reason_structured_invalid(capsys):
-    payload = build_payload("not json at all", [], "abc", "m")
-    assert "· Inconclusive" in payload["body"]
-    err = capsys.readouterr().err
-    assert "PARSE_REASON: STRUCTURED_OUTPUT_INVALID" in err

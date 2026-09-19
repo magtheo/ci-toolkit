@@ -1,0 +1,53 @@
+{
+ "total": 8,
+ "entries": [
+  {
+   "profile": "haiku",
+   "fixture": "C3",
+   "run": 1,
+   "cause": "json-decode-or-schema"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "C9",
+   "run": 1,
+   "cause": "json-decode-or-schema"
+  },
+  {
+   "profile": "haiku",
+   "fixture": "C9",
+   "run": 2,
+   "cause": "json-decode-or-schema"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "C11",
+   "run": 1,
+   "cause": "json-decode-or-schema"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "C9",
+   "run": 4,
+   "cause": "json-decode-or-schema"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M9",
+   "run": 0,
+   "cause": "json-decode-or-schema"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M9",
+   "run": 3,
+   "cause": "json-decode-or-schema"
+  },
+  {
+   "profile": "sonnet",
+   "fixture": "M9",
+   "run": 4,
+   "cause": "json-decode-or-schema"
+  }
+ ]
+}

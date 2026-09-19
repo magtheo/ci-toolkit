@@ -1,0 +1,1407 @@
+{
+ "_meta": {
+  "kind": "DIAGNOSTIC oracle-validity replay; zero model calls; authoritative oracle untouched; #64 not rewritten",
+  "question": "how much of the measured sensitivity loss is oracle entry-semantics representation vs reviewer behavior",
+  "S0": "run detects iff ALL expected entries match (current harness + Deviation-6 convention)",
+  "S1": "run detects iff ANY expected entry matches (entries as alternative phrasings of one defect)",
+  "populations": {
+   "36": "eval/evidence/track1-baseline3-2026-09-07",
+   "62": "eval/evidence/track1-t13-iter4-measurement-2026-09-15/raw",
+   "floors": "eval/evidence/track1-oracle-repair4-2026-09-07/witness-replay.json"
+  }
+ },
+ "parity": {
+  "normative_floors_semantics": "S1",
+  "normative_floors_per_positive_reproduced": true,
+  "floors_aggregate_reproduced": "51/90, 66/90",
+  "62_S0_matches_64_retrospective": "36/90, 47/90 (AND convention, as computed by pass1_rescore)",
+  "finding": "the frozen Deviation-6 floors equal the OR-semantics rescore of #36 (original entries were byte-preserved by the repairs, so every originally-counted run still counts; added alternative entries can only add matches) — while #64's retrospective applied the stricter AND convention against those floors"
+ },
+ "per_fixture": {
+  "haiku/M1": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "haiku/M10": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "haiku/M11": {
+   "n_entries": 2,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ]
+   ]
+  },
+  "haiku/M12": {
+   "n_entries": 2,
+   "36": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ]
+   ]
+  },
+  "haiku/M13": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "haiku/M14": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "haiku/M15": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "haiku/M16": {
+   "n_entries": 2,
+   "36": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ]
+   ]
+  },
+  "haiku/M17": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "haiku/M18": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "haiku/M2": {
+   "n_entries": 2,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ]
+   ]
+  },
+  "haiku/M3": {
+   "n_entries": 2,
+   "36": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ]
+   ]
+  },
+  "haiku/M4": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "haiku/M5": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "haiku/M6": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "haiku/M7": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "haiku/M8": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "haiku/M9": {
+   "n_entries": 1,
+   "36": {
+    "S0": 1,
+    "S1": 1,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 1,
+    "S1": 1,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     true
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "sonnet/M1": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "sonnet/M10": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "sonnet/M11": {
+   "n_entries": 2,
+   "36": {
+    "S0": 3,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 2,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     true
+    ]
+   ]
+  },
+  "sonnet/M12": {
+   "n_entries": 2,
+   "36": {
+    "S0": 2,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ]
+   ]
+  },
+  "sonnet/M13": {
+   "n_entries": 1,
+   "36": {
+    "S0": 1,
+    "S1": 1,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "sonnet/M14": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "sonnet/M15": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "sonnet/M16": {
+   "n_entries": 2,
+   "36": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ]
+   ]
+  },
+  "sonnet/M17": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "sonnet/M18": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "sonnet/M2": {
+   "n_entries": 2,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ],
+    [
+     true,
+     true
+    ]
+   ]
+  },
+  "sonnet/M3": {
+   "n_entries": 2,
+   "36": {
+    "S0": 1,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 0,
+    "S1": 5,
+    "S0_fixture_level": false,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ],
+    [
+     true,
+     false
+    ]
+   ]
+  },
+  "sonnet/M4": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "sonnet/M5": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "sonnet/M6": {
+   "n_entries": 1,
+   "36": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62": {
+    "S0": 0,
+    "S1": 0,
+    "S0_fixture_level": false,
+    "S1_fixture_level": false
+   },
+   "62_runs_entry_matches": [
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ],
+    [
+     false
+    ]
+   ]
+  },
+  "sonnet/M7": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "sonnet/M8": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  },
+  "sonnet/M9": {
+   "n_entries": 1,
+   "36": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62": {
+    "S0": 5,
+    "S1": 5,
+    "S0_fixture_level": true,
+    "S1_fixture_level": true
+   },
+   "62_runs_entry_matches": [
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ],
+    [
+     true
+    ]
+   ]
+  }
+ },
+ "aggregates": {
+  "haiku": {
+   "floors": {
+    "S0": {
+     "M1": 5,
+     "M10": 5,
+     "M11": 5,
+     "M12": 0,
+     "M13": 0,
+     "M14": 5,
+     "M15": 0,
+     "M16": 0,
+     "M17": 0,
+     "M18": 0,
+     "M2": 5,
+     "M3": 0,
+     "M4": 0,
+     "M5": 0,
+     "M6": 0,
+     "M7": 5,
+     "M8": 5,
+     "M9": 1
+    },
+    "S1": {
+     "M1": 5,
+     "M10": 5,
+     "M11": 5,
+     "M12": 5,
+     "M13": 0,
+     "M14": 5,
+     "M15": 0,
+     "M16": 5,
+     "M17": 0,
+     "M18": 0,
+     "M2": 5,
+     "M3": 5,
+     "M4": 0,
+     "M5": 0,
+     "M6": 0,
+     "M7": 5,
+     "M8": 5,
+     "M9": 1
+    },
+    "normative_frozen": {
+     "M1": 5,
+     "M10": 5,
+     "M11": 5,
+     "M12": 5,
+     "M13": 0,
+     "M14": 5,
+     "M15": 0,
+     "M16": 5,
+     "M17": 0,
+     "M18": 0,
+     "M2": 5,
+     "M3": 5,
+     "M4": 0,
+     "M5": 0,
+     "M6": 0,
+     "M7": 5,
+     "M8": 5,
+     "M9": 1
+    },
+    "normative_equals": "S1",
+    "aggregate": {
+     "S0": 36,
+     "S1": 51
+    }
+   },
+   "retrospective": {
+    "aggregate": {
+     "S0": 36,
+     "S1": 51
+    }
+   },
+   "violations_same_convention_AND": [],
+   "violations_same_convention_OR": [],
+   "violations_as_recorded_in_64_mixed": [
+    "M12: AND-retrospective 0 < OR-floor 5",
+    "M16: AND-retrospective 0 < OR-floor 5",
+    "M3: AND-retrospective 0 < OR-floor 5"
+   ],
+   "headline": {
+    "36": "36/90 (AND) vs 51/90 (OR)",
+    "62": "36/90 (AND) vs 51/90 (OR)"
+   }
+  },
+  "sonnet": {
+   "floors": {
+    "S0": {
+     "M1": 5,
+     "M10": 5,
+     "M11": 3,
+     "M12": 2,
+     "M13": 1,
+     "M14": 5,
+     "M15": 0,
+     "M16": 0,
+     "M17": 5,
+     "M18": 5,
+     "M2": 5,
+     "M3": 1,
+     "M4": 0,
+     "M5": 0,
+     "M6": 0,
+     "M7": 5,
+     "M8": 5,
+     "M9": 5
+    },
+    "S1": {
+     "M1": 5,
+     "M10": 5,
+     "M11": 5,
+     "M12": 5,
+     "M13": 1,
+     "M14": 5,
+     "M15": 0,
+     "M16": 5,
+     "M17": 5,
+     "M18": 5,
+     "M2": 5,
+     "M3": 5,
+     "M4": 0,
+     "M5": 0,
+     "M6": 0,
+     "M7": 5,
+     "M8": 5,
+     "M9": 5
+    },
+    "normative_frozen": {
+     "M1": 5,
+     "M10": 5,
+     "M11": 5,
+     "M12": 5,
+     "M13": 1,
+     "M14": 5,
+     "M15": 0,
+     "M16": 5,
+     "M17": 5,
+     "M18": 5,
+     "M2": 5,
+     "M3": 5,
+     "M4": 0,
+     "M5": 0,
+     "M6": 0,
+     "M7": 5,
+     "M8": 5,
+     "M9": 5
+    },
+    "normative_equals": "S1",
+    "aggregate": {
+     "S0": 52,
+     "S1": 66
+    }
+   },
+   "retrospective": {
+    "aggregate": {
+     "S0": 47,
+     "S1": 65
+    }
+   },
+   "violations_same_convention_AND": [
+    "M11: retrospective 2 < floor 3",
+    "M12: retrospective 0 < floor 2",
+    "M13: retrospective 0 < floor 1",
+    "M3: retrospective 0 < floor 1"
+   ],
+   "violations_same_convention_OR": [
+    "M13: retrospective 0 < floor 1"
+   ],
+   "violations_as_recorded_in_64_mixed": [
+    "M11: AND-retrospective 2 < OR-floor 5",
+    "M12: AND-retrospective 0 < OR-floor 5",
+    "M13: AND-retrospective 0 < OR-floor 1",
+    "M16: AND-retrospective 0 < OR-floor 5",
+    "M3: AND-retrospective 0 < OR-floor 5"
+   ],
+   "headline": {
+    "36": "52/90 (AND) vs 66/90 (OR)",
+    "62": "47/90 (AND) vs 65/90 (OR)"
+   }
+  }
+ }
+}
