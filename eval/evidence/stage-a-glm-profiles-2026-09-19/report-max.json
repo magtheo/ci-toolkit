@@ -1,0 +1,369 @@
+{
+  "aggregate_positive_detection": {
+    "definition": "sum over positive fixtures and runs of run_detects_all_groups(groups, result); denominator is (number of positive fixtures) x N \u2014 18 x 3 = 54 at Stage A. The historical 51/90 (haiku) and 66/90 (sonnet) floors are methodological CONTEXT, not numerically comparable thresholds: they aggregate different populations/denominators and must not be normalized onto this metric without a governed rule. rc.evaluate() remains authoritative for fixture pass/fail: per-group STABILITY ((N+2)//2 of N) is deliberately a different, stronger concept than run-level detection.",
+    "denominator": 54,
+    "detected": 34,
+    "per_positive": {
+      "M1": 0,
+      "M10": 3,
+      "M11": 3,
+      "M12": 3,
+      "M13": 0,
+      "M14": 3,
+      "M15": 0,
+      "M16": 3,
+      "M17": 0,
+      "M18": 3,
+      "M2": 0,
+      "M3": 3,
+      "M4": 1,
+      "M5": 0,
+      "M6": 3,
+      "M7": 3,
+      "M8": 3,
+      "M9": 3
+    }
+  },
+  "assessment_stability": {
+    "CLEAR": 46,
+    "INCONCLUSIVE": 2,
+    "ISSUES_FOUND": 60
+  },
+  "campaign": {
+    "N": 3,
+    "corpus_sha256": "dfabceeea4ae1c91",
+    "initial_max_tokens": 8000,
+    "model": "z-ai/glm-5.3-flash",
+    "oracle_checkout_sha": "4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25",
+    "oracle_version": "9e20730cb0436002",
+    "reasoning_effort": "max",
+    "rubric_sha256": "415d8a38cfed9d3a826c81d158d6b6883b1c0c4b598e1b81a51e98afae0b3eeb",
+    "subject_content_ref": "7164741d0811e93ce4ab6e130b210ec4914ebdfa813a8b1565308e37af2adee8",
+    "transport_content_ref": "dd655bd7c12c7394ba3344d890eae1364731cf5d6a117609305e01c414636833",
+    "transport_sha": "b663bfd3139bb04a70f95d661c96ee150f534513"
+  },
+  "complete": true,
+  "control_false_blocks": [
+    {
+      "assessments": [
+        "INCONCLUSIVE",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "false_blockers": 2,
+      "id": "C10"
+    },
+    {
+      "assessments": [
+        "CLEAR",
+        "ISSUES_FOUND",
+        "CLEAR"
+      ],
+      "false_blockers": 1,
+      "id": "C11"
+    },
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "false_blockers": 4,
+      "id": "C12"
+    },
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "false_blockers": 3,
+      "id": "C13"
+    },
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "CLEAR"
+      ],
+      "false_blockers": 2,
+      "id": "C15"
+    },
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "CLEAR"
+      ],
+      "false_blockers": 3,
+      "id": "C16"
+    },
+    {
+      "assessments": [
+        "CLEAR",
+        "ISSUES_FOUND",
+        "CLEAR"
+      ],
+      "false_blockers": 1,
+      "id": "C2"
+    },
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "false_blockers": 4,
+      "id": "C3"
+    },
+    {
+      "assessments": [
+        "CLEAR",
+        "ISSUES_FOUND",
+        "CLEAR"
+      ],
+      "false_blockers": 1,
+      "id": "C4"
+    }
+  ],
+  "false_blockers_on_positives": 12,
+  "fixtures_absent": [],
+  "gating_violations": [
+    "C4"
+  ],
+  "hard_disqualifiers": {
+    "D1_transport_viability": {
+      "final_inconclusive": 2,
+      "fired": false,
+      "logical_reviews": 108,
+      "transport_failures": 0
+    },
+    "D2_gating_regression": {
+      "fired": true,
+      "gating_violations": [
+        "C4"
+      ]
+    },
+    "D3_control_false_block": {
+      "fired": true,
+      "violations": [
+        {
+          "assessments": [
+            "INCONCLUSIVE",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 2,
+          "id": "C10"
+        },
+        {
+          "assessments": [
+            "CLEAR",
+            "ISSUES_FOUND",
+            "CLEAR"
+          ],
+          "false_blockers": 1,
+          "id": "C11"
+        },
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 4,
+          "id": "C12"
+        },
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 3,
+          "id": "C13"
+        },
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "CLEAR"
+          ],
+          "false_blockers": 2,
+          "id": "C15"
+        },
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "CLEAR"
+          ],
+          "false_blockers": 3,
+          "id": "C16"
+        },
+        {
+          "assessments": [
+            "CLEAR",
+            "ISSUES_FOUND",
+            "CLEAR"
+          ],
+          "false_blockers": 1,
+          "id": "C2"
+        },
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 4,
+          "id": "C3"
+        },
+        {
+          "assessments": [
+            "CLEAR",
+            "ISSUES_FOUND",
+            "CLEAR"
+          ],
+          "false_blockers": 1,
+          "id": "C4"
+        }
+      ],
+      "zero_tolerance": "any unexpected blocking finding on any control run disqualifies (repaired-oracle control semantics; no tolerance was invented here)"
+    },
+    "D4_post_escalation_exhaustion": {
+      "escalations": 22,
+      "fired": false,
+      "post_escalation_exhaustions": 1
+    }
+  },
+  "inconclusive_runs": 2,
+  "missing_runs": [],
+  "pair_integrity_violations": [
+    {
+      "control": "C11",
+      "positive": "M11",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+      "control": "C16",
+      "positive": "M16",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+      "control": "C3",
+      "positive": "M3",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+      "control": "C8",
+      "positive": "M8",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+  ],
+  "per_group_hits": {
+    "C1": [],
+    "C10": [],
+    "C11": [],
+    "C12": [],
+    "C13": [],
+    "C14": [],
+    "C15": [],
+    "C16": [],
+    "C17": [],
+    "C18": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C9": [],
+    "M1": [
+      0
+    ],
+    "M10": [
+      3
+    ],
+    "M11": [
+      3
+    ],
+    "M12": [
+      3
+    ],
+    "M13": [
+      0
+    ],
+    "M14": [
+      3
+    ],
+    "M15": [
+      0
+    ],
+    "M16": [
+      3
+    ],
+    "M17": [
+      0
+    ],
+    "M18": [
+      3
+    ],
+    "M2": [
+      0,
+      3
+    ],
+    "M3": [
+      3
+    ],
+    "M4": [
+      1
+    ],
+    "M5": [
+      0
+    ],
+    "M6": [
+      3
+    ],
+    "M7": [
+      3
+    ],
+    "M8": [
+      3
+    ],
+    "M9": [
+      3
+    ]
+  },
+  "promotion_eligible": [
+    "M14",
+    "M18",
+    "M6",
+    "M9"
+  ],
+  "runs_requested": 3,
+  "selection_tuple": [
+    -34,
+    12,
+    -4,
+    1224785,
+    12634.822
+  ],
+  "selection_tuple_order": "[-aggregate_positive_detection, false_blockers_on_positives, -promotion_eligible, output_tokens, wall_s]; lexicographic among non-disqualified profiles",
+  "transport": {
+    "campaign_halted": false,
+    "completion_tokens": 673208,
+    "escalations": 22,
+    "final_inconclusive": 2,
+    "http_retries": 16,
+    "length_exhaustions": 23,
+    "logical_reviews": 108,
+    "post_escalation_exhaustions": 1,
+    "prompt_tokens": 155794,
+    "provider_generations": 130,
+    "reasoning_tokens": 551577,
+    "transport_failures": 0,
+    "wall_s": 12634.822
+  }
+}

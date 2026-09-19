@@ -900,3 +900,122 @@ def test_run_index_validation(tmp_path, monkeypatch):
     with pytest.raises(SystemExit, match="applies to --live only"):
         pq.main(["--dry-run", "--run-index", "0", "--reasoning-effort",
                  "low", "--out", str(tmp_path / "y")])
+
+
+# ---- rev 4b: hard spend ceiling, enforced before every request --------------
+
+PRICES = (0.075, 0.25, "openrouter.ai z-ai/glm-5.3-flash 2026-09-18 "
+          "discounted")
+
+
+def _guard(ceiling, fixtures):
+    chars = {}
+    for f in fixtures:
+        ri = rc._review_input(f, MODEL)
+        sy, us = engine._build_prompts(ri)
+        chars[f["id"]] = len(sy) + len(us)
+    return pq.SpendGuard(ceiling, PRICES[0], PRICES[1], chars)
+
+
+def test_spend_ceiling_halts_before_any_request(tmp_path, monkeypatch):
+    calls = {"n": 0}
+
+    def fake_engine_http(engine_module):
+        def post(body):
+            calls["n"] += 1
+            return _ok_body(_CLEAR), 0, 0.01
+        return post
+
+    monkeypatch.setattr(pq, "engine_http", fake_engine_http)
+    monkeypatch.setenv("PM_QUALIFY_LIVE_AUTHORIZED", "1")
+    out = tmp_path / "ceiling"
+    profile, overrides = _low_profile()
+    with pytest.raises(SystemExit, match="spend ceiling"):
+        pq.live(out, [_fixture("C1")], 1, MODEL, profile, overrides,
+                spend=_guard(1e-9, [_fixture("C1")]))
+    assert calls["n"] == 0  # enforced BEFORE the request
+    assert not (out / "records.jsonl").exists()  # nothing billed
+    summary = json.loads((out / "summary.json").read_text())
+    assert summary["spend"]["actual_cost_usd"] == 0.0
+
+
+def test_spend_ceiling_halts_mid_campaign_and_stays_resumable(
+        tmp_path, monkeypatch):
+    _canned_http(monkeypatch)
+    out = tmp_path / "mid"
+    profile, overrides = _low_profile()
+    # first invocation bills C1 only (2 runs x 1 generation)
+    pq.live(out, [_fixture("C1")], 2, MODEL, profile, overrides,
+            spend=_guard(1000.0, [_fixture("C1")]))
+    records_before = (out / "records.jsonl").read_text()
+    summary = json.loads((out / "summary.json").read_text())
+    assert summary["spend"]["provider_generations_billed"] == 2
+    expected_cost = (2 * 10 * PRICES[0] + 2 * (5 + 0) * PRICES[1]) / 1e6
+    assert summary["spend"]["actual_cost_usd"] == round(expected_cost, 6)
+    # effectively-zero ceiling: the NEXT unbilled review (C2) is
+    # refused before its request; evidence intact
+    with pytest.raises(SystemExit, match="spend ceiling"):
+        pq.live(out, [_fixture("C1"), _fixture("C2")], 2, MODEL,
+                profile, overrides, spend=_guard(0.0, fixtures_all()))
+    assert (out / "records.jsonl").read_text() == records_before
+    # and the ceiling breach did NOT poison the campaign: a normal
+    # resume still works (fixture subsets do not touch identity)
+    pq.live(out, [_fixture("C1"), _fixture("C2")], 2, MODEL,
+            profile, overrides,
+            spend=_guard(1000.0, fixtures_all()))
+
+
+def fixtures_all():
+    return [f for f in rc.load_corpus(REPO / "eval" / "fixtures")
+            if f["id"] in ("C1", "C2")]
+
+
+def test_spend_guard_worst_case_is_conservative():
+    g = _guard(10.0, [_fixture("C1")])
+    g.add({"prompt_tokens": 1000, "completion_tokens": 8000,
+           "reasoning_tokens": 8000})
+    # actual (over-counting) cost model
+    assert g.cost_usd == (1000 * PRICES[0]
+                          + 16000 * PRICES[1]) / 1e6
+    # pre-request bound: ceil(chars/4)x2 input + FULL budget output
+    est_in = g._est_input("C1")
+    assert est_in >= (g.chars["C1"] + 3) // 4 * 2
+    worst = (est_in * PRICES[0] + 16000 * PRICES[1]) / 1e6
+    assert g.cost_usd + worst <= 10.0  # sanity: campaign fits the $10 class
+    g.check("C1", 16000)  # must not raise
+
+
+def test_spend_guard_seeds_from_persisted_records(
+        tmp_path, monkeypatch):
+    """The ceiling is campaign-wide: a new invocation inherits the
+    billed tokens of every persisted record under the same identity."""
+    _canned_http(monkeypatch)
+    out = tmp_path / "seed"
+    profile, overrides = _low_profile()
+    pq.live(out, [_fixture("C1")], 2, MODEL, profile, overrides,
+            spend=_guard(1000.0, [_fixture("C1")]))
+    records = [json.loads(l) for l in
+               (out / "records.jsonl").read_text().splitlines()]
+    g = _guard(1000.0, [_fixture("C1")])
+    for r in records:
+        for a in r["attempts"]:
+            g.add(a)
+    assert g.in_tokens == 2 * 10 and g.out_tokens == 2 * 5
+    assert g.cost_usd == (20 * PRICES[0] + 10 * PRICES[1]) / 1e6
+    # a zero ceiling + seeded cost refuses any further generation
+    g0 = _guard(0.0, [_fixture("C1")])
+    for r in records:
+        for a in r["attempts"]:
+            g0.add(a)
+    with pytest.raises(pq.SpendCeilingReached):
+        g0.check("C1", 8000)
+
+
+def test_price_argument_validation(tmp_path, monkeypatch):
+    monkeypatch.setenv("PM_QUALIFY_LIVE_AUTHORIZED", "1")
+    with pytest.raises(SystemExit, match="requires --price-input-per-m"):
+        pq.main(["--live", "--spend-ceiling-usd", "10", "--out", "x"])
+    with pytest.raises(SystemExit, match="price-source is required"):
+        pq.main(["--live", "--spend-ceiling-usd", "10",
+                 "--price-input-per-m", "0.075",
+                 "--price-output-per-m", "0.25", "--out", "x"])
