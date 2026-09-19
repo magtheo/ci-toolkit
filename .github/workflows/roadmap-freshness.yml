@@ -3,7 +3,8 @@ name: roadmap-freshness
 # Dogfood: runs the TESTED template script in place — no installed
 # copy, no sync invariant. templates/roadmap-freshness.sh is the
 # single implementation (unit-tested in tests/test_roadmap_freshness.py).
-# Our roadmap lives at the repo root, hence the ROADMAP.md argument.
+# Both authoritative roadmaps live at the repo root; each is checked
+# unconditionally, so one failing cannot mask the other.
 
 on:
   schedule:
@@ -22,4 +23,8 @@ jobs:
           fetch-depth: 0
 
       - name: Check roadmap freshness
-        run: bash templates/roadmap-freshness.sh ROADMAP.md
+        run: |
+          status=0
+          bash templates/roadmap-freshness.sh ROADMAP.md || status=1
+          bash templates/roadmap-freshness.sh MATURITY_ROADMAP.md || status=1
+          exit "$status"
