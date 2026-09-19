@@ -41,6 +41,7 @@ Accounting vocabulary (never conflated):
 import argparse
 import hashlib
 import json
+import math
 import os
 import pathlib
 import subprocess
@@ -117,7 +118,7 @@ def _inconclusive_result():
 
 
 def logical_review(engine, fixture, run_index, model, profile,
-                   overrides, post_payload, sink):
+                   overrides, post_payload, sink, spend_guard=None):
     """One logical review through the #70 transport semantics.
 
     post_payload(body) -> (raw_body, http_retries, latency_s); it may
@@ -154,6 +155,8 @@ def logical_review(engine, fixture, run_index, model, profile,
     t0 = time.monotonic()
 
     def attempt(kind, max_tokens):
+        if spend_guard is not None:
+            spend_guard.check(fixture["id"], max_tokens)
         try:
             raw, retries, latency = post_payload(
                 transport.build_request_body(
@@ -164,6 +167,8 @@ def logical_review(engine, fixture, run_index, model, profile,
             sink(record)
             raise
         facts = _classify(raw)
+        if spend_guard is not None:
+            spend_guard.add(facts)
         record["attempts"].append({
             "kind": kind,
             "max_tokens": max_tokens,
@@ -440,6 +445,84 @@ def reduce_records(records):
     return agg
 
 
+class SpendCeilingReached(Exception):
+    """Raised BEFORE a provider request when the campaign's hard
+    spend ceiling could not be respected within the worst-case bound
+    of the next generation. Not a transport failure and not a
+    campaign-halt D1 record: the evidence set stays resumable and
+    the next move is the human's."""
+
+
+class SpendGuard:
+    """Hard spend ceiling, enforced BEFORE every provider request.
+
+    Cost model (conservative): input = prompt_tokens; output =
+    completion_tokens + reasoning_tokens. If a provider already
+    includes reasoning in completion_tokens this OVER-counts output
+    — safe for a ceiling, never under-counts.
+
+    Pre-request bound per generation: est_input = ceil(prompt_chars
+    / 4) x SAFETY (chars/4 heuristic, doubled) + generation budget
+    as output. The request is made only if
+    cumulative_actual + worst_case_next <= ceiling."""
+
+    SAFETY = 2
+
+    def __init__(self, ceiling_usd, price_in_per_m, price_out_per_m,
+                 prompt_chars_by_fixture):
+        self.ceiling = float(ceiling_usd)
+        self.p_in = float(price_in_per_m)
+        self.p_out = float(price_out_per_m)
+        self.chars = prompt_chars_by_fixture
+        self.in_tokens = 0
+        self.out_tokens = 0
+        self.generations = 0
+
+    @property
+    def cost_usd(self):
+        return ((self.in_tokens * self.p_in
+                 + self.out_tokens * self.p_out) / 1e6)
+
+    def _est_input(self, fixture_id):
+        return math.ceil(self.chars[fixture_id] / 4) * self.SAFETY
+
+    def check(self, fixture_id, gen_budget):
+        est_in = self._est_input(fixture_id)
+        worst = (est_in * self.p_in + gen_budget * self.p_out) / 1e6
+        if self.cost_usd + worst > self.ceiling:
+            raise SpendCeilingReached(
+                "spend ceiling reached: actual $%.4f + worst-case "
+                "next generation $%.4f > ceiling $%.2f — halting "
+                "BEFORE the request; the campaign is resumable "
+                "pending human direction"
+                % (self.cost_usd, worst, self.ceiling))
+
+    def add(self, facts):
+        self.in_tokens += facts.get("prompt_tokens") or 0
+        self.out_tokens += ((facts.get("completion_tokens") or 0)
+                            + (facts.get("reasoning_tokens") or 0))
+        self.generations += 1
+
+    def state(self):
+        return {
+            "price_source": getattr(self, "price_source", None),
+            "spend_ceiling_usd": self.ceiling,
+            "price_input_per_1m": self.p_in,
+            "price_output_per_1m": self.p_out,
+            "input_tokens": self.in_tokens,
+            "output_tokens_incl_reasoning": self.out_tokens,
+            "provider_generations_billed": self.generations,
+            "actual_cost_usd": round(self.cost_usd, 6),
+            "ceiling_remaining_usd": round(self.ceiling - self.cost_usd, 6),
+            "cost_model": "input=prompt_tokens; "
+                          "output=completion+reasoning (over-counts "
+                          "if provider includes reasoning in "
+                          "completion); pre-request worst case uses "
+                          "ceil(chars/4)x%d input + full generation "
+                          "budget output" % self.SAFETY,
+        }
+
+
 def _load_records(records_path):
     if not records_path.exists():
         return []
@@ -447,11 +530,13 @@ def _load_records(records_path):
             records_path.read_text().splitlines() if line.strip()]
 
 
-def _write_summary(out_dir, fixtures, runs, model, profile):
+def _write_summary(out_dir, fixtures, runs, model, profile, spend=None):
     records = _load_records(out_dir / "records.jsonl")
-    _write_json(out_dir / "summary.json",
-                _meta(reduce_records(records), fixtures, runs,
-                      model, profile))
+    meta = _meta(reduce_records(records), fixtures, runs,
+                 model, profile)
+    if spend is not None:
+        meta["spend"] = spend.state()
+    _write_json(out_dir / "summary.json", meta)
 
 
 AGGREGATE_DETECTION_DEFINITION = (
@@ -594,11 +679,13 @@ def stage_a_report(records, runs):
 
 
 def live(out_dir, fixtures, runs, model, profile, overrides,
-         run_index=None):
+         run_index=None, spend=None):
     if os.environ.get("PM_QUALIFY_LIVE_AUTHORIZED") != "1":
         raise SystemExit(
             "live measurement refused: set PM_QUALIFY_LIVE_AUTHORIZED=1 "
             "(explicit human spend authorization) and pass --live")
+    if spend is not None and not isinstance(spend, SpendGuard):
+        raise SystemExit("spend must be a SpendGuard")
     out_dir.mkdir(parents=True, exist_ok=True)
     engine = load_subject_engine()
     records_path = out_dir / "records.jsonl"
@@ -674,6 +761,16 @@ def live(out_dir, fixtures, runs, model, profile, overrides,
         with records_path.open("a") as fh:
             fh.write(json.dumps(record, sort_keys=True) + "\n")
 
+    if spend is not None:
+        # campaign-wide ceiling: seed the cumulative cost from the
+        # persisted records so every invocation of the balanced
+        # schedule inherits the spend of all prior ones (tokens are
+        # in the records; cost is recomputed under the identity
+        # protected prices)
+        for r in existing:
+            for a in r.get("attempts") or []:
+                spend.add(a)
+
     post_payload = engine_http(engine)
     indices = range(runs) if run_index is None else [run_index]
     try:
@@ -683,11 +780,16 @@ def live(out_dir, fixtures, runs, model, profile, overrides,
                     continue
                 logical_review(
                     engine, fixture, ri, model, profile,
-                    overrides, post_payload, sink)
+                    overrides, post_payload, sink, spend_guard=spend)
     except SystemExit:
-        _write_summary(out_dir, fixtures, runs, model, profile)
+        _write_summary(out_dir, fixtures, runs, model, profile, spend=spend)
         raise
-    _write_summary(out_dir, fixtures, runs, model, profile)
+    except SpendCeilingReached as e:
+        # ceiling enforced BEFORE the request: no record for the
+        # halted review, evidence set resumable, decision is human's
+        _write_summary(out_dir, fixtures, runs, model, profile, spend=spend)
+        raise SystemExit(str(e))
+    _write_summary(out_dir, fixtures, runs, model, profile, spend=spend)
     return out_dir
 
 
@@ -734,6 +836,16 @@ def main(argv=None):
                     help="Q0: construct requests only; zero model calls")
     ap.add_argument("--live", action="store_true",
                     help="live mode; requires PM_QUALIFY_LIVE_AUTHORIZED=1")
+    ap.add_argument("--spend-ceiling-usd", type=float, default=None,
+                    help="hard campaign ceiling; each provider request "
+                         "is pre-checked against worst-case cost")
+    ap.add_argument("--price-input-per-m", type=float, default=None,
+                    help="USD per 1M input tokens (record source!)")
+    ap.add_argument("--price-output-per-m", type=float, default=None,
+                    help="USD per 1M output tokens (record source!)")
+    ap.add_argument("--price-source", default=None,
+                    help="pricing provenance, e.g. 'openrouter.ai "
+                         "z-ai/glm-5.3-flash 2026-09-18 discounted'")
     ap.add_argument("--run-index", type=int, default=None, metavar="I",
                     help="live only: execute ONLY run index I of the "
                          "campaign (N stays fixed in campaign.json); the "
@@ -778,8 +890,34 @@ def main(argv=None):
     if mode == "dry-run":
         dry_run(out_dir, fixtures, args.runs, args.model, profile, overrides)
     else:
+        spend = None
+        if (args.spend_ceiling_usd is not None
+                or args.price_input_per_m is not None
+                or args.price_output_per_m is not None
+                or args.price_source is not None):
+            if (args.spend_ceiling_usd is None
+                    or args.price_input_per_m is None
+                    or args.price_output_per_m is None):
+                raise SystemExit(
+                    "--spend-ceiling-usd requires --price-input-per-m "
+                    "and --price-output-per-m (a ceiling cannot be "
+                    "reliably enforced without recorded prices)")
+            if not args.price_source:
+                raise SystemExit(
+                    "--price-source is required with prices (pricing "
+                    "provenance must be recorded: source + date)")
+            engine = load_subject_engine()
+            chars = {}
+            for f in fixtures:
+                ri = rc._review_input(f, args.model, subject_dir=str(ROOT))
+                sy, us = engine._build_prompts(ri)
+                chars[f["id"]] = len(sy) + len(us)
+            spend = SpendGuard(args.spend_ceiling_usd,
+                               args.price_input_per_m,
+                               args.price_output_per_m, chars)
+            spend.price_source = args.price_source
         live(out_dir, fixtures, args.runs, args.model, profile, overrides,
-             run_index=args.run_index)
+             run_index=args.run_index, spend=spend)
     return 0
 
 

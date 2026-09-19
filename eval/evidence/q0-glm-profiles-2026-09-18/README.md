@@ -151,8 +151,16 @@ its outcome alone.
 | HTTP retries bound | ≤2 extra raw attempts per generation (legacy 3-attempt policy) |
 | planned output tokens (no escalation) | 324 × 8,000 = 2.59M |
 | credible worst-case output bound | 7.78M (every review escalates and exhausts 8k+16k) |
-| input tokens, no escalation | ~14.4M (chars/4 heuristic from measured manifests; 324 generations) |
-| input tokens, all reviews escalate | ~28.8M (escalation re-sends the prompt: ≤648 generations) |
+| input tokens, no escalation | ~0.40M — 324 generations x ~1,236 prompt tokens/fixture (chars/4 over measured manifests; 178,015 chars across 36 fixtures) |
+| input tokens, all reviews escalate | ~0.80M (escalation re-sends the prompt: ≤648 generations) |
+
+**Correction (2026-09-19, disclosed):** rev 2 recorded ~14.4M/~28.8M
+input — a 36x arithmetic error (the whole-corpus prompt was
+multiplied by the per-fixture run count; each logical review carries
+ONE fixture's prompt, ~1,236 tokens ≈ 4,945 chars/4). The ceiling
+figures derived from it ($1.73/$4.10 discounted, $3.46/$8.21
+undiscounted) inherited the error in the conservative direction. The
+corrected conservative ceilings are the rows below.
 
 **Pricing observed 2026-09-18, OpenRouter model page for
 `z-ai/glm-5.3-flash`** (openrouter.ai; discounted listing):
@@ -169,8 +177,9 @@ from the run telemetry:
 
 | ceiling | discounted | undiscounted fallback |
 |---|---|---|
-| no escalation (~14.4M in + 2.59M out) | ≈ $1.73 | ≈ $3.46 |
-| full escalation (~28.8M in + 7.78M out) | ≈ $4.10 | ≈ $8.21 |
+| no escalation (~0.40M in + 2.59M out) | ≈ $0.68 | ≈ $1.36 |
+| full escalation (~0.80M in + 7.78M out) | ≈ $2.00 | ≈ $4.01 |
+| (superseded 36x-inflated rows) | (≈ $1.73 / $4.10) | (≈ $3.46 / $8.21) |
 
 These ceilings do NOT constitute spend authorization. Stage A runs
 only after explicit human authorization.
