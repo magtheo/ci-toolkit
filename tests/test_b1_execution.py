@@ -274,7 +274,7 @@ def test_b1_report_m13_detection_gain_reported(tmp_path):
 def test_b1_report_viability_gates(tmp_path):
     from eval.stage_b1_report import b1_report
     base = json.loads(BASELINE.read_text())["baseline"]["low"]
-    records = _records_all_clear(PREREGISTERED)
+    records = _records_at_baseline(PREREGISTERED)
     bad = dict(_rec("C1", 0, _clear("C1")))
     bad["terminal_state"] = "TRANSPORT_FAILURE"
     bad["result"] = None
@@ -283,3 +283,99 @@ def test_b1_report_viability_gates(tmp_path):
     assert rep["viability"]["no_transport_failure"] is False
     assert rep["verdict"] == "B1 FAIL"
     assert "viability" in rep["gating_failures"]
+
+
+# ---- the combined campaign verdict (aggregate denominators) ---------
+
+def _inconclusive(fid, run_index):
+    import eval.profile_qualification as pq
+    rec = _rec(fid, run_index, pq._inconclusive_result())
+    return rec
+
+
+def test_campaign_verdict_uses_aggregate_inconclusive_denominator():
+    from eval.stage_b1_report import b1_report, combine_campaign
+    base_low = json.loads(BASELINE.read_text())["baseline"]["low"]
+    base_high = json.loads(BASELINE.read_text())["baseline"]["high"]
+    # low: 5 of 45 INCONCLUSIVE (11.1% — fails the LOCAL view);
+    # high: 0. Aggregate: 5/90 = 5.6% <= 10% -> campaign viable.
+    records_low = _records_at_baseline(PREREGISTERED)
+    inconclusive = 0
+    for r in records_low:
+        if r["fixture"].startswith("C") and inconclusive < 5:
+            r["result"] = {"schema_version": 1,
+                           "assessment": "INCONCLUSIVE", "summary": "",
+                           "findings": [], "good": []}
+            inconclusive += 1
+    assert inconclusive == 5
+    low = b1_report(records_low, base_low, PREREGISTERED)
+    high = b1_report(_records_at_baseline(PREREGISTERED), base_high,
+                     PREREGISTERED)
+    # the low-effort LOCAL view flags the local rate — preserved
+    assert low["viability"]["inconclusive_rate_ok"] is False
+    assert low["verdict"] == "B1 FAIL"
+    combined = combine_campaign(low, high)
+    assert combined["viability"]["logical_reviews"] == 90
+    assert combined["viability"]["final_inconclusive"] == 5
+    assert combined["viability"]["inconclusive_rate_ok"] is True
+    assert combined["verdict"] == "B1 PASS"
+    assert combined["gating_failures"] == []
+    assert "AGGREGATE" in combined["viability"]["scope_note"]
+
+
+def test_campaign_verdict_fails_on_aggregate_breach():
+    from eval.stage_b1_report import b1_report, combine_campaign
+    base_low = json.loads(BASELINE.read_text())["baseline"]["low"]
+    base_high = json.loads(BASELINE.read_text())["baseline"]["high"]
+    # 5 INCONCLUSIVE per effort = 10/90 = 11.1% > 10%: aggregate FAIL
+    records = {}
+    for effort, base in (("low", base_low), ("high", base_high)):
+        recs = _records_at_baseline(PREREGISTERED)
+        n = 0
+        for r in recs:
+            if r["fixture"].startswith("C") and n < 5:
+                r["result"] = {"schema_version": 1,
+                               "assessment": "INCONCLUSIVE",
+                               "summary": "", "findings": [],
+                               "good": []}
+                n += 1
+        records[effort] = b1_report(recs, base, PREREGISTERED)
+    combined = combine_campaign(records["low"], records["high"])
+    assert combined["viability"]["final_inconclusive"] == 10
+    assert combined["viability"]["inconclusive_rate_ok"] is False
+    assert combined["verdict"] == "B1 FAIL"
+    assert "viability (aggregate)" in combined["gating_failures"]
+
+
+def test_campaign_verdict_preserves_per_effort_detection_detail():
+    from eval.stage_b1_report import b1_report, combine_campaign
+    base_low = json.loads(BASELINE.read_text())["baseline"]["low"]
+    base_high = json.loads(BASELINE.read_text())["baseline"]["high"]
+    low = b1_report(_records_at_baseline(PREREGISTERED), base_low,
+                    PREREGISTERED)
+    high = b1_report(_records_at_baseline(PREREGISTERED), base_high,
+                     PREREGISTERED)
+    combined = combine_campaign(low, high)
+    assert combined["verdict"] == "B1 PASS"
+    # M4/M13 remain standalone in the campaign verdict, both efforts
+    for effort in ("low", "high"):
+        for fid in ("M4", "M13"):
+            entry = combined["separate_reporting"][effort][fid]
+            assert entry["zero_baseline"] is True
+        assert "M4" not in combined["detection"][effort]["per_positive"]
+
+
+def test_campaign_verdict_conjoins_per_effort_fixture_gates():
+    from eval.stage_b1_report import b1_report, combine_campaign
+    base_low = json.loads(BASELINE.read_text())["baseline"]["low"]
+    base_high = json.loads(BASELINE.read_text())["baseline"]["high"]
+    low = b1_report(_records_at_baseline(PREREGISTERED), base_low,
+                    PREREGISTERED)
+    recs_high = _records_at_baseline(PREREGISTERED)
+    for r in recs_high:
+        if r["fixture"] == "C2":
+            r["result"] = _block("C2", "speculation")
+    high = b1_report(recs_high, base_high, PREREGISTERED)
+    combined = combine_campaign(low, high)
+    assert combined["verdict"] == "B1 FAIL"
+    assert "high: control blockers: ['C2']" in combined["gating_failures"]

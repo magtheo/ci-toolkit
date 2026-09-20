@@ -183,9 +183,14 @@ def logical_review(engine, fixture, run_index, model, profile,
         if spend_guard is not None:
             spend_guard.add(facts)
         if ledger is not None:
-            known = any((facts.get(k) or 0) > 0 for k in
-                        ("prompt_tokens", "completion_tokens",
-                         "reasoning_tokens"))
+            # usage is trusted only when COMPLETE (all required fields
+            # present, positive input count) — settle() enforces the
+            # same rule; anything partial settles at the reserved
+            # amount, never at zero
+            required = ("prompt_tokens", "completion_tokens",
+                        "reasoning_tokens")
+            known = (all(facts.get(k) is not None for k in required)
+                     and (facts.get("prompt_tokens") or 0) > 0)
             ledger.settle(reservation, facts if known else None)
         record["attempts"].append({
             "kind": kind,

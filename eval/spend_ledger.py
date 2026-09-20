@@ -207,20 +207,25 @@ class SpendLedger:
             return res
 
     def settle(self, reservation, usage_facts):
-        """Replace a reservation with actual usage. `usage_facts` None
-        or without at least one strictly-positive token count settles
-        at the reserved amount (fail closed: an all-zero usage report
-        is indistinguishable from missing usage and can only
-        under-count — never trust it). Signed delta: an under-run
-        releases budget back. Returns the settled USD amount."""
+        """Replace a reservation with actual usage. Usage is trusted
+        ONLY when complete: every required field present and a
+        strictly positive prompt-token count (a real generation always
+        bills input). A PARTIALLY populated report — e.g. reasoning
+        tokens but no prompt count — settles at the reserved amount:
+        the unknown part would otherwise be priced at zero, which for
+        a ceiling is fail-open. Signed delta: an under-run releases
+        budget back. Returns the settled USD amount."""
         with self._locked() as st:
             for r in st["reservations"]:
                 if r["id"] == reservation.id:
                     st["reservations"].remove(r)
-                    if usage_facts and any(
-                            (usage_facts.get(k) or 0) > 0 for k in
-                            ("prompt_tokens", "completion_tokens",
-                             "reasoning_tokens")):
+                    required = ("prompt_tokens", "completion_tokens",
+                                "reasoning_tokens")
+                    if (usage_facts
+                            and all(usage_facts.get(k) is not None
+                                    for k in required)
+                            and (usage_facts.get("prompt_tokens")
+                                 or 0) > 0):
                         in_a = usage_facts.get("prompt_tokens") or 0
                         out_a = ((usage_facts.get("completion_tokens")
                                   or 0)

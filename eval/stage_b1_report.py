@@ -140,7 +140,11 @@ def b1_report(records, baseline_for_effort, fixture_ids, runs=3):
         "detection": {"per_positive": detection,
                       "regressions": regressions},
         "separate_reporting": separate,
-        "viability": viability,
+        "viability": dict(viability, **{
+            "scope_note": "per-effort view; the CAMPAIGN verdict uses "
+                          "the frozen aggregate denominators (90 "
+                          "reviews for INCONCLUSIVE, total escalations "
+                          "for post-escalation exhaustion)"}),
         "informational": {
             "false_blockers_on_positives":
                 sum(ev["false_blockers"] for fid, ev in
@@ -159,6 +163,69 @@ def b1_report(records, baseline_for_effort, fixture_ids, runs=3):
     }
 
 
+def combine_campaign(report_low, report_high):
+    """Final B1 verdict over the WHOLE campaign.
+
+    Per-fixture gates (completeness, control blockers, GATING,
+    detection no-regression) are conjunctive across both efforts.
+    Viability uses the frozen AGGREGATE denominators — 90 reviews for
+    the INCONCLUSIVE rate, total escalations for post-escalation
+    exhaustion — so an unevenly distributed failure cannot fail one
+    effort's local view while the campaign as a whole is inside its
+    preregistered bounds (and vice versa)."""
+    viability = {}
+    for k in ("logical_reviews", "final_inconclusive",
+              "transport_failures", "escalations",
+              "post_escalation_exhaustions"):
+        viability[k] = (report_low["viability"][k]
+                        + report_high["viability"][k])
+    total = viability["logical_reviews"]
+    viability["inconclusive_rate_ok"] = (
+        total == 0 or viability["final_inconclusive"] / total <= 0.10)
+    viability["no_transport_failure"] = \
+        viability["transport_failures"] == 0
+    viability["post_esc_ok"] = (
+        viability["escalations"] == 0
+        or viability["post_escalation_exhaustions"]
+        / viability["escalations"] <= 0.05)
+    viability["scope_note"] = ("AGGREGATE campaign denominators: %d "
+                              "reviews, %d escalations"
+                              % (total, viability["escalations"]))
+    viability_ok = (viability["inconclusive_rate_ok"]
+                    and viability["no_transport_failure"]
+                    and viability["post_esc_ok"])
+
+    failures = []
+    for name, rep in (("low", report_low), ("high", report_high)):
+        failures += ["%s: %s" % (name, f)
+                     for f in rep.get("gating_failures", [])
+                     if f != "viability"]
+    if not viability_ok:
+        failures.append("viability (aggregate)")
+
+    verdict = "B1 PASS" if not failures else "B1 FAIL"
+    return {
+        "campaign": "stage-b1-glm-profiles-2026-09-20",
+        "viability": viability,
+        "per_effort_verdicts": {"low": report_low.get("verdict"),
+                                "high": report_high.get("verdict")},
+        "detection": {
+            "low": report_low.get("detection", {}),
+            "high": report_high.get("detection", {}),
+        },
+        "separate_reporting": {
+            "low": report_low.get("separate_reporting", {}),
+            "high": report_high.get("separate_reporting", {}),
+        },
+        "verdict": verdict,
+        "gating_failures": failures,
+        "scope_note": "B1 PASS permits preparation of a separate B2 "
+                      "preregistration only — never B2 execution or "
+                      "spend. M4/M13 are reported standalone (zero "
+                      "baseline) and do not gate.",
+    }
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--records", required=True)
@@ -172,7 +239,22 @@ def main():
     ap.add_argument("--spend-summary", default=None,
                     help="summary.json whose spend.aggregate_ledger is "
                          "copied into the report")
+    ap.add_argument("--combine-low", default=None,
+                    help="b1-report-low.json — with --combine-high, "
+                         "produces the aggregate CAMPAIGN verdict "
+                         "instead of a per-effort report")
+    ap.add_argument("--combine-high", default=None,
+                    help="b1-report-high.json")
     args = ap.parse_args()
+
+    if args.combine_low or args.combine_high:
+        if not (args.combine_low and args.combine_high):
+            raise SystemExit("--combine-low and --combine-high go "
+                             "together")
+        low = json.loads(pathlib.Path(args.combine_low).read_text())
+        high = json.loads(pathlib.Path(args.combine_high).read_text())
+        print(json.dumps(combine_campaign(low, high), indent=1))
+        return
 
     records = [json.loads(l) for l in
                pathlib.Path(args.records).read_text().splitlines()

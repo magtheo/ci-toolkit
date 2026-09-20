@@ -114,6 +114,35 @@ def test_missing_usage_settles_at_reserved(tmp_path):
                                               abs=1e-9)
 
 
+def test_partial_usage_settles_at_reserved(tmp_path):
+    """A PARTIALLY populated usage report must not price the missing
+    fields at zero: output/reasoning present but no prompt count
+    settles the WHOLE reservation at its reserved amount."""
+    led = _ledger(tmp_path, ceiling=0.05)
+    r0 = led.reserve("C1", 20000)
+    reserved = r0.usd
+    led.settle(r0, {"completion_tokens": 100,
+                    "reasoning_tokens": 20})     # prompt missing
+    st = led.state()
+    assert st["settled_usd"] == pytest.approx(reserved, abs=1e-9)
+    # prompt_tokens explicitly zero is also partial/untrusted
+    r1 = led.reserve("C1", 20000)
+    led.settle(r1, {"prompt_tokens": 0, "completion_tokens": 100,
+                    "reasoning_tokens": 20})
+    st = led.state()
+    assert st["settled_usd"] == pytest.approx(2 * reserved, abs=1e-9)
+    # complete usage still settles at actual
+    r2 = led.reserve("C1", 20000)
+    actual = led.settle(r2, {"prompt_tokens": 800,
+                             "completion_tokens": 10,
+                             "reasoning_tokens": 0})
+    st = led.state()
+    assert st["settled_usd"] == pytest.approx(2 * reserved + actual,
+                                              abs=1e-6)  # 6dp reporting
+    assert st["outstanding_reservations"] == 0
+    assert st["invariant_holds"]
+
+
 def test_retry_flow_after_failed_attempt(tmp_path):
     led = _ledger(tmp_path, ceiling=0.02)
     r1 = led.reserve("C1", 20000)

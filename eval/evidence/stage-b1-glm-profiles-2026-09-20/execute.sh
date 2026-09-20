@@ -79,10 +79,17 @@ for e in low high; do
     --spend-summary "$EV/$e/summary.json" \
     > "$EV/b1-report-$e.json" && echo "b1-report-$e.json written (frozen criteria)"
 done
+python3 eval/stage_b1_report.py \
+  --combine-low "$EV/b1-report-low.json" \
+  --combine-high "$EV/b1-report-high.json" \
+  > "$EV/b1-campaign-verdict.json" && echo "b1-campaign-verdict.json written (aggregate denominators)"
 python3 - <<'PY'
 import json
 EV = "eval/evidence/stage-b1-glm-profiles-2026-09-20"
-reports = {e: json.load(open(f"{EV}/b1-report-{e}.json")) for e in ("low", "high")}
-for e, r in reports.items():
-    print(f"{e}: {r['verdict']} | failures: {r['gating_failures']}")
+for e in ("low", "high"):
+    r = json.load(open(f"{EV}/b1-report-{e}.json"))
+    print(f"{e} (per-effort view): {r['verdict']} | failures: {r['gating_failures']}")
+c = json.load(open(f"{EV}/b1-campaign-verdict.json"))
+print(f"CAMPAIGN VERDICT: {c['verdict']} | failures: {c['gating_failures']}")
+print(c["scope_note"])
 PY
