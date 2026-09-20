@@ -379,3 +379,35 @@ def test_campaign_verdict_conjoins_per_effort_fixture_gates():
     combined = combine_campaign(low, high)
     assert combined["verdict"] == "B1 FAIL"
     assert "high: control blockers: ['C2']" in combined["gating_failures"]
+
+def test_campaign_combine_cli_accepts_only_combine_flags(tmp_path):
+    """Exercise the exact post-campaign CLI, not only combine_campaign()."""
+    from eval.stage_b1_report import b1_report
+    baseline = json.loads(BASELINE.read_text())["baseline"]
+    low = b1_report(_records_at_baseline(PREREGISTERED),
+                    baseline["low"], PREREGISTERED)
+    high = b1_report(_records_at_baseline(PREREGISTERED),
+                     baseline["high"], PREREGISTERED)
+    low_path, high_path = tmp_path / "low.json", tmp_path / "high.json"
+    low_path.write_text(json.dumps(low))
+    high_path.write_text(json.dumps(high))
+    result = subprocess.run(
+        [sys.executable, str(REPO / "eval/stage_b1_report.py"),
+         "--combine-low", str(low_path),
+         "--combine-high", str(high_path)],
+        capture_output=True, text=True, cwd=REPO)
+    assert result.returncode == 0, result.stderr
+    combined = json.loads(result.stdout)
+    assert combined["verdict"] == "B1 PASS"
+    assert combined["viability"]["logical_reviews"] == 90
+
+
+def test_b1_per_effort_cli_still_requires_all_inputs():
+    """Optional argparse flags must not weaken the per-effort contract."""
+    result = subprocess.run(
+        [sys.executable, str(REPO / "eval/stage_b1_report.py"),
+         "--effort", "low"],
+        capture_output=True, text=True, cwd=REPO)
+    assert result.returncode != 0
+    assert "per-effort report requires" in result.stderr
+    assert "--records" in result.stderr
