@@ -1,0 +1,535 @@
+{
+ "source": "stage-a-glm-profiles-2026-09-19 (frozen)",
+ "total_blocking_findings_on_controls": 58,
+ "counts": {
+  "invented": 20,
+  "severity": 18,
+  "pending-adjudication": 4,
+  "rubric": 14,
+  "correct-not-fp": 2
+ },
+ "findings": [
+  {
+   "fixture": "C12",
+   "effort": "low",
+   "run_index": 0,
+   "line": 31,
+   "primary": "invented",
+   "tag": "session-protocol-speculation",
+   "comment_excerpt": "The except OriginError handler is dead code: nothing in this module raises OriginError, and session.get (a third-party call) will raise its own network/HTTP exc"
+  },
+  {
+   "fixture": "C12",
+   "effort": "low",
+   "run_index": 0,
+   "line": 32,
+   "primary": "severity",
+   "tag": "exception-type-polish",
+   "comment_excerpt": "The docstring says an empty cache must raise a clear error, but `return _cache[\"last_good\"]` raises a bare KeyError when the cache is empty, which is opaque to "
+  },
+  {
+   "fixture": "C13",
+   "effort": "low",
+   "run_index": 0,
+   "line": 4,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "The PR claims to 'publish images on merge', but pull_request_target fires when a PR is opened or updated, not when it is merged. As written, every push to a PR "
+  },
+  {
+   "fixture": "C2",
+   "effort": "low",
+   "run_index": 0,
+   "line": 4,
+   "primary": "invented",
+   "tag": "callee-speculation",
+   "comment_excerpt": "pull_request_target runs in the context of the base repo and passes secrets.LLM_API_KEY to the job, even for PRs from untrusted forks. If the reusable workflow "
+  },
+  {
+   "fixture": "C3",
+   "effort": "low",
+   "run_index": 0,
+   "line": 6,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "If plans/ROADMAP.md does not exist, the loop body does nothing: no output, no failure, exit 0. A repo with a deleted or never-created roadmap silently passes th"
+  },
+  {
+   "fixture": "C8",
+   "effort": "low",
+   "run_index": 0,
+   "line": 15,
+   "primary": "pending-adjudication",
+   "tag": "framework-contract-listenManual",
+   "comment_excerpt": "ref.listenManual is called inside addPostFrameCallback and the returned subscription is never stored or closed. The listener stays registered after the ChatShee"
+  },
+  {
+   "fixture": "C13",
+   "effort": "low",
+   "run_index": 1,
+   "line": 3,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "pull_request_target fires when a PR is opened or updated, not when it is merged. This contradicts the PR's stated purpose ('publish images on merge'): it will p"
+  },
+  {
+   "fixture": "C16",
+   "effort": "low",
+   "run_index": 1,
+   "line": 9,
+   "primary": "invented",
+   "tag": "api-semantics-speculation",
+   "comment_excerpt": "PUT against the /labels collection endpoint semantically replaces the full label set; any pre-existing labels beyond 'bug' and 'chore' would be wiped on every b"
+  },
+  {
+   "fixture": "C2",
+   "effort": "low",
+   "run_index": 1,
+   "line": 4,
+   "primary": "invented",
+   "tag": "callee-speculation",
+   "comment_excerpt": "pull_request_target runs in the context of the base branch and is triggered by untrusted PR authors, yet this workflow forwards LLM_API_KEY into the job. Unless"
+  },
+  {
+   "fixture": "C3",
+   "effort": "low",
+   "run_index": 1,
+   "line": 14,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "The script never exits non-zero: it only echoes 'STALE' and the loop ends with status 0. As a 'freshness guard' this is ineffective \u2014 CI will pass even when eve"
+  },
+  {
+   "fixture": "C8",
+   "effort": "low",
+   "run_index": 1,
+   "line": 15,
+   "primary": "pending-adjudication",
+   "tag": "framework-contract-listenManual",
+   "comment_excerpt": "ref.listenManual is called inside addPostFrameCallback. Two problems: (1) manual listeners must be registered during build/initState and closed in dispose \u2014 reg"
+  },
+  {
+   "fixture": "C12",
+   "effort": "low",
+   "run_index": 2,
+   "line": 33,
+   "primary": "severity",
+   "tag": "exception-type-polish",
+   "comment_excerpt": "The docstring promises that an empty cache raises on origin failure, but the code raises a bare KeyError from the dict lookup instead of OriginError. Callers ca"
+  },
+  {
+   "fixture": "C13",
+   "effort": "low",
+   "run_index": 2,
+   "line": 3,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "PR title says 'publish images on merge', but pull_request_target fires when PRs are opened/updated, not when they merge. This publishes images for every unmerge"
+  },
+  {
+   "fixture": "C16",
+   "effort": "low",
+   "run_index": 2,
+   "line": 9,
+   "primary": "invented",
+   "tag": "api-semantics-speculation",
+   "comment_excerpt": "PUT to '{repo}/labels' with only two labels will, under standard REST semantics, replace the repository's entire label set, silently deleting any pre-existing l"
+  },
+  {
+   "fixture": "C2",
+   "effort": "low",
+   "run_index": 2,
+   "line": 4,
+   "primary": "invented",
+   "tag": "callee-speculation",
+   "comment_excerpt": "pull_request_target runs in the context of the base repo with access to secrets, while the PR contents are untrusted. Combined with passing LLM_API_KEY into the"
+  },
+  {
+   "fixture": "C3",
+   "effort": "low",
+   "run_index": 2,
+   "line": 14,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "The script always exits 0 regardless of STALE results. As a 'freshness guard' it must fail (non-zero exit) when a repo is stale or the roadmap is missing, other"
+  },
+  {
+   "fixture": "C3",
+   "effort": "low",
+   "run_index": 2,
+   "line": 6,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "Repos without plans/ROADMAP.md are silently skipped with no output and success exit code, so a deleted or never-created roadmap passes the guard. A freshness gu"
+  },
+  {
+   "fixture": "C8",
+   "effort": "low",
+   "run_index": 2,
+   "line": 17,
+   "primary": "pending-adjudication",
+   "tag": "framework-contract-listenManual",
+   "comment_excerpt": "ref.listenManual is called inside addPostFrameCallback and the returned subscription is never stored or cancelled in dispose(). The listener therefore stays att"
+  },
+  {
+   "fixture": "C10",
+   "effort": "high",
+   "run_index": 0,
+   "line": 4,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "No tests accompany this change. is_feature_branch is the gate for the privileged lane, so its accept/reject behavior is core security-relevant logic; a regressi"
+  },
+  {
+   "fixture": "C12",
+   "effort": "high",
+   "run_index": 0,
+   "line": 33,
+   "primary": "severity",
+   "tag": "exception-type-polish",
+   "comment_excerpt": "On an origin outage with an empty cache, `_cache[\"last_good\"]` raises KeyError, not OriginError. The docstring promises 'a fresh origin error must not be silent"
+  },
+  {
+   "fixture": "C12",
+   "effort": "high",
+   "run_index": 0,
+   "line": 23,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "No tests are included for the new behavior. The fallback contract has several branches that must be pinned: fresh fetch success populates the cache, OriginError"
+  },
+  {
+   "fixture": "C13",
+   "effort": "high",
+   "run_index": 0,
+   "line": 3,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "pull_request_target fires on PR open/synchronize/reopen, not on merge. Combined with the `!head.repo.fork` guard, this means every push to a same-repo PR branch"
+  },
+  {
+   "fixture": "C3",
+   "effort": "high",
+   "run_index": 0,
+   "line": 11,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "The script always exits 0, even when it reports 'STALE'. As a freshness 'guard' (per the PR title), it will never fail a CI run or gate a merge \u2014 it only prints"
+  },
+  {
+   "fixture": "C8",
+   "effort": "high",
+   "run_index": 0,
+   "line": 19,
+   "primary": "invented",
+   "tag": "beyond-diff-race",
+   "comment_excerpt": "listenManual only invokes the callback when chatCourseIdProvider changes. The comment says CourseSelector auto-selects 'in a later frame', which covers the cold"
+  },
+  {
+   "fixture": "C8",
+   "effort": "high",
+   "run_index": 0,
+   "line": 19,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "The PR's core behavior \u2014 consuming a resume target once a course exists and resuming that thread \u2014 has no accompanying test changes (the only changed file is sh"
+  },
+  {
+   "fixture": "C12",
+   "effort": "high",
+   "run_index": 1,
+   "line": 32,
+   "primary": "invented",
+   "tag": "session-protocol-speculation",
+   "comment_excerpt": "The fallback path catches OriginError, but nothing in this module ever raises it: _decode raises ParseError, and any failure raised by session.get (network erro"
+  },
+  {
+   "fixture": "C12",
+   "effort": "high",
+   "run_index": 1,
+   "line": 33,
+   "primary": "severity",
+   "tag": "exception-type-polish",
+   "comment_excerpt": "The docstring states 'An empty cache raises' as a deliberate contract, but the actual behavior is an accidental KeyError from the _cache dict lookup. This leaks"
+  },
+  {
+   "fixture": "C12",
+   "effort": "high",
+   "run_index": 1,
+   "line": 23,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "No tests are included for the new core behavior. The fallback-on-origin-failure path, the empty-cache raise, and the cache-poisoning question (what gets stored "
+  },
+  {
+   "fixture": "C13",
+   "effort": "high",
+   "run_index": 1,
+   "line": 3,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "Trigger is pull_request_target, which runs on PR open/synchronize \u2014 not on merge to main. This contradicts the PR's stated purpose ('publish images on merge'): "
+  },
+  {
+   "fixture": "C16",
+   "effort": "high",
+   "run_index": 1,
+   "line": 10,
+   "primary": "invented",
+   "tag": "api-semantics-speculation",
+   "comment_excerpt": "PUT to '{repo}/labels' with json=LABELS is destructive and likely malformed: collection-level PUT semantics replace the full set of labels, so any existing labe"
+  },
+  {
+   "fixture": "C2",
+   "effort": "high",
+   "run_index": 1,
+   "line": 3,
+   "primary": "invented",
+   "tag": "callee-speculation",
+   "comment_excerpt": "pull_request_target runs for PRs from untrusted forks while secrets (LLM_API_KEY, forwarded on line 11) are available. An AI-review workflow almost certainly in"
+  },
+  {
+   "fixture": "C3",
+   "effort": "high",
+   "run_index": 1,
+   "line": 6,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "Repositories without plans/ROADMAP.md produce no output at all and exit 0, so a missing roadmap is silently treated as passing. For a guard whose stated purpose"
+  },
+  {
+   "fixture": "C4",
+   "effort": "high",
+   "run_index": 1,
+   "line": 8,
+   "primary": "rubric",
+   "tag": "scope-violation-clause",
+   "comment_excerpt": "Scope violation: the PR title and description claim this change only documents the retry contract, but the diff adds a brand-new module containing new code (Pro"
+  },
+  {
+   "fixture": "C8",
+   "effort": "high",
+   "run_index": 1,
+   "line": 15,
+   "primary": "pending-adjudication",
+   "tag": "framework-contract-listenManual",
+   "comment_excerpt": "ref.listenManual returns a ProviderSubscription that is never stored or closed. Riverpod does not auto-remove manual listeners when the widget unmounts: if the "
+  },
+  {
+   "fixture": "C11",
+   "effort": "high",
+   "run_index": 2,
+   "line": 7,
+   "primary": "correct-not-fp",
+   "tag": "oracle-defect-invalid-flag",
+   "comment_excerpt": "`--skip-generate` is not a valid option for `prisma migrate status` (it exists for `migrate dev`, not `status`). The Prisma CLI rejects unknown options and exit"
+  },
+  {
+   "fixture": "C13",
+   "effort": "high",
+   "run_index": 2,
+   "line": 4,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "Trigger is pull_request_target, which fires on PR opened/synchronize/reopened \u2014 not on merge. Combined with packages: write and the REGISTRY_TOKEN secret, this "
+  },
+  {
+   "fixture": "C4",
+   "effort": "high",
+   "run_index": 2,
+   "line": 8,
+   "primary": "rubric",
+   "tag": "scope-violation-clause",
+   "comment_excerpt": "Scope violation: the PR summary says it only 'Documents how retries are decided', but this adds a new ProcessingError class with runtime behavior (a retryable c"
+  },
+  {
+   "fixture": "C12",
+   "effort": "max",
+   "run_index": 0,
+   "line": 33,
+   "primary": "severity",
+   "tag": "exception-type-polish",
+   "comment_excerpt": "On a fresh origin failure with an empty cache, `return _cache[\"last_good\"]` raises an incidental `KeyError: 'last_good'` from inside the except handler. The doc"
+  },
+  {
+   "fixture": "C12",
+   "effort": "max",
+   "run_index": 0,
+   "line": 23,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "No tests accompany this new module. The core behaviors of the PR \u2014 fresh fetch populates the cache, OriginError falls back to last-good, empty cache raises, Par"
+  },
+  {
+   "fixture": "C13",
+   "effort": "max",
+   "run_index": 0,
+   "line": 3,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "Wrong trigger for the stated purpose. pull_request_target fires on PR open/synchronize/reopen, not at merge time \u2014 'closed' is not in the default types, so this"
+  },
+  {
+   "fixture": "C15",
+   "effort": "max",
+   "run_index": 0,
+   "line": 1,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "New validation behavior with no tests anywhere in the diff. This function defines a contract other core code will depend on (which regions are accepted, that in"
+  },
+  {
+   "fixture": "C16",
+   "effort": "max",
+   "run_index": 0,
+   "line": 10,
+   "primary": "severity",
+   "tag": "http-status-robustness",
+   "comment_excerpt": "HTTP error statuses are not treated as failures. requests' Session.put returns a response for 4xx/5xx without raising, so a 403 (permissions), 422 (validation),"
+  },
+  {
+   "fixture": "C3",
+   "effort": "max",
+   "run_index": 0,
+   "line": 8,
+   "primary": "severity",
+   "tag": "deployment-context",
+   "comment_excerpt": "Freshness is judged by filesystem mtime, which git clone, checkout, and stash all reset to 'now'. In any freshly checked-out working tree (the typical place a g"
+  },
+  {
+   "fixture": "C10",
+   "effort": "max",
+   "run_index": 1,
+   "line": 7,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "No tests accompany this change. The PR's entire substance is a security gate deciding which refs may run the privileged lane, and the behavior that must never r"
+  },
+  {
+   "fixture": "C11",
+   "effort": "max",
+   "run_index": 1,
+   "line": 7,
+   "primary": "correct-not-fp",
+   "tag": "oracle-defect-invalid-flag",
+   "comment_excerpt": "`prisma migrate status` does not support `--skip-generate`; it only takes `--schema`/`--env-file` (the flag exists on `migrate dev` and `migrate reset`). The CL"
+  },
+  {
+   "fixture": "C12",
+   "effort": "max",
+   "run_index": 1,
+   "line": 33,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "No tests accompany this new core module. load_config has at least four distinct behaviors, all unverified: success (fetch, cache, return), OriginError with a po"
+  },
+  {
+   "fixture": "C13",
+   "effort": "max",
+   "run_index": 1,
+   "line": 3,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "Wrong trigger for the stated purpose. `pull_request_target` fires on PR opened/synchronize/reopened \u2014 not on merge. As written, every non-fork same-repo PR publ"
+  },
+  {
+   "fixture": "C15",
+   "effort": "max",
+   "run_index": 1,
+   "line": 0,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "New validation behavior ships with no tests. Neither the accept path (each of the three allowed regions returns the input unchanged) nor the reject path (unknow"
+  },
+  {
+   "fixture": "C16",
+   "effort": "max",
+   "run_index": 1,
+   "line": 10,
+   "primary": "severity",
+   "tag": "http-status-robustness",
+   "comment_excerpt": "Only requests.RequestException (transport errors) is caught. A 4xx/5xx response (auth failure, validation error, server error) is returned as if the sync succee"
+  },
+  {
+   "fixture": "C16",
+   "effort": "max",
+   "run_index": 1,
+   "line": 7,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "The PR's core behavior \u2014 the PUT target/payload, the RequestException path returning None with a warning, and HTTP error handling \u2014 has zero test coverage. No t"
+  },
+  {
+   "fixture": "C2",
+   "effort": "max",
+   "run_index": 1,
+   "line": 3,
+   "primary": "invented",
+   "tag": "callee-speculation",
+   "comment_excerpt": "`pull_request_target` runs in the base-repo context with access to secrets, and is triggered by PRs from any (potentially untrusted) author. The reviewed PR con"
+  },
+  {
+   "fixture": "C3",
+   "effort": "max",
+   "run_index": 1,
+   "line": 13,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "Repos without plans/ROADMAP.md are silently skipped: no output, exit 0. A deleted or never-created roadmap is the stalest state a repo can be in, yet the guard "
+  },
+  {
+   "fixture": "C4",
+   "effort": "max",
+   "run_index": 1,
+   "line": 8,
+   "primary": "rubric",
+   "tag": "scope-violation-clause",
+   "comment_excerpt": "Scope violation: the PR summary says 'Documents how retries are decided', but the hunk header (@@ -0,0 +1,11 @@) shows the file was empty before, so all 11 line"
+  },
+  {
+   "fixture": "C10",
+   "effort": "max",
+   "run_index": 2,
+   "line": 7,
+   "primary": "rubric",
+   "tag": "missing-tests-clause",
+   "comment_excerpt": "No tests are added for this function, which is the security gate for the privileged lane and the core behavior of the PR. At minimum it needs positive cases ('f"
+  },
+  {
+   "fixture": "C12",
+   "effort": "max",
+   "run_index": 2,
+   "line": 33,
+   "primary": "invented",
+   "tag": "session-protocol-speculation",
+   "comment_excerpt": "The fallback can never trigger. `except OriginError` only catches exceptions of that class, but neither `session.get` nor `_decode` ever raises `OriginError`: n"
+  },
+  {
+   "fixture": "C13",
+   "effort": "max",
+   "run_index": 2,
+   "line": 3,
+   "primary": "severity",
+   "tag": "trigger-title-mismatch",
+   "comment_excerpt": "Trigger is pull_request_target, which fires on opened/synchronize/reopened \u2014 not on merge. As written, every push to any PR branch targeting main publishes an i"
+  },
+  {
+   "fixture": "C3",
+   "effort": "max",
+   "run_index": 2,
+   "line": 8,
+   "primary": "severity",
+   "tag": "deployment-context",
+   "comment_excerpt": "Freshness is decided from file mtime, but git materializes files at checkout time, resetting mtime. Run in CI (the typical deployment for a guard), plans/ROADMA"
+  },
+  {
+   "fixture": "C3",
+   "effort": "max",
+   "run_index": 2,
+   "line": 13,
+   "primary": "invented",
+   "tag": "title-contract",
+   "comment_excerpt": "Repos without plans/ROADMAP.md are silently skipped: no output, exit 0. A deleted roadmap \u2014 the maximally stale case \u2014 passes the anti-rot guard, contradicting "
+  }
+ ]
+}
