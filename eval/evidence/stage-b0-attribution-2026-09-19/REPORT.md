@@ -11,9 +11,11 @@ fails closed if any blocking control finding is unclassified).
 
 ## Scope of the failure
 
-10 of 18 controls false-blocked at least once; 58 blocking findings
-were emitted against globally-clean-declared fixtures across 27
-control-run blocks (low 8, high 9, max 10).
+10 of 18 control-designated fixtures received at least one blocking
+finding; 58 blocking findings span 49 distinct control–effort–run
+combinations (low 16, high 15, max 18). Of those fixtures, C11 is an
+oracle defect and C8 has four findings awaiting adjudication; these
+must not be counted as confirmed false-positive controls.
 
 | control | blocked runs (L/H/M) | blocking findings | dominant model argument |
 |---|---|---|---|
@@ -46,19 +48,20 @@ category (`classification.json` asserts total coverage):
 four unaccounted findings are the C8 `listenManual` set, which belong
 to category (6) pending adjudication rather than (1)/(2)/(3). True
 false-positive count is therefore **52 actionable + 4 pending**, not
-56; all 58 original findings (including the two C11 findings) are
-preserved verbatim in `classification.json` for audit.
+56; all 58 findings (including the two C11 findings) have attribution
+rows with short comment excerpts in `classification.json`. Full original
+findings remain verbatim in the frozen Stage-A `records.jsonl` files.
 
 ## Synthesis — the calibration hypothesis
 
-**GLM-5.3-flash's false blocks are severity-policy failures, not
-perception failures.** The model reliably notices plausible concerns
-(56–58 findings, none garbage; one was even factually right against
-a defective fixture). It fails by promoting speculative, external,
-or advisory-grade concerns to `blocking` — and the current rubric
+**The attribution supports a combined evidence-threshold and severity-
+calibration hypothesis, not a pure effort-tuning explanation.** Some
+findings identify real but advisory-grade concerns; 20 others rely on
+unsupported or invented claims, and two correctly expose the C11
+oracle defect. The reviewer promotes speculative, external, or
+advisory-grade concerns to `blocking`, while the current rubric
 actively licenses two of those promotions ("missing tests", "scope
-violation") while placing no demonstrability burden on blocking
-claims.
+violation") and places no demonstrability burden on blocking claims.
 
 Parser/render layer exonerated: all severities were model-emitted;
 zero parse or render artifacts (0 INCONCLUSIVE at low/high; the 2 at
