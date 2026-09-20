@@ -228,12 +228,12 @@ def combine_campaign(report_low, report_high):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--records", required=True)
-    ap.add_argument("--baseline", required=True,
+    ap.add_argument("--records")
+    ap.add_argument("--baseline",
                     help="baseline-stage-a.json from the approved "
                          "preregistration package")
-    ap.add_argument("--effort", required=True, choices=("low", "high"))
-    ap.add_argument("--fixtures", required=True,
+    ap.add_argument("--effort", choices=("low", "high"))
+    ap.add_argument("--fixtures",
                     help="comma-separated B1 fixture ids")
     ap.add_argument("--runs", type=int, default=3)
     ap.add_argument("--spend-summary", default=None,
@@ -255,6 +255,12 @@ def main():
         high = json.loads(pathlib.Path(args.combine_high).read_text())
         print(json.dumps(combine_campaign(low, high), indent=1))
         return
+
+    required = ("records", "baseline", "effort", "fixtures")
+    missing = ["--" + key for key in required
+               if getattr(args, key) is None]
+    if missing:
+        ap.error("per-effort report requires " + ", ".join(missing))
 
     records = [json.loads(l) for l in
                pathlib.Path(args.records).read_text().splitlines()
