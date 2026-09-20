@@ -159,3 +159,19 @@ first result.
   edits — approval pins the edited sha256), API key rotated,
   explicit live authorization, aggregate-ledger implementation
   merged and tested.
+
+## Addendum (2026-09-20, phase-06 review direction)
+
+**Crash-recovery refinement**: recovery is **liveness-only**. A
+reservation is swept (settled at its reserved amount) exclusively
+when its owning pid is no longer alive. Age alone — however large —
+never settles an active request: a 30-minute-old reservation with a
+live pid stays outstanding, so an active request can never be
+double-accounted or have its budget wrongly released. Age remains
+recorded for diagnostics. The "30 min stale bound" in the section
+above is superseded by this rule; fail-closed direction is
+unchanged (orphaned outcomes count as spent, never released).
+
+The aggregate-ledger implementation and its test matrix (including
+explicit process-liveness and active-recovery cases) are delivered
+in phase 06.

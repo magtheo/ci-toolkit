@@ -48,7 +48,7 @@ FILE_PINS = {
     "render.py":
         "31f32f07b77a55eb5aaad34e7481339bc15afca2b65793ec25f7674ad948b264",
     "rubric.md":
-        "415d8a38cfed9d3a826c81d158d6b6883b1c0c4b598e1b81a51e98afae0b3eeb",
+        "f13db50022cab1f498c13c1abdb802e1a3624c33bae28ab2c31c32b12f407e37",
     "parse_review.py":
         "78333641c1b5c70bcc0745ed5993867ad35b4ea87ce2f5faba63c1664883d4e5",
     "review.sh":
