@@ -59,7 +59,7 @@ selection rule, spend bounds) in the evidence README. **Zero model
 calls.** Live mode is double-gated (`--live` +
 `PM_QUALIFY_LIVE_AUTHORIZED=1`).
 
- ## Phase 02 — Stage A (COMPLETE — all profiles disqualified)
+## Phase 02 — Stage A (COMPLETE — all profiles disqualified)
 
 Full matrix, metrics, selection rule, and spend gate are
 pre-registered in
@@ -88,8 +88,10 @@ PR #78; per-`out_dir` ceiling scope disclosed there.
   byte-for-byte, implements the aggregate ledger, and runs 90
   reviews ONLY after (a) package approval pinning its sha256,
   (b) rotated API key, (c) explicit live-spend authorization.
-  PASS → Stage B2 (full 18-fixture qualification under the revised
-  subject) is preregistered separately; FAIL → revise and
+  PASS → preparation of a separate Stage B2 preregistration
+  (full 36-fixture corpus, 18 controls + 18 positives; N=3 ×
+  {low, high} = 216 logical reviews) is permitted, but execution and
+  spend require separate authorization; FAIL → revise and
   re-preregister.
 
 Throughout the B sequence the deployed GLM profile remains
