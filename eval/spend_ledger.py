@@ -69,7 +69,13 @@ class SpendLedger:
         self.guard = guard
         self.lock_path = self.path + ".lock"
         self.seed_dirs = [os.fspath(d) for d in seed_dirs]
-        self._state = self._open()
+        # Creation and seeding happen UNDER the lock: two processes
+        # first-initializing a missing ledger race through the same
+        # locked section, so neither can overwrite the other's
+        # committed state (the file is created by exactly one of them
+        # and both then read the same committed bytes).
+        with self._locked():
+            pass
 
     # ---- persistence -------------------------------------------------
 

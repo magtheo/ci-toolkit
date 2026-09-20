@@ -56,13 +56,22 @@ def main():
                 "escalation_planned": rec["escalation_planned"],
             })
 
-    # worst-case aggregate bound from the actual prompt sizes
+    # worst-case aggregate bound from the actual prompt sizes,
+    # INCLUDING the planned escalation generation (initial 8000 +
+    # up to one 16000-token escalation per review) — informational
+    # only; the ceiling is enforced per request by the ledger
     worst_total = 0.0
+    worst_initial_only = 0.0
     for r in reviews:
-        est_in = (r["prompt_chars"][0] + r["prompt_chars"][1])
-        est_in = -(-est_in // 4) * pq.SpendGuard.SAFETY
-        gen = 8000
-        worst_total += (est_in * PRICES["in"] + gen * PRICES["out"]) / 1e6
+        chars = r["prompt_chars"][0] + r["prompt_chars"][1]
+        est_in = -(-chars // 4) * pq.SpendGuard.SAFETY
+        initial = (est_in * PRICES["in"] + 8000 * PRICES["out"]) / 1e6
+        worst_initial_only += initial
+        if r["escalation_planned"]:
+            worst_total += initial + (est_in * PRICES["in"]
+                                      + 16000 * PRICES["out"]) / 1e6
+        else:
+            worst_total += initial
 
     preview = {
         "status": "DRY_RUN_PREVIEW — no provider request was made",
@@ -81,6 +90,14 @@ def main():
         },
         "ceiling": {"aggregate_usd": 1.0,
                     "worst_case_all_90_usd": round(worst_total, 4),
+                    "worst_case_initial_8000_only_usd":
+                        round(worst_initial_only, 4),
+                    "cost_model": "worst case includes the initial "
+                                  "8000-token generation PLUS one "
+                                  "16000-token escalation per review "
+                                  "where planned; enforcement is "
+                                  "per-request via the ledger, this "
+                                  "projection is informational",
                     "mechanism": "shared ledger, atomic reserve/settle"},
         "reviews": reviews,
     }
@@ -89,7 +106,10 @@ def main():
     print("reviews previewed:", len(reviews))
     print("oracle_version:", preview["identity"]["oracle_version"])
     print("rubric_sha256:", preview["identity"]["rubric_sha256"][:16], "…")
-    print("worst-case bound for all 90: $%.4f of $1.00" % worst_total)
+    print("worst-case bound, all 90 WITH escalations: $%.4f of $1.00"
+          % worst_total)
+    print("worst-case bound, initial 8000 only: $%.4f (context)"
+          % worst_initial_only)
 
 
 if __name__ == "__main__":

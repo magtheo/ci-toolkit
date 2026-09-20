@@ -43,7 +43,9 @@
  },
  "ceiling": {
   "aggregate_usd": 1.0,
-  "worst_case_all_90_usd": 0.2048,
+  "worst_case_all_90_usd": 0.5895,
+  "worst_case_initial_8000_only_usd": 0.2048,
+  "cost_model": "worst case includes the initial 8000-token generation PLUS one 16000-token escalation per review where planned; enforcement is per-request via the ledger, this projection is informational",
   "mechanism": "shared ledger, atomic reserve/settle"
  },
  "reviews": [
