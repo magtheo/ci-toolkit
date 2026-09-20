@@ -59,18 +59,45 @@ selection rule, spend bounds) in the evidence README. **Zero model
 calls.** Live mode is double-gated (`--live` +
 `PM_QUALIFY_LIVE_AUTHORIZED=1`).
 
-## Phase 02 — Stage A (BLOCKED on human decisions)
+ ## Phase 02 — Stage A (COMPLETE — all profiles disqualified)
 
 Full matrix, metrics, selection rule, and spend gate are
 pre-registered in
 `eval/evidence/q0-glm-profiles-2026-09-18/README.md` — written
-before any profile result exists. Stage A runs ONLY after (a) human
-review of Phase 01 and (b) explicit spend authorization. It is
-**profile screening**: no state promotion, no GATING changes, no
-iteration-5, no deployment pin change, no fleet rollout follow
-automatically from its outcome.
+before any profile result exists. Executed 2026-09-19 (324/324,
+$0.3916): D3 (zero-tolerance control false-blocking) fired at every
+effort; the frozen rule selected no profile. Evidence published via
+PR #78; per-`out_dir` ceiling scope disclosed there.
+
+## Phases 03–06 — the B sequence (directed 2026-09-19/20)
+
+- **03 — Stage B0** (MERGED, PR #79): zero-call attribution of the
+  D3 false positives; exact 58-finding reconciliation; C11 confirmed
+  as an oracle defect.
+- **04 — Oracle repair** (MERGED, PR #80): C11/M11 invalid flag
+  removed; `oracle_version` → `5472d990f3b946c3`; historical records
+  keep their original identities. C8 pending independent
+  adjudication — excluded from qualification sets until ruled on.
+- **05 — B1 preregistration** (this phase): frozen package in
+  `eval/evidence/stage-b1-prereg-2026-09-20/` — revised rubric
+  (subject-side, single rule block), 15-fixture matrix incl. C4/M4,
+  aggregate $1 spend-ceiling design, group-wise no-regression pass
+  criteria, M4/M13 reported separately (zero baseline detection).
+  Preregistration ONLY: no rubric applied, no code, no calls.
+- **06 — B1 execution** (gated): applies the approved rubric
+  byte-for-byte, implements the aggregate ledger, and runs 90
+  reviews ONLY after (a) package approval pinning its sha256,
+  (b) rotated API key, (c) explicit live-spend authorization.
+  PASS → Stage B2 (full 18-fixture qualification under the revised
+  subject) is preregistered separately; FAIL → revise and
+  re-preregister.
+
+Throughout the B sequence the deployed GLM profile remains
+**non-authoritative**; GATING states, fixtures, and harness are
+frozen at `5472d990f3b946c3`.
 
 ## Stop conditions
 
-Oracle_version movement, subject/transport byte drift, prompt-hash
-drift, or any model call before (a)+(b) = stop and escalate.
+Oracle_version movement without an oracle PR, subject/transport
+byte drift outside an approved subject phase, prompt-hash drift, or
+any model call before the phase's (a)+(b) gates = stop and escalate.

@@ -1,0 +1,63 @@
+{
+ "source": "stage-a-glm-profiles-2026-09-19 (frozen; oracle_version 9e20730cb0436002)",
+ "note": "detection = per-group count of runs (of N=3) detecting the expected group",
+ "baseline": {
+  "low": {
+   "per_group_detection": {
+    "M2": [
+     1,
+     3
+    ],
+    "M3": [
+     3
+    ],
+    "M4": [
+     0
+    ],
+    "M12": [
+     3
+    ],
+    "M13": [
+     0
+    ],
+    "M16": [
+     3
+    ]
+   },
+   "false_blockers_on_positives": 5,
+   "gating_violations": []
+  },
+  "high": {
+   "per_group_detection": {
+    "M2": [
+     0,
+     3
+    ],
+    "M3": [
+     3
+    ],
+    "M4": [
+     0
+    ],
+    "M12": [
+     3
+    ],
+    "M13": [
+     0
+    ],
+    "M16": [
+     3
+    ]
+   },
+   "false_blockers_on_positives": 11,
+   "gating_violations": [
+    "C4"
+   ]
+  }
+ },
+ "zero_baseline_flags": {
+  "M4": "never detected at baseline, both efforts \u2014 report separately, not gateable",
+  "M13": "never detected at baseline, both efforts \u2014 report separately, not gateable",
+  "M2": "group 0 baseline 1/3 at low, 0/3 at high \u2014 group-wise no-regression applies"
+ }
+}
