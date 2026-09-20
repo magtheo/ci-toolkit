@@ -9,11 +9,12 @@ implementation. Directed 2026-09-20 after the C11/M11 oracle repair
 
 ## Objective and hypothesis
 
-B0 (`stage-b0-attribution-2026-09-20`) established that GLM-5.3-flash's
-false blocks are **severity-policy failures, not perception
-failures**: the rubric's blocking rule invites two over-trigger
-categories ("missing tests for core behavior", "scope violation")
-and places no diff-demonstrability burden on blocking claims.
+B0 (`stage-b0-attribution-2026-09-19`) identified a combined
+**evidence-threshold and severity-calibration failure**: 20 findings
+rest on invented or unsupported claims, 18 inflate advisory-grade
+observations, and 14 follow rubric-invited blocking categories. The
+rubric licenses "missing tests for core behavior" and "scope
+violation" and places no diff-demonstrability burden on blockers.
 
 **H1 (single intervention):** amending only the rubric's
 severity/blocking rules — demonstrability, external-fact precision,
@@ -62,8 +63,8 @@ frozen. `rubric.md` is the only subject file touched at execution.
 Balanced run order (all three runs defined): run 0 evaluates each
 fixture low→high, run 1 high→low, run 2 low→high — every effort
 gets N=3 runs per fixture (45 per effort), and effort order
-alternates across invocations so no effort is systematically first
-or last in time. One evidence directory per effort, campaign
+alternates across invocations (low is first in two of three rounds;
+perfect order balance is impossible with an odd N). One evidence directory per effort, campaign
 identity per directory, provider routing recorded and unpinned.
 
 ## Aggregate spend-ceiling design (fixes the Stage-A scope flaw)
@@ -124,14 +125,17 @@ ever pass a ceiling check against the same budget:
    satisfied for them and cannot hide a continued miss behind a
    pass. Their B1 detection counts are reported standalone; B1 PASS
    is not evidence of M4/M13 capability (humility rule).
-5. Informational, non-gating: **subset-matched** false-block
-   baseline — within the frozen Stage-A records restricted to the
+5. Informational, non-gating: **subset-matched blocking-finding
+   burden on positives** (not an oracle-classified false-block count)
+   — within the frozen Stage-A records restricted to the
    six B1 positives, 15/18 (low) and 17/18 (high) OK_CONTENT
    positive runs emitted ≥1 blocking finding (21 and 26 blocking
    findings respectively; see `baseline-stage-a.json`). The
    published Stage-A figures 5/11 cover all 18 positives and are
-   **NOT comparable** to B1 — recorded only as context. B1's
-   expected direction is a fall; it is not required to pass.
+   **NOT comparable** to B1 — recorded only as context. The B1
+   blocking-finding burden is reported descriptively; a lower count
+   alone is not proof of improved correctness and is not required
+   to pass.
    Provider distribution, token usage, and actual cost are reported.
 
 **Decision rule**: all gating criteria hold → B1 PASS, which
