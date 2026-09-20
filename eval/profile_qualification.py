@@ -118,7 +118,8 @@ def _inconclusive_result():
 
 
 def logical_review(engine, fixture, run_index, model, profile,
-                   overrides, post_payload, sink, spend_guard=None):
+                   overrides, post_payload, sink, spend_guard=None,
+                   ledger=None):
     """One logical review through the #70 transport semantics.
 
     post_payload(body) -> (raw_body, http_retries, latency_s); it may
@@ -127,6 +128,11 @@ def logical_review(engine, fixture, run_index, model, profile,
     generation verdict) — the partial record is sunk first, then the
     exit propagates. In dry-run post_payload is None and only the
     initial request is constructed.
+
+    When `ledger` (SpendLedger) is given, EVERY generation reserves
+    its worst-case bound from the shared aggregate ceiling BEFORE the
+    request and settles actual usage (or the reserved amount when
+    usage is unknown — fail closed) afterwards.
     """
     review_input = rc._review_input(fixture, model, subject_dir=str(ROOT))
     system, user, body = build_initial_request(
@@ -157,11 +163,18 @@ def logical_review(engine, fixture, run_index, model, profile,
     def attempt(kind, max_tokens):
         if spend_guard is not None:
             spend_guard.check(fixture["id"], max_tokens)
+        if ledger is not None:
+            reservation = ledger.reserve(fixture["id"], max_tokens)
         try:
             raw, retries, latency = post_payload(
                 transport.build_request_body(
                     model, system, user, profile, max_tokens=max_tokens))
         except SystemExit:
+            if ledger is not None:
+                # process is about to die on transport exhaustion:
+                # settle at the reserved amount (fail closed) so the
+                # shared ledger never strands this budget
+                ledger.settle(reservation, None)
             record["terminal_state"] = "TRANSPORT_FAILURE"
             record["wall_s"] = round(time.monotonic() - t0, 3)
             sink(record)
@@ -169,6 +182,11 @@ def logical_review(engine, fixture, run_index, model, profile,
         facts = _classify(raw)
         if spend_guard is not None:
             spend_guard.add(facts)
+        if ledger is not None:
+            known = any((facts.get(k) or 0) > 0 for k in
+                        ("prompt_tokens", "completion_tokens",
+                         "reasoning_tokens"))
+            ledger.settle(reservation, facts if known else None)
         record["attempts"].append({
             "kind": kind,
             "max_tokens": max_tokens,
@@ -480,8 +498,11 @@ class SpendGuard:
 
     @property
     def cost_usd(self):
-        return ((self.in_tokens * self.p_in
-                 + self.out_tokens * self.p_out) / 1e6)
+        return self.cost_usd_of(self.in_tokens, self.out_tokens)
+
+    def cost_usd_of(self, in_tokens, out_tokens):
+        return ((in_tokens * self.p_in
+                 + out_tokens * self.p_out) / 1e6)
 
     def _est_input(self, fixture_id):
         return math.ceil(self.chars[fixture_id] / 4) * self.SAFETY
@@ -530,12 +551,15 @@ def _load_records(records_path):
             records_path.read_text().splitlines() if line.strip()]
 
 
-def _write_summary(out_dir, fixtures, runs, model, profile, spend=None):
+def _write_summary(out_dir, fixtures, runs, model, profile, spend=None,
+                   ledger=None):
     records = _load_records(out_dir / "records.jsonl")
     meta = _meta(reduce_records(records), fixtures, runs,
                  model, profile)
     if spend is not None:
         meta["spend"] = spend.state()
+    if ledger is not None:
+        meta.setdefault("spend", {})["aggregate_ledger"] = ledger.state()
     _write_json(out_dir / "summary.json", meta)
 
 
@@ -679,7 +703,7 @@ def stage_a_report(records, runs):
 
 
 def live(out_dir, fixtures, runs, model, profile, overrides,
-         run_index=None, spend=None):
+         run_index=None, spend=None, ledger=None):
     if os.environ.get("PM_QUALIFY_LIVE_AUTHORIZED") != "1":
         raise SystemExit(
             "live measurement refused: set PM_QUALIFY_LIVE_AUTHORIZED=1 "
@@ -761,14 +785,21 @@ def live(out_dir, fixtures, runs, model, profile, overrides,
         with records_path.open("a") as fh:
             fh.write(json.dumps(record, sort_keys=True) + "\n")
 
-    if spend is not None:
-        # per-out_dir ceiling: seed the cumulative cost from the
-        # persisted records of THIS output directory only, so every
-        # run-index invocation of the balanced schedule inherits the
-        # spend of prior invocations under the same identity (tokens
-        # are in the records; cost is recomputed under the identity
-        # protected prices). The ceiling is enforced per out_dir, not
-        # across separate campaign directories.
+    if ledger is not None:
+        # aggregate ceiling (Stage B1): recover orphans from prior
+        # crashes before anything else — settled + outstanding <=
+        # ceiling is the invariant, liveness is the only recovery
+        # criterion
+        ledger.sweep()
+    elif spend is not None:
+        # legacy per-out_dir ceiling: seed the cumulative cost from
+        # the persisted records of THIS output directory only, so
+        # every run-index invocation of the balanced schedule
+        # inherits the spend of prior invocations under the same
+        # identity (tokens are in the records; cost is recomputed
+        # under the identity protected prices). The ceiling is
+        # enforced per out_dir, not across separate campaign
+        # directories.
         for r in existing:
             for a in r.get("attempts") or []:
                 spend.add(a)
@@ -782,16 +813,20 @@ def live(out_dir, fixtures, runs, model, profile, overrides,
                     continue
                 logical_review(
                     engine, fixture, ri, model, profile,
-                    overrides, post_payload, sink, spend_guard=spend)
+                    overrides, post_payload, sink, spend_guard=spend,
+                    ledger=ledger)
     except SystemExit:
-        _write_summary(out_dir, fixtures, runs, model, profile, spend=spend)
+        _write_summary(out_dir, fixtures, runs, model, profile,
+                       spend=spend, ledger=ledger)
         raise
     except SpendCeilingReached as e:
         # ceiling enforced BEFORE the request: no record for the
         # halted review, evidence set resumable, decision is human's
-        _write_summary(out_dir, fixtures, runs, model, profile, spend=spend)
+        _write_summary(out_dir, fixtures, runs, model, profile,
+                       spend=spend, ledger=ledger)
         raise SystemExit(str(e))
-    _write_summary(out_dir, fixtures, runs, model, profile, spend=spend)
+    _write_summary(out_dir, fixtures, runs, model, profile,
+                   spend=spend, ledger=ledger)
     return out_dir
 
 
@@ -841,6 +876,15 @@ def main(argv=None):
     ap.add_argument("--spend-ceiling-usd", type=float, default=None,
                     help="hard campaign ceiling; each provider request "
                          "is pre-checked against worst-case cost")
+    ap.add_argument("--spend-ledger", default=None,
+                    help="path to the shared campaign ledger: enables "
+                         "AGGREGATE ceiling enforcement with atomic "
+                         "reserve/settle across concurrent invocations "
+                         "(Stage B1 mechanism)")
+    ap.add_argument("--spend-seed-dir", action="append", default=None,
+                    help="records directory seeded into a NEW ledger's "
+                         "settled totals (repeatable; used when a "
+                         "crash predated the ledger)")
     ap.add_argument("--price-input-per-m", type=float, default=None,
                     help="USD per 1M input tokens (record source!)")
     ap.add_argument("--price-output-per-m", type=float, default=None,
@@ -893,6 +937,7 @@ def main(argv=None):
         dry_run(out_dir, fixtures, args.runs, args.model, profile, overrides)
     else:
         spend = None
+        ledger = None
         if (args.spend_ceiling_usd is not None
                 or args.price_input_per_m is not None
                 or args.price_output_per_m is not None
@@ -918,8 +963,14 @@ def main(argv=None):
                                args.price_input_per_m,
                                args.price_output_per_m, chars)
             spend.price_source = args.price_source
+            ledger = None
+            if args.spend_ledger:
+                from eval.spend_ledger import SpendLedger
+                ledger = SpendLedger(
+                    args.spend_ledger, spend,
+                    seed_dirs=args.spend_seed_dir or [])
         live(out_dir, fixtures, args.runs, args.model, profile, overrides,
-             run_index=args.run_index, spend=spend)
+             run_index=args.run_index, spend=spend, ledger=ledger)
     return 0
 
 
