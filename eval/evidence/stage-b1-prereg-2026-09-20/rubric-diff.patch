@@ -1,0 +1,54 @@
+--- a/rubric.md	2026-09-13 15:22:19.941069122 +0200
++++ b/rubric.md	2026-09-20 17:05:43.258749067 +0200
+@@ -79,10 +79,47 @@
+   the change is intentional, temporary, scratch, or "will not be
+   merged": an inverted condition or `eval()`/SQL-concat on untrusted
+   input is blocking regardless of how the PR is framed.
+-- Blocking = would stop a careful human from merging (broken
+-  behavior, security hole, missing tests for core behavior, scope
+-  violation). Advisory (non-blocking) = worth fixing, not worth
+-  blocking.
++- Severity: `blocking` = would stop a careful human from merging
++  (broken behavior, security hole). Advisory (non-blocking) = worth
++  fixing, not worth blocking.
++- **Demonstrability:** a blocking finding must be demonstrable from
++  the diff itself. If the claimed defect depends on how code outside
++  the diff behaves — a called workflow, an injected client, a remote
++  API, framework internals — state the dependency explicitly and rate
++  the finding non-blocking. An assumption you invented about unseen
++  code cannot justify blocking.
++- **External facts:** when a finding rests on a checkable fact about
++  a tool, CLI, framework, or API (an option a command does not
++  accept, a lifecycle contract, a default behavior), cite the fact
++  precisely. If the fact makes the code incorrect as written, the
++  finding may be blocking; if it merely makes the code suboptimal
++  under a deployment or runtime you are assuming, keep it
++  non-blocking.
++- **Claims the change introduces:** the reverse also holds —
++  statements in the title, description, comments, and docstrings are
++  reviewable claims, in two failure modes with different severity
++  standards. (i) *Unsubstantiated absolute guarantee*: the change
++  asserts an absolute guarantee about code or behavior outside the
++  diff ("all retry decisions flow through this flag", "no other
++  signal is consulted", "all callers are trusted") that is central
++  to what the change is for, and nothing in the supplied evidence
++  establishes it — the unverifiability itself is the defect, and
++  such a finding may be blocking; state exactly what cannot be
++  verified and why the change depends on it. (ii) *Contradicted or
++  narrower claim*: the shown code verifiably behaves differently
++  from the claim — block when the behavior is broken or unsafe, keep
++  it advisory when the shipped behavior is functional though
++  different from what the claim promises. A claim explicitly scoped
++  to what the diff itself defines (a docstring disclaiming anything
++  about other components, for example) is neither failure mode.
++- **Missing tests** are non-blocking by default for small or
++  single-file changes; blocking only when the diff removes or
++  weakens existing tests, or when a concrete in-diff consequence of
++  the missing coverage is shown.
++- **Description or scope mismatch** (title or summary not matching
++  the diff) is non-blocking on its own; blocking only when the
++  shipped behavior is itself harmful or the mismatch conceals a
++  change that would independently be blocking.
+ - No finding you cannot point at in the diff. No praise you cannot
+   justify. Zero findings with `CLEAR` is a valid answer — do not
+   invent issues to seem thorough.
