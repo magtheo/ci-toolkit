@@ -1,6 +1,6 @@
 --- a/rubric.md	2026-09-13 15:22:19.941069122 +0200
-+++ b/rubric.md	2026-09-20 16:19:17.199115042 +0200
-@@ -79,10 +79,39 @@
++++ b/rubric.md	2026-09-20 17:05:43.258749067 +0200
+@@ -79,10 +79,47 @@
    the change is intentional, temporary, scratch, or "will not be
    merged": an inverted condition or `eval()`/SQL-concat on untrusted
    input is blocking regardless of how the PR is framed.
@@ -24,15 +24,23 @@
 +  finding may be blocking; if it merely makes the code suboptimal
 +  under a deployment or runtime you are assuming, keep it
 +  non-blocking.
-+- **Claims the change introduces:** the reverse also holds — when the
-+  change itself asserts an absolute contract in its title,
-+  description, comments, or docstrings ("publishes on merge",
-+  "always exits 0", "resumes the thread"), that claim is a finding
-+  target like the code. If the claim is central to the change and
-+  cannot be established from the supplied evidence, or is
-+  contradicted by the code shown, report it; block when the behavior
-+  is broken or unsafe, keep it advisory when the shipped behavior is
-+  functional though different from what the claim promises.
++- **Claims the change introduces:** the reverse also holds —
++  statements in the title, description, comments, and docstrings are
++  reviewable claims, in two failure modes with different severity
++  standards. (i) *Unsubstantiated absolute guarantee*: the change
++  asserts an absolute guarantee about code or behavior outside the
++  diff ("all retry decisions flow through this flag", "no other
++  signal is consulted", "all callers are trusted") that is central
++  to what the change is for, and nothing in the supplied evidence
++  establishes it — the unverifiability itself is the defect, and
++  such a finding may be blocking; state exactly what cannot be
++  verified and why the change depends on it. (ii) *Contradicted or
++  narrower claim*: the shown code verifiably behaves differently
++  from the claim — block when the behavior is broken or unsafe, keep
++  it advisory when the shipped behavior is functional though
++  different from what the claim promises. A claim explicitly scoped
++  to what the diff itself defines (a docstring disclaiming anything
++  about other components, for example) is neither failure mode.
 +- **Missing tests** are non-blocking by default for small or
 +  single-file changes; blocking only when the diff removes or
 +  weakens existing tests, or when a concrete in-diff consequence of
