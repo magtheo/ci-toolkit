@@ -1003,6 +1003,7 @@ def main(argv=None):
     else:
         spend = None
         ledger = None
+        evidence_gate = args.evidence_gate == "on"
         if (args.spend_ceiling_usd is not None
                 or args.price_input_per_m is not None
                 or args.price_output_per_m is not None
@@ -1029,9 +1030,6 @@ def main(argv=None):
                                args.price_output_per_m, chars)
             spend.price_source = args.price_source
             ledger = None
-            evidence_gate = False
-            if args.evidence_gate == "on":
-                evidence_gate = True
             if args.spend_ledger:
                 from eval.spend_ledger import SpendLedger
                 ledger = SpendLedger(
