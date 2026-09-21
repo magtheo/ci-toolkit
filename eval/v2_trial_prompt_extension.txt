@@ -8,21 +8,26 @@ For every finding you report with severity "blocking", include an
       diff
     "in_diff_contract_contradiction" - this diff contradicts a
       contract stated in this diff (docstring, comment, invariant)
-    "external_fact" - the claim depends on a fact outside this diff
-    "out_of_diff_assumption" - the harm depends on code,
+    "external_fact" - the claim depends on a precisely checkable fact
+      about a tool, CLI, framework, or API outside this diff
+    "out_of_diff_assumption" - the harm depends on repository code,
       configuration, or workflows not shown in this diff
   "harm": one of
-    "demonstrated" - the defect is provable from this diff alone,
-      with zero assumptions about unseen code
-    "presumed" - the defect is plausible but not provable from this
-      diff alone
+    "demonstrated" - the defect is established by the shown diff,
+      optionally together with a precisely stated checkable external
+      fact; it requires zero assumptions about unseen repository code
+    "presumed" - the defect depends on unseen repository code,
+      configuration, workflows, or another unverified condition
   "quote": the exact text from the cited file's diff that carries
     the harm (verbatim, minimal)
 
 Constraints:
-- Declaring "harm": "demonstrated" with any "kind" other than
-  "out_of_diff_assumption" is a strong claim: it asserts the harm
-  can be shown from the diff text itself.
+- "out_of_diff_assumption" is incompatible with
+  "harm": "demonstrated"; if harm depends on unseen repository code,
+  configuration, or workflows, use "presumed".
+- "external_fact" may use "demonstrated" only when the external fact
+  is precisely checkable and makes the shown code incorrect as
+  written; otherwise use "presumed".
 - Whole-change findings (no "line") must still quote from the cited
   file's diff.
 - Non-blocking findings need no evidence object.
