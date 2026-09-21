@@ -286,7 +286,7 @@ def test_oracle_inputs_untouched_and_version_stable():
     # oracle_version is a content hash of run_corpus.py + every
     # fixture byte + states.json: equality with the pinned constant
     # IS byte-identity with the oracle checkout — no history needed.
-    assert rc.oracle_version() == pq.ORACLE_VERSION == "5472d990f3b946c3"
+    assert rc.oracle_version() == pq.ORACLE_VERSION == "117b4164e5446f50"
 
 
 def test_subject_and_transport_files_byte_identical_to_pins():
@@ -640,7 +640,7 @@ def test_campaign_identity_persisted_before_first_record(
         "reasoning_effort": "low",
         "initial_max_tokens": 8000,
         "N": 1,
-        "oracle_version": "5472d990f3b946c3",
+        "oracle_version": "117b4164e5446f50",
         "oracle_checkout_sha": pq.ORACLE_CHECKOUT_SHA,
         "subject_content_ref": pq.subject_content_ref(),
         "transport_sha": pq.TRANSPORT_SHA,

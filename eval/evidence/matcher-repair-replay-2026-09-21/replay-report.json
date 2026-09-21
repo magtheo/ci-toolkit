@@ -1,0 +1,687 @@
+{
+ "note": "deterministic offline replay over FROZEN records; legacy scoring = pre-Phase-08 matcher + pre-Phase-08 needles (Phase-08 additions removed); controls are severity-scored and matcher-independent by construction",
+ "oracle_version": "117b4164e5446f50",
+ "sources": {
+  "b1-high": {
+   "control_blocking_findings": 8,
+   "detection_flips_legacy_to_phase08": [
+    {
+     "fixture": "M4",
+     "legacy": false,
+     "phase08": true,
+     "run_index": 2
+    }
+   ],
+   "legacy_integrity_vs_committed_b1_report": {
+    "M12": {
+     "committed": [
+      3
+     ],
+     "legacy_replay": [
+      3
+     ],
+     "match": true
+    },
+    "M16": {
+     "committed": [
+      3
+     ],
+     "legacy_replay": [
+      3
+     ],
+     "match": true
+    },
+    "M2": {
+     "committed": [
+      0,
+      3
+     ],
+     "legacy_replay": [
+      0,
+      3
+     ],
+     "match": true
+    },
+    "M3": {
+     "committed": [
+      3
+     ],
+     "legacy_replay": [
+      3
+     ],
+     "match": true
+    }
+   },
+   "per_positive_fixture": {
+    "M12": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M13": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M16": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M2": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M3": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M4": {
+     "new": 3,
+     "old": 2,
+     "runs": 3
+    }
+   },
+   "per_positive_group_hits_legacy": {
+    "M12": [
+     3
+    ],
+    "M13": [
+     0
+    ],
+    "M16": [
+     3
+    ],
+    "M2": [
+     0,
+     3
+    ],
+    "M3": [
+     3
+    ],
+    "M4": [
+     2
+    ]
+   },
+   "records": 45
+  },
+  "b1-low": {
+   "control_blocking_findings": 11,
+   "detection_flips_legacy_to_phase08": [
+    {
+     "fixture": "M16",
+     "legacy": false,
+     "phase08": true,
+     "run_index": 1
+    },
+    {
+     "fixture": "M4",
+     "legacy": false,
+     "phase08": true,
+     "run_index": 2
+    }
+   ],
+   "legacy_integrity_vs_committed_b1_report": {
+    "M12": {
+     "committed": [
+      3
+     ],
+     "legacy_replay": [
+      3
+     ],
+     "match": true
+    },
+    "M16": {
+     "committed": [
+      2
+     ],
+     "legacy_replay": [
+      2
+     ],
+     "match": true
+    },
+    "M2": {
+     "committed": [
+      1,
+      3
+     ],
+     "legacy_replay": [
+      1,
+      3
+     ],
+     "match": true
+    },
+    "M3": {
+     "committed": [
+      2
+     ],
+     "legacy_replay": [
+      2
+     ],
+     "match": true
+    }
+   },
+   "per_positive_fixture": {
+    "M12": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M13": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M16": {
+     "new": 3,
+     "old": 2,
+     "runs": 3
+    },
+    "M2": {
+     "new": 1,
+     "old": 1,
+     "runs": 3
+    },
+    "M3": {
+     "new": 2,
+     "old": 2,
+     "runs": 3
+    },
+    "M4": {
+     "new": 3,
+     "old": 2,
+     "runs": 3
+    }
+   },
+   "per_positive_group_hits_legacy": {
+    "M12": [
+     3
+    ],
+    "M13": [
+     0
+    ],
+    "M16": [
+     2
+    ],
+    "M2": [
+     1,
+     3
+    ],
+    "M3": [
+     2
+    ],
+    "M4": [
+     2
+    ]
+   },
+   "records": 45
+  },
+  "stage-a-high": {
+   "control_blocking_findings": 19,
+   "detection_flips_legacy_to_phase08": [],
+   "legacy_integrity_vs_committed_b1_report": null,
+   "per_positive_fixture": {
+    "M1": {
+     "new": 1,
+     "old": 1,
+     "runs": 3
+    },
+    "M10": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M11": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M12": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M13": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M14": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M15": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M16": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M17": {
+     "new": 2,
+     "old": 2,
+     "runs": 3
+    },
+    "M18": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M2": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M3": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M4": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M5": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M6": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M7": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M8": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M9": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    }
+   },
+   "per_positive_group_hits_legacy": {
+    "M1": [
+     1
+    ],
+    "M10": [
+     3
+    ],
+    "M11": [
+     3
+    ],
+    "M12": [
+     3
+    ],
+    "M13": [
+     0
+    ],
+    "M14": [
+     3
+    ],
+    "M15": [
+     0
+    ],
+    "M16": [
+     3
+    ],
+    "M17": [
+     2
+    ],
+    "M18": [
+     3
+    ],
+    "M2": [
+     0,
+     3
+    ],
+    "M3": [
+     3
+    ],
+    "M4": [
+     0
+    ],
+    "M5": [
+     0
+    ],
+    "M6": [
+     3
+    ],
+    "M7": [
+     3
+    ],
+    "M8": [
+     3
+    ],
+    "M9": [
+     3
+    ]
+   },
+   "records": 108
+  },
+  "stage-a-low": {
+   "control_blocking_findings": 18,
+   "detection_flips_legacy_to_phase08": [],
+   "legacy_integrity_vs_committed_b1_report": null,
+   "per_positive_fixture": {
+    "M1": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M10": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M11": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M12": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M13": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M14": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M15": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M16": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M17": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M18": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M2": {
+     "new": 1,
+     "old": 1,
+     "runs": 3
+    },
+    "M3": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M4": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M5": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M6": {
+     "new": 1,
+     "old": 1,
+     "runs": 3
+    },
+    "M7": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M8": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M9": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    }
+   },
+   "per_positive_group_hits_legacy": {
+    "M1": [
+     0
+    ],
+    "M10": [
+     3
+    ],
+    "M11": [
+     3
+    ],
+    "M12": [
+     3
+    ],
+    "M13": [
+     0
+    ],
+    "M14": [
+     3
+    ],
+    "M15": [
+     0
+    ],
+    "M16": [
+     3
+    ],
+    "M17": [
+     0
+    ],
+    "M18": [
+     3
+    ],
+    "M2": [
+     1,
+     3
+    ],
+    "M3": [
+     3
+    ],
+    "M4": [
+     0
+    ],
+    "M5": [
+     0
+    ],
+    "M6": [
+     1
+    ],
+    "M7": [
+     3
+    ],
+    "M8": [
+     3
+    ],
+    "M9": [
+     3
+    ]
+   },
+   "records": 108
+  },
+  "stage-a-max": {
+   "control_blocking_findings": 21,
+   "detection_flips_legacy_to_phase08": [],
+   "legacy_integrity_vs_committed_b1_report": null,
+   "per_positive_fixture": {
+    "M1": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M10": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M11": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M12": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M13": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M14": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M15": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M16": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M17": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M18": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M2": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M3": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M4": {
+     "new": 1,
+     "old": 1,
+     "runs": 3
+    },
+    "M5": {
+     "new": 0,
+     "old": 0,
+     "runs": 3
+    },
+    "M6": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M7": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M8": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    },
+    "M9": {
+     "new": 3,
+     "old": 3,
+     "runs": 3
+    }
+   },
+   "per_positive_group_hits_legacy": {
+    "M1": [
+     0
+    ],
+    "M10": [
+     3
+    ],
+    "M11": [
+     3
+    ],
+    "M12": [
+     3
+    ],
+    "M13": [
+     0
+    ],
+    "M14": [
+     3
+    ],
+    "M15": [
+     0
+    ],
+    "M16": [
+     3
+    ],
+    "M17": [
+     0
+    ],
+    "M18": [
+     3
+    ],
+    "M2": [
+     0,
+     3
+    ],
+    "M3": [
+     3
+    ],
+    "M4": [
+     1
+    ],
+    "M5": [
+     0
+    ],
+    "M6": [
+     3
+    ],
+    "M7": [
+     3
+    ],
+    "M8": [
+     3
+    ],
+    "M9": [
+     3
+    ]
+   },
+   "records": 108
+  }
+ }
+}
