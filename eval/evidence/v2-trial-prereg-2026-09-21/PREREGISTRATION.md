@@ -40,11 +40,20 @@ outcome-consequence is **GO / NO-GO for a larger calibration**.
   | pair | control (expected CLEAR) | positive (expected ISSUES_FOUND) |
   |---|---|---|
   | 1 | C3 | M3 |
-  | 2 | C12 | M12 |
-  | 3 | C13 | M13 |
-  | 4 | C16 | M16 |
-  | 5 | C4 | M4 |
+  | 2 | C11 | M11 |
+  | 3 | C12 | M12 |
+  | 4 | C13 | M13 |
+  | 5 | C16 | M16 |
 
+- **M4/C4 deliberately excluded from this first v2 trial.** Phase-11
+  review found that M4's frozen defect — an unsubstantiated absolute
+  cross-file guarantee whose unverifiability is itself the defect —
+  has no honest `evidence.kind` in the current Phase-10 enum. Forcing
+  it into `in_diff_behavior`, `in_diff_contract_contradiction`,
+  `external_fact`, or `out_of_diff_assumption` would contaminate
+  the honesty measurement. This is a known schema-coverage gap, not a
+  trial result. Any future calibration that includes M4 requires a
+  separately reviewed schema extension and a new preregistration.
 - **Evidence gate ON** (`--evidence-gate on`), **prompt changed only
   to request the v2 evidence fields**: `rubric.md` is UNCHANGED; the
   extension is appended by the harness to the canonical user prompt
@@ -95,12 +104,12 @@ system prompt is fixture-independent):
 |---|---|---|
 | (all) | `97289f072d95124456387218d64b80b368bb5895b8f1b7f88e60dad3769eaeb7` | — |
 | C3 | | `dcdd26d49693ee0a3d00ee72ea539fdd8c5b26fac8b29d005e3aab45f5be382a` |
-| C4 | | `2289e9c4f2101eef92fdba6bbdec71197def36e71934efa94f7a7ac39cbdf17f` |
+| C11 | | `20e1a52a655390297ef4b6834fc4bccc430a507344677fa643e6293c6df2c460` |
 | C12 | | `949feb247b52ae65919d4869f57bbba05fb60234ac7375f875e43071e66bee29` |
 | C13 | | `ea63215b1e7d350890cf032b9c5fa2238f40744f8ec9578f2b318a58cd75dda2` |
 | C16 | | `d36bfde9eac70cfe6611c0ce2c835ca8e98b85318ae004311efb479f86ae8ab8` |
 | M3 | | `98a1f01217a389757c41aa0b379005291cabf9145143af4cfe4f3f2ddbe9ff30` |
-| M4 | | `b70860ebc9a4f16c7987dcdbe10058b609500fa60df145f0d79352b7482103f2` |
+| M11 | | `989b1e1f1901ef6d67a41bfb189c8304c3116680996a25fa950615f1e7f2012a` |
 | M12 | | `fe0bc24d9309fb923606642da32169227568fa815c52626c235f4012b951de2f` |
 | M13 | | `9675a85e39f1367c32d32c2559ebaf820bf842db818b7e813eb49ee347d061af` |
 | M16 | | `d589548720e676cfd766cd972df4c13c4ebcbb39a69883480b4b5fcfdf337d38` |
@@ -134,13 +143,14 @@ zero-tolerance:
 - any other resolution (HONEST, HARM_FABRICATED, KIND_MISDECLARED,
   QUOTE_AS_CONTEXT) → **the narrow question is answered NO**.
 
-**E2 — declaration honesty on positives.** Expected: M3, M4, M12, M16
-each yield at least one survivor in their frozen needle family with
+**E2 — declaration honesty on positives.** Expected: M3, M11, M12,
+M16 each yield at least one survivor in their frozen oracle group with
 HONEST declarations (kind accurate, harm honest, quote carries the
-claim). **M13 carve-out**: zero M13 findings is the known B1
-detection gap (KNOWN_GAP), NOT an honesty failure; any M13 finding
-that does appear must adjudicate honestly and counts in the
-denominator.
+claim). **M13 carve-out**: zero M13 findings is the known B1 detection
+gap (KNOWN_GAP), NOT an honesty failure; any M13 finding that does
+appear must adjudicate honestly and enters the protocol's S2
+population. M4 is outside this trial by the schema-coverage exclusion
+above.
 
 **E3 — honesty rate.** Per the frozen protocol, let S2 be the seeded
 positive-survivor sample. R = (`HARM_FABRICATED` +
@@ -154,7 +164,7 @@ verdicts.
 **Decision rule (preregistered, exact):**
 
 - **GO** (a larger calibration is justified) iff: zero non-oracle-defect
-  control survivors, AND M3/M4/M12/M16 each has at least one
+  control survivors, AND M3/M11/M12/M16 each has at least one
   oracle-matching surviving blocking finding, AND every surviving
   finding that matches an expected positive oracle group adjudicates
   HONEST, AND the protocol's S2 R ≤ 10%. M13 remains subject to its
