@@ -329,3 +329,30 @@ def test_live_default_leaves_gate_off(tmp_path, monkeypatch):
     assert rec.get("evidence_gate") is None
     assert rec["raw_model_output"] == tpq._CLEAR
     assert rec["result"]["schema_version"] == 1
+
+def test_cli_evidence_gate_on_without_spend_flags_reaches_live(tmp_path, monkeypatch):
+    """CLI gate state is independent of optional spend configuration."""
+    import eval.profile_qualification as pq
+
+    called = {}
+
+    def fake_live(out_dir, fixtures, runs, model, profile, overrides,
+                  run_index=None, spend=None, ledger=None,
+                  evidence_gate=False):
+        called["gate"] = evidence_gate
+        called["spend"] = spend
+        called["ledger"] = ledger
+
+    monkeypatch.setattr(pq, "live", fake_live)
+    monkeypatch.setenv("PM_QUALIFY_LIVE_AUTHORIZED", "1")
+    rc = pq.main([
+        "--live",
+        "--reasoning-effort", "low",
+        "--fixtures", "C1",
+        "--runs", "1",
+        "--out", str(tmp_path / "cli-gated"),
+        "--evidence-gate", "on",
+    ])
+    assert rc == 0
+    assert called == {"gate": True, "spend": None, "ledger": None}
+
