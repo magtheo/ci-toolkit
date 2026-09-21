@@ -1,7 +1,8 @@
 EVIDENCE FIELDS (required for this review):
 
-For every finding you report with severity "blocking", include an
-"evidence" object with exactly these fields:
+For every finding, include the "evidence" field required by the
+response schema. For a finding with severity "blocking", "evidence"
+must be an object with exactly these fields:
 
   "kind": one of
     "in_diff_behavior" - the harmful behavior is implemented in this
@@ -30,5 +31,5 @@ Constraints:
   written; otherwise use "presumed".
 - Whole-change findings (no "line") must still quote from the cited
   file's diff.
-- Non-blocking findings need no evidence object.
+- For a non-blocking finding, set "evidence": null.
 - Do not change any other field of the output format.
