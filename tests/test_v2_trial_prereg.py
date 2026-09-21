@@ -169,7 +169,7 @@ def test_extension_schema_round_trips_parser():
     line = None
     new_ln = None
     for ln in fx["input"]["files"][0]["patch"].splitlines():
-        hm = re.match(r"@@ -\\d+(?:,\\d+)? \\+(\\d+)(?:,\\d+)? @@", ln)
+        hm = re.match(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@", ln)
         if hm:
             new_ln = int(hm.group(1))
             continue
