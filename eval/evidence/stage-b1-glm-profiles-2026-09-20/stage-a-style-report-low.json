@@ -1,0 +1,207 @@
+{
+  "aggregate_positive_detection": {
+    "definition": "sum over positive fixtures and runs of run_detects_all_groups(groups, result); denominator is (number of positive fixtures) x N \u2014 18 x 3 = 54 at Stage A. The historical 51/90 (haiku) and 66/90 (sonnet) floors are methodological CONTEXT, not numerically comparable thresholds: they aggregate different populations/denominators and must not be normalized onto this metric without a governed rule. rc.evaluate() remains authoritative for fixture pass/fail: per-group STABILITY ((N+2)//2 of N) is deliberately a different, stronger concept than run-level detection.",
+    "denominator": 54,
+    "detected": 10,
+    "per_positive": {
+      "M12": 3,
+      "M13": 0,
+      "M16": 2,
+      "M2": 1,
+      "M3": 2,
+      "M4": 2
+    }
+  },
+  "assessment_stability": {
+    "CLEAR": 20,
+    "INCONCLUSIVE": 0,
+    "ISSUES_FOUND": 25
+  },
+  "campaign": {
+    "N": 3,
+    "corpus_sha256": "738dd7ea25ccc11a",
+    "initial_max_tokens": 8000,
+    "model": "z-ai/glm-5.3-flash",
+    "oracle_checkout_sha": "4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25",
+    "oracle_version": "5472d990f3b946c3",
+    "reasoning_effort": "low",
+    "rubric_sha256": "f13db50022cab1f498c13c1abdb802e1a3624c33bae28ab2c31c32b12f407e37",
+    "subject_content_ref": "9234a662e65cd368c4a1a65b53d0b84d800acf12fa85f06b1eb9753cbae98a78",
+    "transport_content_ref": "dd655bd7c12c7394ba3344d890eae1364731cf5d6a117609305e01c414636833",
+    "transport_sha": "b663bfd3139bb04a70f95d661c96ee150f534513"
+  },
+  "complete": false,
+  "control_false_blocks": [
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "false_blockers": 3,
+      "id": "C12"
+    },
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "CLEAR"
+      ],
+      "false_blockers": 3,
+      "id": "C13"
+    },
+    {
+      "assessments": [
+        "ISSUES_FOUND",
+        "ISSUES_FOUND",
+        "ISSUES_FOUND"
+      ],
+      "false_blockers": 5,
+      "id": "C3"
+    }
+  ],
+  "false_blockers_on_positives": 5,
+  "fixtures_absent": [
+    "C10",
+    "C11",
+    "C15",
+    "C17",
+    "C18",
+    "C6",
+    "C7",
+    "C8",
+    "C9",
+    "M1",
+    "M10",
+    "M11",
+    "M14",
+    "M15",
+    "M17",
+    "M18",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9"
+  ],
+  "gating_violations": [],
+  "hard_disqualifiers": {
+    "D1_transport_viability": {
+      "final_inconclusive": 0,
+      "fired": false,
+      "logical_reviews": 45,
+      "transport_failures": 0
+    },
+    "D2_gating_regression": {
+      "fired": false,
+      "gating_violations": []
+    },
+    "D3_control_false_block": {
+      "fired": true,
+      "violations": [
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 3,
+          "id": "C12"
+        },
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "CLEAR"
+          ],
+          "false_blockers": 3,
+          "id": "C13"
+        },
+        {
+          "assessments": [
+            "ISSUES_FOUND",
+            "ISSUES_FOUND",
+            "ISSUES_FOUND"
+          ],
+          "false_blockers": 5,
+          "id": "C3"
+        }
+      ],
+      "zero_tolerance": "any unexpected blocking finding on any control run disqualifies (repaired-oracle control semantics; no tolerance was invented here)"
+    },
+    "D4_post_escalation_exhaustion": {
+      "escalations": 0,
+      "fired": false,
+      "post_escalation_exhaustions": 0
+    }
+  },
+  "inconclusive_runs": 0,
+  "missing_runs": [],
+  "pair_integrity_violations": [
+    {
+      "control": "C12",
+      "positive": "M12",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    },
+    {
+      "control": "C3",
+      "positive": "M3",
+      "reason": "control fails \u2014 detection indistinguishable from over-triggering"
+    }
+  ],
+  "per_group_hits": {
+    "C1": [],
+    "C12": [],
+    "C13": [],
+    "C14": [],
+    "C16": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "M12": [
+      3
+    ],
+    "M13": [
+      0
+    ],
+    "M16": [
+      2
+    ],
+    "M2": [
+      1,
+      3
+    ],
+    "M3": [
+      2
+    ],
+    "M4": [
+      2
+    ]
+  },
+  "promotion_eligible": [],
+  "runs_requested": 3,
+  "selection_tuple": [
+    -10,
+    5,
+    0,
+    47613,
+    1035.728
+  ],
+  "selection_tuple_order": "[-aggregate_positive_detection, false_blockers_on_positives, -promotion_eligible, output_tokens, wall_s]; lexicographic among non-disqualified profiles",
+  "transport": {
+    "campaign_halted": false,
+    "completion_tokens": 32195,
+    "escalations": 0,
+    "final_inconclusive": 0,
+    "http_retries": 1,
+    "length_exhaustions": 0,
+    "logical_reviews": 45,
+    "post_escalation_exhaustions": 0,
+    "prompt_tokens": 77976,
+    "provider_generations": 45,
+    "reasoning_tokens": 15418,
+    "transport_failures": 0,
+    "wall_s": 1035.728
+  }
+}
