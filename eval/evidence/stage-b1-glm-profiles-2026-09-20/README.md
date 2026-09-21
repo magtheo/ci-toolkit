@@ -27,8 +27,8 @@ The regenerated 90-review dry-run preview was byte-identical to the committed
 
 ## Spend
 
-- **Authoritative aggregate ledger: $0.044286 settled** of the $1.00 hard ceiling
-  (156,002 input / 130,302 output tokens; ledger invariant held throughout).
+- **Authoritative aggregate ledger-derived spend: $0.044276 settled** of the $1.00 hard ceiling
+  (156,002 input / 130,302 output tokens at the pinned $0.075/$0.25 per-1M rates; ledger invariant held throughout).
 - **Recorded accounting discrepancy (not repaired here):** summed per-effort
   `summary.json` `actual_cost_usd` fields total ≈ **$0.015485**, which does not
   reconcile with the ledger. The shared ledger was the authoritative
