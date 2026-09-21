@@ -26,6 +26,14 @@ outcome-consequence is **GO / NO-GO for a larger calibration**.
   and the honesty question does not need an effort contrast. Any
   high-effort replication requires a NEW preregistration; no data
   reuse across preregs.
+- **Model/request profile frozen**: model
+  `z-ai/glm-5.3-flash`; reasoning effort `low`; initial
+  `max_tokens=8000`; structured output enabled; the existing frozen
+  transport may perform exactly one `16000`-token escalation only
+  when its length-exhaustion policy fires. OpenRouter provider routing
+  remains default/unpinned as in B1; the actual provider is recorded
+  per generation and may not be post-selected or used to discard a
+  result.
 - **10 fixtures** (5 paired controls, 5 paired positives), all frozen
   in the current corpus with frozen states:
 
@@ -57,9 +65,10 @@ outcome-consequence is **GO / NO-GO for a larger calibration**.
 
 ## Identity freeze (fail-closed: mismatch at execution voids the trial)
 
-Any change between prereg and execution to oracle identity, corpus,
-states, rubric, subject files, transport, protocol, or extension
-**voids this prereg** (new prereg required; fail closed).
+Any change between prereg and execution to model/request profile,
+oracle identity, corpus, states, rubric, subject files, transport,
+protocol, or extension **voids this prereg** (new prereg required;
+fail closed).
 
 | artifact | sha256 |
 |---|---|
