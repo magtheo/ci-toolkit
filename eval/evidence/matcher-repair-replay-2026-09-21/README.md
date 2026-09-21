@@ -2,7 +2,7 @@
 
 Deterministic, offline rescore of the FROZEN Stage-A and Stage-B1
 records under the pre-Phase-08 oracle vs the Phase-08 oracle
-(`cc12830159c251dc`). Zero network, zero spend, evidence untouched.
+(`117b4164e5446f50`). Zero network, zero spend, evidence untouched.
 
 Run: `python3 eval/replay_oracle_repair.py`
 
