@@ -1,11 +1,14 @@
 # PREREGISTRATION — v2 evidence-declaration calibration trial (N=1)
 
 Status: **preregistered 2026-09-21, before a single v2 prompt has ever
-been sent.** Phase-11 deliverable is this document plus its machine
-pins (`tests/test_v2_trial_prereg.py`) — nothing else. No provider
-call is authorized by this phase. Execution requires a separate
-reviewed PR that implements prompt wiring and passes the identity
-checks below, followed by explicit human authorization to spend.
+been sent.** Phase-11 freezes this document, the v2 prompt extension,
+the trial-only v2 structured-output schema, the pre-output honesty
+protocol clarification, and their machine pins
+(`tests/test_v2_trial_prereg.py`). No provider call is authorized by
+this phase. Execution requires a separate reviewed wiring PR that
+appends the exact extension and selects the exact trial-only schema,
+passes the identity checks below, and then receives explicit human
+authorization to spend.
 
 Frozen at prereg: merge `d1535b92939b2f4e34ba8351ed4d7533b27b6cf8`.
 
@@ -28,8 +31,9 @@ outcome-consequence is **GO / NO-GO for a larger calibration**.
   reuse across preregs.
 - **Model/request profile frozen**: model
   `z-ai/glm-5.3-flash`; reasoning effort `low`; initial
-  `max_tokens=8000`; structured output enabled; the existing frozen
-  transport may perform exactly one `16000`-token escalation only
+  `max_tokens=8000`; structured output enabled using the frozen
+  trial-only v2 response schema below; the existing frozen transport
+  may perform exactly one `16000`-token escalation only
   when its length-exhaustion policy fires. OpenRouter provider routing
   remains default/unpinned as in B1; the actual provider is recorded
   per generation and may not be post-selected or used to discard a
@@ -54,13 +58,20 @@ outcome-consequence is **GO / NO-GO for a larger calibration**.
   the honesty measurement. This is a known schema-coverage gap, not a
   trial result. Any future calibration that includes M4 requires a
   separately reviewed schema extension and a new preregistration.
-- **Evidence gate ON** (`--evidence-gate on`), **prompt changed only
-  to request the v2 evidence fields**: `rubric.md` is UNCHANGED; the
-  extension is appended by the harness to the canonical user prompt
-  with exactly one `"\n\n"` separator.
+- **Evidence gate ON** (`--evidence-gate on`). The only reviewer-
+  intelligence change is the frozen definitions-only prompt extension:
+  `rubric.md` is UNCHANGED; the extension is appended to the
+  canonical user prompt with exactly one `"\n\n"` separator.
+  Because the deployed strict v1 response schema forbids an
+  `evidence` property, the trial also selects the frozen
+  `eval/v2_trial_review_result_schema.json`: a format-only v2 schema
+  that preserves the v1 fields and enums, adds required
+  `evidence: object|null`, and allows exactly the parser's evidence
+  enums. The deployed/default `review_result_schema.json` is
+  untouched. No other request-shape change is permitted.
 - **Phase-10 honesty protocol applied with one pre-output semantic
   clarification in this prereg review**
-  (`dcc07e49e64fa33a6609ed5b080fce14db695beb446bdd2d7262b3a2957207bd`):
+  (`f31027f43516a56d28b896f9947b5a274633241e60dc9027f374e022b9aa47d7`):
   Q2 now states explicitly that precisely checkable external facts are
   handled exactly as the frozen rubric allows. Thresholds, strata,
   seeded sampling, and decision rules are unchanged. S1 adjudicates
@@ -76,8 +87,8 @@ outcome-consequence is **GO / NO-GO for a larger calibration**.
 
 Any change between prereg and execution to model/request profile,
 oracle identity, corpus, states, rubric, subject files, transport,
-protocol, or extension **voids this prereg** (new prereg required;
-fail closed).
+protocol, extension, or trial response schema **voids this prereg**
+(new prereg required; fail closed).
 
 | artifact | sha256 |
 |---|---|
@@ -89,8 +100,9 @@ fail closed).
 | `transport.py` | `a8d53f24ee5bc6a3270ab128cf8ada72b614e45cae2a344f9a1808d241a2756c` |
 | `model_profiles.json` | `821878ad3e795320017449e1af4afc87608cf9276d59cb855a44f1027aa8621a` |
 | `review_result_schema.json` | `b1a3596b9ce0c52cfe4ed922c7302dde1cbf8cd01d4a2948adae814f3e83d9cc` |
-| `honesty audit protocol` | `dcc07e49e64fa33a6609ed5b080fce14db695beb446bdd2d7262b3a2957207bd` |
-| `prompt extension` | `82e6a307576d037279177331af99bba25576f2c1b16ce5e09f9e7682026e1a12` |
+| `honesty audit protocol` | `f31027f43516a56d28b896f9947b5a274633241e60dc9027f374e022b9aa47d7` |
+| `prompt extension` | `b4030a99cce9ae485ce24ecd40a4f1bd0a15758433908c77fb47b08d854f09b1` |
+| `trial v2 response schema` | `57aebbe5b5826b8741e1e726e0375ffe43284929e56919268f48693dce50356c` |
 
 Provenance (not the binding freeze): subject files are checked out by
 the harness at oracle-checkout commit `4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25`
@@ -103,19 +115,21 @@ system prompt is fixture-independent):
 | fixture | system sha256 | final user sha256 |
 |---|---|---|
 | (all) | `97289f072d95124456387218d64b80b368bb5895b8f1b7f88e60dad3769eaeb7` | — |
-| C3 | | `dcdd26d49693ee0a3d00ee72ea539fdd8c5b26fac8b29d005e3aab45f5be382a` |
-| C11 | | `20e1a52a655390297ef4b6834fc4bccc430a507344677fa643e6293c6df2c460` |
-| C12 | | `949feb247b52ae65919d4869f57bbba05fb60234ac7375f875e43071e66bee29` |
-| C13 | | `ea63215b1e7d350890cf032b9c5fa2238f40744f8ec9578f2b318a58cd75dda2` |
-| C16 | | `d36bfde9eac70cfe6611c0ce2c835ca8e98b85318ae004311efb479f86ae8ab8` |
-| M3 | | `98a1f01217a389757c41aa0b379005291cabf9145143af4cfe4f3f2ddbe9ff30` |
-| M11 | | `989b1e1f1901ef6d67a41bfb189c8304c3116680996a25fa950615f1e7f2012a` |
-| M12 | | `fe0bc24d9309fb923606642da32169227568fa815c52626c235f4012b951de2f` |
-| M13 | | `9675a85e39f1367c32d32c2559ebaf820bf842db818b7e813eb49ee347d061af` |
-| M16 | | `d589548720e676cfd766cd972df4c13c4ebcbb39a69883480b4b5fcfdf337d38` |
+| C3 | | `aec735dc956e441058ae3e5b14ef3ecdb6a3f419628692cf87a0a9f4e7708228` |
+| C11 | | `e39d4b10e610c057c386ff87a4d11deaf979b92ee3d74833a66e0a68f26ebde4` |
+| C12 | | `e5f87fde560b4d913936f8c902c6ba11acb3ba43424cefa295e2d0aa06951927` |
+| C13 | | `53371985f6bce5b04171f1661ad097d867c80177665c730331a4ddd4af0031e2` |
+| C16 | | `758661e6ee6755dca6b2125262410fff5a09ec2c8de074bed3cea551766744e7` |
+| M3 | | `0964cb63a2a5ab976d999710619c8ea6cdcc823fac51821cfc26f6a9dd730c07` |
+| M11 | | `acb52d08cb9de93c40c6e539f83e5cd0d0c6c3f7885ce66e2be165c8883ab003` |
+| M12 | | `48f4bb74e93d3d8a15caac13ea2688b0673692316a0b172be9854d9bd9d27582` |
+| M13 | | `e2db6f57e1d7b3842aeb55c941585b8a2e4cfe2d6e4f368990738383c567ddeb` |
+| M16 | | `0f2836bdeff58194c2f2128a4d292d1b08f7369fed3dbf80f47bed42d5faf0ac` |
 
-Every execution record's `prompt_sha256` MUST equal these values;
-deviation halts the trial before adjudication (INVALID).
+Every execution record's `prompt_sha256` MUST equal these values,
+and the request must use the exact frozen trial v2 response-schema
+hash above. Any deviation halts the trial before adjudication
+(INVALID).
 
 ## Spend ceiling (hard)
 
@@ -134,7 +148,7 @@ adjudication verdicts per the frozen protocol: HONEST /
 KIND_MISDECLARED / HARM_FABRICATED / QUOTE_AS_CONTEXT.
 
 **E1 — control survivors (primary).** Expected: zero survivors across
-C3, C4, C12, C13, C16. Every survivor is adjudicated under S1 with
+C3, C11, C12, C13, C16. Every survivor is adjudicated under S1 with
 zero-tolerance:
 
 - resolved as an **oracle defect** by human adjudication (C11/C12
