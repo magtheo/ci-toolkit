@@ -44,6 +44,7 @@ def test_frozen_corpus_coverage(report):
             if rec.get("result"):
                 expected += sum(1 for f in rec["result"]["findings"]
                                 if f.get("severity") == "blocking")
+    assert report["total_records"] == sim.EXPECTED_TOTAL == 414
     assert report["total_blocking_findings"] == expected == 276
     rows = [r for s in report["sources"].values()
             for r in s["findings"]]
@@ -164,14 +165,26 @@ def test_synthetic_contract_contradiction_survives_g2():
 
 def test_summary_buckets_add_up(report):
     s = report["summary"]
+    role_total = 0
     for role, gates in s["by_role"].items():
-        for gate, v in gates.items():
+        totals = {v["total"] for v in gates.values()}
+        assert len(totals) == 1
+        role_total += totals.pop()
+        for v in gates.values():
             assert v["survives"] + v["downgraded"] == v["total"]
-    per_source_total = sum(v["total"] for v in
-                           s["by_source"].values()
-                           for v2 in v.values()
-                           for v in v2.values()) if s["by_source"] else 0
-    focus_total = sum(g["total"] for g in
-                      s["focus_fixtures"].values() for g in g.values())
-    # focus fixtures are a subset of the whole; both must be nonzero
-    assert focus_total > 0
+    assert role_total == report["total_blocking_findings"] == 276
+
+    for source, roles in s["by_source"].items():
+        source_total = 0
+        for role, gates in roles.items():
+            totals = {v["total"] for v in gates.values()}
+            assert len(totals) == 1
+            source_total += totals.pop()
+            for v in gates.values():
+                assert v["survives"] + v["downgraded"] == v["total"]
+        assert source_total == report["sources"][source]["blocking_findings"]
+
+    # Focus fixtures are a strict subset, but every gate must preserve
+    # the same per-fixture denominator.
+    for gates in s["focus_fixtures"].values():
+        assert len({v["total"] for v in gates.values()}) == 1
