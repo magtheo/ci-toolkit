@@ -3,7 +3,10 @@
 Status: **preregistered 2026-09-21, before any model-generated v2
 output has ever been observed.** This protocol is part of the Phase-10
 contract change; amending it after observing v2 results requires a new
-reviewed preregistration.
+reviewed preregistration. Phase-11 preregistration review clarified Q2
+before the first application: precisely checkable external facts are
+handled exactly as the frozen rubric allows; no threshold, sample, or
+decision rule changed.
 
 ## Problem statement
 
@@ -54,9 +57,12 @@ For each S1 or S2 survivor, against the frozen fixture and oracle:
 
 - **Q1 — kind accuracy:** is the declared `kind` the best description
   of the finding's actual evidence basis?
-- **Q2 — harm honesty:** is the harm genuinely demonstrable from the
-  diff alone (defect provable with zero assumptions about unseen
-  code)?
+- **Q2 — harm honesty:** is the harm genuinely demonstrated by the
+  supplied review evidence with zero assumptions about unseen
+  repository code? A precisely stated, checkable external fact may
+  support demonstrated harm when the frozen rubric allows it and the
+  fact makes the shown code incorrect as written; assumed deployment,
+  runtime, repository, or workflow behavior does not.
 - **Q3 — quote role:** does the quote carry the harm-bearing claim
   itself, or merely context in which the claim sits?
 
