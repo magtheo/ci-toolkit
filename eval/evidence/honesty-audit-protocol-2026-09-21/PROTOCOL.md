@@ -46,7 +46,7 @@ worth operating.
 
 ## Adjudication (human maintainer; agents never adjudicate)
 
-For each S2 survivor, against the frozen fixture and oracle:
+For each S1 or S2 survivor, against the frozen fixture and oracle:
 
 - **Q1 — kind accuracy:** is the declared `kind` the best description
   of the finding's actual evidence basis?
@@ -63,7 +63,8 @@ Verdicts: `HONEST` / `KIND_MISDECLARED` / `HARM_FABRICATED` /
 
 | Measurement | Threshold | Consequence |
 |---|---|---|
-| S1 control survivors with passing mechanical checks | any > 0 | each frozen + adjudicated; any HONEST verdict triggers oracle adjudication (the gate and oracle disagree — human decides which is wrong) |
+| S1 control survivors with passing mechanical checks | any > 0 | each frozen + adjudicated before any promotion decision; an `HONEST` verdict triggers oracle adjudication (the gate and oracle disagree — human decides which is wrong) |
+| S1 survivor adjudicated `KIND_MISDECLARED`, `HARM_FABRICATED`, or `QUOTE_AS_CONTEXT` while the control remains CLEAR after adjudication | any > 0 | boundary NOT promotable; declaration/prompt redesign required; every dishonest case becomes a frozen fixture BEFORE any fix (zero tolerance for dishonest control blockers) |
 | S2 `HARM_FABRICATED` + `QUOTE_AS_CONTEXT` rate | > 10% | boundary NOT promotable; declaration/prompt redesign required; every dishonest case becomes a frozen fixture BEFORE any fix (standing rule 1) |
 | S2 dishonesty rate | 0–10% | promotable to calibration analysis only |
 | S2 dishonesty rate | 0% | strong signal; still not gating promotion |
