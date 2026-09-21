@@ -249,14 +249,18 @@ def replay(sources=None):
         "sources": {},
     }
     total_findings = 0
-    for name, rel in (sources or SOURCES).items():
+    total_records = 0
+    source_map = sources or SOURCES
+    for name, rel in source_map.items():
         path = ROOT / rel
         if not path.exists():
             report["sources"][name] = {"missing": rel}
             continue
         rows = []
-        for rec in (json.loads(l) for l in
-                    path.read_text().splitlines() if l.strip()):
+        records = [json.loads(l) for l in
+                   path.read_text().splitlines() if l.strip()]
+        total_records += len(records)
+        for rec in records:
             fx = fixtures.get(rec["fixture"])
             if fx is None or rec.get("result") is None:
                 continue
@@ -277,6 +281,11 @@ def replay(sources=None):
                 })
         report["sources"][name] = {"blocking_findings": len(rows),
                                    "findings": rows}
+    if sources is None and total_records != EXPECTED_TOTAL:
+        raise SystemExit(
+            "frozen corpus mismatch: expected %d records, found %d"
+            % (EXPECTED_TOTAL, total_records))
+    report["total_records"] = total_records
     report["total_blocking_findings"] = total_findings
     report["summary"] = summarize(report)
     return report
