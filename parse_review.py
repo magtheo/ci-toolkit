@@ -271,7 +271,8 @@ def _patch_content(patch):
     """Patch text without headers/hunk markers, +/- stripped."""
     out = []
     for line in (patch or "").splitlines():
-        if line.startswith(("@@", "+++", "---")):
+        if line.startswith("@@") or line.startswith("+++ ") \
+                or line.startswith("--- "):
             continue
         out.append(line[1:] if line.startswith(("+", "-")) else line)
     return "\n".join(out)
