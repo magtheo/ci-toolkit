@@ -37,11 +37,15 @@ worth operating.
   may reveal an oracle defect (C11/C12-precedent process — human
   adjudication against the frozen oracle, never silent fixture edits).
 - **S2 — survivor sample:** a reproducible random sample of
-  `min(30, N)` `BLOCK_SURVIVES` findings on positive fixtures, drawn
+  `min(30, N_survivors)` `BLOCK_SURVIVES` findings on positive
+  fixtures, where `N_survivors` is the number of eligible positive
+  survivor findings in that run, drawn
   with `random.Random(20261011)` over sorted identifiers
   `(source, fixture, run_index, finding_index)`.
-- **S3 — downgrade spot-check:** 5 randomly drawn downgraded findings
-  (same seed stream), adjudicated only for mechanical correctness of
+- **S3 — downgrade spot-check:** `min(5, N_downgraded)` randomly
+  drawn downgraded findings (same seed stream), where `N_downgraded`
+  is the eligible downgrade population, adjudicated only for
+  mechanical correctness of
   `machine_reason` (the parser's decision, not model honesty).
 
 ## Adjudication (human maintainer; agents never adjudicate)
