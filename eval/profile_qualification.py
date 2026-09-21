@@ -156,6 +156,7 @@ def logical_review(engine, fixture, run_index, model, profile,
                   "reasoning_tokens": 0},
         "wall_s": 0.0,
         "terminal_state": None,
+        "raw_model_output": None,
         "result": None,
     }
     t0 = time.monotonic()
