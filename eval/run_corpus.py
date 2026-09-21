@@ -34,6 +34,7 @@ import json
 import os
 import pathlib
 import re
+import re
 import subprocess
 import sys
 
@@ -364,25 +365,46 @@ def _review_input(fixture, model_id, subject_dir=None):
     }
 
 
+_ARTICLE_RE = re.compile(r"\b(a|an|the|this|these|those)\b")
+
+
+def _norm_needle_text(text):
+    """Deterministic light normalization for needle containment:
+    lowercase, unify apostrophes, drop stand-alone articles and
+    demonstratives ("the diff" == "this diff"), collapse whitespace.
+    Code-shaped characters ({, }, ", =, -, ., /, :) are preserved so
+    needles like {"ok" keep meaning. Applied IDENTICALLY to needles
+    and finding text (Phase-08 matcher repair: B1 showed semantically
+    equivalent detections missed on articles — "outside the diff" vs
+    "outside this diff")."""
+    t = text.lower().replace("'", "").replace("\u2019", "")
+    t = _ARTICLE_RE.sub(" ", t)
+    t = re.sub(r"[^a-z0-9{}\"=_\-./:\s]", " ", t)
+    return re.sub(r"\s+", " ", t).strip()
+
+
 def _finding_matches(expected_entry, finding):
     """A finding satisfies an expected entry when:
 
     - severity matches, AND
     - every comment_all needle appears in the comment
-      (case-insensitive) — essential concepts, AND
+      (normalized, case-insensitive) — essential concepts, AND
     - at least one comment_any needle appears — alternative
       vocabulary, one is enough.
 
     Sparse, mechanism-level needles only: matchers test engineering
-    understanding, not phrasing."""
+    understanding, not phrasing. Normalization unifies articles and
+    punctuation but does NOT stem, fuzzy-match, or otherwise loosen
+    the needles — a comment must still name the mechanism."""
     if finding.get("severity") != expected_entry["severity"]:
         return False
-    comment = finding.get("comment", "").lower()
+    comment = _norm_needle_text(finding.get("comment", ""))
     for needle in expected_entry.get("comment_all", []):
-        if needle.lower() not in comment:
+        if _norm_needle_text(needle) not in comment:
             return False
     any_of = expected_entry.get("comment_any")
-    if any_of and not any(n.lower() in comment for n in any_of):
+    if any_of and not any(_norm_needle_text(n) in comment
+                          for n in any_of):
         return False
     return True
 

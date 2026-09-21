@@ -57,7 +57,7 @@ import eval.run_corpus as rc  # noqa: E402
 ALLOWED_EFFORTS = ("low", "high", "max")
 ORACLE_CHECKOUT_SHA = "4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25"
 TRANSPORT_SHA = "b663bfd3139bb04a70f95d661c96ee150f534513"
-ORACLE_VERSION = "5472d990f3b946c3"
+ORACLE_VERSION = "117b4164e5446f50"
 INCONCLUSIVE = "INCONCLUSIVE"
 
 
@@ -556,13 +556,55 @@ def _load_records(records_path):
             records_path.read_text().splitlines() if line.strip()]
 
 
+def _spend_from_records(records, guard):
+    """Authoritative per-effort spend, derived from the PERSISTED
+    records — every attempt of every record, because every attempt
+    bills (Phase-08 repair of the B1 accounting discrepancy: the
+    process-local guard is a fresh accumulator per invocation, so a
+    resumed / multi-invocation out_dir made its cumulative totals
+    silently wrong — B1's summaries under-reported by ~3x). The guard
+    remains the pre-request ceiling checker only; the shared ledger
+    stays the authoritative hard-ceiling instrument."""
+    in_tok = out_tok = generations = 0
+    for r in records:
+        for a in r.get("attempts", []):
+            generations += 1
+            in_tok += a.get("prompt_tokens") or 0
+            out_tok += ((a.get("completion_tokens") or 0)
+                        + (a.get("reasoning_tokens") or 0))
+    cost = guard.cost_usd_of(in_tok, out_tok)
+    return {
+        "price_source": getattr(guard, "price_source", None),
+        "spend_ceiling_usd": guard.ceiling,
+        "price_input_per_1m": guard.p_in,
+        "price_output_per_1m": guard.p_out,
+        "input_tokens": in_tok,
+        "output_tokens_incl_reasoning": out_tok,
+        "provider_generations_billed": generations,
+        "actual_cost_usd": round(cost, 6),
+        "ceiling_remaining_usd": round(guard.ceiling - cost, 6),
+        "cost_model": "input=prompt_tokens; "
+                      "output=completion+reasoning (over-counts "
+                      "if provider includes reasoning in "
+                      "completion); tokens summed from "
+                      "records.jsonl attempts (known usage only — "
+                      "usage-unknown attempts settle at reserved "
+                      "amounts in the ledger, which stays the "
+                      "fail-closed ceiling authority)",
+        "source": "records.jsonl (all attempts) — deterministic "
+                  "Phase-08 repair; per-invocation guard totals are "
+                  "NOT effort totals",
+    }
+
+
 def _write_summary(out_dir, fixtures, runs, model, profile, spend=None,
                    ledger=None):
     records = _load_records(out_dir / "records.jsonl")
     meta = _meta(reduce_records(records), fixtures, runs,
                  model, profile)
     if spend is not None:
-        meta["spend"] = spend.state()
+        meta["spend"] = (_spend_from_records(records, spend)
+                         if records else spend.state())
     if ledger is not None:
         meta.setdefault("spend", {})["aggregate_ledger"] = ledger.state()
     _write_json(out_dir / "summary.json", meta)
