@@ -149,6 +149,6 @@ M16's `except Exception: pass` / `{"ok": True`, M12's except clause).
   run2, M4 high run2), zero Stage-A movement, controls unchanged
   (`eval/evidence/matcher-repair-replay-2026-09-21/`).
 - C12/M12 fixture contract clarification; oracle identity bumped to
-  `cc12830159c251dc`; old M12 measurements are not perfectly
+  `117b4164e5446f50`; old M12 measurements are not perfectly
   apples-to-apples with future ones (fixture input changed; the
   Stage-A/B1 records themselves are frozen and unchanged).
