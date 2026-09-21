@@ -30,6 +30,7 @@ DOC = PREREG.read_text()
 CONTROLS = ["C3", "C4", "C12", "C13", "C16"]
 POSITIVES = ["M3", "M4", "M12", "M13", "M16"]
 TRIAL = CONTROLS + POSITIVES
+MODEL = "z-ai/glm-5.3-flash"
 
 
 def _sha(data):
@@ -112,7 +113,7 @@ def test_preregistered_prompt_hashes_reproducible():
         fx = json.loads(
             (REPO / "eval" / "fixtures" / f"{fid}.json").read_text())
         system, user = engine._build_prompts(
-            rc._review_input(fx, "x/glmbaseline"))
+            rc._review_input(fx, MODEL))
         assert _sha(system.encode()) == want_system, fid
         final = user + "\n\n" + ext
         row = [ln for ln in DOC.splitlines()
@@ -130,12 +131,23 @@ def test_extension_schema_round_trips_parser():
     diff = {f["path"]: f["patch"] for f in fx["input"]["files"]}
     path = fx["input"]["files"][0]["path"]
     line = None
-    for i, ln in enumerate(fx["input"]["files"][0]["patch"].splitlines(),
-                           start=1):
+    new_ln = None
+    for ln in fx["input"]["files"][0]["patch"].splitlines():
+        hm = re.match(r"@@ -\\d+(?:,\\d+)? \\+(\\d+)(?:,\\d+)? @@", ln)
+        if hm:
+            new_ln = int(hm.group(1))
+            continue
+        if new_ln is None:
+            continue
+        if ln.startswith("-"):
+            continue
         if ln.startswith("+") and "-mtime -30" in ln:
-            line = i
+            line = new_ln
             break
+        new_ln += 1
     assert line is not None
+    assert line in pr.valid_lines_from_patch(
+        fx["input"]["files"][0]["patch"])
     base = {"file": path, "severity": "blocking", "line": line,
             "comment": "roadmap freshness window never fails the build"}
     demonstrated = json.dumps({"assessment": "ISSUES_FOUND",
@@ -156,6 +168,18 @@ def test_extension_schema_round_trips_parser():
                            "good": []})
     result, _ = pr.normalize_v2(presumed, diff, gate=True)
     assert result["findings"][0]["severity"] == "non-blocking"
+
+
+def test_model_and_request_profile_are_frozen():
+    profiles = json.loads((REPO / "model_profiles.json").read_text())
+    p = profiles["profiles"][MODEL]
+    assert p["max_tokens"] == 8000
+    assert p["reasoning_effort"] == "low"
+    assert p["structured_output"] is True
+    assert p["retry_budget_escalation"] is True
+    for term in (MODEL, "max_tokens=8000", "16000",
+                 "OpenRouter provider routing"):
+        assert term in DOC, term
 
 
 def test_prereg_decision_terms_pinned():
