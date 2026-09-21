@@ -119,7 +119,7 @@ def _inconclusive_result():
 
 def logical_review(engine, fixture, run_index, model, profile,
                    overrides, post_payload, sink, spend_guard=None,
-                   ledger=None):
+                   ledger=None, evidence_gate=False):
     """One logical review through the #70 transport semantics.
 
     post_payload(body) -> (raw_body, http_retries, latency_s); it may
@@ -221,7 +221,19 @@ def logical_review(engine, fixture, run_index, model, profile,
 
     if final["state"] == "OK_CONTENT":
         content = json.loads(raw)["choices"][0]["message"]["content"]
-        result = engine.normalize(content)
+        # raw model output is preserved next to the normalized result
+        # so any evidence-gate decision is auditable after the fact
+        record["raw_model_output"] = content
+        if evidence_gate:
+            import parse_review
+            diff_files = {f["path"]: f["patch"]
+                          for f in fixture["input"]["files"]}
+            result, gate_audit = parse_review.normalize_v2(
+                content, diff_files, gate=True)
+            record["evidence_gate"] = {"enabled": True,
+                                       "audit": gate_audit}
+        else:
+            result = engine.normalize(content)
         if result["assessment"] == INCONCLUSIVE \
                 and final["finish_reason"] == "length":
             record["reason_code"] = "OUTPUT_BUDGET_EXHAUSTED"
@@ -750,7 +762,7 @@ def stage_a_report(records, runs):
 
 
 def live(out_dir, fixtures, runs, model, profile, overrides,
-         run_index=None, spend=None, ledger=None):
+         run_index=None, spend=None, ledger=None, evidence_gate=False):
     if os.environ.get("PM_QUALIFY_LIVE_AUTHORIZED") != "1":
         raise SystemExit(
             "live measurement refused: set PM_QUALIFY_LIVE_AUTHORIZED=1 "
@@ -861,7 +873,7 @@ def live(out_dir, fixtures, runs, model, profile, overrides,
                 logical_review(
                     engine, fixture, ri, model, profile,
                     overrides, post_payload, sink, spend_guard=spend,
-                    ledger=ledger)
+                    ledger=ledger, evidence_gate=evidence_gate)
     except SystemExit:
         _write_summary(out_dir, fixtures, runs, model, profile,
                        spend=spend, ledger=ledger)
@@ -936,6 +948,12 @@ def main(argv=None):
                     help="USD per 1M input tokens (record source!)")
     ap.add_argument("--price-output-per-m", type=float, default=None,
                     help="USD per 1M output tokens (record source!)")
+    ap.add_argument("--evidence-gate", choices=("off", "on"),
+                    default="off",
+                    help="Phase-10 ReviewResult v2 evidence gate: "
+                         "blocking findings must carry evidence that "
+                         "passes the deterministic checks; default "
+                         "off (no behavior change until preregistered)")
     ap.add_argument("--price-source", default=None,
                     help="pricing provenance, e.g. 'openrouter.ai "
                          "z-ai/glm-5.3-flash 2026-09-18 discounted'")
@@ -1011,13 +1029,17 @@ def main(argv=None):
                                args.price_output_per_m, chars)
             spend.price_source = args.price_source
             ledger = None
+            evidence_gate = False
+            if args.evidence_gate == "on":
+                evidence_gate = True
             if args.spend_ledger:
                 from eval.spend_ledger import SpendLedger
                 ledger = SpendLedger(
                     args.spend_ledger, spend,
                     seed_dirs=args.spend_seed_dir or [])
         live(out_dir, fixtures, args.runs, args.model, profile, overrides,
-             run_index=args.run_index, spend=spend, ledger=ledger)
+             run_index=args.run_index, spend=spend, ledger=ledger,
+             evidence_gate=evidence_gate)
     return 0
 
 
