@@ -356,3 +356,33 @@ def test_cli_evidence_gate_on_without_spend_flags_reaches_live(tmp_path, monkeyp
     assert rc == 0
     assert called == {"gate": True, "spend": None, "ledger": None}
 
+def test_patch_content_keeps_code_lines_that_resemble_diff_headers():
+    patch = (
+        "--- a/x.txt\n"
+        "+++ b/x.txt\n"
+        "@@ -1 +1 @@\n"
+        "----removed-marker\n"
+        "++++added-marker\n"
+    )
+    body = pr._patch_content(patch)
+    assert "---removed-marker" in body
+    assert "+++added-marker" in body
+    assert "--- a/x.txt" not in body
+    assert "+++ b/x.txt" not in body
+
+
+def test_dry_run_record_explicitly_has_null_raw_model_output(tmp_path):
+    import eval.profile_qualification as pq
+
+    pq.main([
+        "--dry-run",
+        "--reasoning-effort", "low",
+        "--fixtures", "C1",
+        "--runs", "1",
+        "--out", str(tmp_path / "dry"),
+    ])
+    req = json.loads((tmp_path / "dry" / "requests.json").read_text())
+    rec = req["records"][0]
+    assert "raw_model_output" in rec
+    assert rec["raw_model_output"] is None
+
