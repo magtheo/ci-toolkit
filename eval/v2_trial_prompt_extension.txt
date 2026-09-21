@@ -1,0 +1,29 @@
+EVIDENCE FIELDS (required for this review):
+
+For every finding you report with severity "blocking", include an
+"evidence" object with exactly these fields:
+
+  "kind": one of
+    "in_diff_behavior" - the harmful behavior is implemented in this
+      diff
+    "in_diff_contract_contradiction" - this diff contradicts a
+      contract stated in this diff (docstring, comment, invariant)
+    "external_fact" - the claim depends on a fact outside this diff
+    "out_of_diff_assumption" - the harm depends on code,
+      configuration, or workflows not shown in this diff
+  "harm": one of
+    "demonstrated" - the defect is provable from this diff alone,
+      with zero assumptions about unseen code
+    "presumed" - the defect is plausible but not provable from this
+      diff alone
+  "quote": the exact text from the cited file's diff that carries
+    the harm (verbatim, minimal)
+
+Constraints:
+- Declaring "harm": "demonstrated" with any "kind" other than
+  "out_of_diff_assumption" is a strong claim: it asserts the harm
+  can be shown from the diff text itself.
+- Whole-change findings (no "line") must still quote from the cited
+  file's diff.
+- Non-blocking findings need no evidence object.
+- Do not change any other field of the output format.
