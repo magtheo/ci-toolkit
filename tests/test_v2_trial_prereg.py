@@ -23,6 +23,8 @@ import parse_review as pr  # noqa: E402
 PREREG = REPO / "eval" / "evidence" / "v2-trial-prereg-2026-09-21" \
     / "PREREGISTRATION.md"
 EXTENSION = REPO / "eval" / "v2_trial_prompt_extension.txt"
+TRIAL_SCHEMA = REPO / "eval" / "v2_trial_review_result_schema.json"
+BASE_SCHEMA = REPO / "review_result_schema.json"
 PROTOCOL = REPO / "eval" / "evidence" \
     / "honesty-audit-protocol-2026-09-21" / "PROTOCOL.md"
 
@@ -51,6 +53,11 @@ def test_extension_hash_matches_doc():
 
 def test_protocol_hash_matches_doc():
     assert _sha(PROTOCOL.read_bytes()) == _doc_hash_for("honesty audit protocol")
+
+
+def test_trial_schema_hash_matches_doc():
+    assert _sha(TRIAL_SCHEMA.read_bytes()) == _doc_hash_for(
+        "trial v2 response schema")
 
 
 def test_states_hash_matches_doc():
@@ -84,6 +91,35 @@ def test_extension_enums_match_parser():
                          (harm_block, pr.EVIDENCE_HARM)):
         named = set(re.findall(r'"([a-z_]+)"\s*-', block))
         assert named == set(valid), (named, valid)
+
+
+def test_trial_schema_is_strict_v1_plus_evidence():
+    base = json.loads(BASE_SCHEMA.read_text())
+    v2 = json.loads(TRIAL_SCHEMA.read_text())
+    assert v2["strict"] is True
+    assert v2["schema"]["required"] == base["schema"]["required"]
+    assert v2["schema"]["properties"]["assessment"] == \
+        base["schema"]["properties"]["assessment"]
+    bitem = base["schema"]["properties"]["findings"]["items"]
+    item = v2["schema"]["properties"]["findings"]["items"]
+    assert item["additionalProperties"] is False
+    assert set(item["required"]) == set(bitem["required"]) | {"evidence"}
+    for name, spec in bitem["properties"].items():
+        assert item["properties"][name] == spec, name
+    ev = item["properties"]["evidence"]
+    assert ev["anyOf"][0] == {"type": "null"}
+    obj = ev["anyOf"][1]
+    assert obj["additionalProperties"] is False
+    assert set(obj["required"]) == {"kind", "harm", "quote"}
+    assert set(obj["properties"]["kind"]["enum"]) == set(pr.EVIDENCE_KINDS)
+    assert set(obj["properties"]["harm"]["enum"]) == set(pr.EVIDENCE_HARM)
+
+
+def test_extension_matches_trial_schema_nullability():
+    text = EXTENSION.read_text()
+    assert '"evidence": null' in text
+    assert '"out_of_diff_assumption" is incompatible' in text
+    assert '"external_fact" may use "demonstrated" only' in text
 
 
 def test_trial_fixtures_exist_with_frozen_states():
