@@ -27,8 +27,8 @@ PROTOCOL = REPO / "eval" / "evidence" \
     / "honesty-audit-protocol-2026-09-21" / "PROTOCOL.md"
 
 DOC = PREREG.read_text()
-CONTROLS = ["C3", "C4", "C12", "C13", "C16"]
-POSITIVES = ["M3", "M4", "M12", "M13", "M16"]
+CONTROLS = ["C3", "C11", "C12", "C13", "C16"]
+POSITIVES = ["M3", "M11", "M12", "M13", "M16"]
 TRIAL = CONTROLS + POSITIVES
 MODEL = "z-ai/glm-5.3-flash"
 
@@ -94,8 +94,8 @@ def test_trial_fixtures_exist_with_frozen_states():
     for fid in POSITIVES:
         assert corpus[fid]["expected"]["assessment"] == "ISSUES_FOUND", fid
     # pairs are real pairs in the corpus
-    pairs = {"M3": "C3", "M12": "C12", "M13": "C13",
-             "M16": "C16", "M4": "C4"}
+    pairs = {"M3": "C3", "M11": "C11", "M12": "C12",
+             "M13": "C13", "M16": "C16"}
     for pos, ctl in pairs.items():
         assert corpus[pos]["paired_with"] == ctl or \
             corpus[ctl]["paired_with"] == pos, (pos, ctl)
@@ -187,5 +187,9 @@ def test_prereg_decision_terms_pinned():
     for term in ("Hard ceiling $0.02", "R ≤ 10%", "low effort only",
                  "zero non-oracle-defect", "M13 carve-out",
                  "does not promote anything",
-                 "frozen fixture BEFORE any fix"):
+                 "frozen fixture BEFORE any fix",
+                 "M4/C4 deliberately excluded",
+                 "M3/M11/M12/M16",
+                 "HARM_FABRICATED",
+                 "QUOTE_AS_CONTEXT"):
         assert term in DOC, term
