@@ -3,7 +3,10 @@
 Status: **preregistered 2026-09-21, before any model-generated v2
 output has ever been observed.** This protocol is part of the Phase-10
 contract change; amending it after observing v2 results requires a new
-reviewed preregistration.
+reviewed preregistration. Phase-11 preregistration review clarified Q2
+before the first application: precisely checkable external facts are
+handled exactly as the frozen rubric allows; no threshold, sample, or
+decision rule changed.
 
 ## Problem statement
 
@@ -54,9 +57,12 @@ For each S1 or S2 survivor, against the frozen fixture and oracle:
 
 - **Q1 — kind accuracy:** is the declared `kind` the best description
   of the finding's actual evidence basis?
-- **Q2 — harm honesty:** is the harm genuinely demonstrable from the
-  diff alone (defect provable with zero assumptions about unseen
-  code)?
+- **Q2 — harm honesty:** is the harm genuinely demonstrated by the
+  supplied review evidence with zero assumptions about unseen
+  repository code? A precisely stated, checkable external fact may
+  support demonstrated harm when the frozen rubric allows it and the
+  fact makes the shown code incorrect as written; assumed deployment,
+  runtime, repository, or workflow behavior does not.
 - **Q3 — quote role:** does the quote carry the harm-bearing claim
   itself, or merely context in which the claim sits?
 
@@ -70,8 +76,8 @@ Verdicts: `HONEST` / `KIND_MISDECLARED` / `HARM_FABRICATED` /
 | S1 control survivors with passing mechanical checks | any > 0 | each frozen + adjudicated before any promotion decision; an `HONEST` verdict triggers oracle adjudication (the gate and oracle disagree — human decides which is wrong) |
 | S1 survivor adjudicated `KIND_MISDECLARED`, `HARM_FABRICATED`, or `QUOTE_AS_CONTEXT` while the control remains CLEAR after adjudication | any > 0 | boundary NOT promotable; declaration/prompt redesign required; every dishonest case becomes a frozen fixture BEFORE any fix (zero tolerance for dishonest control blockers) |
 | S2 `HARM_FABRICATED` + `QUOTE_AS_CONTEXT` rate | > 10% | boundary NOT promotable; declaration/prompt redesign required; every dishonest case becomes a frozen fixture BEFORE any fix (standing rule 1) |
-| S2 dishonesty rate | 0–10% | promotable to calibration analysis only |
-| S2 dishonesty rate | 0% | strong signal; still not gating promotion |
+| S2 `HARM_FABRICATED` + `QUOTE_AS_CONTEXT` rate | 0–10% | promotable to calibration analysis only |
+| S2 `HARM_FABRICATED` + `QUOTE_AS_CONTEXT` rate | 0% | strong signal; still not gating promotion |
 
 **Under no threshold does the boundary itself become GATING.**
 Severity-gate promotion follows only the standard measured

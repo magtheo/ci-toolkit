@@ -1,0 +1,61 @@
+{
+  "name": "review_result_v2_trial",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["assessment", "summary", "findings", "good"],
+    "properties": {
+      "assessment": {
+        "type": "string",
+        "enum": ["CLEAR", "ISSUES_FOUND"]
+      },
+      "summary": {"type": "string"},
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file", "line", "severity", "comment", "suggestion", "evidence"],
+          "properties": {
+            "file": {"type": "string"},
+            "line": {"type": ["integer", "null"]},
+            "severity": {
+              "type": "string",
+              "enum": ["blocking", "non-blocking"]
+            },
+            "comment": {"type": "string"},
+            "suggestion": {"type": ["string", "null"]},
+            "evidence": {
+              "anyOf": [
+                {"type": "null"},
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["kind", "harm", "quote"],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "in_diff_behavior",
+                        "in_diff_contract_contradiction",
+                        "external_fact",
+                        "out_of_diff_assumption"
+                      ]
+                    },
+                    "harm": {
+                      "type": "string",
+                      "enum": ["demonstrated", "presumed"]
+                    },
+                    "quote": {"type": "string"}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "good": {"type": "array", "items": {"type": "string"}}
+    }
+  }
+}
