@@ -50,7 +50,7 @@ FILE_PINS = {
     "rubric.md":
         "f13db50022cab1f498c13c1abdb802e1a3624c33bae28ab2c31c32b12f407e37",
     "parse_review.py":
-        "78333641c1b5c70bcc0745ed5993867ad35b4ea87ce2f5faba63c1664883d4e5",
+        "ac23d4705665c60104657572949183774945612851b9fa43f2dd4b219ca1e894",
     "review.sh":
         "834d950bde63b5710ef5ab12183045dc14c5b6b06bd2d27ea95106077af0089f",
     # transport @ pinned #70 merge
