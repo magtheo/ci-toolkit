@@ -1,0 +1,166 @@
+{
+ "campaign": "stage-b1-glm-profiles-2026-09-20",
+ "viability": {
+  "logical_reviews": 90,
+  "final_inconclusive": 0,
+  "transport_failures": 0,
+  "escalations": 0,
+  "post_escalation_exhaustions": 0,
+  "inconclusive_rate_ok": true,
+  "no_transport_failure": true,
+  "post_esc_ok": true,
+  "scope_note": "AGGREGATE campaign denominators: 90 reviews, 0 escalations"
+ },
+ "per_effort_verdicts": {
+  "low": "B1 FAIL",
+  "high": "B1 FAIL"
+ },
+ "detection": {
+  "low": {
+   "per_positive": {
+    "M12": {
+     "groups_detected": [
+      3
+     ],
+     "baseline": [
+      3
+     ],
+     "no_regression": true
+    },
+    "M16": {
+     "groups_detected": [
+      2
+     ],
+     "baseline": [
+      3
+     ],
+     "no_regression": false
+    },
+    "M2": {
+     "groups_detected": [
+      1,
+      3
+     ],
+     "baseline": [
+      1,
+      3
+     ],
+     "no_regression": true
+    },
+    "M3": {
+     "groups_detected": [
+      2
+     ],
+     "baseline": [
+      3
+     ],
+     "no_regression": false
+    }
+   },
+   "regressions": [
+    "M16",
+    "M3"
+   ]
+  },
+  "high": {
+   "per_positive": {
+    "M12": {
+     "groups_detected": [
+      3
+     ],
+     "baseline": [
+      3
+     ],
+     "no_regression": true
+    },
+    "M16": {
+     "groups_detected": [
+      3
+     ],
+     "baseline": [
+      3
+     ],
+     "no_regression": true
+    },
+    "M2": {
+     "groups_detected": [
+      0,
+      3
+     ],
+     "baseline": [
+      0,
+      3
+     ],
+     "no_regression": true
+    },
+    "M3": {
+     "groups_detected": [
+      3
+     ],
+     "baseline": [
+      3
+     ],
+     "no_regression": true
+    }
+   },
+   "regressions": []
+  }
+ },
+ "separate_reporting": {
+  "low": {
+   "M4": {
+    "groups_detected": [
+     2
+    ],
+    "baseline": [
+     0
+    ],
+    "no_regression": true,
+    "zero_baseline": true,
+    "note": "zero baseline detection \u2014 reported standalone; a pass here is not gateable and a miss is a KNOWN_GAP, per preregistration"
+   },
+   "M13": {
+    "groups_detected": [
+     0
+    ],
+    "baseline": [
+     0
+    ],
+    "no_regression": true,
+    "zero_baseline": true,
+    "note": "zero baseline detection \u2014 reported standalone; a pass here is not gateable and a miss is a KNOWN_GAP, per preregistration"
+   }
+  },
+  "high": {
+   "M4": {
+    "groups_detected": [
+     2
+    ],
+    "baseline": [
+     0
+    ],
+    "no_regression": true,
+    "zero_baseline": true,
+    "note": "zero baseline detection \u2014 reported standalone; a pass here is not gateable and a miss is a KNOWN_GAP, per preregistration"
+   },
+   "M13": {
+    "groups_detected": [
+     0
+    ],
+    "baseline": [
+     0
+    ],
+    "no_regression": true,
+    "zero_baseline": true,
+    "note": "zero baseline detection \u2014 reported standalone; a pass here is not gateable and a miss is a KNOWN_GAP, per preregistration"
+   }
+  }
+ },
+ "verdict": "B1 FAIL",
+ "gating_failures": [
+  "low: control blockers: ['C12', 'C13', 'C3']",
+  "low: detection regression: ['M16', 'M3']",
+  "high: control blockers: ['C12', 'C13', 'C3']"
+ ],
+ "scope_note": "B1 PASS permits preparation of a separate B2 preregistration only \u2014 never B2 execution or spend. M4/M13 are reported standalone (zero baseline) and do not gate."
+}

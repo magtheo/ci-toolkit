@@ -1,0 +1,186 @@
+{
+ "matrix": {
+  "fixtures": [
+   "C1",
+   "C12",
+   "C13",
+   "C14",
+   "C16",
+   "C2",
+   "C3",
+   "C4",
+   "C5",
+   "M12",
+   "M13",
+   "M16",
+   "M2",
+   "M3",
+   "M4"
+  ],
+  "runs": 3
+ },
+ "completeness": {
+  "complete": true,
+  "expected_reviews": 45,
+  "missing": []
+ },
+ "controls": {
+  "zero_control_blockers": false,
+  "violations": [
+   {
+    "id": "C12",
+    "false_blockers": 3,
+    "assessments": [
+     "ISSUES_FOUND",
+     "ISSUES_FOUND",
+     "ISSUES_FOUND"
+    ]
+   },
+   {
+    "id": "C13",
+    "false_blockers": 3,
+    "assessments": [
+     "ISSUES_FOUND",
+     "ISSUES_FOUND",
+     "CLEAR"
+    ]
+   },
+   {
+    "id": "C3",
+    "false_blockers": 5,
+    "assessments": [
+     "ISSUES_FOUND",
+     "ISSUES_FOUND",
+     "ISSUES_FOUND"
+    ]
+   }
+  ]
+ },
+ "gating": {
+  "members_in_matrix": [
+   "C4",
+   "C5"
+  ],
+  "regressions": []
+ },
+ "detection": {
+  "per_positive": {
+   "M12": {
+    "groups_detected": [
+     3
+    ],
+    "baseline": [
+     3
+    ],
+    "no_regression": true
+   },
+   "M16": {
+    "groups_detected": [
+     2
+    ],
+    "baseline": [
+     3
+    ],
+    "no_regression": false
+   },
+   "M2": {
+    "groups_detected": [
+     1,
+     3
+    ],
+    "baseline": [
+     1,
+     3
+    ],
+    "no_regression": true
+   },
+   "M3": {
+    "groups_detected": [
+     2
+    ],
+    "baseline": [
+     3
+    ],
+    "no_regression": false
+   }
+  },
+  "regressions": [
+   "M16",
+   "M3"
+  ]
+ },
+ "separate_reporting": {
+  "M4": {
+   "groups_detected": [
+    2
+   ],
+   "baseline": [
+    0
+   ],
+   "no_regression": true,
+   "zero_baseline": true,
+   "note": "zero baseline detection \u2014 reported standalone; a pass here is not gateable and a miss is a KNOWN_GAP, per preregistration"
+  },
+  "M13": {
+   "groups_detected": [
+    0
+   ],
+   "baseline": [
+    0
+   ],
+   "no_regression": true,
+   "zero_baseline": true,
+   "note": "zero baseline detection \u2014 reported standalone; a pass here is not gateable and a miss is a KNOWN_GAP, per preregistration"
+  }
+ },
+ "viability": {
+  "transport_failures": 0,
+  "final_inconclusive": 0,
+  "logical_reviews": 45,
+  "inconclusive_rate_ok": true,
+  "no_transport_failure": true,
+  "escalations": 0,
+  "post_escalation_exhaustions": 0,
+  "post_esc_ok": true,
+  "scope_note": "per-effort view; the CAMPAIGN verdict uses the frozen aggregate denominators (90 reviews for INCONCLUSIVE, total escalations for post-escalation exhaustion)"
+ },
+ "informational": {
+  "false_blockers_on_positives": 5,
+  "assessment_stability": {
+   "CLEAR": 20,
+   "ISSUES_FOUND": 25,
+   "INCONCLUSIVE": 0
+  }
+ },
+ "verdict": "B1 FAIL",
+ "gating_failures": [
+  "control blockers: ['C12', 'C13', 'C3']",
+  "detection regression: ['M16', 'M3']"
+ ],
+ "scope_note": "B1 PASS permits preparation of a separate B2 preregistration only \u2014 never B2 execution or spend",
+ "effort": "low",
+ "spend": {
+  "actual_cost_usd": 0.006593,
+  "aggregate_ledger": {
+   "ceiling_usd": 1.0,
+   "halts": 0,
+   "invariant_holds": true,
+   "ledger_path": "eval/evidence/stage-b1-glm-profiles-2026-09-20/spend-ledger.json",
+   "orphan_sweeps": 0,
+   "outstanding_reservations": 0,
+   "outstanding_usd": 0,
+   "recovery_rule": "liveness-only: dead-pid reservations settle at reserved amount; active pids are never swept for age",
+   "remaining_usd": 0.964617,
+   "settled_usd": 0.035383
+  },
+  "ceiling_remaining_usd": 0.993407,
+  "cost_model": "input=prompt_tokens; output=completion+reasoning (over-counts if provider includes reasoning in completion); pre-request worst case uses ceil(chars/4)x2 input + full generation budget output",
+  "input_tokens": 25994,
+  "output_tokens_incl_reasoning": 18572,
+  "price_input_per_1m": 0.075,
+  "price_output_per_1m": 0.25,
+  "price_source": "openrouter.ai z-ai/glm-5.3-flash 2026-09-18 discounted",
+  "provider_generations_billed": 15,
+  "spend_ceiling_usd": 1.0
+ }
+}

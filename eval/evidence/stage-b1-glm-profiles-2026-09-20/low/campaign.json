@@ -1,0 +1,13 @@
+{
+  "N": 3,
+  "corpus_sha256": "738dd7ea25ccc11a",
+  "initial_max_tokens": 8000,
+  "model": "z-ai/glm-5.3-flash",
+  "oracle_checkout_sha": "4b116a7c7c4e9e78cddd362cd3ca4766aaf6ea25",
+  "oracle_version": "5472d990f3b946c3",
+  "reasoning_effort": "low",
+  "rubric_sha256": "f13db50022cab1f498c13c1abdb802e1a3624c33bae28ab2c31c32b12f407e37",
+  "subject_content_ref": "9234a662e65cd368c4a1a65b53d0b84d800acf12fa85f06b1eb9753cbae98a78",
+  "transport_content_ref": "dd655bd7c12c7394ba3344d890eae1364731cf5d6a117609305e01c414636833",
+  "transport_sha": "b663bfd3139bb04a70f95d661c96ee150f534513"
+}
