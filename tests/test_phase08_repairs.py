@@ -104,23 +104,33 @@ def test_b1_records_reproduce_ledger_authoritative_spend():
     assert tot == pytest.approx(0.044276, abs=2e-6)
 
 
-def test_progress_line_reads_only_real_fields(tmp_path):
+def test_progress_line_reads_raw_ledger_not_stale_summary_snapshot(tmp_path):
     s = {"logical_reviews": 15, "final_inconclusive": 0,
          "escalations": 0,
          "spend": {"provider_generations_billed": 15,
-                   "escalations": 0, "actual_cost_usd": 0.006593,
+                   "actual_cost_usd": 0.006593,
+                   "price_input_per_1m": 0.075,
+                   "price_output_per_1m": 0.25,
+                   # Deliberately stale/incompatible snapshot: the helper
+                   # must use the raw ledger file for aggregate state.
                    "aggregate_ledger": {
-                       "settled_in_tokens": 52000,
-                       "settled_out_tokens": 44000,
-                       "outstanding_reservations": 0,
-                       "orphan_sweeps": 0, "halts": 0,
-                       "invariant_holds": True}}}
+                       "ceiling_usd": 1.0,
+                       "settled_usd": 0.001,
+                       "outstanding_reservations": 99,
+                       "invariant_holds": False}}}
+    ledger = {"settled_in_tokens": 52000,
+              "settled_out_tokens": 44000,
+              "reservations": [],
+              "swept_orphans": [],
+              "halts": 0}
     (tmp_path / "s.json").write_text(json.dumps(s))
-    (tmp_path / "l.json").write_text(json.dumps(
-        {"settled_in_tokens": 52000, "settled_out_tokens": 44000}))
+    (tmp_path / "l.json").write_text(json.dumps(ledger))
     line = cp.progress_line(tmp_path / "s.json", tmp_path / "l.json")
     assert "gens=15" in line and "None" not in line
-    assert "cost=$0.006593" in line and "invariant=True" in line
+    assert "cost=$0.006593" in line
+    assert "settled_tokens=52000 in/44000 out" in line
+    assert "settled=$0.0149" in line
+    assert "outstanding=0" in line and "invariant=True" in line
 
 
 # ---- 2. matcher ------------------------------------------------------
