@@ -9330,5 +9330,6 @@
   "ii_a_contract_path_fired": 44,
   "ii_a_rescued_any_g1_downgrade": false
  },
- "total_blocking_findings": 276
+ "total_blocking_findings": 276,
+ "total_records": 414
 }
