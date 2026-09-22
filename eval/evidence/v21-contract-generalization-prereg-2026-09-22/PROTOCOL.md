@@ -64,7 +64,7 @@ answers are frozen before the verifier runs.
   equivalent control-flow shapes, language-specific forms where the
   relation naturally supports them). The control changes only the
   semantic feature that makes the positive defective.
-- Eight positives are pre-declared `probe: true`: semantically
+- Nine positives are pre-declared `probe: true`: semantically
   in-scope but authored in surface forms beyond the original
   corpus's shapes (e.g. non-shell logging syntax, Python `None`,
   non-`.state` consumption, single-redirect jq producers). This
@@ -104,8 +104,7 @@ Required 18B report: per-relation TP/control counts, exact failed
 fixture IDs, aggregate TP recall, aggregate control leakage, and
 whether each failure is semantic or syntactic/brittleness.
 
-## Standing regression invariants (18B harness guards, NOT part of
-## the 60-fixture score)
+## Standing regression invariants (18B harness guards, NOT part of the 60-fixture score)
 
 Phase 18B must additionally preserve, via the existing frozen
 replays: C11 remains refused; C10 remains a standing near-miss
