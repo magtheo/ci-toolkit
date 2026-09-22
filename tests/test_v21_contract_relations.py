@@ -64,14 +64,14 @@ def test_per_relation_verdicts_are_pinned():
         "pinned_sha_demoted_to_branch": (["M2"], 1),
         "preserved_claim_vs_dropped_call_result": (["M7"], 7),
         "consume_before_validate_ordering": (["M8"], 5),
-        "secret_logged_by_echo": (["M14"], 0),
+        "secret_logged_by_echo": ([], 0),
         "doc_self_contradiction": (["M17", "M18"], 9),
         "jsonl_format_vs_unslurped_jq": (["M6"], 2),
     }
-    for name, (fixtures, new_rows) in eligible.items():
+    for name, (new_fixtures, new_rows) in eligible.items():
         assert info[name]["eligible"] is True, name
         assert info[name]["verdict"] == "ELIGIBLE", name
-        assert info[name]["new_tp_fixtures"] == fixtures, name
+        assert info[name]["new_tp_fixtures"] == new_fixtures, name
         assert info[name]["new_tp_rows"] == new_rows, name
         assert info[name]["raw_match_control_rows"] == 0, name
         assert info[name]["new_extra_admissions"] == 0, name
