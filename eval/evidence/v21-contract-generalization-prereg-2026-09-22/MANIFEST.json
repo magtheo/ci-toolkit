@@ -219,10 +219,10 @@
     {
       "expected_label": "ADMITS",
       "id": "jfu-P2",
-      "probe": false,
+      "probe": true,
       "relation": "jsonl_format_vs_unslurped_jq",
       "role": "positive",
-      "sha256": "cca8a2b51e7b5ef9b6d7534886c676eb3172a195bc39cd99ab8b50d612f1f493"
+      "sha256": "4084d838b2555f3db96db667ce496ba6e721d401b136e562d0c77860bcab6eb3"
     },
     {
       "expected_label": "ADMITS",
@@ -494,7 +494,7 @@
     "module": "eval/v21_contract_relations.py",
     "module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
   },
-  "manifest_lines_sha256": "ac7cf164e321982a19a1530891a43e5696b653e62e42955335a11d7f6a2e37f0",
+  "manifest_lines_sha256": "5a89e9069791062620481a55090ced324f3507a57cd5d8b0f2b1f47dfef41788",
   "oracle_version": "117b4164e5446f50",
   "phase": "18A"
 }
