@@ -106,30 +106,66 @@ def _regression_guards():
 
 
 def _fixture_defects(rows):
-    """Preregistered INVALID path: independently demonstrated fixture
-    defects found at evaluation time are recorded and excluded from
-    the score — never silently counted as verifier success or
-    failure. Correction requires a reviewed amendment; nothing is
-    edited here."""
+    """Preregistered INVALID path.
+
+    A discovered fixture/oracle defect invalidates the whole authored
+    pair. Invalid pairs are excluded from scoring and no relation-level
+    PASS/FAIL verdict is assigned until a reviewed amendment and rerun.
+    """
+    by_id = {r["id"]: r for r in rows}
     defects = {}
-    for row in rows:
-        if row["id"] != "psd-P4":
-            continue
-        fixture = json.loads(
-            (HOLDOUT / "fixtures" / (row["id"] + ".json")).read_text())
-        patch = [f for f in fixture["fixture"]["input"]["files"]
-                 if f["path"] == fixture["finding"]["file"]][0]["patch"]
-        removed = "\n".join(line[1:] for line in patch.splitlines()
-                            if line.startswith("-"))
-        runs = [run for run in re.findall(r"[0-9a-fA-F]{10,}", removed)]
-        defects[row["id"]] = {
-            "defect": "authored pinned ref is not a 40-hex commit SHA",
-            "proof": {"hex_runs_in_removed_lines": runs,
-                      "lengths": [len(run) for run in runs]},
-            "disposition": "INVALID pair per PROTOCOL.md; excluded from "
-                           "the per-relation score, not counted as "
-                           "verifier success or failure",
-        }
+
+    # psd-P4: the positive intended to remove a pinned 40-hex SHA was
+    # authored with a 39-hex run instead.
+    fixture = json.loads(
+        (HOLDOUT / "fixtures" / "psd-P4.json").read_text())
+    patch = [f for f in fixture["fixture"]["input"]["files"]
+             if f["path"] == fixture["finding"]["file"]][0]["patch"]
+    removed = "\n".join(line[1:] for line in patch.splitlines()
+                        if line.startswith("-"))
+    runs = [run for run in re.findall(r"[0-9a-fA-F]{10,}", removed)]
+    lengths = [len(run) for run in runs]
+    if lengths != [39]:
+        raise RuntimeError("psd-P4 defect proof drift: %s" % lengths)
+    defects["psd-P4"] = {
+        "defect": "authored pinned ref is not a 40-hex commit SHA",
+        "proof": {"hex_runs_in_removed_lines": runs,
+                  "lengths": lengths},
+        "pair_fixture_ids": ["psd-P4", "psd-C4"],
+        "disposition": "INVALID pair per PROTOCOL.md; both P4/C4 are "
+                       "excluded from scoring pending reviewed amendment "
+                       "and rerun",
+    }
+
+    # jfu-P5: 18A authoring basis and the frozen relation definition
+    # require an unslurped array consumer (.[]). P5 instead tests jq
+    # 'length > 0', a different single-document assumption.
+    fixture = json.loads(
+        (HOLDOUT / "fixtures" / "jfu-P5.json").read_text())
+    patch = [f for f in fixture["fixture"]["input"]["files"]
+             if f["path"] == fixture["finding"]["file"]][0]["patch"]
+    has_array_filter = ".[]" in patch
+    if has_array_filter:
+        raise RuntimeError("jfu-P5 scope-defect proof drift: .[] appeared")
+    defects["jfu-P5"] = {
+        "defect": "fixture is outside frozen relation scope: no .[] "
+                  "array-filter consumer",
+        "proof": {
+            "requires_unslurped_array_consumer": True,
+            "array_filter_present": has_array_filter,
+            "fixture_rationale": fixture["rationale"],
+        },
+        "pair_fixture_ids": ["jfu-P5", "jfu-C5"],
+        "disposition": "INVALID pair per PROTOCOL.md; both P5/C5 are "
+                       "excluded from scoring pending reviewed amendment "
+                       "and rerun",
+    }
+
+    for defect in defects.values():
+        for fixture_id in defect["pair_fixture_ids"]:
+            if fixture_id not in by_id:
+                raise RuntimeError("invalid-pair member missing: %s"
+                                   % fixture_id)
     return defects
 
 
@@ -151,19 +187,39 @@ def evaluate():
             "fired_relations": fired,
             "admitted": entry["relation"] in fired,
         })
+    defects = _fixture_defects(rows)
+    invalid_ids = {
+        fixture_id
+        for defect in defects.values()
+        for fixture_id in defect["pair_fixture_ids"]
+    }
+    for row in rows:
+        row["invalid"] = row["id"] in invalid_ids
+
     per_relation = {}
     for relation in RELATIONS:
-        positives = [r for r in rows if r["relation"] == relation
-                     and r["role"] == "positive"]
-        controls = [r for r in rows if r["relation"] == relation
-                    and r["role"] == "control"]
+        all_positives = [r for r in rows if r["relation"] == relation
+                         and r["role"] == "positive"]
+        all_controls = [r for r in rows if r["relation"] == relation
+                        and r["role"] == "control"]
+        positives = [r for r in all_positives if not r["invalid"]]
+        controls = [r for r in all_controls if not r["invalid"]]
+        invalid_fixture_ids = [r["id"] for r in all_positives + all_controls
+                               if r["invalid"]]
         tp = sum(r["admitted"] for r in positives)
         leak = sum(r["admitted"] for r in controls)
         failed_positive_ids = [r["id"] for r in positives
                                if not r["admitted"]]
         leaked_control_ids = [r["id"] for r in controls if r["admitted"]]
-        verdict = ("GENERALIZATION_PASS" if tp >= THRESHOLD_TP and leak == 0
-                   else "GENERALIZATION_FAIL")
+        if invalid_fixture_ids:
+            verdict = "INVALID_PENDING_AMENDMENT"
+        else:
+            if len(positives) != 5 or len(controls) != 5:
+                raise RuntimeError("unexpected scored population for %s"
+                                   % relation)
+            verdict = ("GENERALIZATION_PASS"
+                       if tp >= THRESHOLD_TP and leak == 0
+                       else "GENERALIZATION_FAIL")
         per_relation[relation] = {
             "positives_admitted": tp,
             "positives_total": len(positives),
@@ -171,13 +227,15 @@ def evaluate():
             "controls_total": len(controls),
             "failed_positive_ids": failed_positive_ids,
             "leaked_control_ids": leaked_control_ids,
+            "invalid_fixture_ids": invalid_fixture_ids,
             "verdict": verdict,
         }
-    defects = _fixture_defects(rows)
     guards = _regression_guards()
     total_tp = sum(v["positives_admitted"] for v in per_relation.values())
+    total_positive = sum(v["positives_total"] for v in per_relation.values())
     total_leak = sum(v["controls_admitted"]
                      for v in per_relation.values())
+    total_controls = sum(v["controls_total"] for v in per_relation.values())
     return {
         "phase": "18B",
         "protocol":
@@ -192,13 +250,25 @@ def evaluate():
         "per_relation": per_relation,
         "aggregate": {
             "positives_admitted": total_tp,
-            "positives_total": 30,
+            "positives_total": total_positive,
             "controls_admitted": total_leak,
-            "controls_total": 30,
+            "controls_total": total_controls,
+            "raw_observed_positives_admitted": sum(
+                r["admitted"] for r in rows if r["role"] == "positive"),
+            "raw_observed_positives_total": 30,
+            "raw_observed_controls_admitted": sum(
+                r["admitted"] for r in rows if r["role"] == "control"),
+            "raw_observed_controls_total": 30,
             "relations_pass": sum(1 for v in per_relation.values()
                                   if v["verdict"] == "GENERALIZATION_PASS"),
+            "relations_fail": sum(1 for v in per_relation.values()
+                                  if v["verdict"] == "GENERALIZATION_FAIL"),
+            "relations_invalid": sum(
+                1 for v in per_relation.values()
+                if v["verdict"] == "INVALID_PENDING_AMENDMENT"),
             "all_pass": all(v["verdict"] == "GENERALIZATION_PASS"
                             for v in per_relation.values()),
+            "blanket_promotion_eligible": False,
         },
         "standing_regression_guards": guards,
         "fixture_defects": defects,
