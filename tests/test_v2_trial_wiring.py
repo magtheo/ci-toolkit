@@ -215,3 +215,89 @@ def test_authorized_run_executes_frozen_trial(
         assert set(count) == {"fixture", "run_index", "assessment",
                               "blocking_survivors",
                               "gate_downgrades"}, count
+
+def test_malformed_prereg_is_blocked_before_network(
+        tmp_path, monkeypatch, capsys):
+    malformed = tmp_path / "PREREGISTRATION.md"
+    malformed.write_text(PREREG_TEXT.replace(
+        "Model/request profile frozen", "PROFILE HEADING REMOVED"))
+    monkeypatch.setattr(rt, "PREREG", malformed)
+    monkeypatch.setattr(pq, "engine_http",
+                        lambda engine: _ForbiddenPost())
+    assert rt.main(["--check"]) == 2
+    assert "BLOCKED" in capsys.readouterr().out
+
+
+def test_conflicting_prereg_hashes_refuse():
+    # A second contradictory pin must not silently overwrite the first.
+    duplicate = ("\n| `engine.py` | `" + "0" * 64 + "` |\n")
+    with pytest.raises(ValueError, match="conflicting"):
+        rt.prereg_pins(PREREG_TEXT + duplicate)
+
+
+@pytest.mark.parametrize("price_in,price_out", [
+    ("nan", "0.25"), ("0", "0.25"), ("-0.1", "0.25"),
+    ("0.075", "inf"), ("0.075", "-0.25"),
+])
+def test_nonpositive_or_nonfinite_prices_refuse(
+        tmp_path, monkeypatch, capsys, price_in, price_out):
+    monkeypatch.setenv("PM_QUALIFY_LIVE_AUTHORIZED", "1")
+    monkeypatch.setattr(pq, "engine_http",
+                        lambda engine: _ForbiddenPost())
+    out = tmp_path / "trial"
+    assert rt.main([
+        "--authorize-spend", "--out", str(out),
+        "--price-input-per-m", price_in,
+        "--price-output-per-m", price_out,
+        "--price-source", "test",
+    ]) == 2
+    assert "spend refused" in capsys.readouterr().out
+    assert not out.exists()
+
+
+def test_existing_evidence_directory_refuses_before_network(
+        tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("PM_QUALIFY_LIVE_AUTHORIZED", "1")
+    monkeypatch.setattr(pq, "engine_http",
+                        lambda engine: _ForbiddenPost())
+    out = tmp_path / "old"
+    out.mkdir()
+    sentinel = out / "records.jsonl"
+    sentinel.write_text('{"old":true}\n')
+    assert rt.main([
+        "--authorize-spend", "--out", str(out),
+        "--price-input-per-m", "0.075",
+        "--price-output-per-m", "0.25",
+        "--price-source", "test",
+    ]) == 2
+    assert "fresh --out" in capsys.readouterr().out
+    assert sentinel.read_text() == '{"old":true}\n'
+
+
+def test_pre_first_reservation_ceiling_halt_freezes_incomplete_state(
+        tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("PM_QUALIFY_LIVE_AUTHORIZED", "1")
+    monkeypatch.setattr(pq, "engine_http",
+                        lambda engine: _ForbiddenPost())
+    out = tmp_path / "blocked"
+    # High positive recorded prices exhaust the ceiling before
+    # request 1. No model output exists, but provenance must survive.
+    rc = rt.main([
+        "--authorize-spend", "--out", str(out),
+        "--price-input-per-m", "100",
+        "--price-output-per-m", "100",
+        "--price-source", "test",
+    ])
+    assert rc == 2
+    assert "INCOMPLETE" in capsys.readouterr().out
+    state = json.loads((out / "trial-state.json").read_text())
+    assert state["status"] == "INCOMPLETE"
+    assert state["record_count"] == 0
+    assert state["records_sha256"] is None
+    assert state["mechanical_counts"] == []
+    assert state["ledger"]["invariant_holds"] is True
+    assert state["ledger"]["outstanding_reservations"] == 0
+    assert state["ledger"]["halts"] >= 1
+    assert state["actual_cost_usd"] == state["ledger"]["settled_usd"]
+    assert "stop_reason" in state
+
