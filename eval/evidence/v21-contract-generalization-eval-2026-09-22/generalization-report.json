@@ -1,16 +1,40 @@
 {
   "aggregate": {
-    "all_pass": false,
-    "controls_admitted": 3,
-    "controls_total": 30,
     "positives_admitted": 16,
-    "positives_total": 30,
-    "relations_pass": 1
+    "positives_total": 28,
+    "controls_admitted": 3,
+    "controls_total": 28,
+    "raw_observed_positives_admitted": 16,
+    "raw_observed_positives_total": 30,
+    "raw_observed_controls_admitted": 3,
+    "raw_observed_controls_total": 30,
+    "relations_pass": 0,
+    "relations_fail": 4,
+    "relations_invalid": 2,
+    "all_pass": false,
+    "blanket_promotion_eligible": false
   },
   "fixture_defects": {
+    "jfu-P5": {
+      "defect": "fixture is outside frozen relation scope: no .[] array-filter consumer",
+      "disposition": "INVALID pair per PROTOCOL.md; both P5/C5 are excluded from scoring pending reviewed amendment and rerun",
+      "pair_fixture_ids": [
+        "jfu-P5",
+        "jfu-C5"
+      ],
+      "proof": {
+        "requires_unslurped_array_consumer": true,
+        "array_filter_present": false,
+        "fixture_rationale": "unslurped single-document assumption (length over JSONL)"
+      }
+    },
     "psd-P4": {
       "defect": "authored pinned ref is not a 40-hex commit SHA",
-      "disposition": "INVALID pair per PROTOCOL.md; excluded from the per-relation score, not counted as verifier success or failure",
+      "disposition": "INVALID pair per PROTOCOL.md; both P4/C4 are excluded from scoring pending reviewed amendment and rerun",
+      "pair_fixture_ids": [
+        "psd-P4",
+        "psd-C4"
+      ],
       "proof": {
         "hex_runs_in_removed_lines": [
           "e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1"
@@ -29,7 +53,8 @@
       "id": "cbv-C1",
       "probe": false,
       "relation": "consume_before_validate_ordering",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -38,7 +63,8 @@
       "id": "cbv-C2",
       "probe": false,
       "relation": "consume_before_validate_ordering",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -47,7 +73,8 @@
       "id": "cbv-C3",
       "probe": false,
       "relation": "consume_before_validate_ordering",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -56,7 +83,8 @@
       "id": "cbv-C4",
       "probe": false,
       "relation": "consume_before_validate_ordering",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -65,7 +93,8 @@
       "id": "cbv-C5",
       "probe": false,
       "relation": "consume_before_validate_ordering",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -76,7 +105,8 @@
       "id": "cbv-P1",
       "probe": false,
       "relation": "consume_before_validate_ordering",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -85,7 +115,8 @@
       "id": "cbv-P2",
       "probe": true,
       "relation": "consume_before_validate_ordering",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -94,7 +125,8 @@
       "id": "cbv-P3",
       "probe": true,
       "relation": "consume_before_validate_ordering",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -103,7 +135,8 @@
       "id": "cbv-P4",
       "probe": true,
       "relation": "consume_before_validate_ordering",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -112,7 +145,8 @@
       "id": "cbv-P5",
       "probe": true,
       "relation": "consume_before_validate_ordering",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -123,7 +157,8 @@
       "id": "dsc-C1",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -134,7 +169,8 @@
       "id": "dsc-C2",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -143,7 +179,8 @@
       "id": "dsc-C3",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -152,7 +189,8 @@
       "id": "dsc-C4",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -161,7 +199,8 @@
       "id": "dsc-C5",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -172,7 +211,8 @@
       "id": "dsc-P1",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -183,7 +223,8 @@
       "id": "dsc-P2",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -192,7 +233,8 @@
       "id": "dsc-P3",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -201,7 +243,8 @@
       "id": "dsc-P4",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -210,7 +253,8 @@
       "id": "dsc-P5",
       "probe": false,
       "relation": "doc_self_contradiction",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -219,7 +263,8 @@
       "id": "jfu-C1",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -228,7 +273,8 @@
       "id": "jfu-C2",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -237,7 +283,8 @@
       "id": "jfu-C3",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -246,7 +293,8 @@
       "id": "jfu-C4",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -255,7 +303,8 @@
       "id": "jfu-C5",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "control"
+      "role": "control",
+      "invalid": true
     },
     {
       "admitted": true,
@@ -266,7 +315,8 @@
       "id": "jfu-P1",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -275,7 +325,8 @@
       "id": "jfu-P2",
       "probe": true,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -286,7 +337,8 @@
       "id": "jfu-P3",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -297,7 +349,8 @@
       "id": "jfu-P4",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -306,7 +359,8 @@
       "id": "jfu-P5",
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
-      "role": "positive"
+      "role": "positive",
+      "invalid": true
     },
     {
       "admitted": false,
@@ -315,7 +369,8 @@
       "id": "pcd-C1",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -324,7 +379,8 @@
       "id": "pcd-C2",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -333,7 +389,8 @@
       "id": "pcd-C3",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -342,7 +399,8 @@
       "id": "pcd-C4",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -351,7 +409,8 @@
       "id": "pcd-C5",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -362,7 +421,8 @@
       "id": "pcd-P1",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -373,7 +433,8 @@
       "id": "pcd-P2",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -382,7 +443,8 @@
       "id": "pcd-P3",
       "probe": true,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -391,7 +453,8 @@
       "id": "pcd-P4",
       "probe": true,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -402,7 +465,8 @@
       "id": "pcd-P5",
       "probe": false,
       "relation": "preserved_claim_vs_dropped_call_result",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -411,7 +475,8 @@
       "id": "psd-C1",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -420,7 +485,8 @@
       "id": "psd-C2",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -429,7 +495,8 @@
       "id": "psd-C3",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -438,7 +505,8 @@
       "id": "psd-C4",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "control"
+      "role": "control",
+      "invalid": true
     },
     {
       "admitted": false,
@@ -447,7 +515,8 @@
       "id": "psd-C5",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -458,7 +527,8 @@
       "id": "psd-P1",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -469,7 +539,8 @@
       "id": "psd-P2",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -480,7 +551,8 @@
       "id": "psd-P3",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -489,7 +561,8 @@
       "id": "psd-P4",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "positive"
+      "role": "positive",
+      "invalid": true
     },
     {
       "admitted": true,
@@ -500,7 +573,8 @@
       "id": "psd-P5",
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -509,7 +583,8 @@
       "id": "sle-C1",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -518,7 +593,8 @@
       "id": "sle-C2",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -529,7 +605,8 @@
       "id": "sle-C3",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -538,7 +615,8 @@
       "id": "sle-C4",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -547,7 +625,8 @@
       "id": "sle-C5",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "control"
+      "role": "control",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -558,7 +637,8 @@
       "id": "sle-P1",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -569,7 +649,8 @@
       "id": "sle-P2",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": true,
@@ -580,7 +661,8 @@
       "id": "sle-P3",
       "probe": false,
       "relation": "secret_logged_by_echo",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -589,7 +671,8 @@
       "id": "sle-P4",
       "probe": true,
       "relation": "secret_logged_by_echo",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     },
     {
       "admitted": false,
@@ -598,7 +681,8 @@
       "id": "sle-P5",
       "probe": true,
       "relation": "secret_logged_by_echo",
-      "role": "positive"
+      "role": "positive",
+      "invalid": false
     }
   ],
   "frozen_verifier": {
@@ -619,7 +703,8 @@
       "leaked_control_ids": [],
       "positives_admitted": 1,
       "positives_total": 5,
-      "verdict": "GENERALIZATION_FAIL"
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
     },
     "doc_self_contradiction": {
       "controls_admitted": 2,
@@ -635,30 +720,36 @@
       ],
       "positives_admitted": 2,
       "positives_total": 5,
-      "verdict": "GENERALIZATION_FAIL"
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
     },
     "jsonl_format_vs_unslurped_jq": {
+      "positives_admitted": 3,
+      "positives_total": 4,
       "controls_admitted": 0,
-      "controls_total": 5,
+      "controls_total": 4,
       "failed_positive_ids": [
-        "jfu-P2",
-        "jfu-P5"
+        "jfu-P2"
       ],
       "leaked_control_ids": [],
-      "positives_admitted": 3,
-      "positives_total": 5,
-      "verdict": "GENERALIZATION_FAIL"
+      "invalid_fixture_ids": [
+        "jfu-P5",
+        "jfu-C5"
+      ],
+      "verdict": "INVALID_PENDING_AMENDMENT"
     },
     "pinned_sha_demoted_to_branch": {
-      "controls_admitted": 0,
-      "controls_total": 5,
-      "failed_positive_ids": [
-        "psd-P4"
-      ],
-      "leaked_control_ids": [],
       "positives_admitted": 4,
-      "positives_total": 5,
-      "verdict": "GENERALIZATION_PASS"
+      "positives_total": 4,
+      "controls_admitted": 0,
+      "controls_total": 4,
+      "failed_positive_ids": [],
+      "leaked_control_ids": [],
+      "invalid_fixture_ids": [
+        "psd-P4",
+        "psd-C4"
+      ],
+      "verdict": "INVALID_PENDING_AMENDMENT"
     },
     "preserved_claim_vs_dropped_call_result": {
       "controls_admitted": 0,
@@ -670,7 +761,8 @@
       "leaked_control_ids": [],
       "positives_admitted": 3,
       "positives_total": 5,
-      "verdict": "GENERALIZATION_FAIL"
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
     },
     "secret_logged_by_echo": {
       "controls_admitted": 1,
@@ -684,7 +776,8 @@
       ],
       "positives_admitted": 3,
       "positives_total": 5,
-      "verdict": "GENERALIZATION_FAIL"
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
     }
   },
   "phase": "18B",
