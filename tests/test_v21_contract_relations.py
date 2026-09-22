@@ -43,21 +43,36 @@ def test_population_and_pair_discipline_holds():
 
 def test_per_relation_verdicts_are_pinned():
     info = _report()["phase09"]["relations"]
-    failed = "doc_contract_prefix_unanchored_match"
-    assert info[failed]["eligible"] is False
-    assert info[failed]["control_fixtures"] == ["C10"]
+
+    failed = info["doc_contract_prefix_unanchored_match"]
+    assert failed["eligible"] is False
+    assert failed["verdict"] == "FAILED_CONTROL_LEAK"
+    assert failed["new_tp_rows"] == 1
+    assert failed["new_tp_fixtures"] == ["M10"]
+    assert failed["control_admissions"] == 3
+    assert failed["control_fixtures"] == ["C10"]
+
+    no_yield = info["secret_logged_by_echo"]
+    assert no_yield["eligible"] is False
+    assert no_yield["verdict"] == "NO_YIELD"
+    assert no_yield["new_tp_rows"] == 0
+    assert no_yield["raw_match_tp_rows"] == 9
+    assert no_yield["raw_match_tp_fixtures"] == ["M14"]
+
     eligible = {
-        "pinned_sha_demoted_to_branch": (["M2"], 0),
-        "preserved_claim_vs_dropped_call_result": (["M7"], 1),
-        "consume_before_validate_ordering": (["M8"], 0),
-        "secret_logged_by_echo": (["M14"], 0),
-        "doc_self_contradiction": (["M17", "M18"], 0),
-        "jsonl_format_vs_unslurped_jq": (["M6"], 0),
+        "pinned_sha_demoted_to_branch": (["M2"], 1),
+        "preserved_claim_vs_dropped_call_result": (["M7"], 7),
+        "consume_before_validate_ordering": (["M8"], 5),
+        "doc_self_contradiction": (["M17", "M18"], 9),
+        "jsonl_format_vs_unslurped_jq": (["M6"], 2),
     }
-    for name, (fixtures, extras) in eligible.items():
+    for name, (fixtures, new_rows) in eligible.items():
         assert info[name]["eligible"] is True, name
-        assert info[name]["tp_fixtures"] == fixtures, name
-        assert info[name]["extra_rows"] == extras, name
+        assert info[name]["verdict"] == "ELIGIBLE", name
+        assert info[name]["new_tp_fixtures"] == fixtures, name
+        assert info[name]["new_tp_rows"] == new_rows, name
+        assert info[name]["control_admissions"] == 0, name
+        assert info[name]["new_extra_admissions"] == 0, name
     assert set(_report()["phase09"]["eligible"]) == set(eligible)
 
 
