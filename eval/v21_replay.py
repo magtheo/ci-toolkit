@@ -59,7 +59,8 @@ def predicate_names(finding, fixture):
             and re.search(r"mask|swallow|parseerror|empty cache|stale", comment)):
         found.append("masked_failure_fallback")
     # M16: generic exception is swallowed before a success response.
-    if ("except exception:" in patch and "pass" in patch
+    if ("except exception:" in patch
+            and re.search(r"(?m)^\s*[+-]?\s*pass\s*$", patch)
             and re.search(r"success|swallow|fabricat|false|mislead|discard", comment)):
         found.append("swallowed_exception_success")
     # A mutable action reference is independently visible in the diff.
@@ -118,18 +119,27 @@ def _frozen_rows():
                                         {f["path"]: f["patch"]
                                          for f in fixture["input"]["files"]},
                                         gate=True)
-        assert result == case["expected_result"]
-        assert audit == case["expected_gate_audit"]
-        # Failure cases target the admitted blocker. Good controls
-        # target the specific machine-downgraded finding (M12's record
-        # also has an unrelated honest survivor, which must not mask
-        # the downgrade control in this projection).
+        if result != case["expected_result"]:
+            raise RuntimeError("frozen result drift for %s" % case["case_id"])
+        if audit != case["expected_gate_audit"]:
+            raise RuntimeError("frozen gate-audit drift for %s"
+                               % case["case_id"])
+        # Failure cases target their sole admitted blocker. Good controls
+        # target their sole machine-downgraded finding (M12's record also
+        # has an unrelated honest survivor, which must not mask the
+        # downgrade control in this projection). Cardinality is explicit
+        # so a future multi-finding record cannot silently retarget replay.
         if case["class"] == "good_boundary_control":
-            target = next((f for f in result["findings"]
-                           if f.get("machine_reason")), None)
+            targets = [f for f in result["findings"]
+                       if f.get("machine_reason")]
         else:
-            target = next((f for f in result["findings"]
-                           if f["severity"] == "blocking"), None)
+            targets = [f for f in result["findings"]
+                       if f["severity"] == "blocking"]
+        if len(targets) != 1:
+            raise RuntimeError(
+                "expected exactly one replay target for %s, found %d"
+                % (case["case_id"], len(targets)))
+        target = targets[0]
         predicates = predicate_names(target, fixture) if target else []
         rows.append({
             "case_id": case["case_id"],
