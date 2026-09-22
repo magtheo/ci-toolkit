@@ -16,7 +16,7 @@
   },
   "id": "jfu-P2",
   "language": "bash",
-  "probe": false,
+  "probe": true,
   "rationale": "unslurped array consumer; producer uses single-redirect form (implementation-shape probe)",
   "relation": "jsonl_format_vs_unslurped_jq",
   "role": "positive"
