@@ -169,24 +169,58 @@ def _corpus_rows():
 
 
 def eligibility(rows):
-    """Pair discipline: any relation admitting a control is FAILED and
-    excluded from the candidate gate."""
+    """Binding pair discipline at the *effective admission* boundary.
+
+    A relation survives only if, after the frozen quote gate and
+    contract-route requirement, it newly admits >=1 oracle-matching TP
+    and admits zero controls corpus-wide. Raw relation matches are kept
+    separately as diagnostics; they are not called admissions.
+    """
     report = {}
     for name in RELATIONS:
-        tp = [r for r in rows if name in r["relations"]
-              and r["role"] == "true_positive_detection"]
-        controls = [r for r in rows if name in r["relations"]
-                    and r["role"] == "control_blocker"]
-        extras = [r for r in rows if name in r["relations"]
-                  and r["role"] == "positive_extra_blocker"]
+        raw_tp = [r for r in rows if name in r["relations"]
+                  and r["role"] == "true_positive_detection"]
+        raw_controls = [r for r in rows if name in r["relations"]
+                        and r["role"] == "control_blocker"]
+        raw_extras = [r for r in rows if name in r["relations"]
+                      and r["role"] == "positive_extra_blocker"]
+
+        would_admit = [
+            r for r in rows
+            if name in r["relations"]
+            and r["route"] == "contract_contradiction"
+            and r["quote_only"]
+        ]
+        new_tp = [r for r in would_admit
+                  if r["role"] == "true_positive_detection"
+                  and not r["route_typed"]]
+        controls = [r for r in would_admit
+                    if r["role"] == "control_blocker"]
+        new_extras = [r for r in would_admit
+                      if r["role"] == "positive_extra_blocker"
+                      and not r["route_typed"]]
+
+        eligible = bool(new_tp) and not controls
+        if controls:
+            verdict = "FAILED_CONTROL_LEAK"
+        elif not new_tp:
+            verdict = "NO_YIELD"
+        else:
+            verdict = "ELIGIBLE"
+
         report[name] = {
-            "eligible": bool(tp) and not controls,
-            "tp_rows": len(tp),
-            "tp_fixtures": sorted({r["fixture"] for r in tp}),
-            "control_rows": len(controls),
+            "eligible": eligible,
+            "verdict": verdict,
+            "new_tp_rows": len(new_tp),
+            "new_tp_fixtures": sorted({r["fixture"] for r in new_tp}),
+            "control_admissions": len(controls),
             "control_fixtures": sorted({r["fixture"] for r in controls}),
-            "extra_rows": len(extras),
-            "extra_fixtures": sorted({r["fixture"] for r in extras}),
+            "new_extra_admissions": len(new_extras),
+            "new_extra_fixtures": sorted({r["fixture"] for r in new_extras}),
+            "raw_match_tp_rows": len(raw_tp),
+            "raw_match_tp_fixtures": sorted({r["fixture"] for r in raw_tp}),
+            "raw_match_control_rows": len(raw_controls),
+            "raw_match_extra_rows": len(raw_extras),
         }
     return report
 
@@ -274,13 +308,13 @@ def _frozen_rows(eligible_names):
 
 def replay():
     rows = _corpus_rows()
-    relations = eligibility(rows)
-    eligible = {name for name, info in relations.items()
-                if info["eligible"]}
     for row in rows:
         admitted, _ = rr.route_admits(
             row["route"], row["quote_only"], row["witnesses"])
         row["route_typed"] = admitted
+    relations = eligibility(rows)
+    eligible = {name for name, info in relations.items()
+                if info["eligible"]}
     for row in rows:
         row["candidate"] = _candidate_admitted(row, eligible)
     controls = [r for r in rows if r["role"] == "control_blocker"]
