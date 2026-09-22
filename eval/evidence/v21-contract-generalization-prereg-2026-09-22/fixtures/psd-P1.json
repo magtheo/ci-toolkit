@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The reusable workflow reference was changed from a pinned full commit SHA to the mutable @main branch. Any push to acme-platform/deploy-kit's main branch now changes the code that runs in this repository's CI with access to DEPLOY_KEY, undoing the supply-chain pinning hardening.",
+    "file": ".github/workflows/deploy.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/deploy.yml\n+++ b/.github/workflows/deploy.yml\n@@ -4,7 +4,7 @@\n jobs:\n   ship:\n-    uses: acme-platform/deploy-kit/.github/workflows/ship.yml@8f14e45fceea167a5a36dedd4bea2543aa76d1f4\n+    uses: acme-platform/deploy-kit/.github/workflows/ship.yml@main\n     with:\n       env: production\n     secrets:\n       DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}",
+          "path": ".github/workflows/deploy.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-P1",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "same diff, comment and vocabulary; only the added ref differs: demotion to @main vs re-pin to a new immutable SHA",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "positive"
+}

@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the entry is cleared only after validation, so an unauthenticated call leaves the cache intact; the drop-on-uncleared-path concern does not apply",
+    "file": "src/refresh.js"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/src/refresh.js\n+++ b/src/refresh.js\n@@ -30,6 +30,10 @@\n function maybeRefresh(key) {\n+  const cached = store.get(key);\n+  const user = session.user;\n+  if (user == null) return;\n+  store.set(key, null);\n+  refresh(cached, user);\n }",
+          "path": "src/refresh.js"
+        }
+      ]
+    }
+  },
+  "id": "cbv-C2",
+  "language": "javascript",
+  "probe": false,
+  "rationale": "setter-method consumption after guard",
+  "relation": "consume_before_validate_ordering",
+  "role": "control"
+}

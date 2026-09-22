@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the consumer slurps the JSONL into an array before any(.[]; \u2026), so the check matches the documented one-object-per-line input format",
+    "file": "scripts/scan.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/scan.sh\n+++ b/scripts/scan.sh\n@@ -1,3 +1,6 @@\n # findings were collected as JSONL (one object per line):\n #   jq -c '.[]' <<<\"$batch\" >>\"$events_jsonl\"\n+if ! jq -s -e 'any(.[]; .level == \"error\")' <\"$events_jsonl\" >/dev/null; then\n+  echo \"at least one error finding\" >&2\n+  exit 1\n+fi",
+          "path": "scripts/scan.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-C1",
+  "language": "bash",
+  "probe": false,
+  "rationale": "slurped consumer; format assumption corrected",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "control"
+}

@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "builder_ref moved from a pinned immutable SHA to the mutable master branch; the image publish job can now execute attacker-chosen builder code after any upstream push.",
+    "file": ".github/workflows/publish.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/publish.yml\n+++ b/.github/workflows/publish.yml\n@@ -9,6 +9,6 @@\n   image:\n     uses: acme/infra-actions/.github/workflows/docker-build.yml@b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0\n     with:\n-      builder_ref: b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0\n+      builder_ref: master\n       platform: linux/amd64",
+          "path": ".github/workflows/publish.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-P3",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "branch-name demotion of a differently named *_ref input",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "positive"
+}

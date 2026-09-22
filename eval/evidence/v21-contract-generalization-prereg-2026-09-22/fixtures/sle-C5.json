@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "only the password's length is logged, which reveals nothing about the secret value",
+    "file": "scripts/deploy.mjs"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/deploy.mjs\n+++ b/scripts/deploy.mjs\n@@ -9,3 +9,4 @@\n export async function deploy(cfg) {\n+  console.log(\"deploy password length\", cfg.dbPassword.length);\n   return post(cfg);\n }",
+          "path": "scripts/deploy.mjs"
+        }
+      ]
+    }
+  },
+  "id": "sle-C5",
+  "language": "javascript",
+  "probe": false,
+  "rationale": "same shape, logging only a length",
+  "relation": "secret_logged_by_echo",
+  "role": "control"
+}

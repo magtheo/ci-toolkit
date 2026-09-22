@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "Preservation claim checked: the response object is captured and its body returned, so complete() still yields the reply and the caller contract holds despite the rewritten transport.",
+    "file": "lib/engine_client.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/engine_client.py\n+++ b/lib/engine_client.py\n@@ -3,7 +3,7 @@\n # Behavior-preserving port: the HTTP call keeps the same bounded\n # semantics as the shell version.\n import urllib.request\n def complete(prompt):\n-    subprocess.run([\"curl\", \"-sS\", URL], check=True)\n+    resp = urllib.request.urlopen(URL, timeout=90)\n+    return resp.read()",
+          "path": "lib/engine_client.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-C1",
+  "language": "python",
+  "probe": false,
+  "rationale": "result captured and returned under the same claim",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "control"
+}

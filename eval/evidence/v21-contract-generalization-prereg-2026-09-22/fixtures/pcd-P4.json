@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The replacement claims to preserve the emit-and-ack behavior, but the httpx response is discarded: no status check, no ack \u2014 silent delivery failure is now possible.",
+    "file": "hooks/sender.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/hooks/sender.py\n+++ b/hooks/sender.py\n@@ -5,6 +5,5 @@\n # Drop-in replacement preserving the emit-and-ack behavior.\n import httpx\n def send(event):\n-    legacy_emit(event)\n+    httpx.post(HOOK, json=event)",
+          "path": "hooks/sender.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-P4",
+  "language": "python",
+  "probe": true,
+  "rationale": "beyond-original-scope probe: httpx client, result discarded",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "positive"
+}

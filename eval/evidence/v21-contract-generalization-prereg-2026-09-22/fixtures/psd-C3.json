@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "builder_ref must stay an immutable pin; floating it to a branch name would couple published images to unreviewed upstream state.",
+    "file": ".github/workflows/publish.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/publish.yml\n+++ b/.github/workflows/publish.yml\n@@ -9,6 +9,6 @@\n   image:\n     uses: acme/infra-actions/.github/workflows/docker-build.yml@b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0\n     with:\n-      builder_ref: b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0\n+      builder_ref: c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2\n       platform: linux/amd64",
+          "path": ".github/workflows/publish.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-C3",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "re-pin; no demotion",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "control"
+}

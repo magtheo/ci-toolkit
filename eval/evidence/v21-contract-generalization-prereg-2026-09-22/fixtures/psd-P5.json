@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The audit job now executes from the mutable main branch of security-kit with all secrets inherited; a compromised upstream push gains token access to this repository. The pinning contract is undone.",
+    "file": ".github/workflows/audit.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/audit.yml\n+++ b/.github/workflows/audit.yml\n@@ -2,5 +2,5 @@\n jobs:\n   audit:\n-    uses: acme/security-kit/.github/workflows/audit.yml@f3a4b5c6d7e8f90112a3b4c5d6e7f8a9b0c1d2e3\n+    uses: acme/security-kit/.github/workflows/audit.yml@main\n     secrets: inherit",
+          "path": ".github/workflows/audit.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-P5",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "secrets: inherit formatting; demotion",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "positive"
+}

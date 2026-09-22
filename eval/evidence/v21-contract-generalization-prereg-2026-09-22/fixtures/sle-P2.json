@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "printf writes the API_SECRET value straight to stdout; captured job logs leak the live credential.",
+    "file": "scripts/authenticate.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/authenticate.sh\n+++ b/scripts/authenticate.sh\n@@ -5,3 +5,4 @@\n set -euo pipefail\n+printf 'authenticating with %s\\n' \"$API_SECRET\"\n curl -sS -H \"X-Vault: $API_SECRET\" \"$VAULT_ADDR/auth\"",
+          "path": "scripts/authenticate.sh"
+        }
+      ]
+    }
+  },
+  "id": "sle-P2",
+  "language": "bash",
+  "probe": false,
+  "rationale": "printf of a secret-bearing variable",
+  "relation": "secret_logged_by_echo",
+  "role": "positive"
+}

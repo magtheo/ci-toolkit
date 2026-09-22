@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The cache entry is cleared before the user check; when the session has no user the entry was already consumed, so the pending refresh is permanently dropped \u2014 consume happens before validation.",
+    "file": "src/refresh.js"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/src/refresh.js\n+++ b/src/refresh.js\n@@ -30,6 +30,10 @@\n function maybeRefresh(key) {\n+  const cached = store.get(key);\n+  store.set(key, null);\n+  const user = session.user;\n+  if (user == null) return;\n+  refresh(cached, user);\n }",
+          "path": "src/refresh.js"
+        }
+      ]
+    }
+  },
+  "id": "cbv-P2",
+  "language": "javascript",
+  "probe": true,
+  "rationale": "setter-method consumption before guard",
+  "relation": "consume_before_validate_ordering",
+  "role": "positive"
+}

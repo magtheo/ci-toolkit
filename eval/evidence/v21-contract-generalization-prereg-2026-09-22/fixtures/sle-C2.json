@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "only the account name is printed; the credential value itself never reaches the log",
+    "file": "scripts/authenticate.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/authenticate.sh\n+++ b/scripts/authenticate.sh\n@@ -5,3 +5,4 @@\n set -euo pipefail\n+printf 'authenticating as %s\\n' \"$DEPLOY_USER\"\n curl -sS -H \"X-Vault: $API_SECRET\" \"$VAULT_ADDR/auth\"",
+          "path": "scripts/authenticate.sh"
+        }
+      ]
+    }
+  },
+  "id": "sle-C2",
+  "language": "bash",
+  "probe": false,
+  "rationale": "printf of a non-secret identifier",
+  "relation": "secret_logged_by_echo",
+  "role": "control"
+}

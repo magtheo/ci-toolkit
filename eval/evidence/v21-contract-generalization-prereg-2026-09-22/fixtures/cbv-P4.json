@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The job slot is cleared before the worker lookup; on an unknown worker the job reference is already consumed and the job is silently dropped rather than retried \u2014 consume-before-validate.",
+    "file": "worker/pool.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/worker/pool.py\n+++ b/worker/pool.py\n@@ -21,6 +21,10 @@\n     def dispatch(self, name):\n+        self.job = None\n+        worker = self.workers.get(name)\n+        if worker is None:\n+            return\n+        self.submit(worker)",
+          "path": "worker/pool.py"
+        }
+      ]
+    }
+  },
+  "id": "cbv-P4",
+  "language": "python",
+  "probe": true,
+  "rationale": "beyond-original-scope probe: Python None semantics instead of null equality",
+  "relation": "consume_before_validate_ordering",
+  "role": "positive"
+}

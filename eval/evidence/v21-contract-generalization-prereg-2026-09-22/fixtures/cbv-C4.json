@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the job slot is cleared only once the worker is known to exist, so the unknown-worker path leaves the job intact; the drop concern does not apply",
+    "file": "worker/pool.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/worker/pool.py\n+++ b/worker/pool.py\n@@ -21,6 +21,10 @@\n     def dispatch(self, name):\n+        worker = self.workers.get(name)\n+        if worker is None:\n+            return\n+        self.job = None\n+        self.submit(worker)",
+          "path": "worker/pool.py"
+        }
+      ]
+    }
+  },
+  "id": "cbv-C4",
+  "language": "python",
+  "probe": false,
+  "rationale": "Python None semantics, validate-then-consume",
+  "relation": "consume_before_validate_ordering",
+  "role": "control"
+}

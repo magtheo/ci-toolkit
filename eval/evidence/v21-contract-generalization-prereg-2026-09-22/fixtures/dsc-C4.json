@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "'never expire' is qualified by 'mid-session', and the 24-hour expiry applies to refresh tokens \u2014 a different object; the statements are compatible, not contradictory",
+    "file": "docs/auth-tokens.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/auth-tokens.md\n@@ -0,0 +1,9 @@\n+# Auth tokens\n+\n+Session tokens never expire mid-session.\n+\n+## Rotation\n+\n+Refresh tokens expire after 24 hours and must be renewed through\n+the refresh endpoint.",
+          "path": "docs/auth-tokens.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-C4",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "qualified universal + different token object",
+  "relation": "doc_self_contradiction",
+  "role": "control"
+}

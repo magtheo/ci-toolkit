@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "only a non-reversible fingerprint is logged; the key material itself is never emitted, so there is no credential leak",
+    "file": "scripts/vault-fetch.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/vault-fetch.sh\n+++ b/scripts/vault-fetch.sh\n@@ -6,3 +6,4 @@\n set -euo pipefail\n+logger -t ship \"using key fingerprint $VAULT_KEY_FP for $VAULT_ADDR\"\n vault kv get -field=cert \"$VAULT_ADDR\" > cert.pem",
+          "path": "scripts/vault-fetch.sh"
+        }
+      ]
+    }
+  },
+  "id": "sle-C3",
+  "language": "bash",
+  "probe": false,
+  "rationale": "redacted near-miss: variable NAME still contains 'key', logged value is a fingerprint, not the secret",
+  "relation": "secret_logged_by_echo",
+  "role": "control"
+}

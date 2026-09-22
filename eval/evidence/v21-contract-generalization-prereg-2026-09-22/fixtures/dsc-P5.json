@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "'never rejects for size' is contradicted by the Uploads section's 100 MB rejection; the doc cannot decide the actual limit behavior.",
+    "file": "docs/api-limits.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/api-limits.md\n@@ -0,0 +1,9 @@\n+# Request limits\n+\n+The API never rejects requests for size. Any payload is accepted.\n+\n+## Uploads\n+\n+Uploads larger than 100 MB are rejected with 413 by the upload\n+endpoint.",
+          "path": "docs/api-limits.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-P5",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "genuine contradiction (any payload vs 100 MB cap)",
+  "relation": "doc_self_contradiction",
+  "role": "positive"
+}

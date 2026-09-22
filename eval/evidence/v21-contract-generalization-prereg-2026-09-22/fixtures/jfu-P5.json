@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "jobs_jsonl is written one object per line, but length > 0 assumes a single array document; on the first per-line object jq returns the object's field count, so the gate tests the wrong thing for this input format.",
+    "file": "scripts/plan_gate.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/plan_gate.sh\n+++ b/scripts/plan_gate.sh\n@@ -5,4 +5,5 @@\n set -euo pipefail\n+jq -c '.jobs[]' <<<\"$plan\" >>\"$jobs_jsonl\"\n+test \"$(jq 'length > 0' <\"$jobs_jsonl\")\" = true\n+echo \"plan has jobs\"",
+          "path": "scripts/plan_gate.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-P5",
+  "language": "bash",
+  "probe": false,
+  "rationale": "unslurped single-document assumption (length over JSONL)",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "positive"
+}

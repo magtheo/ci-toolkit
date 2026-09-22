@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The summary log line embeds the live session token; centralized logs leak the credential to every reader.",
+    "file": "ops/report.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/ops/report.py\n+++ b/ops/report.py\n@@ -12,3 +12,4 @@\n def summarize(run):\n+    print(f\"token={SESSION_TOKEN}\")\n     return build_report(run)",
+          "path": "ops/report.py"
+        }
+      ]
+    }
+  },
+  "id": "sle-P4",
+  "language": "python",
+  "probe": true,
+  "rationale": "beyond-original-scope probe: python f-string logging of the secret value (no shell-style $ expansion)",
+  "relation": "secret_logged_by_echo",
+  "role": "positive"
+}

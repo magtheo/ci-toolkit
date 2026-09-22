@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The test job's reusable workflow is demoted to a mutable branch while lint stays pinned; a push to shared-ci main runs arbitrary test-side code with CODECOV_TOKEN access \u2014 the supply-chain pin is inconsistently undone.",
+    "file": ".github/workflows/ci.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -6,10 +6,10 @@\n jobs:\n   lint:\n     uses: acme/shared-ci/.github/workflows/lint.yml@d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1\n   test:\n-    uses: acme/shared-ci/.github/workflows/test.yml@e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1\n+    uses: acme/shared-ci/.github/workflows/test.yml@main\n     secrets:\n       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}",
+          "path": ".github/workflows/ci.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-P4",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "one of two jobs demoted",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "positive"
+}

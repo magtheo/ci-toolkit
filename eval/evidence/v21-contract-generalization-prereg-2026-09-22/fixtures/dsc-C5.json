@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the never-rejected claim is scoped to the JSON API while the 100 MB rule belongs to the separate upload service; scopes do not overlap, so this is not a contradiction",
+    "file": "docs/api-limits.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/api-limits.md\n@@ -0,0 +1,9 @@\n+# Request limits\n+\n+JSON API requests are never rejected for size.\n+\n+## Uploads\n+\n+Uploads larger than 100 MB are rejected with 413 by the separate\n+upload service.",
+          "path": "docs/api-limits.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-C5",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "scope-distinct claims (JSON API vs upload service)",
+  "relation": "doc_self_contradiction",
+  "role": "control"
+}

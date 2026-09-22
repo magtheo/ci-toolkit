@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the selection is cleared only after the panel guard passes, so an unmounted panel defers the request; nothing is consumed before validation",
+    "file": "src/panels/viewer.ts"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/src/panels/viewer.ts\n+++ b/src/panels/viewer.ts\n@@ -44,6 +44,10 @@\n   showLatest() {\n+    const panel = this.panelRef;\n+    if (panel == null) return;\n+    this.selection = null;\n+    this.render(panel);\n   }",
+          "path": "src/panels/viewer.ts"
+        }
+      ]
+    }
+  },
+  "id": "cbv-C3",
+  "language": "typescript",
+  "probe": false,
+  "rationale": "property assignment consumption after guard",
+  "relation": "consume_before_validate_ordering",
+  "role": "control"
+}

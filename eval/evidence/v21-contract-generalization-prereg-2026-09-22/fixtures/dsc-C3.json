@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the window is stated once and the purge job simply implements it; the statements agree, so there is no inconsistency to report",
+    "file": "docs/retention.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/retention.md\n@@ -0,0 +1,9 @@\n+# Log retention\n+\n+Audit logs are retained for 30 days.\n+\n+## Cost controls\n+\n+The retention job purges logs once they pass the 30-day window\n+described above.",
+          "path": "docs/retention.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-C3",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "consistent single window",
+  "relation": "doc_self_contradiction",
+  "role": "control"
+}

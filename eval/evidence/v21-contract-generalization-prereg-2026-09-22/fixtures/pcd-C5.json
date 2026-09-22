@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the response object is returned directly, so the relayed reply still reaches the caller",
+    "file": "lib/relay.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/relay.py\n+++ b/lib/relay.py\n@@ -11,7 +11,7 @@\n # Same bounded HTTP semantics as the shelled-out version.\n import urllib.request\n def relay(req):\n-    shell_curl(req)\n+    return urllib.request.urlopen(req, timeout=30)",
+          "path": "lib/relay.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-C5",
+  "language": "python",
+  "probe": false,
+  "rationale": "result returned under the same claim",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "control"
+}

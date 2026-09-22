@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "The intro's absolute wording reads like it contradicts the Probes section, but the exception is scoped into the same sentence and restated below \u2014 the claims are compatible, not contradictory.",
+    "file": "docs/caching.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/caching.md\n@@ -0,0 +1,9 @@\n+# Response caching\n+\n+All API responses are served from the cache, except health probes,\n+which bypass it by design.\n+\n+## Probes\n+\n+/health and /metrics bypass the cache and always hit origin services;\n+this is the documented exception noted above.",
+          "path": "docs/caching.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-C1",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "same wording family; exception scoped and compatible",
+  "relation": "doc_self_contradiction",
+  "role": "control"
+}

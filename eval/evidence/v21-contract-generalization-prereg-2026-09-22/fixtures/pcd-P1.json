@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The port claims behavior-preserving semantics, but the urlopen result is discarded \u2014 complete() now returns None and callers lose the model's reply entirely; the caller contract is broken despite the preservation claim in the module comment.",
+    "file": "lib/engine_client.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/engine_client.py\n+++ b/lib/engine_client.py\n@@ -3,7 +3,6 @@\n # Behavior-preserving port: the HTTP call keeps the same bounded\n # semantics as the shell version.\n import urllib.request\n def complete(prompt):\n-    subprocess.run([\"curl\", \"-sS\", URL], check=True)\n+    urllib.request.urlopen(URL, timeout=90)",
+          "path": "lib/engine_client.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-P1",
+  "language": "python",
+  "probe": false,
+  "rationale": "bare dropped urlopen result under a same-semantics claim",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "positive"
+}

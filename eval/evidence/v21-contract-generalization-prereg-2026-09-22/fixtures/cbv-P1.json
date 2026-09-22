@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The draft is cleared before the route check; if navigation is not ready the draft has already been consumed and is permanently dropped \u2014 a consume-before-validate race against the next frame.",
+    "file": "lib/editor/sheet.dart"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/editor/sheet.dart\n+++ b/lib/editor/sheet.dart\n@@ -20,6 +20,11 @@\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      final draft = ref.read(draftProvider);\n+      ref.read(draftProvider.notifier).state = null;\n+      final route = ref.read(routeProvider);\n+      if (route == null) return; // navigation not ready yet\n+      _open(draft.id, route);\n       _restore();\n     });",
+          "path": "lib/editor/sheet.dart"
+        }
+      ]
+    }
+  },
+  "id": "cbv-P1",
+  "language": "dart",
+  "probe": false,
+  "rationale": "consume-then-validate; original .state = null statement shape",
+  "relation": "consume_before_validate_ordering",
+  "role": "positive"
+}

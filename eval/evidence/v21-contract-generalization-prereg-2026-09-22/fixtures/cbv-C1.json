@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "both guards run before the draft is consumed (nulled), so a not-ready frame defers instead of dropping; the comment's cleared-before-check concern does not match this diff",
+    "file": "lib/editor/sheet.dart"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/editor/sheet.dart\n+++ b/lib/editor/sheet.dart\n@@ -20,6 +20,11 @@\n     super.initState();\n     WidgetsBinding.instance.addPostFrameCallback((_) {\n+      final draft = ref.read(draftProvider);\n+      final route = ref.read(routeProvider);\n+      if (draft == null || route == null) return;\n+      ref.read(draftProvider.notifier).state = null;\n+      _open(draft.id, route);\n       _restore();\n     });",
+          "path": "lib/editor/sheet.dart"
+        }
+      ]
+    }
+  },
+  "id": "cbv-C1",
+  "language": "dart",
+  "probe": false,
+  "rationale": "validate-then-consume; same shapes",
+  "relation": "consume_before_validate_ordering",
+  "role": "control"
+}
