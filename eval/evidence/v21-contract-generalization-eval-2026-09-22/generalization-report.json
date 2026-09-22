@@ -1,0 +1,795 @@
+{
+  "aggregate": {
+    "positives_admitted": 16,
+    "positives_total": 28,
+    "controls_admitted": 3,
+    "controls_total": 28,
+    "raw_observed_positives_admitted": 16,
+    "raw_observed_positives_total": 30,
+    "raw_observed_controls_admitted": 3,
+    "raw_observed_controls_total": 30,
+    "relations_pass": 0,
+    "relations_fail": 4,
+    "relations_invalid": 2,
+    "all_pass": false,
+    "blanket_promotion_eligible": false
+  },
+  "fixture_defects": {
+    "jfu-P5": {
+      "defect": "fixture is outside frozen relation scope: no .[] array-filter consumer",
+      "disposition": "INVALID pair per PROTOCOL.md; both P5/C5 are excluded from scoring pending reviewed amendment and rerun",
+      "pair_fixture_ids": [
+        "jfu-P5",
+        "jfu-C5"
+      ],
+      "proof": {
+        "requires_unslurped_array_consumer": true,
+        "array_filter_present": false,
+        "fixture_rationale": "unslurped single-document assumption (length over JSONL)"
+      }
+    },
+    "psd-P4": {
+      "defect": "authored pinned ref is not a 40-hex commit SHA",
+      "disposition": "INVALID pair per PROTOCOL.md; both P4/C4 are excluded from scoring pending reviewed amendment and rerun",
+      "pair_fixture_ids": [
+        "psd-P4",
+        "psd-C4"
+      ],
+      "proof": {
+        "hex_runs_in_removed_lines": [
+          "e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1"
+        ],
+        "lengths": [
+          39
+        ]
+      }
+    }
+  },
+  "fixture_rows": [
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "cbv-C1",
+      "probe": false,
+      "relation": "consume_before_validate_ordering",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "cbv-C2",
+      "probe": false,
+      "relation": "consume_before_validate_ordering",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "cbv-C3",
+      "probe": false,
+      "relation": "consume_before_validate_ordering",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "cbv-C4",
+      "probe": false,
+      "relation": "consume_before_validate_ordering",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "cbv-C5",
+      "probe": false,
+      "relation": "consume_before_validate_ordering",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "consume_before_validate_ordering"
+      ],
+      "id": "cbv-P1",
+      "probe": false,
+      "relation": "consume_before_validate_ordering",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "cbv-P2",
+      "probe": true,
+      "relation": "consume_before_validate_ordering",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "cbv-P3",
+      "probe": true,
+      "relation": "consume_before_validate_ordering",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "cbv-P4",
+      "probe": true,
+      "relation": "consume_before_validate_ordering",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "cbv-P5",
+      "probe": true,
+      "relation": "consume_before_validate_ordering",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "REFUSES",
+      "fired_relations": [
+        "doc_self_contradiction"
+      ],
+      "id": "dsc-C1",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "REFUSES",
+      "fired_relations": [
+        "doc_self_contradiction"
+      ],
+      "id": "dsc-C2",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "dsc-C3",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "dsc-C4",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "dsc-C5",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "doc_self_contradiction"
+      ],
+      "id": "dsc-P1",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "doc_self_contradiction"
+      ],
+      "id": "dsc-P2",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "dsc-P3",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "dsc-P4",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "dsc-P5",
+      "probe": false,
+      "relation": "doc_self_contradiction",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "jfu-C1",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "jfu-C2",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "jfu-C3",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "jfu-C4",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "jfu-C5",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "control",
+      "invalid": true
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "jsonl_format_vs_unslurped_jq"
+      ],
+      "id": "jfu-P1",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "jfu-P2",
+      "probe": true,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "jsonl_format_vs_unslurped_jq"
+      ],
+      "id": "jfu-P3",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "jsonl_format_vs_unslurped_jq"
+      ],
+      "id": "jfu-P4",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "jfu-P5",
+      "probe": false,
+      "relation": "jsonl_format_vs_unslurped_jq",
+      "role": "positive",
+      "invalid": true
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "pcd-C1",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "pcd-C2",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "pcd-C3",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "pcd-C4",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "pcd-C5",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "preserved_claim_vs_dropped_call_result"
+      ],
+      "id": "pcd-P1",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "preserved_claim_vs_dropped_call_result"
+      ],
+      "id": "pcd-P2",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "pcd-P3",
+      "probe": true,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "pcd-P4",
+      "probe": true,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "preserved_claim_vs_dropped_call_result"
+      ],
+      "id": "pcd-P5",
+      "probe": false,
+      "relation": "preserved_claim_vs_dropped_call_result",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "psd-C1",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "psd-C2",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "psd-C3",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "psd-C4",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "control",
+      "invalid": true
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "psd-C5",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "pinned_sha_demoted_to_branch"
+      ],
+      "id": "psd-P1",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "pinned_sha_demoted_to_branch"
+      ],
+      "id": "psd-P2",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "pinned_sha_demoted_to_branch"
+      ],
+      "id": "psd-P3",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "psd-P4",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "positive",
+      "invalid": true
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "pinned_sha_demoted_to_branch"
+      ],
+      "id": "psd-P5",
+      "probe": false,
+      "relation": "pinned_sha_demoted_to_branch",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "sle-C1",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "sle-C2",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "REFUSES",
+      "fired_relations": [
+        "secret_logged_by_echo"
+      ],
+      "id": "sle-C3",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "sle-C4",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "REFUSES",
+      "fired_relations": [],
+      "id": "sle-C5",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "control",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "secret_logged_by_echo"
+      ],
+      "id": "sle-P1",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "secret_logged_by_echo"
+      ],
+      "id": "sle-P2",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": true,
+      "expected_label": "ADMITS",
+      "fired_relations": [
+        "secret_logged_by_echo"
+      ],
+      "id": "sle-P3",
+      "probe": false,
+      "relation": "secret_logged_by_echo",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "sle-P4",
+      "probe": true,
+      "relation": "secret_logged_by_echo",
+      "role": "positive",
+      "invalid": false
+    },
+    {
+      "admitted": false,
+      "expected_label": "ADMITS",
+      "fired_relations": [],
+      "id": "sle-P5",
+      "probe": true,
+      "relation": "secret_logged_by_echo",
+      "role": "positive",
+      "invalid": false
+    }
+  ],
+  "frozen_verifier": {
+    "merge_sha": "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b",
+    "module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+  },
+  "oracle_version": "117b4164e5446f50",
+  "per_relation": {
+    "consume_before_validate_ordering": {
+      "controls_admitted": 0,
+      "controls_total": 5,
+      "failed_positive_ids": [
+        "cbv-P2",
+        "cbv-P3",
+        "cbv-P4",
+        "cbv-P5"
+      ],
+      "leaked_control_ids": [],
+      "positives_admitted": 1,
+      "positives_total": 5,
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
+    },
+    "doc_self_contradiction": {
+      "controls_admitted": 2,
+      "controls_total": 5,
+      "failed_positive_ids": [
+        "dsc-P3",
+        "dsc-P4",
+        "dsc-P5"
+      ],
+      "leaked_control_ids": [
+        "dsc-C1",
+        "dsc-C2"
+      ],
+      "positives_admitted": 2,
+      "positives_total": 5,
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
+    },
+    "jsonl_format_vs_unslurped_jq": {
+      "positives_admitted": 3,
+      "positives_total": 4,
+      "controls_admitted": 0,
+      "controls_total": 4,
+      "failed_positive_ids": [
+        "jfu-P2"
+      ],
+      "leaked_control_ids": [],
+      "invalid_fixture_ids": [
+        "jfu-P5",
+        "jfu-C5"
+      ],
+      "verdict": "INVALID_PENDING_AMENDMENT"
+    },
+    "pinned_sha_demoted_to_branch": {
+      "positives_admitted": 4,
+      "positives_total": 4,
+      "controls_admitted": 0,
+      "controls_total": 4,
+      "failed_positive_ids": [],
+      "leaked_control_ids": [],
+      "invalid_fixture_ids": [
+        "psd-P4",
+        "psd-C4"
+      ],
+      "verdict": "INVALID_PENDING_AMENDMENT"
+    },
+    "preserved_claim_vs_dropped_call_result": {
+      "controls_admitted": 0,
+      "controls_total": 5,
+      "failed_positive_ids": [
+        "pcd-P3",
+        "pcd-P4"
+      ],
+      "leaked_control_ids": [],
+      "positives_admitted": 3,
+      "positives_total": 5,
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
+    },
+    "secret_logged_by_echo": {
+      "controls_admitted": 1,
+      "controls_total": 5,
+      "failed_positive_ids": [
+        "sle-P4",
+        "sle-P5"
+      ],
+      "leaked_control_ids": [
+        "sle-C3"
+      ],
+      "positives_admitted": 3,
+      "positives_total": 5,
+      "verdict": "GENERALIZATION_FAIL",
+      "invalid_fixture_ids": []
+    }
+  },
+  "phase": "18B",
+  "protocol": "eval/evidence/v21-contract-generalization-prereg-2026-09-22/PROTOCOL.md",
+  "standing_regression_guards": {
+    "C10_standing_near_miss": true,
+    "C11_refused": true,
+    "C12_refused": true,
+    "M10_relation_still_FAILED": true,
+    "M12_refused": true,
+    "M13_refused": true,
+    "M3_admitted_via_existing_witness": true,
+    "oracle": "117b4164e5446f50"
+  }
+}
