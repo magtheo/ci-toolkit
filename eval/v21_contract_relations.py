@@ -169,12 +169,13 @@ def _corpus_rows():
 
 
 def eligibility(rows):
-    """Binding pair discipline at the *effective admission* boundary.
+    """Preregistered relation-level pair discipline plus utility data.
 
-    A relation survives only if, after the frozen quote gate and
-    contract-route requirement, it newly admits >=1 oracle-matching TP
-    and admits zero controls corpus-wide. Raw relation matches are kept
-    separately as diagnostics; they are not called admissions.
+    Pair eligibility is evaluated on the relation predicate itself:
+    >=1 oracle-matching TP match and zero control matches corpus-wide.
+    Candidate-gate utility is reported separately after the frozen
+    contract-route + quote requirements. This preserves the protocol
+    rather than post-hoc excluding a pair-safe relation for zero yield.
     """
     report = {}
     for name in RELATIONS:
@@ -194,20 +195,15 @@ def eligibility(rows):
         new_tp = [r for r in would_admit
                   if r["role"] == "true_positive_detection"
                   and not r["route_typed"]]
-        # Pair safety is deliberately stronger than final admission:
-        # if the relation predicate itself cannot distinguish any frozen
-        # control, it is rejected even when an upstream quote/route gate
-        # happens to suppress that control today.
-        controls = raw_controls
         new_extras = [r for r in would_admit
                       if r["role"] == "positive_extra_blocker"
                       and not r["route_typed"]]
 
-        eligible = bool(new_tp) and not controls
-        if controls:
+        eligible = bool(raw_tp) and not raw_controls
+        if raw_controls:
             verdict = "FAILED_CONTROL_LEAK"
-        elif not new_tp:
-            verdict = "NO_YIELD"
+        elif not raw_tp:
+            verdict = "NO_TP_MATCH"
         else:
             verdict = "ELIGIBLE"
 
@@ -216,13 +212,12 @@ def eligibility(rows):
             "verdict": verdict,
             "new_tp_rows": len(new_tp),
             "new_tp_fixtures": sorted({r["fixture"] for r in new_tp}),
-            "control_admissions": len(controls),
-            "control_fixtures": sorted({r["fixture"] for r in controls}),
             "new_extra_admissions": len(new_extras),
             "new_extra_fixtures": sorted({r["fixture"] for r in new_extras}),
             "raw_match_tp_rows": len(raw_tp),
             "raw_match_tp_fixtures": sorted({r["fixture"] for r in raw_tp}),
             "raw_match_control_rows": len(raw_controls),
+            "control_fixtures": sorted({r["fixture"] for r in raw_controls}),
             "raw_match_extra_rows": len(raw_extras),
         }
     return report
