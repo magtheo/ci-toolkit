@@ -1,7 +1,10 @@
 # v2.1 offline replay result
 
 Method: `python3 eval/v21_replay.py` at oracle
-`117b4164e5446f50`. Inputs are the 276 blocking findings drawn from
+`117b4164e5446f50`. Inputs are the full frozen Phase-09 population:
+**414 records containing 276 blocking findings**, from the same sources
+used by `eval/evidence_boundary_sim.py`, plus the five sha-linked
+post-trial regression cases.
 
 ## Phase-09 corpus result
 
@@ -11,8 +14,9 @@ Method: `python3 eval/v21_replay.py` at oracle
 | oracle-matching true-positive detections | 111 / 165 | 50 / 165 | -61 |
 | positive extra blockers | 7 / 34 | 2 / 34 | -5 |
 
-The registry removes every historical quote-gate control survivor,
-severely.
+The registry removes every historical quote-gate control survivor, but
+does so by admitting only 50/165 oracle-matching positive detections
+(~30%) that were present in the historical blocking population.
 
 ## Frozen five-case projection
 
@@ -27,10 +31,13 @@ severely.
 ## Conclusion
 
 The replay distinguishes all three confirmed declaration-failure
-patterns **only by trading away 61/165 historical oracle-matching
+patterns, but only by trading away **61/165 historical oracle-matching
+detections** relative to quote-only admission.
 
-1. quote existence plus a narrow structural witness is materially
-   safer than quote existence alone;
+Two conclusions follow:
+
+1. quote existence plus a narrow structural witness is materially safer
+   than quote existence alone;
 2. that witness registry cannot be the whole v2.1 answer without
    unacceptable coverage loss.
 
