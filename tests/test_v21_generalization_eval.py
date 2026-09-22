@@ -28,13 +28,15 @@ def test_frozen_identity_and_standing_guards():
 def test_per_relation_verdicts_are_pinned():
     per = _report()["per_relation"]
     expected = {
-        "pinned_sha_demoted_to_branch": (4, 0, "GENERALIZATION_PASS"),
+        "pinned_sha_demoted_to_branch": (
+            4, 0, "INVALID_PENDING_AMENDMENT"),
         "preserved_claim_vs_dropped_call_result": (
             3, 0, "GENERALIZATION_FAIL"),
         "consume_before_validate_ordering": (1, 0, "GENERALIZATION_FAIL"),
         "secret_logged_by_echo": (3, 1, "GENERALIZATION_FAIL"),
         "doc_self_contradiction": (2, 2, "GENERALIZATION_FAIL"),
-        "jsonl_format_vs_unslurped_jq": (3, 0, "GENERALIZATION_FAIL"),
+        "jsonl_format_vs_unslurped_jq": (
+            3, 0, "INVALID_PENDING_AMENDMENT"),
     }
     for relation, (tp, leak, verdict) in expected.items():
         got = per[relation]
@@ -57,25 +59,48 @@ def test_failed_and_leaked_fixture_ids_are_exact():
     assert per["doc_self_contradiction"]["leaked_control_ids"] == \
         ["dsc-C1", "dsc-C2"]
     assert per["jsonl_format_vs_unslurped_jq"]["failed_positive_ids"] == \
-        ["jfu-P2", "jfu-P5"]
+        ["jfu-P2"]
+    assert per["jsonl_format_vs_unslurped_jq"]["invalid_fixture_ids"] == \
+        ["jfu-P5", "jfu-C5"]
+    assert per["pinned_sha_demoted_to_branch"]["failed_positive_ids"] == []
+    assert per["pinned_sha_demoted_to_branch"]["invalid_fixture_ids"] == \
+        ["psd-P4", "psd-C4"]
     assert per["pinned_sha_demoted_to_branch"]["leaked_control_ids"] == []
 
 
 def test_aggregate_is_no_blanket_promotion():
     aggregate = _report()["aggregate"]
     assert aggregate == {
-        "positives_admitted": 16, "positives_total": 30,
-        "controls_admitted": 3, "controls_total": 30,
-        "relations_pass": 1, "all_pass": False,
+        "positives_admitted": 16, "positives_total": 28,
+        "controls_admitted": 3, "controls_total": 28,
+        "raw_observed_positives_admitted": 16,
+        "raw_observed_positives_total": 30,
+        "raw_observed_controls_admitted": 3,
+        "raw_observed_controls_total": 30,
+        "relations_pass": 0, "relations_fail": 4,
+        "relations_invalid": 2, "all_pass": False,
+        "blanket_promotion_eligible": False,
     }
 
 
-def test_psd_p4_invalid_defect_is_recorded():
-    defects = _report()["fixture_defects"]
-    assert set(defects) == {"psd-P4"}
-    proof = defects["psd-P4"]["proof"]
-    assert proof["lengths"] == [39]
-    assert defects["psd-P4"]["disposition"].startswith("INVALID pair")
+def test_invalid_pairs_are_recorded_and_excluded():
+    report = _report()
+    defects = report["fixture_defects"]
+    assert set(defects) == {"psd-P4", "jfu-P5"}
+
+    psd = defects["psd-P4"]
+    assert psd["proof"]["lengths"] == [39]
+    assert psd["pair_fixture_ids"] == ["psd-P4", "psd-C4"]
+    assert psd["disposition"].startswith("INVALID pair")
+
+    jfu = defects["jfu-P5"]
+    assert jfu["proof"]["requires_unslurped_array_consumer"] is True
+    assert jfu["proof"]["array_filter_present"] is False
+    assert jfu["pair_fixture_ids"] == ["jfu-P5", "jfu-C5"]
+    assert jfu["disposition"].startswith("INVALID pair")
+
+    invalid_rows = {r["id"] for r in report["fixture_rows"] if r["invalid"]}
+    assert invalid_rows == {"psd-P4", "psd-C4", "jfu-P5", "jfu-C5"}
 
 
 def test_fail_closed_on_verifier_drift():
