@@ -1,0 +1,95 @@
+{
+  "case_id": "C11-fabricated-contract-contradiction",
+  "class": "declaration_failure",
+  "expected_gate_audit": [
+    {
+      "checks": [
+        {
+          "check": "file_in_diff",
+          "class": "mechanical",
+          "passed": true
+        },
+        {
+          "check": "quote_in_patch",
+          "class": "mechanical",
+          "passed": true,
+          "quote": "# callers compose on .status. A nonzero exit is reserved for harness\n# failures (bugs in this script), never for check failures."
+        },
+        {
+          "check": "line_in_hunk",
+          "class": "mechanical",
+          "line": 7,
+          "passed": true
+        },
+        {
+          "check": "kind_not_presumed_assumption",
+          "class": "declared",
+          "declared_kind": "in_diff_contract_contradiction",
+          "passed": true
+        },
+        {
+          "check": "harm_declared_demonstrated",
+          "class": "declared",
+          "declared_harm": "demonstrated",
+          "passed": true
+        }
+      ],
+      "failed_checks": [],
+      "file": "scripts/check-migrations.sh",
+      "permitted": true
+    }
+  ],
+  "expected_result": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "comment": "Contract contradiction: the header states 'A nonzero exit is reserved for harness failures (bugs in this script), never for check failures', but a harness failure \u2014 npx missing, prisma not installed, npx crashing \u2014 is handled by the same branch as a check failure: output is discarded, status is set to 'failed', and the script exits 0. The pipeline composer cannot distinguish 'migrations out of sync' from 'the check tool itself is broken', which is exactly the case the reserved nonzero exit was meant to signal. The set -uo pipefail does not help because the command's failure is captured by the if, not allowed to propagate.",
+        "evidence": {
+          "harm": "demonstrated",
+          "kind": "in_diff_contract_contradiction",
+          "quote": "# callers compose on .status. A nonzero exit is reserved for harness\n# failures (bugs in this script), never for check failures."
+        },
+        "file": "scripts/check-migrations.sh",
+        "line": 7,
+        "severity": "blocking",
+        "suggestion": "if ! command -v npx >/dev/null 2>&1; then echo '{\"status\":\"harness_error\"}' >&2; exit 1; fi\nif npx prisma migrate status >/dev/null 2>&1; then\n  status=ok\nfi"
+      },
+      {
+        "comment": "Discarding all of `npx prisma migrate status` output (>/dev/null 2>&1) makes the JSON report the only diagnostic; when status is 'failed', operators get no reason why. Consider capturing output to a temp file and emitting it in a detail field or on stderr.",
+        "file": "scripts/check-migrations.sh",
+        "line": 7,
+        "severity": "non-blocking",
+        "suggestion": "if out=$(npx prisma migrate status 2>&1); then\n  status=ok\nelse\n  printf '%s\\n' \"$out\" >&2\nfi"
+      },
+      {
+        "comment": "No test coverage for the new wrapper's two outcomes (ok/failed) or its always-exit-0 contract; acceptable for a small single-file change but worth a follow-up.",
+        "file": "scripts/check-migrations.sh",
+        "line": 10,
+        "severity": "non-blocking",
+        "suggestion": null
+      }
+    ],
+    "good": [
+      "Clear wrapper contract documented in the header comment, making the intended composition behavior explicit.",
+      "set -uo pipefail guards against unbound variables and silent pipe failures.",
+      "JSON is emitted via printf with a fixed literal, avoiding injection from untrusted output."
+    ],
+    "schema_version": 2,
+    "summary": "The wrapper's own contract comment says nonzero exit is reserved for harness failures, but harness failures (npx/prisma missing, npx crashing) are indistinguishable from a real migration failure: both are swallowed into {\"status\":\"failed\"} and exit 0. The composer consuming .status will misreport environment/harness breakage as a migration failure."
+  },
+  "fixture": "C11",
+  "notes": "Real quote (the contract header) + false semantic inference: the wrapper derives status from the command outcome under no set -e and exits 0; the shown implementation satisfies the shown contract.",
+  "oracle_group_matched": null,
+  "raw_model_output": "{\n  \"assessment\": \"ISSUES_FOUND\",\n  \"summary\": \"The wrapper's own contract comment says nonzero exit is reserved for harness failures, but harness failures (npx/prisma missing, npx crashing) are indistinguishable from a real migration failure: both are swallowed into {\\\"status\\\":\\\"failed\\\"} and exit 0. The composer consuming .status will misreport environment/harness breakage as a migration failure.\",\n  \"findings\": [\n    {\n      \"file\": \"scripts/check-migrations.sh\",\n      \"line\": 7,\n      \"severity\": \"blocking\",\n      \"comment\": \"Contract contradiction: the header states 'A nonzero exit is reserved for harness failures (bugs in this script), never for check failures', but a harness failure \u2014 npx missing, prisma not installed, npx crashing \u2014 is handled by the same branch as a check failure: output is discarded, status is set to 'failed', and the script exits 0. The pipeline composer cannot distinguish 'migrations out of sync' from 'the check tool itself is broken', which is exactly the case the reserved nonzero exit was meant to signal. The set -uo pipefail does not help because the command's failure is captured by the if, not allowed to propagate.\",\n      \"suggestion\": \"if ! command -v npx >/dev/null 2>&1; then echo '{\\\"status\\\":\\\"harness_error\\\"}' >&2; exit 1; fi\\nif npx prisma migrate status >/dev/null 2>&1; then\\n  status=ok\\nfi\",\n      \"evidence\": {\n        \"kind\": \"in_diff_contract_contradiction\",\n        \"harm\": \"demonstrated\",\n        \"quote\": \"# callers compose on .status. A nonzero exit is reserved for harness\\n# failures (bugs in this script), never for check failures.\"\n      }\n    },\n    {\n      \"file\": \"scripts/check-migrations.sh\",\n      \"line\": 7,\n      \"severity\": \"non-blocking\",\n      \"comment\": \"Discarding all of `npx prisma migrate status` output (>/dev/null 2>&1) makes the JSON report the only diagnostic; when status is 'failed', operators get no reason why. Consider capturing output to a temp file and emitting it in a detail field or on stderr.\",\n      \"suggestion\": \"if out=$(npx prisma migrate status 2>&1); then\\n  status=ok\\nelse\\n  printf '%s\\\\n' \\\"$out\\\" >&2\\nfi\",\n      \"evidence\": null\n    },\n    {\n      \"file\": \"scripts/check-migrations.sh\",\n      \"line\": 10,\n      \"severity\": \"non-blocking\",\n      \"comment\": \"No test coverage for the new wrapper's two outcomes (ok/failed) or its always-exit-0 contract; acceptable for a small single-file change but worth a follow-up.\",\n      \"suggestion\": null,\n      \"evidence\": null\n    }\n  ],\n  \"good\": [\n    \"Clear wrapper contract documented in the header comment, making the intended composition behavior explicit.\",\n    \"set -uo pipefail guards against unbound variables and silent pipe failures.\",\n    \"JSON is emitted via printf with a fixed literal, avoiding injection from untrusted output.\"\n  ]\n}",
+  "source": {
+    "evidence_dir": "eval/evidence/v2-trial-glm-2026-09-22",
+    "record_line_sha256": "ba936aeea25d5fce376d2e7553991a420b1ed3bd6c11022409e9d149f81fddac"
+  },
+  "verdict": {
+    "primary": "HARM_FABRICATED",
+    "secondary": [
+      "quote_role=context-only",
+      "kind_accuracy=false"
+    ]
+  }
+}

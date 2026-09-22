@@ -1,0 +1,77 @@
+{
+  "case_id": "M3-context-only-evidence-quote",
+  "class": "declaration_failure",
+  "expected_gate_audit": [
+    {
+      "checks": [
+        {
+          "check": "file_in_diff",
+          "class": "mechanical",
+          "passed": true
+        },
+        {
+          "check": "quote_in_patch",
+          "class": "mechanical",
+          "passed": true,
+          "quote": "# older than 30 days, judged from the PARSED DATE (so a repo\n# reviewed yesterday but dated last month is still flagged)."
+        },
+        {
+          "check": "line_in_hunk",
+          "class": "mechanical",
+          "line": 10,
+          "passed": true
+        },
+        {
+          "check": "kind_not_presumed_assumption",
+          "class": "declared",
+          "declared_kind": "in_diff_contract_contradiction",
+          "passed": true
+        },
+        {
+          "check": "harm_declared_demonstrated",
+          "class": "declared",
+          "declared_harm": "demonstrated",
+          "passed": true
+        }
+      ],
+      "failed_checks": [],
+      "file": "roadmap-freshness.sh",
+      "permitted": true
+    }
+  ],
+  "expected_result": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "comment": "Contract contradiction: the header comment says staleness is 'judged from the PARSED DATE' (the 'Last reviewed:' date inside ROADMAP.md), but the code checks the file's modification time (`find -mtime -30`). A repo whose ROADMAP was touched yesterday but whose 'Last reviewed:' date is months old will be reported OK, defeating the stated purpose of the anti-rot guard. The check must parse the date from the file content instead.",
+        "evidence": {
+          "harm": "demonstrated",
+          "kind": "in_diff_contract_contradiction",
+          "quote": "# older than 30 days, judged from the PARSED DATE (so a repo\n# reviewed yesterday but dated last month is still flagged)."
+        },
+        "file": "roadmap-freshness.sh",
+        "line": 10,
+        "severity": "blocking",
+        "suggestion": "if [ \"$(date -d \"$(grep -oP 'Last reviewed:\\s*\\K[0-9-]+' \"$repo/plans/ROADMAP.md\")\" +%s)\" -lt \"$(date -d '30 days ago' +%s)\" ]; then"
+      }
+    ],
+    "good": [
+      "Script uses `set -euo pipefail` and handles missing ROADMAP.md gracefully by skipping the repo.",
+      "Accepts multiple repos as arguments and reports a per-repo OK/STALE status, which is easy to consume in CI."
+    ],
+    "schema_version": 2,
+    "summary": "The script's own comment promises the freshness check is 'judged from the PARSED DATE' in ROADMAP.md, but the implementation uses the file's modification time via `find -mtime -30`. Any edit to the file (even one that leaves the 'Last reviewed:' date stale) resets mtime and suppresses the flag, so the guard does not do what it claims."
+  },
+  "fixture": "M3",
+  "notes": "Right bug, right kind and harm, but the quote contains only the contract ('judged from the PARSED DATE'), not the -mtime -30 implementation that creates the contradiction.",
+  "oracle_group_matched": true,
+  "raw_model_output": "{\n  \"assessment\": \"ISSUES_FOUND\",\n  \"summary\": \"The script's own comment promises the freshness check is 'judged from the PARSED DATE' in ROADMAP.md, but the implementation uses the file's modification time via `find -mtime -30`. Any edit to the file (even one that leaves the 'Last reviewed:' date stale) resets mtime and suppresses the flag, so the guard does not do what it claims.\",\n  \"findings\": [\n    {\n      \"file\": \"roadmap-freshness.sh\",\n      \"line\": 10,\n      \"severity\": \"blocking\",\n      \"comment\": \"Contract contradiction: the header comment says staleness is 'judged from the PARSED DATE' (the 'Last reviewed:' date inside ROADMAP.md), but the code checks the file's modification time (`find -mtime -30`). A repo whose ROADMAP was touched yesterday but whose 'Last reviewed:' date is months old will be reported OK, defeating the stated purpose of the anti-rot guard. The check must parse the date from the file content instead.\",\n      \"suggestion\": \"if [ \\\"$(date -d \\\"$(grep -oP 'Last reviewed:\\\\s*\\\\K[0-9-]+' \\\"$repo/plans/ROADMAP.md\\\")\\\" +%s)\\\" -lt \\\"$(date -d '30 days ago' +%s)\\\" ]; then\",\n      \"evidence\": {\n        \"kind\": \"in_diff_contract_contradiction\",\n        \"harm\": \"demonstrated\",\n        \"quote\": \"# older than 30 days, judged from the PARSED DATE (so a repo\\n# reviewed yesterday but dated last month is still flagged).\"\n      }\n    }\n  ],\n  \"good\": [\n    \"Script uses `set -euo pipefail` and handles missing ROADMAP.md gracefully by skipping the repo.\",\n    \"Accepts multiple repos as arguments and reports a per-repo OK/STALE status, which is easy to consume in CI.\"\n  ]\n}",
+  "source": {
+    "evidence_dir": "eval/evidence/v2-trial-glm-2026-09-22",
+    "record_line_sha256": "228b8c9bb249febba3fdc9e6a22e46dca44d7b620c2f0d0734f99ef41a7e0e7e"
+  },
+  "verdict": {
+    "primary": "QUOTE_AS_CONTEXT",
+    "secondary": []
+  }
+}
