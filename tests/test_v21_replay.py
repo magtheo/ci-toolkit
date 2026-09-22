@@ -11,6 +11,7 @@ import eval.v21_replay as replay  # noqa: E402
 def test_replay_is_frozen_and_complete():
     report = replay.replay()
     assert report["oracle_version"] == "117b4164e5446f50"
+    assert report["phase09"]["source_records"] == 414
     assert len(report["phase09"]["rows"]) == 276
     assert report["phase09"]["summary"] == {
         "quote_only": {
