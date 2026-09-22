@@ -90,12 +90,40 @@ def measurement_profile(model, reasoning_effort=None, max_tokens=None):
     return profile, {"base_profile": base, "overrides": overrides}
 
 
-def build_initial_request(engine, review_input, model, profile):
-    """One source of prompts (engine) and request shape (transport)."""
+def build_initial_request(engine, review_input, model, profile,
+                          prompt_suffix="", response_schema=None):
+    """One source of prompts (engine) and request shape (transport).
+
+    prompt_suffix is appended to the canonical user prompt with
+    exactly one blank-line separator (Phase-11 trial wiring; empty
+    string = byte-identical to the deployed prompt). response_schema,
+    when given, replaces the JSON schema inside the transport-built
+    response_format (trial-only v2 schema selection); it requires a
+    structured_output profile and never touches transport.py.
+    """
     system, user = engine._build_prompts(review_input)
-    body = transport.build_request_body(
-        model, system, user, profile, max_tokens=profile["max_tokens"])
+    if prompt_suffix:
+        user = user + "\n\n" + prompt_suffix
+    body = _response_body(model, system, user, profile,
+                          profile["max_tokens"], response_schema)
     return system, user, body
+
+
+def _response_body(model, system, user, profile, max_tokens,
+                   response_schema=None):
+    """transport request body, plus the opt-in trial-only schema
+    selection. One source for BOTH the dry-run construction and every
+    live attempt (an attempt that silently rebuilt the deployed
+    schema would void the preregistered request identity)."""
+    body = transport.build_request_body(model, system, user, profile,
+                                        max_tokens=max_tokens)
+    if response_schema is not None:
+        if not profile.get("structured_output"):
+            raise SystemExit(
+                "response_schema selection requires a structured_output "
+                "profile (the trial cannot silently drop the schema)")
+        body["response_format"]["json_schema"] = response_schema
+    return body
 
 
 def _classify(raw_body):
@@ -119,7 +147,8 @@ def _inconclusive_result():
 
 def logical_review(engine, fixture, run_index, model, profile,
                    overrides, post_payload, sink, spend_guard=None,
-                   ledger=None, evidence_gate=False):
+                   ledger=None, evidence_gate=False, prompt_suffix="",
+                   response_schema=None):
     """One logical review through the #70 transport semantics.
 
     post_payload(body) -> (raw_body, http_retries, latency_s); it may
@@ -136,7 +165,8 @@ def logical_review(engine, fixture, run_index, model, profile,
     """
     review_input = rc._review_input(fixture, model, subject_dir=str(ROOT))
     system, user, body = build_initial_request(
-        engine, review_input, model, profile)
+        engine, review_input, model, profile,
+        prompt_suffix=prompt_suffix, response_schema=response_schema)
     record = {
         "fixture": fixture["id"],
         "run_index": run_index,
@@ -168,8 +198,8 @@ def logical_review(engine, fixture, run_index, model, profile,
             reservation = ledger.reserve(fixture["id"], max_tokens)
         try:
             raw, retries, latency = post_payload(
-                transport.build_request_body(
-                    model, system, user, profile, max_tokens=max_tokens))
+                _response_body(model, system, user, profile,
+                               max_tokens, response_schema))
         except SystemExit:
             if ledger is not None:
                 # process is about to die on transport exhaustion:
@@ -763,7 +793,8 @@ def stage_a_report(records, runs):
 
 
 def live(out_dir, fixtures, runs, model, profile, overrides,
-         run_index=None, spend=None, ledger=None, evidence_gate=False):
+         run_index=None, spend=None, ledger=None, evidence_gate=False,
+         prompt_suffix="", response_schema=None):
     if os.environ.get("PM_QUALIFY_LIVE_AUTHORIZED") != "1":
         raise SystemExit(
             "live measurement refused: set PM_QUALIFY_LIVE_AUTHORIZED=1 "
@@ -874,7 +905,9 @@ def live(out_dir, fixtures, runs, model, profile, overrides,
                 logical_review(
                     engine, fixture, ri, model, profile,
                     overrides, post_payload, sink, spend_guard=spend,
-                    ledger=ledger, evidence_gate=evidence_gate)
+                    ledger=ledger, evidence_gate=evidence_gate,
+                    prompt_suffix=prompt_suffix,
+                    response_schema=response_schema)
     except SystemExit:
         _write_summary(out_dir, fixtures, runs, model, profile,
                        spend=spend, ledger=ledger)
