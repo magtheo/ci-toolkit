@@ -28,8 +28,17 @@ import parse_review as pr  # noqa: E402
 FREEZE = ROOT / "eval" / "evidence" / "v2-declaration-regression-freeze-2026-09-22"
 
 
-def _patch(fixture):
-    return "\n".join(f["patch"] for f in fixture["input"]["files"])
+def _patch(fixture, finding):
+    """Patch text for the finding's cited file only.
+
+    A structural witness must not borrow evidence from another changed
+    file in the same fixture.
+    """
+    cited = finding.get("file")
+    for f in fixture["input"]["files"]:
+        if f["path"] == cited:
+            return f.get("patch") or ""
+    return ""
 
 
 def predicate_names(finding, fixture):
@@ -40,7 +49,7 @@ def predicate_names(finding, fixture):
     The small registry is intentionally not a universal reviewer.
     """
     comment = (finding.get("comment") or "").lower()
-    patch = _patch(fixture).lower()
+    patch = _patch(fixture, finding).lower()
     found = []
     # M3: a documented parsed-date freshness contract implemented with
     # filesystem mtime. Both sides are checked from the patch.
@@ -65,7 +74,9 @@ def predicate_names(finding, fixture):
         found.append("swallowed_exception_success")
     # A mutable action reference is independently visible in the diff.
     if (re.search(r"uses:\s*[^\s@]+@v\d+\b", patch)
-            and re.search(r"pin|floating|mutable|immutable|@v\d+", comment)):
+            and re.search(
+                r"\b(?:pin|pinned|floating|mutable|immutable)\b|@v\d+\b",
+                comment)):
         found.append("mutable_action_reference")
     return found
 
