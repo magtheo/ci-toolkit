@@ -7,10 +7,13 @@ five sha-linked regression cases. Zero provider calls.
 
 ## Headline
 
-Five of seven preregistered relations are both pair-safe and
-productive. One relation FAILED the control-pair guard exactly as the
-protocol demanded; one is NO_YIELD because it recovers no TP through
-the frozen route + quote admission boundary. The candidate gate recovers
+Six of seven preregistered relations survive the preregistered
+relation-level pair test; one FAILED the control-pair guard exactly as
+the protocol demanded. Among the six survivors,
+`secret_logged_by_echo` has **zero effective candidate-gate yield**:
+it raw-matches 9 M14 TP rows, but none pass the frozen contract-route
+admission boundary. This is reported as utility, not used to rewrite
+the preregistered eligibility rule. The candidate gate recovers
 **24 oracle-matching TP rows (+83% contract-route recall, 29 → 53 of
 68)** with **zero control admissions (0/77 corpus-wide)** and **zero
 new extra-blocker admissions**.
@@ -36,19 +39,22 @@ refused; M3 admitted via the existing registry witness.
 | `preserved_claim_vs_dropped_call_result` | 11 (M7) | **7 (M7)** | 0 | 0 | **ELIGIBLE** |
 | `consume_before_validate_ordering` | 13 (M8) | **5 (M8)** | 0 | 0 | **ELIGIBLE** |
 | `doc_contract_prefix_unanchored_match` | 9 (M10) | 1 (M10) | **3 (C10)** | 0 | **FAILED_CONTROL_LEAK** |
-| `secret_logged_by_echo` | 9 (M14) | **0** | 0 | 0 | **NO_YIELD** |
+| `secret_logged_by_echo` | 9 (M14) | **0** | 0 | 0 | **ELIGIBLE (0 effective yield)** |
 | `doc_self_contradiction` | 11 (M17, M18) | **9 (M17, M18)** | 0 | 0 | **ELIGIBLE** |
 | `jsonl_format_vs_unslurped_jq` | 7 (M6) | **2 (M6)** | 0 | 0 | **ELIGIBLE** |
 
 The pair guard is deliberately stronger than final admission: **any
 raw relation match on a frozen control fails the relation**, even when
 an upstream route or quote gate would currently suppress that control.
-Productivity is measured at the actual candidate boundary: a relation
-must recover at least one *new* oracle-matching TP after the frozen
-contract route + quote gate. This is why M10 stays failed and M14 is
-NO_YIELD rather than eligible.
+Effective utility is measured separately at the actual candidate
+boundary after the frozen contract route + quote gate. This preserves
+the preregistered relation-level pair verdict instead of introducing a
+post-hoc productivity exclusion. M10 stays FAILED because its relation
+predicate cannot distinguish C10; M14 remains pair-eligible but adds
+zero rows.
 
-The five eligible relations yield exactly 24 newly admitted rows:
+The six pair-eligible relations collectively yield exactly 24 newly
+admitted rows (all 24 come from five of them):
 M18 7, M7 7, M8 5, M17 2, M6 2, M2 1.
 
 ## The FAILED relation is the study's most instructive result
@@ -93,8 +99,9 @@ the frozen Phase-16 precedence, where new relations do not apply; only
   it is a semantic defect and was recorded FAILED.
 - Raw relation matching is diagnostic, not admission. For example,
   `preserved_claim_vs_dropped_call_result` matches one M7 extra
-  blocker but admits no new extras, and `secret_logged_by_echo`
-  matches nine M14 TP rows but recovers none because those rows do not
-  pass the frozen contract-route admission boundary.
+  blocker but admits no new extras, and the pair-eligible
+  `secret_logged_by_echo` matches nine M14 TP rows but contributes
+  zero effective admissions because those rows do not pass the frozen
+  contract-route boundary.
 - No threshold, promotion, or implementation is authorized by this
   study.
