@@ -194,8 +194,11 @@ def eligibility(rows):
         new_tp = [r for r in would_admit
                   if r["role"] == "true_positive_detection"
                   and not r["route_typed"]]
-        controls = [r for r in would_admit
-                    if r["role"] == "control_blocker"]
+        # Pair safety is deliberately stronger than final admission:
+        # if the relation predicate itself cannot distinguish any frozen
+        # control, it is rejected even when an upstream quote/route gate
+        # happens to suppress that control today.
+        controls = raw_controls
         new_extras = [r for r in would_admit
                       if r["role"] == "positive_extra_blocker"
                       and not r["route_typed"]]
