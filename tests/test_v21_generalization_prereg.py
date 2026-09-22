@@ -24,6 +24,8 @@ RELATIONS = (
 FROZEN_MERGE_SHA = "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b"
 FROZEN_MODULE_SHA = ("bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0a"
                      "b7e719c43c1b5754b1b57")
+FROZEN_MANIFEST_SHA = ("5abe1c29c1c34818f4208dbdb684044879493341a16"
+                       "beba035675c311a596b09")
 SHORT = {
     "pinned_sha_demoted_to_branch": "psd",
     "preserved_claim_vs_dropped_call_result": "pcd",
@@ -76,11 +78,21 @@ def test_counts_pair_structure_and_labels():
             {"C1", "C2", "C3", "C4", "C5"}
         assert all(p.startswith(SHORT[relation] + "-")
                    for p in positives + controls)
+    probes = {e["id"] for e in manifest["fixtures"] if e["probe"]}
+    assert probes == {
+        "cbv-P2", "cbv-P3", "cbv-P4", "cbv-P5",
+        "pcd-P3", "pcd-P4",
+        "sle-P4", "sle-P5",
+        "jfu-P2",
+    }
     assert not any(e["probe"] and e["role"] != "positive"
                    for e in manifest["fixtures"])
 
 
 def test_hash_pins_and_uniqueness():
+    manifest_path = HOLDOUT / "MANIFEST.json"
+    assert hashlib.sha256(manifest_path.read_bytes()).hexdigest() == \
+        FROZEN_MANIFEST_SHA
     manifest = _manifest()
     seen_content = set()
     for entry in manifest["fixtures"]:
