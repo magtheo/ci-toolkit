@@ -297,7 +297,9 @@ def test_pre_first_reservation_ceiling_halt_freezes_incomplete_state(
     assert state["mechanical_counts"] == []
     assert state["ledger"]["invariant_holds"] is True
     assert state["ledger"]["outstanding_reservations"] == 0
-    assert state["ledger"]["halts"] >= 1
+    # SpendGuard.check runs before ledger.reserve; a pre-reservation
+    # refusal leaves the ledger's own halt counter at zero.
+    assert state["ledger"]["halts"] == 0
     assert state["actual_cost_usd"] == state["ledger"]["settled_usd"]
-    assert "stop_reason" in state
+    assert "spend ceiling reached" in state["stop_reason"]
 
