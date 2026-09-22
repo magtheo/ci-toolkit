@@ -103,6 +103,14 @@ def test_invalid_pairs_are_recorded_and_excluded():
     assert invalid_rows == {"psd-P4", "psd-C4", "jfu-P5", "jfu-C5"}
 
 
+
+def test_published_report_matches_evaluator_exactly():
+    published = eval18b.json.loads(
+        (REPO / "eval" / "evidence" /
+         "v21-contract-generalization-eval-2026-09-22" /
+         "generalization-report.json").read_text())
+    assert published == _report()
+
 def test_fail_closed_on_verifier_drift():
     import copy
     manifest = copy.deepcopy(eval18b.json.loads(
