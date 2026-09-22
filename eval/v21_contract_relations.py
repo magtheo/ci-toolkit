@@ -230,9 +230,11 @@ def _frozen_rows(eligible_names):
         witnesses = v21.predicate_names(target, fixture)
         relations = relation_names(target, fixture)
         route = rr.route_of(target, fixture)
-        admitted = (quote_ok and route == "contract_contradiction"
-                    and (bool(witnesses)
-                         or bool(set(relations) & eligible_names)))
+        baseline_admitted, _ = rr.route_admits(
+            route, quote_ok, witnesses)
+        admitted = (baseline_admitted
+                    or (quote_ok and route == "contract_contradiction"
+                        and bool(set(relations) & eligible_names)))
         if not quote_ok:
             reason = target.get("machine_reason") or "quote gate"
         elif route != "contract_contradiction":
@@ -249,7 +251,7 @@ def _frozen_rows(eligible_names):
             "fixture": case["fixture"],
             "class": case["class"],
             "route": route,
-            "baseline_admitted": bool(quote_ok and witnesses),
+            "baseline_admitted": baseline_admitted,
             "candidate_admitted": admitted,
             "relations": relations,
             "reason": reason,
