@@ -1,0 +1,139 @@
+{
+  "case_id": "M12-contiguous-quote-downgrade",
+  "class": "good_boundary_control",
+  "expected_gate_audit": [
+    {
+      "checks": [
+        {
+          "check": "file_in_diff",
+          "class": "mechanical",
+          "passed": true
+        },
+        {
+          "check": "quote_in_patch",
+          "class": "mechanical",
+          "passed": true,
+          "quote": "it raises ParseError and propagates \u2014 serving stale config around a live data bug would silently mask the bug.\"\"\"\n    try:\n        raw = await session.get(CONFIG_URL)\n        cfg = _decode(raw)\n        _cache[\"last_good\"] = cfg\n        return cfg\n    except (OriginError, ParseError):\n        return _cache.get(\"last_good\", {})"
+        },
+        {
+          "check": "line_in_hunk",
+          "class": "mechanical",
+          "line": 37,
+          "passed": true
+        },
+        {
+          "check": "kind_not_presumed_assumption",
+          "class": "declared",
+          "declared_kind": "in_diff_contract_contradiction",
+          "passed": true
+        },
+        {
+          "check": "harm_declared_demonstrated",
+          "class": "declared",
+          "declared_harm": "demonstrated",
+          "passed": true
+        }
+      ],
+      "failed_checks": [],
+      "file": "core/config.py",
+      "permitted": true
+    },
+    {
+      "checks": [
+        {
+          "check": "file_in_diff",
+          "class": "mechanical",
+          "passed": true
+        },
+        {
+          "check": "quote_in_patch",
+          "class": "mechanical",
+          "passed": false,
+          "quote": "An empty cache raises: a fresh origin error must not be silently masked when there is nothing valid to serve.\"\"\"\n    try:\n        raw = await session.get(CONFIG_URL)\n        cfg = _decode(raw)\n        _cache[\"last_good\"] = cfg\n        return cfg\n    except (OriginError, ParseError):\n        return _cache.get(\"last_good\", {})"
+        },
+        {
+          "check": "line_in_hunk",
+          "class": "mechanical",
+          "line": 38,
+          "passed": true
+        },
+        {
+          "check": "kind_not_presumed_assumption",
+          "class": "declared",
+          "declared_kind": "in_diff_contract_contradiction",
+          "passed": true
+        },
+        {
+          "check": "harm_declared_demonstrated",
+          "class": "declared",
+          "declared_harm": "demonstrated",
+          "passed": true
+        }
+      ],
+      "failed_checks": [
+        "quote_in_patch"
+      ],
+      "file": "core/config.py",
+      "permitted": false
+    }
+  ],
+  "expected_result": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "comment": "The docstring states a malformed live payload 'raises ParseError and propagates', but the except clause catches ParseError and returns the cached config instead. A live data bug is silently masked by stale config \u2014 exactly the failure the contract says must not be masked.",
+        "evidence": {
+          "harm": "demonstrated",
+          "kind": "in_diff_contract_contradiction",
+          "quote": "it raises ParseError and propagates \u2014 serving stale config around a live data bug would silently mask the bug.\"\"\"\n    try:\n        raw = await session.get(CONFIG_URL)\n        cfg = _decode(raw)\n        _cache[\"last_good\"] = cfg\n        return cfg\n    except (OriginError, ParseError):\n        return _cache.get(\"last_good\", {})"
+        },
+        "file": "core/config.py",
+        "line": 37,
+        "severity": "blocking",
+        "suggestion": "    except OriginError:\n        return _cache.get(\"last_good\", {})"
+      },
+      {
+        "comment": "The docstring states 'An empty cache raises: a fresh origin error must not be silently masked when there is nothing valid to serve', but _cache.get(\"last_good\", {}) returns {} when the cache is empty, silently masking the origin error with an empty config.",
+        "evidence": {
+          "harm": "demonstrated",
+          "kind": "in_diff_contract_contradiction",
+          "quote": "An empty cache raises: a fresh origin error must not be silently masked when there is nothing valid to serve.\"\"\"\n    try:\n        raw = await session.get(CONFIG_URL)\n        cfg = _decode(raw)\n        _cache[\"last_good\"] = cfg\n        return cfg\n    except (OriginError, ParseError):\n        return _cache.get(\"last_good\", {})"
+        },
+        "file": "core/config.py",
+        "line": 38,
+        "machine_reason": "BLOCKING_EVIDENCE_INSUFFICIENT",
+        "severity": "non-blocking",
+        "suggestion": "    except OriginError:\n        try:\n            return _cache[\"last_good\"]\n        except KeyError:\n            raise"
+      },
+      {
+        "comment": "The docstring says OriginError covers 'cannot be reached, or it responds with a server error', but nothing in this diff raises OriginError \u2014 session.get is assumed to raise it. If the injected session raises a different exception type (e.g. aiohttp.ClientError), the fallback never triggers. Depends on unseen session behavior.",
+        "file": "core/config.py",
+        "line": 27,
+        "severity": "non-blocking",
+        "suggestion": null
+      },
+      {
+        "comment": "No tests accompany the change; the fallback-vs-propagate contract is subtle (as the two contradictions above show) and would have been caught by tests covering origin error, parse error, and empty-cache paths.",
+        "file": "core/config.py",
+        "line": 38,
+        "severity": "non-blocking",
+        "suggestion": null
+      }
+    ],
+    "good": [
+      "The docstring precisely articulates the intended resilience contract, distinguishing availability failures from data-quality failures \u2014 the design intent is sound even though the implementation contradicts it.",
+      "ParseError is a distinct exception type from OriginError, giving callers the ability to handle the two failure classes differently once the except clause is fixed."
+    ],
+    "schema_version": 2,
+    "summary": "The implementation contradicts its own documented resilience contract in two ways: ParseError is caught and masked instead of propagating, and an empty cache returns {} instead of raising."
+  },
+  "fixture": "M12",
+  "notes": "Real empty-cache contradiction, but the declared quote skips intervening docstring text and does not occur in the patch as one contiguous string; quote_in_patch=false and the downgrade are mechanically correct. The record also carries a HONEST survivor.",
+  "oracle_group_matched": true,
+  "raw_model_output": "{\n  \"assessment\": \"ISSUES_FOUND\",\n  \"summary\": \"The implementation contradicts its own documented resilience contract in two ways: ParseError is caught and masked instead of propagating, and an empty cache returns {} instead of raising.\",\n  \"findings\": [\n    {\n      \"file\": \"core/config.py\",\n      \"line\": 37,\n      \"severity\": \"blocking\",\n      \"comment\": \"The docstring states a malformed live payload 'raises ParseError and propagates', but the except clause catches ParseError and returns the cached config instead. A live data bug is silently masked by stale config \u2014 exactly the failure the contract says must not be masked.\",\n      \"suggestion\": \"    except OriginError:\\n        return _cache.get(\\\"last_good\\\", {})\",\n      \"evidence\": {\n        \"kind\": \"in_diff_contract_contradiction\",\n        \"harm\": \"demonstrated\",\n        \"quote\": \"it raises ParseError and propagates \u2014 serving stale config around a live data bug would silently mask the bug.\\\"\\\"\\\"\\n    try:\\n        raw = await session.get(CONFIG_URL)\\n        cfg = _decode(raw)\\n        _cache[\\\"last_good\\\"] = cfg\\n        return cfg\\n    except (OriginError, ParseError):\\n        return _cache.get(\\\"last_good\\\", {})\"\n      }\n    },\n    {\n      \"file\": \"core/config.py\",\n      \"line\": 38,\n      \"severity\": \"blocking\",\n      \"comment\": \"The docstring states 'An empty cache raises: a fresh origin error must not be silently masked when there is nothing valid to serve', but _cache.get(\\\"last_good\\\", {}) returns {} when the cache is empty, silently masking the origin error with an empty config.\",\n      \"suggestion\": \"    except OriginError:\\n        try:\\n            return _cache[\\\"last_good\\\"]\\n        except KeyError:\\n            raise\",\n      \"evidence\": {\n        \"kind\": \"in_diff_contract_contradiction\",\n        \"harm\": \"demonstrated\",\n        \"quote\": \"An empty cache raises: a fresh origin error must not be silently masked when there is nothing valid to serve.\\\"\\\"\\\"\\n    try:\\n        raw = await session.get(CONFIG_URL)\\n        cfg = _decode(raw)\\n        _cache[\\\"last_good\\\"] = cfg\\n        return cfg\\n    except (OriginError, ParseError):\\n        return _cache.get(\\\"last_good\\\", {})\"\n      }\n    },\n    {\n      \"file\": \"core/config.py\",\n      \"line\": 27,\n      \"severity\": \"non-blocking\",\n      \"comment\": \"The docstring says OriginError covers 'cannot be reached, or it responds with a server error', but nothing in this diff raises OriginError \u2014 session.get is assumed to raise it. If the injected session raises a different exception type (e.g. aiohttp.ClientError), the fallback never triggers. Depends on unseen session behavior.\",\n      \"suggestion\": null,\n      \"evidence\": null\n    },\n    {\n      \"file\": \"core/config.py\",\n      \"line\": 38,\n      \"severity\": \"non-blocking\",\n      \"comment\": \"No tests accompany the change; the fallback-vs-propagate contract is subtle (as the two contradictions above show) and would have been caught by tests covering origin error, parse error, and empty-cache paths.\",\n      \"suggestion\": null,\n      \"evidence\": null\n    }\n  ],\n  \"good\": [\n    \"The docstring precisely articulates the intended resilience contract, distinguishing availability failures from data-quality failures \u2014 the design intent is sound even though the implementation contradicts it.\",\n    \"ParseError is a distinct exception type from OriginError, giving callers the ability to handle the two failure classes differently once the except clause is fixed.\"\n  ]\n}",
+  "source": {
+    "evidence_dir": "eval/evidence/v2-trial-glm-2026-09-22",
+    "record_line_sha256": "0ab259c655e5e624cca4a3bbef1cd874abce1dbbf0b5b36427209cd434375a36"
+  },
+  "verdict": null
+}

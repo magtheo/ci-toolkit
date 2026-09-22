@@ -1,0 +1,87 @@
+{
+  "case_id": "M13-external-fact-extrapolation",
+  "class": "declaration_failure",
+  "expected_gate_audit": [
+    {
+      "checks": [
+        {
+          "check": "file_in_diff",
+          "class": "mechanical",
+          "passed": true
+        },
+        {
+          "check": "quote_in_patch",
+          "class": "mechanical",
+          "passed": true,
+          "quote": "on:\n  pull_request_target:\n    branches: [main]"
+        },
+        {
+          "check": "line_in_hunk",
+          "class": "mechanical",
+          "line": 3,
+          "passed": true
+        },
+        {
+          "check": "kind_not_presumed_assumption",
+          "class": "declared",
+          "declared_kind": "external_fact",
+          "passed": true
+        },
+        {
+          "check": "harm_declared_demonstrated",
+          "class": "declared",
+          "declared_harm": "demonstrated",
+          "passed": true
+        }
+      ],
+      "failed_checks": [],
+      "file": ".github/workflows/publish.yml",
+      "permitted": true
+    }
+  ],
+  "expected_result": {
+    "assessment": "ISSUES_FOUND",
+    "findings": [
+      {
+        "comment": "The PR title claims 'publish images on merge', but the trigger is pull_request_target, which fires when PRs are opened, updated, or reopened \u2014 not when they merge. As written, images are published from unmerged PR head code on every PR event, and nothing publishes on merge at all. The correct trigger for publish-on-merge is push to main (or workflow_run/success of CI).",
+        "evidence": {
+          "harm": "demonstrated",
+          "kind": "external_fact",
+          "quote": "on:\n  pull_request_target:\n    branches: [main]"
+        },
+        "file": ".github/workflows/publish.yml",
+        "line": 3,
+        "severity": "blocking",
+        "suggestion": "on:\n  push:\n    branches: [main]"
+      },
+      {
+        "comment": "The fork guard means PRs from forks never publish, even after merge via merge queue or squash from a fork branch \u2014 depending on the team's workflow this may silently skip publishing. Also, pull_request_target grants secrets to workflows that may check out PR head code; safety depends entirely on what the reusable docker-publish.yml@v4 checks out, which is outside this diff.",
+        "file": ".github/workflows/publish.yml",
+        "line": 10,
+        "severity": "non-blocking",
+        "suggestion": null
+      }
+    ],
+    "good": [
+      "Permissions are scoped minimally (contents: read, packages: write) rather than write-all.",
+      "Fork PRs are explicitly excluded from the publish job, preventing untrusted code from reaching the registry path."
+    ],
+    "schema_version": 2,
+    "summary": "The workflow triggers on pull_request_target, which fires on PR open/update \u2014 not on merge to main as the PR claims. Images would be published from unmerged PR head code on every PR event, and the fork guard means forked PRs silently skip publishing entirely."
+  },
+  "fixture": "M13",
+  "notes": "Real external fact (pull_request_target defaults, base-branch context) extrapolated into unseen-workflow publication harm. NOT an oracle-matching detection: the frozen @v4 mutable-reference defect was still missed.",
+  "oracle_group_matched": false,
+  "raw_model_output": "{\n  \"assessment\": \"ISSUES_FOUND\",\n  \"summary\": \"The workflow triggers on pull_request_target, which fires on PR open/update \u2014 not on merge to main as the PR claims. Images would be published from unmerged PR head code on every PR event, and the fork guard means forked PRs silently skip publishing entirely.\",\n  \"findings\": [\n    {\n      \"file\": \".github/workflows/publish.yml\",\n      \"line\": 3,\n      \"severity\": \"blocking\",\n      \"comment\": \"The PR title claims 'publish images on merge', but the trigger is pull_request_target, which fires when PRs are opened, updated, or reopened \u2014 not when they merge. As written, images are published from unmerged PR head code on every PR event, and nothing publishes on merge at all. The correct trigger for publish-on-merge is push to main (or workflow_run/success of CI).\",\n      \"suggestion\": \"on:\\n  push:\\n    branches: [main]\",\n      \"evidence\": {\n        \"kind\": \"external_fact\",\n        \"harm\": \"demonstrated\",\n        \"quote\": \"on:\\n  pull_request_target:\\n    branches: [main]\"\n      }\n    },\n    {\n      \"file\": \".github/workflows/publish.yml\",\n      \"line\": 10,\n      \"severity\": \"non-blocking\",\n      \"comment\": \"The fork guard means PRs from forks never publish, even after merge via merge queue or squash from a fork branch \u2014 depending on the team's workflow this may silently skip publishing. Also, pull_request_target grants secrets to workflows that may check out PR head code; safety depends entirely on what the reusable docker-publish.yml@v4 checks out, which is outside this diff.\",\n      \"suggestion\": null,\n      \"evidence\": null\n    }\n  ],\n  \"good\": [\n    \"Permissions are scoped minimally (contents: read, packages: write) rather than write-all.\",\n    \"Fork PRs are explicitly excluded from the publish job, preventing untrusted code from reaching the registry path.\"\n  ]\n}",
+  "source": {
+    "evidence_dir": "eval/evidence/v2-trial-glm-2026-09-22",
+    "record_line_sha256": "0f2551ad209a1f6fd2cabcd0e0d94fda502cf6f3dfce8761648959cd42e6c916"
+  },
+  "verdict": {
+    "primary": "HARM_FABRICATED",
+    "secondary": [
+      "kind_accuracy=false",
+      "quote_role=context-only"
+    ]
+  }
+}
