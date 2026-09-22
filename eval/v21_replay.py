@@ -80,9 +80,11 @@ def _role(finding, fixture):
 def _phase09_rows():
     fixtures = {f["id"]: f for f in rc.load_corpus(ROOT / "eval" / "fixtures")}
     rows = []
+    source_records = 0
     for source, rel in boundary.SOURCES.items():
         records = [json.loads(line) for line in (ROOT / rel).read_text().splitlines()
                    if line.strip()]
+        source_records += len(records)
         for rec in records:
             fixture = fixtures[rec["fixture"]]
             for finding in (rec.get("result") or {}).get("findings", []):
@@ -99,7 +101,11 @@ def _phase09_rows():
                     "closed_world_predicates": bool(quotes and predicates),
                     "predicates": predicates,
                 })
-    return rows
+    if source_records != boundary.EXPECTED_TOTAL:
+        raise RuntimeError(
+            "Phase-09 source population drift: expected %d records, found %d"
+            % (boundary.EXPECTED_TOTAL, source_records))
+    return rows, source_records
 
 
 def _frozen_rows():
@@ -150,7 +156,7 @@ def _summary(rows, keys=("quote_only", "closed_world_predicates")):
 
 
 def replay():
-    phase09 = _phase09_rows()
+    phase09, source_records = _phase09_rows()
     frozen = _frozen_rows()
     return {
         "oracle_version": rc.oracle_version(),
@@ -161,7 +167,11 @@ def replay():
             "limit": "predicate registry is deliberately narrow; replay "
                      "measures coverage loss, not semantic completeness",
         },
-        "phase09": {"rows": phase09, "summary": _summary(phase09)},
+        "phase09": {
+            "source_records": source_records,
+            "rows": phase09,
+            "summary": _summary(phase09),
+        },
         "frozen_cases": frozen,
     }
 
