@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "'retained forever and never deleted' is contradicted three lines later by the automatic 30-day purge; the two claims cannot both be true.",
+    "file": "docs/retention.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/retention.md\n@@ -0,0 +1,9 @@\n+# Log retention\n+\n+Audit logs are retained forever and are never deleted.\n+\n+## Cost controls\n+\n+To bound storage spend, logs older than 30 days are purged\n+automatically by the retention job.",
+          "path": "docs/retention.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-P3",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "genuine never-deleted vs purged contradiction",
+  "relation": "doc_self_contradiction",
+  "role": "positive"
+}

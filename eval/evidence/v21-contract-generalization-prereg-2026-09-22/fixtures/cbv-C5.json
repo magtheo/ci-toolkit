@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the id guard precedes consumption, so a missing argument leaves holder.item intact; the consume-before-guard concern does not apply",
+    "file": "FeatureDialog.kt"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/FeatureDialog.kt\n+++ b/FeatureDialog.kt\n@@ -31,6 +31,10 @@\n     fun launch(args: Bundle) {\n+        val id = args.getString(\"id\")\n+        if (id == null) return\n+        holder.item = null\n+        open(id)\n     }",
+          "path": "FeatureDialog.kt"
+        }
+      ]
+    }
+  },
+  "id": "cbv-C5",
+  "language": "kotlin",
+  "probe": false,
+  "rationale": "different property name, guard-before-consume",
+  "relation": "consume_before_validate_ordering",
+  "role": "control"
+}

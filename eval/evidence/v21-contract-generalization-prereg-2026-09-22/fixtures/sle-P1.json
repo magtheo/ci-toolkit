@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The script echoes the live DEPLOY_TOKEN to stderr; CI log capture leaks that credential to anyone with log access, defeating the env-only handling of the secret.",
+    "file": "scripts/ship.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/ship.sh\n+++ b/scripts/ship.sh\n@@ -8,4 +8,5 @@\n set -euo pipefail\n : \"${DEPLOY_TOKEN:?DEPLOY_TOKEN must be set}\"\n : \"${REGISTRY_URL:?REGISTRY_URL must be set}\"\n+echo \"shipping to $REGISTRY_URL with token $DEPLOY_TOKEN\" >&2\n curl -sSf -H \"Authorization: Bearer $DEPLOY_TOKEN\" \"$REGISTRY_URL/ship\"\n",
+          "path": "scripts/ship.sh"
+        }
+      ]
+    }
+  },
+  "id": "sle-P1",
+  "language": "bash",
+  "probe": false,
+  "rationale": "secret-bearing variable interpolated into an echoed line",
+  "relation": "secret_logged_by_echo",
+  "role": "positive"
+}

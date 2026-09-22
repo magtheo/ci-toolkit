@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The central logger receives the live VAULT_KEY value; log aggregation leaks the credential far beyond this host.",
+    "file": "scripts/vault-fetch.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/vault-fetch.sh\n+++ b/scripts/vault-fetch.sh\n@@ -6,3 +6,4 @@\n set -euo pipefail\n+logger -t ship \"using key $VAULT_KEY for $VAULT_ADDR\"\n vault kv get -field=cert \"$VAULT_ADDR\" > cert.pem",
+          "path": "scripts/vault-fetch.sh"
+        }
+      ]
+    }
+  },
+  "id": "sle-P3",
+  "language": "bash",
+  "probe": false,
+  "rationale": "secret value logged",
+  "relation": "secret_logged_by_echo",
+  "role": "positive"
+}

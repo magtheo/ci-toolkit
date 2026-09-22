@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the automatic-deploy claim names staging while the approval rule names production; the scopes differ, so the sections are consistent rather than contradictory",
+    "file": "docs/deployment.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/deployment.md\n@@ -0,0 +1,10 @@\n+# Deployment\n+\n+Every merged commit is deployed to staging automatically.\n+\n+## Production\n+\n+Production deploys require approval from the release team before\n+they proceed to production.",
+          "path": "docs/deployment.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-C2",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "scope-distinct claims (staging vs production)",
+  "relation": "doc_self_contradiction",
+  "role": "control"
+}

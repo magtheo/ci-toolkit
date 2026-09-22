@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "holder.item is consumed (nulled) before the id guard; when the argument is missing the item was already released, so the launch is permanently dropped instead of deferred.",
+    "file": "FeatureDialog.kt"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/FeatureDialog.kt\n+++ b/FeatureDialog.kt\n@@ -31,6 +31,10 @@\n     fun launch(args: Bundle) {\n+        holder.item = null\n+        val id = args.getString(\"id\")\n+        if (id == null) return\n+        open(id)\n     }",
+          "path": "FeatureDialog.kt"
+        }
+      ]
+    }
+  },
+  "id": "cbv-P5",
+  "language": "kotlin",
+  "probe": true,
+  "rationale": "different property name, consume-before-guard",
+  "relation": "consume_before_validate_ordering",
+  "role": "positive"
+}

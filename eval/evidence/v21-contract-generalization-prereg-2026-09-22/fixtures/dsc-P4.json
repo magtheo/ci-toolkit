@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "'never expire' and 'renewal is not required' are directly contradicted by the Rotation section's 24-hour expiry; a reader cannot tell which claim is correct.",
+    "file": "docs/auth-tokens.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/auth-tokens.md\n@@ -0,0 +1,9 @@\n+# Auth tokens\n+\n+Session tokens never expire. Renewal is not required.\n+\n+## Rotation\n+\n+Tokens expire after 24 hours and must be renewed through the\n+refresh endpoint.",
+          "path": "docs/auth-tokens.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-P4",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "genuine contradiction (expiry denied then asserted)",
+  "relation": "doc_self_contradiction",
+  "role": "positive"
+}

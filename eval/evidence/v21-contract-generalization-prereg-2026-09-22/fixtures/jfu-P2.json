@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "rows_jsonl is written as one object per line, but the verification jq treats it as one array document; any(.[]; .ok) walks the fields of each individual object and the check is wrong for this input format.",
+    "file": "scripts/verify.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/verify.sh\n+++ b/scripts/verify.sh\n@@ -4,4 +4,5 @@\n set -euo pipefail\n+jq -cr '.checks[]' <<<\"$report\" > \"$rows_jsonl\"\n+if ! jq 'any(.[]; .ok)' <\"$rows_jsonl\"; then\n+  echo \"failing check present\" >&2\n+fi",
+          "path": "scripts/verify.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-P2",
+  "language": "bash",
+  "probe": false,
+  "rationale": "unslurped array consumer; producer uses single-redirect form (implementation-shape probe)",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "positive"
+}

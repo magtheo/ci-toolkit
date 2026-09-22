@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "relay() discards the urlopen response while claiming the same bounded semantics as the shell version; the body \u2014 the actual relayed reply \u2014 is lost.",
+    "file": "lib/relay.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/relay.py\n+++ b/lib/relay.py\n@@ -11,7 +11,9 @@\n # Same bounded HTTP semantics as the shelled-out version.\n import urllib.request\n def relay(req):\n-    shell_curl(req)\n+    urllib.request.urlopen(\n+        req, timeout=30,\n+    )",
+          "path": "lib/relay.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-P5",
+  "language": "python",
+  "probe": false,
+  "rationale": "multi-line formatting of the same dropped-result semantics",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "positive"
+}

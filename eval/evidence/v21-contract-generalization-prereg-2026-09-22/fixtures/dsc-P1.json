@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The opening claim that all responses come from the cache directly contradicts the Probes section; a reader cannot tell which behavior is real.",
+    "file": "docs/caching.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/caching.md\n@@ -0,0 +1,9 @@\n+# Response caching\n+\n+All API responses are served from the cache. The origin is contacted\n+only to repopulate entries after expiry.\n+\n+## Probes\n+\n+/health and /metrics bypass the cache and always hit origin services,\n+so probes reflect live state.",
+          "path": "docs/caching.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-P1",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "genuine universal-claim vs exception contradiction",
+  "relation": "doc_self_contradiction",
+  "role": "positive"
+}

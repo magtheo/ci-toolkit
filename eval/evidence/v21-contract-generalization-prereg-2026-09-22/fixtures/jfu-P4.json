@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "files_jsonl contains one object per line, but the consumer iterates .[] as if it held a single array; on each per-line object .[] walks the object's own values, so the textual-changes check misreads the documented format.",
+    "file": "scripts/collect.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/collect.sh\n+++ b/scripts/collect.sh\n@@ -1,3 +1,4 @@\n # changed files were gathered as JSONL (one object per line):\n #   jq -c '.[]' <<<\"$batch\" >>\"$files_jsonl\"\n+jq '.[] | select(.patch != null)' <\"$files_jsonl\" >/dev/null\n+echo \"textual changes present\"\n",
+          "path": "scripts/collect.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-P4",
+  "language": "bash",
+  "probe": false,
+  "rationale": "unslurped .[] iteration (M6 shape)",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "positive"
+}

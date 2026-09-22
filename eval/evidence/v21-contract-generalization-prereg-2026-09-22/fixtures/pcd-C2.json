@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the response is opened in a context manager and its JSON body is returned, preserving the helper's contract",
+    "file": "lib/fetcher.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/fetcher.py\n+++ b/lib/fetcher.py\n@@ -9,7 +9,8 @@\n # Same wire behavior as the previous requests-based helper.\n import urllib.request\n def fetch_json(req):\n-    return external_helper(req)\n+    with urllib.request.urlopen(req, timeout=45) as resp:\n+        return json.load(resp)",
+          "path": "lib/fetcher.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-C2",
+  "language": "python",
+  "probe": false,
+  "rationale": "result consumed via with/return; claim in comment",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "control"
+}

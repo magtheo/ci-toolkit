@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "fetch_json no longer returns the parsed reply: the urlopen result is dropped, so the documented same-behavior contract with the previous helper is broken and every caller now receives None.",
+    "file": "lib/fetcher.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/lib/fetcher.py\n+++ b/lib/fetcher.py\n@@ -9,7 +9,6 @@\n # Same wire behavior as the previous requests-based helper.\n import urllib.request\n def fetch_json(req):\n-    return external_helper(req)\n+    urllib.request.urlopen(req, timeout=45)",
+          "path": "lib/fetcher.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-P2",
+  "language": "python",
+  "probe": false,
+  "rationale": "bare dropped result; claim in comment",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "positive"
+}

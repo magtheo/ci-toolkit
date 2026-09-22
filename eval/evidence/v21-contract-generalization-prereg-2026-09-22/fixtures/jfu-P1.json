@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The jq filter assumes the input is a single array, but events_jsonl holds one object per line; any(.[]; \u2026) therefore iterates each object's own values instead of the findings, so the error check misreads the input format.",
+    "file": "scripts/scan.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/scan.sh\n+++ b/scripts/scan.sh\n@@ -1,3 +1,6 @@\n # findings were collected as JSONL (one object per line):\n #   jq -c '.[]' <<<\"$batch\" >>\"$events_jsonl\"\n+if ! jq -e 'any(.[]; .level == \"error\")' <\"$events_jsonl\" >/dev/null; then\n+  echo \"at least one error finding\" >&2\n+  exit 1\n+fi",
+          "path": "scripts/scan.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-P1",
+  "language": "bash",
+  "probe": false,
+  "rationale": "unslurped array consumer over a JSONL producer (M6 semantics)",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "positive"
+}

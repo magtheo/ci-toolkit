@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "The audit job stays pinned to an immutable SHA, so inherited secrets remain scoped to the pinned auditor; the claimed mutable-branch exposure is not present.",
+    "file": ".github/workflows/audit.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/audit.yml\n+++ b/.github/workflows/audit.yml\n@@ -2,5 +2,5 @@\n jobs:\n   audit:\n-    uses: acme/security-kit/.github/workflows/audit.yml@f3a4b5c6d7e8f90112a3b4c5d6e7f8a9b0c1d2e3\n+    uses: acme/security-kit/.github/workflows/audit.yml@a4b5c6d7e8f90112a3b4c5d6e7f8a9b0c1d2e3f4\n     secrets: inherit",
+          "path": ".github/workflows/audit.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-C5",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "secrets: inherit formatting; re-pin",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "control"
+}

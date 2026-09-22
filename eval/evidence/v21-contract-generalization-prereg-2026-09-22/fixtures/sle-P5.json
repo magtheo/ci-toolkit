@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "The deploy script logs the raw database password; CI log retention leaks the credential to everyone with read access.",
+    "file": "scripts/deploy.mjs"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/deploy.mjs\n+++ b/scripts/deploy.mjs\n@@ -9,3 +9,4 @@\n export async function deploy(cfg) {\n+  console.log(\"deploy password\", cfg.dbPassword);\n   return post(cfg);\n }",
+          "path": "scripts/deploy.mjs"
+        }
+      ]
+    }
+  },
+  "id": "sle-P5",
+  "language": "javascript",
+  "probe": true,
+  "rationale": "beyond-original-scope probe: JS console logging of the secret value",
+  "relation": "secret_logged_by_echo",
+  "role": "positive"
+}

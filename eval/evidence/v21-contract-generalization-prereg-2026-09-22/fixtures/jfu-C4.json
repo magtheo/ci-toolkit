@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the consumer processes each line as the object it is, selecting on .patch directly \u2014 per-object streaming that matches the documented JSONL format",
+    "file": "scripts/collect.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/collect.sh\n+++ b/scripts/collect.sh\n@@ -1,3 +1,4 @@\n # changed files were gathered as JSONL (one object per line):\n #   jq -c '.[]' <<<\"$batch\" >>\"$files_jsonl\"\n+jq -c 'select(.patch != null)' <\"$files_jsonl\" >/dev/null\n+echo \"textual changes present\"\n",
+          "path": "scripts/collect.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-C4",
+  "language": "bash",
+  "probe": false,
+  "rationale": "per-object streaming consumer",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "control"
+}

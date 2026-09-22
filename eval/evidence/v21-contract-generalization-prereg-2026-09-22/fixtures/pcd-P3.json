@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "dispatch claims identical delivery semantics yet discards the post() response: the status is never checked and the acknowledgment body is gone, so callers cannot tell whether delivery succeeded.",
+    "file": "svc/dispatch.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/svc/dispatch.py\n+++ b/svc/dispatch.py\n@@ -14,7 +14,6 @@\n # Refactor keeps identical delivery semantics to the old poster.\n import requests\n def dispatch(event):\n-    old_post(event)\n+    requests.post(WEBHOOK_URL, json=event, timeout=30)",
+          "path": "svc/dispatch.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-P3",
+  "language": "python",
+  "probe": true,
+  "rationale": "beyond-original-scope probe: same semantic with a different HTTP client library (requests), result discarded",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "positive"
+}

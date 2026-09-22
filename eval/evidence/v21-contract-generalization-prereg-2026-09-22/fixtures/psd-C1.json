@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "The workflow reference must stay pinned to an immutable commit SHA; a mutable branch reference would let upstream pushes silently change the code that runs with DEPLOY_KEY access. This supply-chain pin must not be loosened.",
+    "file": ".github/workflows/deploy.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/deploy.yml\n+++ b/.github/workflows/deploy.yml\n@@ -4,7 +4,7 @@\n jobs:\n   ship:\n-    uses: acme-platform/deploy-kit/.github/workflows/ship.yml@8f14e45fceea167a5a36dedd4bea2543aa76d1f4\n+    uses: acme-platform/deploy-kit/.github/workflows/ship.yml@9c2b8d51f0e4a7c6d3b1a09f8e7d6c5b4a3f2e1d0\n     with:\n       env: production\n     secrets:\n       DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}",
+          "path": ".github/workflows/deploy.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-C1",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "re-pin to a newer immutable SHA; the pinned-ref semantic is retained",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "control"
+}

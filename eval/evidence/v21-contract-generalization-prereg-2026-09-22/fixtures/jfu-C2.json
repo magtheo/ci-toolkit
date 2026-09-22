@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the slurped consumer aggregates the per-line objects into an array before any(.[]; .ok), matching the JSONL format",
+    "file": "scripts/verify.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/scripts/verify.sh\n+++ b/scripts/verify.sh\n@@ -4,4 +5,5 @@\n set -euo pipefail\n+jq -cr '.checks[]' <<<\"$report\" > \"$rows_jsonl\"\n+if ! jq -s 'any(.[]; .ok)' <\"$rows_jsonl\"; then\n+  echo \"failing check present\" >&2\n+fi",
+          "path": "scripts/verify.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-C2",
+  "language": "bash",
+  "probe": false,
+  "rationale": "slurped consumer; same producer form",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "control"
+}

@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "pinning discipline: toolkit_ref must remain an immutable SHA; a branch name in this field would silently change release behavior on every upstream push.",
+    "file": ".github/workflows/release.yml"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/.github/workflows/release.yml\n+++ b/.github/workflows/release.yml\n@@ -12,8 +12,8 @@\n   publish:\n     uses: octo-tools/release-kit/.github/workflows/publish.yml@4ad5c1e9b7d3f20816a45ce2d9b6f3e7c8a190d2b\n     with:\n-      toolkit_ref: 4ad5c1e9b7d3f20816a45ce2d9b6f3e7c8a190d2b\n+      toolkit_ref: 7e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b\n       channel: stable",
+          "path": ".github/workflows/release.yml"
+        }
+      ]
+    }
+  },
+  "id": "psd-C2",
+  "language": "yaml",
+  "probe": false,
+  "rationale": "input-ref re-pinned; no demotion",
+  "relation": "pinned_sha_demoted_to_branch",
+  "role": "control"
+}

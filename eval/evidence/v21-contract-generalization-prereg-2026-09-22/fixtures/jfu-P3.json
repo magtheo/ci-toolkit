@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "records_file is JSONL, one object per line, but all(.[]; .success) expects a single array document; the gate inspects each object's own fields and the input format is misread.",
+    "file": "ci/report_gate.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/ci/report_gate.sh\n+++ b/ci/report_gate.sh\n@@ -2,3 +2,5 @@\n # build results arrive as JSONL (one object per line):\n #   jq -c '.builds[]' <<<\"$payload\" >>\"$records_file\"\n+jq 'all(.[]; .success)' <\"$records_file\" >/dev/null\n+echo \"all builds succeeded\"\n",
+          "path": "ci/report_gate.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-P3",
+  "language": "bash",
+  "probe": false,
+  "rationale": "unslurped all() consumer over documented JSONL",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "positive"
+}

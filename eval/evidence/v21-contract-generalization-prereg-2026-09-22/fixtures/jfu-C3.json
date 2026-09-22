@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the gate slurps the JSONL into an array first, so all(.[]; .success) evaluates over the records as intended",
+    "file": "ci/report_gate.sh"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/ci/report_gate.sh\n+++ b/ci/report_gate.sh\n@@ -2,3 +2,5 @@\n # build results arrive as JSONL (one object per line):\n #   jq -c '.builds[]' <<<\"$payload\" >>\"$records_file\"\n+jq -s 'all(.[]; .success)' <\"$records_file\" >/dev/null\n+echo \"all builds succeeded\"\n",
+          "path": "ci/report_gate.sh"
+        }
+      ]
+    }
+  },
+  "id": "jfu-C3",
+  "language": "bash",
+  "probe": false,
+  "rationale": "slurped all() consumer",
+  "relation": "jsonl_format_vs_unslurped_jq",
+  "role": "control"
+}

@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "the response is captured and its status returned, preserving the ack behavior",
+    "file": "hooks/sender.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/hooks/sender.py\n+++ b/hooks/sender.py\n@@ -5,6 +5,6 @@\n # Drop-in replacement preserving the emit-and-ack behavior.\n import httpx\n def send(event):\n-    legacy_emit(event)\n+    reply = httpx.post(HOOK, json=event)\n+    return reply.status_code",
+          "path": "hooks/sender.py"
+        }
+      ]
+    }
+  },
+  "id": "pcd-C4",
+  "language": "python",
+  "probe": false,
+  "rationale": "httpx client, result captured/returned",
+  "relation": "preserved_claim_vs_dropped_call_result",
+  "role": "control"
+}

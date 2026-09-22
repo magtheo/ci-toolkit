@@ -1,0 +1,23 @@
+{
+  "expected_label": "ADMITS",
+  "finding": {
+    "comment": "'No manual approval exists' is directly contradicted by the Production section; the document cannot tell the reader which behavior is real.",
+    "file": "docs/deployment.md"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- /dev/null\n+++ b/docs/deployment.md\n@@ -0,0 +1,10 @@\n+# Deployment\n+\n+Every merged commit is deployed to production automatically. No\n+manual approval exists anywhere in the pipeline.\n+\n+## Production\n+\n+Production deploys require approval from the release team before\n+they proceed.",
+          "path": "docs/deployment.md"
+        }
+      ]
+    }
+  },
+  "id": "dsc-P2",
+  "language": "markdown",
+  "probe": false,
+  "rationale": "genuine contradiction between universal claim and exception section",
+  "relation": "doc_self_contradiction",
+  "role": "positive"
+}

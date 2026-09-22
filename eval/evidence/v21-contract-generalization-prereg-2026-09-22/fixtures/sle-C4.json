@@ -1,0 +1,23 @@
+{
+  "expected_label": "REFUSES",
+  "finding": {
+    "comment": "only the token's length is logged \u2014 metadata useful for debugging that reveals nothing about the credential value",
+    "file": "ops/report.py"
+  },
+  "fixture": {
+    "input": {
+      "files": [
+        {
+          "patch": "--- a/ops/report.py\n+++ b/ops/report.py\n@@ -12,3 +12,4 @@\n def summarize(run):\n+    print(f\"token_length={len(SESSION_TOKEN)}\")\n     return build_report(run)",
+          "path": "ops/report.py"
+        }
+      ]
+    }
+  },
+  "id": "sle-C4",
+  "language": "python",
+  "probe": false,
+  "rationale": "same shape, logging only a length",
+  "relation": "secret_logged_by_echo",
+  "role": "control"
+}
