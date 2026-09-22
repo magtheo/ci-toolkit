@@ -23,6 +23,7 @@ protocol.
 """
 import hashlib
 import json
+import math
 import os
 import pathlib
 import re
@@ -63,8 +64,9 @@ def prereg_pins(doc):
         name = name.split(" (")[0]
         if name.startswith("eval/"):
             name = name[5:]
-        if name not in pins:
-            pins[name] = m.group(1)
+        if name in pins and pins[name] != m.group(1):
+            raise ValueError("conflicting preregistration pins for %s" % name)
+        pins[name] = m.group(1)
     body = doc[doc.index("Model/request profile frozen"):]
     model = re.search(r"model\s+`([^`]+)`", body).group(1)
     effort = re.search(r"reasoning effort `([^`]+)`", body).group(1)
@@ -100,7 +102,8 @@ def compute_reality(prereg, pins):
         sh = hashlib.sha256(system.encode()).hexdigest()
         if system_hash is None:
             system_hash = sh
-        assert sh == system_hash
+        if sh != system_hash:
+            raise ValueError("trial fixtures have different system prompts")
         prompts[fid] = hashlib.sha256(final_user.encode()).hexdigest()
         # worst-case pre-request bound INCLUDES the suffix chars
         chars[fid] = len(system) + len(final_user)
@@ -182,6 +185,8 @@ def mechanical_counts(out_dir):
     """Counts only — explicitly NOT verdicts."""
     records_path = out_dir / "records.jsonl"
     extract = []
+    if not records_path.exists():
+        return extract
     for line in records_path.read_text().splitlines():
         r = json.loads(line)
         result = r.get("result") or {}
@@ -216,10 +221,16 @@ def main(argv=None):
     ap.add_argument("--price-source", default=None)
     args = ap.parse_args(argv)
 
-    doc = PREREG.read_text()
-    prereg = prereg_pins(doc)
-    reality = compute_reality(prereg, prereg["pins"])
-    bad = preflight(prereg, reality)
+    try:
+        doc = PREREG.read_text()
+        prereg = prereg_pins(doc)
+        reality = compute_reality(prereg, prereg["pins"])
+        bad = preflight(prereg, reality)
+    except (OSError, ValueError, KeyError, AttributeError,
+            RuntimeError, AssertionError) as e:
+        print("BLOCKED — invalid preregistration or preflight input "
+              "(nothing was sent): %s" % e)
+        return 2
 
     if bad:
         print("BLOCKED — preregistration mismatches (fail closed, "
@@ -245,13 +256,19 @@ def main(argv=None):
         print("spend refused: --out is required for execution")
         return 2
     if (args.price_input_per_m is None or args.price_output_per_m is None
-            or not args.price_source):
-        print("spend refused: ceiling enforcement requires recorded "
-              "prices (--price-input-per-m, --price-output-per-m, "
-              "--price-source)")
+            or not args.price_source or not args.price_source.strip()
+            or not math.isfinite(args.price_input_per_m)
+            or not math.isfinite(args.price_output_per_m)
+            or args.price_input_per_m <= 0 or args.price_output_per_m <= 0):
+        print("spend refused: ceiling enforcement requires finite, "
+              "positive recorded prices and a nonempty price source")
         return 2
 
     out_dir = pathlib.Path(args.out)
+    if out_dir.exists() and any(out_dir.iterdir()):
+        print("spend refused: trial requires a fresh --out directory "
+              "(no reuse or mixing of evidence; stop and report)")
+        return 2
     out_dir.mkdir(parents=True, exist_ok=True)
     profile, overrides = pq.measurement_profile(
         prereg["model"], prereg["effort"], prereg["max_tokens"])
@@ -262,37 +279,61 @@ def main(argv=None):
     from eval.spend_ledger import SpendLedger
     ledger = SpendLedger(out_dir / "spend-ledger.json", spend)
 
-    pq.live(out_dir,
-            [f for f in pq.corpus() if f["id"] in prereg["fixtures"]],
-            1, prereg["model"], profile, overrides,
-            run_index=None, spend=spend, ledger=ledger,
-            evidence_gate=True, prompt_suffix=reality["extension_text"],
-            response_schema=reality["trial_schema_object"])
+    # A stopped trial must still have a durable mechanical provenance
+    # snapshot. The ledger, not records-only usage, governs the ceiling.
+    stop_reason = None
+    try:
+        pq.live(out_dir,
+                [f for f in pq.corpus() if f["id"] in prereg["fixtures"]],
+                1, prereg["model"], profile, overrides,
+                run_index=None, spend=spend, ledger=ledger,
+                evidence_gate=True, prompt_suffix=reality["extension_text"],
+                response_schema=reality["trial_schema_object"])
+    except SystemExit as e:
+        stop_reason = str(e)
 
     records_path = out_dir / "records.jsonl"
-    spend_meta = pq._spend_from_records(
-        pq._load_records(records_path), spend)
-    actual = spend_meta["actual_cost_usd"]
+    records = pq._load_records(records_path)
+    ledger_snapshot = ledger.state()
+    expected = {(fid, 0) for fid in prereg["fixtures"]}
+    observed = [(r.get("fixture"), r.get("run_index")) for r in records]
+    complete = (len(observed) == len(expected)
+                and len(set(observed)) == len(observed)
+                and set(observed) == expected)
+    status = ("EXECUTED_PENDING_ADJUDICATION"
+              if stop_reason is None and complete
+              else "INCOMPLETE")
+    known_cost = pq._spend_from_records(records, spend)["actual_cost_usd"]
     state = {
         "trial": "v2-evidence-declaration-calibration-N1",
         "preregistration_sha256": _sha(PREREG),
-        "status": "EXECUTED_PENDING_ADJUDICATION",
+        "status": status,
+        "record_count": len(records),
         "ceiling_usd": prereg["ceiling_usd"],
-        "actual_cost_usd": actual,
+        "actual_cost_usd": ledger_snapshot["settled_usd"],
+        "records_known_cost_usd": known_cost,
+        "ledger": ledger_snapshot,
         "price_source": args.price_source,
-        "records_sha256": _sha(records_path),
+        "records_sha256": _sha(records_path) if records_path.exists()
+                          else None,
         "mechanical_counts": mechanical_counts(out_dir),
         "note": "counts only — verdicts require the frozen honesty "
                 "protocol's human adjudication; this script computes "
                 "no GO/NO-GO",
     }
+    if stop_reason is not None:
+        state["stop_reason"] = stop_reason
+    # A complete set of records is not sufficient to declare a result;
+    # all honesty and oracle decisions remain the human's.
     with (out_dir / "trial-state.json").open("w") as fh:
         json.dump(state, fh, indent=2, sort_keys=True)
         fh.write("\n")
-    print("EXECUTED_PENDING_ADJUDICATION: actual $%.6f of $%.2f "
-          "ceiling; adjudication is the human maintainer's"
-          % (actual, prereg["ceiling_usd"]))
-    return 0
+    print("%s: ledger-settled $%.6f of $%.2f ceiling; "
+          "adjudication is the human maintainer's%s"
+          % (status, ledger_snapshot["settled_usd"],
+             prereg["ceiling_usd"],
+             ("; STOP: " + stop_reason) if stop_reason else ""))
+    return 2 if status == "INCOMPLETE" else 0
 
 
 if __name__ == "__main__":
