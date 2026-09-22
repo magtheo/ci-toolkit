@@ -53,8 +53,14 @@ def test_frozen_five_case_projection_is_pinned():
 def test_predicate_registry_does_not_confuse_c11_with_m11():
     fixtures = {f["id"]: f for f in replay.rc.load_corpus(
         REPO / "eval" / "fixtures")}
-    c11 = {"comment": "the wrapper loses check failures and reports success"}
-    m11 = {"comment": "the status is hardcoded success and discards outcome"}
+    c11 = {
+        "file": "scripts/check-migrations.sh",
+        "comment": "the wrapper loses check failures and reports success",
+    }
+    m11 = {
+        "file": "scripts/check-migrations.sh",
+        "comment": "the status is hardcoded success and discards outcome",
+    }
     assert "hardcoded_success_status" not in replay.predicate_names(
         c11, fixtures["C11"])
     assert "hardcoded_success_status" in replay.predicate_names(
