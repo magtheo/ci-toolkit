@@ -7,8 +7,10 @@ five sha-linked regression cases. Zero provider calls.
 
 ## Headline
 
-Six of seven preregistered relations survived the pair test; one
-FAILED exactly as the protocol demanded. The candidate gate recovers
+Five of seven preregistered relations are both pair-safe and
+productive. One relation FAILED the control-pair guard exactly as the
+protocol demanded; one is NO_YIELD because it recovers no TP through
+the frozen route + quote admission boundary. The candidate gate recovers
 **24 oracle-matching TP rows (+83% contract-route recall, 29 → 53 of
 68)** with **zero control admissions (0/77 corpus-wide)** and **zero
 new extra-blocker admissions**.
@@ -28,19 +30,26 @@ refused; M3 admitted via the existing registry witness.
 
 ## Per-relation pair test
 
-| relation | TPs admitted (fixtures) | controls | extras | verdict |
-|---|---|---:|---:|---|
-| `pinned_sha_demoted_to_branch` | 24 (M2) | 0 | 0 | eligible |
-| `preserved_claim_vs_dropped_call_result` | 11 (M7) | 0 | 1 (M7) | eligible |
-| `consume_before_validate_ordering` | 13 (M8) | 0 | 0 | eligible |
-| `doc_contract_prefix_unanchored_match` | 9 (M10) | **3 (C10)** | 1 | **FAILED** |
-| `secret_logged_by_echo` | 9 (M14) | 0 | 0 | eligible |
-| `doc_self_contradiction` | 11 (M17, M18) | 0 | 0 | eligible |
-| `jsonl_format_vs_unslurped_jq` | 7 (M6) | 0 | 0 | eligible |
+| relation | raw TP matches | new TP admissions | control relation matches | new extras | verdict |
+|---|---:|---:|---:|---:|---|
+| `pinned_sha_demoted_to_branch` | 24 (M2) | **1 (M2)** | 0 | 0 | **ELIGIBLE** |
+| `preserved_claim_vs_dropped_call_result` | 11 (M7) | **7 (M7)** | 0 | 0 | **ELIGIBLE** |
+| `consume_before_validate_ordering` | 13 (M8) | **5 (M8)** | 0 | 0 | **ELIGIBLE** |
+| `doc_contract_prefix_unanchored_match` | 9 (M10) | 1 (M10) | **3 (C10)** | 0 | **FAILED_CONTROL_LEAK** |
+| `secret_logged_by_echo` | 9 (M14) | **0** | 0 | 0 | **NO_YIELD** |
+| `doc_self_contradiction` | 11 (M17, M18) | **9 (M17, M18)** | 0 | 0 | **ELIGIBLE** |
+| `jsonl_format_vs_unslurped_jq` | 7 (M6) | **2 (M6)** | 0 | 0 | **ELIGIBLE** |
 
-TP counts are rows on which the relation fires; candidate admission
-additionally requires the quote gate and the contract route, yielding
-24 newly admitted rows: M18 7, M7 7, M8 5, M17 2, M6 2, M2 1.
+The pair guard is deliberately stronger than final admission: **any
+raw relation match on a frozen control fails the relation**, even when
+an upstream route or quote gate would currently suppress that control.
+Productivity is measured at the actual candidate boundary: a relation
+must recover at least one *new* oracle-matching TP after the frozen
+contract route + quote gate. This is why M10 stays failed and M14 is
+NO_YIELD rather than eligible.
+
+The five eligible relations yield exactly 24 newly admitted rows:
+M18 7, M7 7, M8 5, M17 2, M6 2, M2 1.
 
 ## The FAILED relation is the study's most instructive result
 
@@ -82,8 +91,10 @@ the frozen Phase-16 precedence, where new relations do not apply; only
   acceptance of the shell `if ! jq` guard prefix and acceptance of
   `$VAR` forms. No relation semantics were changed. The M10 wording defect was NOT repaired —
   it is a semantic defect and was recorded FAILED.
-- Extras: `preserved_claim_vs_dropped_call_result` fires on one M7
-  extra blocker, which the candidate gate does not admit (quote/route
-  conditions fail). Reported, not gated.
+- Raw relation matching is diagnostic, not admission. For example,
+  `preserved_claim_vs_dropped_call_result` matches one M7 extra
+  blocker but admits no new extras, and `secret_logged_by_echo`
+  matches nine M14 TP rows but recovers none because those rows do not
+  pass the frozen contract-route admission boundary.
 - No threshold, promotion, or implementation is authorized by this
   study.
