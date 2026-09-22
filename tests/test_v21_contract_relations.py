@@ -20,13 +20,24 @@ def test_population_and_pair_discipline_holds():
     gs = report["phase09"]["gate_summary"]
     assert gs["route_typed"] == {
         "control_blocker": {"admitted": 0, "total": 77},
-        "true_positive_detection": {"admitted": 29, "total": 165},
-        "positive_extra_blocker": {"admitted": 1, "total": 34},
+        "true_positive_detection": {"admitted": 50, "total": 165},
+        "positive_extra_blocker": {"admitted": 2, "total": 34},
     }
     assert gs["candidate"] == {
         "control_blocker": {"admitted": 0, "total": 77},
-        "true_positive_detection": {"admitted": 53, "total": 165},
-        "positive_extra_blocker": {"admitted": 1, "total": 34},
+        "true_positive_detection": {"admitted": 74, "total": 165},
+        "positive_extra_blocker": {"admitted": 2, "total": 34},
+    }
+    contract = report["phase09"]["contract_route_summary"]
+    assert contract["route_typed"] == {
+        "control_blocker": {"admitted": 0, "total": 35},
+        "true_positive_detection": {"admitted": 29, "total": 68},
+        "positive_extra_blocker": {"admitted": 1, "total": 22},
+    }
+    assert contract["candidate"] == {
+        "control_blocker": {"admitted": 0, "total": 35},
+        "true_positive_detection": {"admitted": 53, "total": 68},
+        "positive_extra_blocker": {"admitted": 1, "total": 22},
     }
 
 
