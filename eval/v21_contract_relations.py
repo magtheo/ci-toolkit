@@ -180,7 +180,7 @@ def eligibility(rows):
         extras = [r for r in rows if name in r["relations"]
                   and r["role"] == "positive_extra_blocker"]
         report[name] = {
-            "eligible": not controls,
+            "eligible": bool(tp) and not controls,
             "tp_rows": len(tp),
             "tp_fixtures": sorted({r["fixture"] for r in tp}),
             "control_rows": len(controls),
@@ -276,9 +276,9 @@ def replay():
     eligible = {name for name, info in relations.items()
                 if info["eligible"]}
     for row in rows:
-        row["route_typed"] = bool(
-            row["quote_only"] and row["route"] == "contract_contradiction"
-            and row["witnesses"])
+        admitted, _ = rr.route_admits(
+            row["route"], row["quote_only"], row["witnesses"])
+        row["route_typed"] = admitted
     for row in rows:
         row["candidate"] = _candidate_admitted(row, eligible)
     controls = [r for r in rows if r["role"] == "control_blocker"]
@@ -294,12 +294,25 @@ def replay():
             by_role[role] = {"admitted": sum(r[key] for r in subset),
                              "total": len(subset)}
         summary[key] = by_role
+
+    contract_summary = {}
+    contract_rows = [r for r in rows
+                     if r["route"] == "contract_contradiction"]
+    for key in ("route_typed", "candidate"):
+        by_role = {}
+        for role in ("control_blocker", "true_positive_detection",
+                     "positive_extra_blocker"):
+            subset = [r for r in contract_rows if r["role"] == role]
+            by_role[role] = {"admitted": sum(r[key] for r in subset),
+                             "total": len(subset)}
+        contract_summary[key] = by_role
     return {
         "oracle_version": rc.oracle_version(),
         "protocol":
             "eval/evidence/v21-contract-relations-2026-09-22/PROTOCOL.md",
         "phase09": {
             "gate_summary": summary,
+            "contract_route_summary": contract_summary,
             "relations": relations,
             "eligible": sorted(eligible),
             "rows": rows,
