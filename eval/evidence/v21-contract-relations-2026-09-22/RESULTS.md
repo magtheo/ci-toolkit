@@ -13,15 +13,17 @@ FAILED exactly as the protocol demanded. The candidate gate recovers
 68)** with **zero control admissions (0/77 corpus-wide)** and **zero
 new extra-blocker admissions**.
 
-| gate (contract route) | controls | oracle-matching TPs | extras |
+| gate (contract route only) | controls | oracle-matching TPs | extras |
 |---|---:|---:|---:|
-| Phase-16 baseline | 0 / 68* | 29 / 68 | 1 / 22 |
-| + eligible relations | 0 / 68* | **53 / 68** | 1 / 22 |
+| Phase-16 baseline | 0 / 35 | 29 / 68 | 1 / 22 |
+| + eligible relations | 0 / 35 | **53 / 68** | 1 / 22 |
 
-*corpus-wide controls are 0/77 in both gates; the table is
-route-scoped. Corpus-wide TP translation: **50 → 74 of 165**
-(baseline includes 21 `witnessed_behavior` admissions, unchanged by
-this study). Frozen-five outcomes unchanged: C11, M13, C12, M12
+The executable candidate gate preserves **all** Phase-16 admissions
+before adding eligible contract relations. Therefore the corresponding
+corpus-wide gate is **0/77 controls, 50 → 74 of 165 oracle-matching
+TPs, and 2/34 extra blockers unchanged**. The 21 admitted
+`witnessed_behavior` TPs and their one admitted extra remain untouched
+by this study. Frozen-five outcomes are unchanged: C11, M13, C12, M12
 refused; M3 admitted via the existing registry witness.
 
 ## Per-relation pair test
@@ -75,10 +77,10 @@ the frozen Phase-16 precedence, where new relations do not apply; only
   test on the same corpus is necessary, not sufficient (protocol).
   Generalization requires unseen validation and ultimately a live
   trial.
-- Two implementation repairs were made to match preregistered
+- Two jq-regex implementation repairs were made to match preregistered
   semantics (no control impact; eligibility mechanically rechecked):
-  the jq consumer regex (shell `if ! jq` guard prefix, `$VAR`
-  forms), and no others. The M10 wording defect was NOT repaired —
+  acceptance of the shell `if ! jq` guard prefix and acceptance of
+  `$VAR` forms. No relation semantics were changed. The M10 wording defect was NOT repaired —
   it is a semantic defect and was recorded FAILED.
 - Extras: `preserved_claim_vs_dropped_call_result` fires on one M7
   extra blocker, which the candidate gate does not admit (quote/route
