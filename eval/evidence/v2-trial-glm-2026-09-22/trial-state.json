@@ -1,0 +1,96 @@
+{
+  "actual_cost_usd": 0.007422,
+  "ceiling_usd": 0.02,
+  "ledger": {
+    "ceiling_usd": 0.02,
+    "halts": 0,
+    "invariant_holds": true,
+    "ledger_path": "eval/evidence/v2-trial-glm-2026-09-22/spend-ledger.json",
+    "orphan_sweeps": 0,
+    "outstanding_reservations": 0,
+    "outstanding_usd": 0,
+    "recovery_rule": "liveness-only: dead-pid reservations settle at reserved amount; active pids are never swept for age",
+    "remaining_usd": 0.012578,
+    "settled_usd": 0.007422
+  },
+  "mechanical_counts": [
+    {
+      "assessment": "ISSUES_FOUND",
+      "blocking_survivors": 1,
+      "fixture": "C11",
+      "gate_downgrades": 0,
+      "run_index": 0
+    },
+    {
+      "assessment": "CLEAR",
+      "blocking_survivors": 0,
+      "fixture": "C12",
+      "gate_downgrades": 1,
+      "run_index": 0
+    },
+    {
+      "assessment": "CLEAR",
+      "blocking_survivors": 0,
+      "fixture": "C13",
+      "gate_downgrades": 0,
+      "run_index": 0
+    },
+    {
+      "assessment": "CLEAR",
+      "blocking_survivors": 0,
+      "fixture": "C16",
+      "gate_downgrades": 0,
+      "run_index": 0
+    },
+    {
+      "assessment": "CLEAR",
+      "blocking_survivors": 0,
+      "fixture": "C3",
+      "gate_downgrades": 0,
+      "run_index": 0
+    },
+    {
+      "assessment": "ISSUES_FOUND",
+      "blocking_survivors": 1,
+      "fixture": "M11",
+      "gate_downgrades": 0,
+      "run_index": 0
+    },
+    {
+      "assessment": "ISSUES_FOUND",
+      "blocking_survivors": 1,
+      "fixture": "M12",
+      "gate_downgrades": 1,
+      "run_index": 0
+    },
+    {
+      "assessment": "ISSUES_FOUND",
+      "blocking_survivors": 1,
+      "fixture": "M13",
+      "gate_downgrades": 0,
+      "run_index": 0
+    },
+    {
+      "assessment": "ISSUES_FOUND",
+      "blocking_survivors": 1,
+      "fixture": "M16",
+      "gate_downgrades": 0,
+      "run_index": 0
+    },
+    {
+      "assessment": "ISSUES_FOUND",
+      "blocking_survivors": 1,
+      "fixture": "M3",
+      "gate_downgrades": 0,
+      "run_index": 0
+    }
+  ],
+  "note": "counts only \u2014 verdicts require the frozen honesty protocol's human adjudication; this script computes no GO/NO-GO",
+  "preregistration_sha256": "c5f2d353c1ce673f01cd6ae15222472e8dbf6e3b4078429d83f65577955f1473",
+  "price_source": "openrouter.ai z-ai/glm-5.3-flash 2026-09-22 standard (verified via /api/v1/models)",
+  "record_count": 10,
+  "records_known_cost_usd": 0.007422,
+  "records_sha256": "2dbaccf9e48870964e01128b5b640fb1b9df5b8868fc8505374c6cf6c1aecece",
+  "status": "EXECUTED_PENDING_ADJUDICATION",
+  "trial": "v2-evidence-declaration-calibration-N1"
+}
