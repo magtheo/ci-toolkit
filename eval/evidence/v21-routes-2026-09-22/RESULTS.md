@@ -30,10 +30,15 @@ explains refusals; it does not widen them.
 
 Reading:
 
-- **`witnessed_behavior` is the existence proof.** When the claimed
-  relation is mechanically checkable from the cited file, admission is
-  21/23 (91%) with zero control leakage. Precision and recall coexist
-  exactly where an independent verifier exists.
+- **Registry-backed admission is the existence proof, not the
+  `witnessed_behavior` row by itself.** Across all routes, every
+  admitted row still has a Phase-15 structural witness: 50/165
+  oracle-matching TPs with 0/77 control admissions. Within the
+  precedence-conditioned non-contract `witnessed_behavior` route,
+  21/23 TPs are admitted and no controls are assigned to that route.
+  Because contract-shaped rows take precedence, the route-local 0/0
+  control denominator is **not** a standalone precision estimate of
+  the witness registry.
 - **`contract_contradiction` is the biggest recoverable gap**: 39
   oracle-matching TPs carry the right claim shape and a quote but die
   for lack of a relation verifier (only one exists today:
@@ -73,12 +78,17 @@ mechanical reason.
 
 The bottleneck is confirmed and now located per claim class: the
 route layer adds no recall by itself — **verification infrastructure
-per route is the only recall lever** — and the witnessed route shows
-that where such infrastructure exists, it is both precise and
-recalling. Priorities for any future (still offline-first) phase, in
-expected yield order: (1) pair-validated contract relation verifiers
-(39 TPs at stake, C11 as standing near-miss control), (2) external-fact
-pinning with bounded-consequence checks (45 TPs, M13 as standing
-control, live trial required), (3) broader static witnesses (29 TPs).
+per route is the only recall lever**. The existing registry shows that
+mechanically witnessed admissions can preserve meaningful recall
+without historical control leakage, while the route decomposition
+shows where that verifier coverage is missing.
+
+Research priority is **feasibility/risk ordered, not raw-yield
+ordered**: (1) pair-validated contract relation verifiers (39 refused
+TPs, C11 as a standing near-miss control, fully offline-testable);
+(2) external-fact pinning with bounded-consequence checks (45 refused
+TPs — the larger raw bucket — but M13 shows this requires new pinned
+fact/consequence infrastructure and ultimately a live trial);
+(3) broader static witnesses (29 refused TPs).
 No threshold, promotion, or implementation is authorized by this
 study.
