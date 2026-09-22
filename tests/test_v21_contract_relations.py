@@ -49,20 +49,22 @@ def test_per_relation_verdicts_are_pinned():
     assert failed["verdict"] == "FAILED_CONTROL_LEAK"
     assert failed["new_tp_rows"] == 1
     assert failed["new_tp_fixtures"] == ["M10"]
-    assert failed["control_admissions"] == 3
+    assert failed["raw_match_control_rows"] == 3
     assert failed["control_fixtures"] == ["C10"]
 
-    no_yield = info["secret_logged_by_echo"]
-    assert no_yield["eligible"] is False
-    assert no_yield["verdict"] == "NO_YIELD"
-    assert no_yield["new_tp_rows"] == 0
-    assert no_yield["raw_match_tp_rows"] == 9
-    assert no_yield["raw_match_tp_fixtures"] == ["M14"]
+    zero_yield = info["secret_logged_by_echo"]
+    assert zero_yield["eligible"] is True
+    assert zero_yield["verdict"] == "ELIGIBLE"
+    assert zero_yield["new_tp_rows"] == 0
+    assert zero_yield["raw_match_tp_rows"] == 9
+    assert zero_yield["raw_match_tp_fixtures"] == ["M14"]
+    assert zero_yield["raw_match_control_rows"] == 0
 
     eligible = {
         "pinned_sha_demoted_to_branch": (["M2"], 1),
         "preserved_claim_vs_dropped_call_result": (["M7"], 7),
         "consume_before_validate_ordering": (["M8"], 5),
+        "secret_logged_by_echo": (["M14"], 0),
         "doc_self_contradiction": (["M17", "M18"], 9),
         "jsonl_format_vs_unslurped_jq": (["M6"], 2),
     }
@@ -71,7 +73,7 @@ def test_per_relation_verdicts_are_pinned():
         assert info[name]["verdict"] == "ELIGIBLE", name
         assert info[name]["new_tp_fixtures"] == fixtures, name
         assert info[name]["new_tp_rows"] == new_rows, name
-        assert info[name]["control_admissions"] == 0, name
+        assert info[name]["raw_match_control_rows"] == 0, name
         assert info[name]["new_extra_admissions"] == 0, name
     assert set(_report()["phase09"]["eligible"]) == set(eligible)
 
