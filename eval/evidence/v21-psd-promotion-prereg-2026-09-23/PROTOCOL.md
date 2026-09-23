@@ -112,6 +112,13 @@ never silently reconciled.
 - `eval/evidence/v21-psd-promotion-eval-2026-09-23/psd-promotion-report.json`
   (published report bound by tests to live evaluator output exactly)
 
+The 19A `test_19b_has_not_started` is a **pre-execution** guard. In
+19B, replace that absence assertion with a positive existence and
+SHA-pinned exact-equality check of the published report against the live
+19B evaluator. Retain the other 19A identity, prediction, and scope
+checks; do not simply delete the preregistration guard without replacing
+its lifecycle obligation.
+
 ## Success criteria and meaning
 
 Success = all invariants hold and outcomes match the frozen
