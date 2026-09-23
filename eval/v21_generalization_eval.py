@@ -39,6 +39,11 @@ FROZEN_MODULE_SHA = ("bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0a"
                      "b7e719c43c1b5754b1b57")
 ORACLE = "117b4164e5446f50"
 THRESHOLD_TP = 4
+FROZEN_18B_REPORT = ROOT / "eval" / "evidence" / \
+    "v21-contract-generalization-eval-2026-09-22" / \
+    "generalization-report.json"
+FROZEN_18B_REPORT_SHA = ("a56235b59bd104f9a6d868fad67d6ea1fe65f01a4987d"
+                         "f02e257031e05587eec")
 
 RELATIONS = (
     "pinned_sha_demoted_to_branch",
@@ -185,6 +190,47 @@ def evaluate_amended_pairs():
     return rows
 
 
+def _reconcile_unchanged(rows, amended_ids):
+    """18D halt gate: all 56 unchanged fixtures must exactly reproduce
+    the frozen 18B admitted flag and fired-relation set."""
+    raw = FROZEN_18B_REPORT.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest != FROZEN_18B_REPORT_SHA:
+        raise RuntimeError("frozen 18B report hash drift")
+    prior = json.loads(raw)
+    prior_rows = {r["id"]: r for r in prior["fixture_rows"]}
+    current = {r["id"]: r for r in rows}
+    unchanged = sorted(set(current) - set(amended_ids))
+    if len(unchanged) != 56:
+        raise RuntimeError(
+            "18D reconciliation population drift: expected 56 unchanged "
+            "fixtures, found %d" % len(unchanged))
+    if set(prior_rows) != set(current):
+        raise RuntimeError("18D reconciliation fixture-id set drift")
+    mismatches = []
+    for fixture_id in unchanged:
+        old = prior_rows[fixture_id]
+        new = current[fixture_id]
+        if (old["admitted"] != new["admitted"]
+                or old["fired_relations"] != new["fired_relations"]):
+            mismatches.append({
+                "id": fixture_id,
+                "prior_admitted": old["admitted"],
+                "current_admitted": new["admitted"],
+                "prior_fired_relations": old["fired_relations"],
+                "current_fired_relations": new["fired_relations"],
+            })
+    if mismatches:
+        raise RuntimeError(
+            "18D reconciliation halt: unchanged fixture divergence: %s"
+            % json.dumps(mismatches, sort_keys=True))
+    return {
+        "frozen_18b_report_sha256": digest,
+        "unchanged_fixture_count": len(unchanged),
+        "mismatches": [],
+    }
+
+
 def evaluate():
     """18D step 2: full reconciliation run over all 60 amended-state
     fixtures. By determinism the 52 unchanged fixtures must reproduce
@@ -212,6 +258,8 @@ def evaluate():
             "admitted": entry["relation"] in fired,
             "amended": entry["id"] in amended_ids,
         })
+
+    reconciliation = _reconcile_unchanged(rows, amended_ids)
 
     per_relation = {}
     for relation in RELATIONS:
@@ -273,6 +321,7 @@ def evaluate():
         },
         "standing_regression_guards": guards,
         "amendments": amendments,
+        "reconciliation": reconciliation,
     }
 
 
