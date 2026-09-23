@@ -1,0 +1,34 @@
+{
+  "phase": "22C",
+  "kind": "phase-transition-record",
+  "status": "implementation-authorized__qualification-not-authorized__no-authority-grant",
+  "parent_merge_sha": "9773deab9de2bebad7514bc65a39625bea8c41f9",
+  "prerequisites": {
+    "phase_22a_merge_sha": "8d3966ca79bc49626a4f7303b72ddefe21ff527f",
+    "phase_22b_merge_sha": "9773deab9de2bebad7514bc65a39625bea8c41f9",
+    "frozen_22b_contract_path": "eval/evidence/v21-m4rel-prereg-2026-09-23/TARGETS_CONTRACT.json",
+    "frozen_22b_contract_sha256": "0f7e183703dd9497b9e430686194472cefff0de3d9657c19e55b73e77d74c2a0",
+    "frozen_22b_future_artifact": "eval/v21_m4_relation.py (22C+)"
+  },
+  "authorization_basis": {
+    "operator_directive": "Proceed to Phase 22C implementation against the frozen 22B contract; keep the fresh holdout unexecuted and stop for review before qualification.",
+    "repository_preregistration": "Merged 22B TARGETS_CONTRACT.json names eval/v21_m4_relation.py as a future-phase artifact for 22C+ and freezes its semantic/validation contract before implementation."
+  },
+  "allowed_changes": [
+    "create eval/v21_m4_relation.py against the frozen 22B contract",
+    "publish Phase-22C implementation evidence and tests",
+    "migrate the phase-scoped 22A/22B preimplementation absence guards to require this transition record, the exact module hash, and continued qualification-artifact absence"
+  ],
+  "forbidden_changes": [
+    "execute the fresh 22B holdout against the candidate during 22C",
+    "create m4rel qualification result artifacts",
+    "grant preservation authority",
+    "adopt a reduction rule or activate GATING",
+    "modify frozen 22B contract, holdout fixtures, labels, thresholds, target identities, routes, parser, oracle, or Phase-17 verifier"
+  ],
+  "guard_migration": {
+    "phase_22a": "pre-candidate absence -> transition-authorized exact module hash + no qualification artifacts",
+    "phase_22b": "preimplementation absence -> transition-authorized exact module hash + holdout execution count 0 + no qualification artifacts"
+  },
+  "authority_boundary": "This transition authorizes implementation only. It does not grant preservation authority and does not authorize the qualification execution."
+}
