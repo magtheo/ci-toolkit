@@ -55,14 +55,15 @@ C12/M12 refused; oracle `117b4164e5446f50`).
 
 ## Why the amended jfu-P5 does not fire (characterization only)
 
-The frozen M6-family matcher requires the consumer line to carry a
-**negated guard** (`if ! jq …` / `! jq …`, the form of the original
-M6 corpus instance). The amended P5 uses a semantically equivalent
-**affirmative** guard (`if jq -e 'any(.[]; .failed)' <"$stages_jsonl"`
-— "if any stage failed, fail"). Every other element of the pattern is
+The frozen M6-family matcher accepts a bare `jq …` consumer and the
+negated guard forms `! jq …` / `if ! jq …`, but its line-prefix
+regex does **not** accept the affirmative conditional form
+`if jq …`. The amended P5 uses exactly that semantically valid
+affirmative guard (`if jq -e 'any(.[]; .failed)' <"$stages_jsonl"`
+— "if any stage failed, fail"). Every other required element is
 present: same-file JSONL producer (`>>"$stages_jsonl"`), array
-filter, variable read, no slurp. The relation therefore detects the
-M6 shape but does not generalize across guard polarity. This is
+filter, variable read, and no slurp. The relation therefore fails to
+generalize to the affirmative-`if` guard form. This is
 recorded as evidence of the frozen relation's recall boundary; per
 the frozen procedure, **no relation may be changed in response to
 18D behavior** — any guard-polarity extension is future preregistered
