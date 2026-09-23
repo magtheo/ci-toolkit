@@ -12,7 +12,7 @@
     {
      "path": "telemetry/sampling.py",
      "status": "added",
-     "patch": "--- /dev/null\n+++ b/telemetry/sampling.py\n@@ -0,0 +1,12 @@\n+\"\"\"Sampling policy metadata.\n+\n+In the default deployment the collector typically reads the\n+sampling interval from this field; deployments that override it\n+configure the collector directly, which is out of scope for this\n+module.\n+\"\"\"\n+\n+class SamplingPolicy:\n+    def __init__(self, interval_seconds):\n+        self.interval_seconds = interval_seconds\n"
+     "patch": "--- /dev/null\n+++ b/telemetry/sampling.py\n@@ -0,0 +1,11 @@\n+\"\"\"Sampling policy metadata.\n+\n+In the default deployment the collector typically reads the\n+sampling interval from this field; deployments that override it\n+configure the collector directly, which is out of scope for this\n+module.\n+\"\"\"\n+\n+class SamplingPolicy:\n+    def __init__(self, interval_seconds):\n+        self.interval_seconds = interval_seconds\n"
     }
    ]
   }
