@@ -23,7 +23,7 @@ are byte-untouched.**
   claim*, not merely on the same file). `file_matches()` reports the
   looser same-file diagnostic separately; it is never gate input.
 
-## The frozen semantic boundary, operationalized
+## The frozen semantic boundary, lexically operationalized
 
 A docstring clause produces a finding only when ALL hold:
 
@@ -44,7 +44,10 @@ A docstring clause produces a finding only when ALL hold:
    exclusivity claims — the marker list excludes them by design.
 
 Per the frozen semantics note, the marker vocabulary is illustrative
-recall; conditions 1–5 together are the detector. Runtime sees
+recall; conditions 1–5 together are the detector. The implementation
+is therefore a **lexically operationalized semantic candidate**, not
+vocabulary-independent semantic understanding: marker, actor,
+disclaimer, and hedge vocabularies are combined with structural checks. Runtime sees
 fixture content only — no oracle roles, no record indexing. The
 module imports nothing from the frozen Phase-17 verifier (QG3).
 
@@ -56,7 +59,7 @@ module imports nothing from the frozen Phase-17 verifier (QG3).
 | Corpus controls | **0/77 fired** | 0 |
 | Extras | **0/34 claim-linked** (4 same-file M4 extras reported as file-match-only diagnostics) | recorded; zero-preserved |
 | Family non-target TPs | 5/5 covered — recorded, permitted | recorded |
-| `detect()` fired fixture set | exactly `{M4}` across all 34 corpus fixtures | — |
+| `detect()` fired fixture set | exactly `{M4}` across all 36 corpus fixtures | — |
 
 Seven development near-miss units (authored for 22C in new domains,
 inline in the test module — holdout content was not reused) all pass:
@@ -74,6 +77,14 @@ First sanctioned execution: the qualification phase, against the
 frozen thresholds (2/2 · 0/77 · 0/30 existing controls · 6/6 · 0/6 ·
 standing guards), feeding a human-reviewed record before any adoption
 decision.
+
+**Qualification interpretation:** the holdout is preregistered and
+execution-sealed, but not blind to the implementation author. The same
+agent authored it before implementation, and review confirmed that all
+positive actor lexemes are represented in the candidate's `ACTORS`
+vocabulary. A future PASS is therefore preregistered validation under
+the frozen scope—not proof of vocabulary-independent or fully blind
+generalization. QG5 human review remains responsible for that limit.
 
 ## Non-goals (unchanged)
 
