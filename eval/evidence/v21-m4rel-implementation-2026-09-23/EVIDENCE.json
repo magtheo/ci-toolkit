@@ -7,7 +7,7 @@
   "relation": "unsubstantiated_absolute_docstring_claim",
   "implementation": "22C-impl-v1",
   "module": "eval/v21_m4_relation.py",
-  "module_sha256": "12f3870d5e5d46c0ed701b8f1a6f21b3e1c7c8cfc7091f258152c9c86d314ce6"
+  "module_sha256": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596"
  },
  "frozen_contract": {
   "path": "eval/evidence/v21-m4rel-prereg-2026-09-23/TARGETS_CONTRACT.json",
@@ -136,5 +136,6 @@
   "frozen_qg2_mechanics": "future qualification may execute the unchanged module once against the frozen 22B thresholds",
   "scope_limit": "because holdout author and implementation author overlap, and holdout actor vocabulary is represented in the implementation vocabulary, a PASS must be reported as preregistered validation rather than blind or vocabulary-independent generalization",
   "authority": "no automatic preservation-authority grant; QG5 human review must consider this limitation"
- }
+ },
+ "coverage_linkage": "same-file plus shared 6-token claim window for normal claims; if either side is shorter than six tokens, use the longest shared window down to a 3-token minimum. This avoids an impossible-coverage cliff for short detected claims while preserving 6-gram precision for normal claims."
 }
