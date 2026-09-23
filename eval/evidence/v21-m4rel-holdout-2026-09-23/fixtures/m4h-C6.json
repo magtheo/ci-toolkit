@@ -12,7 +12,7 @@
     {
      "path": "ops/restart.py",
      "status": "added",
-     "patch": "--- /dev/null\n+++ b/ops/restart.py\n@@ -0,0 +1,10 @@\n+\"\"\"Worker restart metadata.\n+\n+The restart policy itself, including how failures are counted,\n+is defined by the supervisor and is outside this module.\n+\"\"\"\n+\n+class RestartPolicy:\n+    def __init__(self, max_attempts=3):\n+        self.max_attempts = max_attempts\n"
+     "patch": "--- /dev/null\n+++ b/ops/restart.py\n@@ -0,0 +1,9 @@\n+\"\"\"Worker restart metadata.\n+\n+The restart policy itself, including how failures are counted,\n+is defined by the supervisor and is outside this module.\n+\"\"\"\n+\n+class RestartPolicy:\n+    def __init__(self, max_attempts=3):\n+        self.max_attempts = max_attempts\n"
     }
    ]
   }
