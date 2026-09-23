@@ -224,7 +224,7 @@ def test_standing_guards_and_candidate_specific_freeze():
     assert "30 existing holdout controls" in gates["QG2_holdout"]
     assert "fresh independently authored" in gates["QG2_holdout"]
     assert "before first run" in gates["QG2_holdout"]
-    assert "NOT proof of independent semantics" in (
+    assert "review near-miss behavior and source" in (
         PREREG / "PROTOCOL.md").read_text()
     assert "explicit human" in gates["QG5_human_acceptance"]
     assert "freeze exact target ids and disjoint ownership" in \
