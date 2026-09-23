@@ -1,0 +1,71 @@
+{
+  "phase": "21B",
+  "kind": "witness-policy-design",
+  "status": "design-only-no-adoption-no-execution",
+  "responds_to": "Phase-21A review disposition: neither variant approved, D2 deferred, D3 not accepted, 21B (execution) not authorized",
+  "rule_r1_prime": {
+    "statement": "A g2_contract_aware BLOCK_SURVIVES on the contract_contradiction route with no evidence of any kind (no T1 predicate, no relation firing of any tier) downgrades to DOWNGRADE",
+    "relation_blind": true,
+    "bare_scoped": true,
+    "fall_set": {
+      "rows": 22,
+      "by_role": {"control_blocker": 15, "positive_extra_blocker": 5, "true_positive_detection": 2},
+      "equals_21a_intersection": true,
+      "m10_rec55_out_of_scope": "not bare: carries a T4 firing; kept without endorsing the FAILED relation"
+    }
+  },
+  "witness_tiers": {
+    "T1_predicates": {"authority": "block-preserving", "basis": "Phase-15 corpus-established; M3 precedent"},
+    "T2_psd": {"authority": "block-preserving", "basis": "holdout PASS 5/5 positives 0/5 controls (18D); integration measured (19A/19B)", "relation": "pinned_sha_demoted_to_branch"},
+    "T3_failed_five": {
+      "authority": "advisory-only-never-decision-bearing",
+      "relations": ["preserved_claim_vs_dropped_call_result", "consume_before_validate_ordering", "secret_logged_by_echo", "doc_self_contradiction", "jsonl_format_vs_unslurped_jq"],
+      "basis": "holdout FAILED in 18D; sle and dsc with control leakage"
+    },
+    "T4_m10_family": {"authority": "regression-evidence-only", "relation": "doc_contract_prefix_unanchored_match", "basis": "FAILED 17; C10 standing near-miss"}
+  },
+  "authority_invariant": "R1-prime output is byte-identical whether T3/T4 firings are present or redacted; R1-prime never consults relations on non-bare rows",
+  "quantified_trap_avoided": {
+    "counterfactual": "psd-only + predicate witness applied across all contract-route survivors",
+    "falls": 46,
+    "true_positives_lost": 26,
+    "lost_via_failed_relation_firings": 24,
+    "conclusion": "relation-consulting witness policies on non-bare rows grant FAILED authority or destroy recall; hence bare scoping"
+  },
+  "corrected_population_language": {
+    "bare_survivors_corpus_wide": 44,
+    "bare_controls_corpus_wide": 26,
+    "non_contract_bare_survivors": 22,
+    "non_contract_bare_controls": 11,
+    "contract_route_bare_rows_in_scope": 22
+  },
+  "recall_costs_and_preconditions": {
+    "M4_two_rows": {
+      "ids": [["true_positive_detection", "M4", "b1-low", 44, 0], ["true_positive_detection", "M4", "stage-a-max", 66, 0]],
+      "disposition": "deferred-not-accepted",
+      "precondition_PC1": "M4 relation through its own preregistered cycle (pair discipline + holdout)",
+      "postcondition": "bare fall set 22 -> 20"
+    },
+    "dsc_P4": {
+      "id": "dsc-P4",
+      "disposition": "not-accepted-for-generalization",
+      "precondition_PC2": "dsc/sle first-principles redesign cycle firing on dsc-P4",
+      "postcondition": "holdout fall set 0",
+      "alternative": "corpus-only scoping only by explicit human decision"
+    }
+  },
+  "validation_plan": {
+    "V1_corpus": "exact bare fall-set reproduction; untouched decisions byte-identical; guards held; psd chain artifacts hash-unchanged",
+    "V2_holdout": "fully predicted: 3 g2-survivors, dsc-C4/dsc-P2 kept, dsc-P4 witnessed post-PC2, zero positive falls; divergence halts",
+    "V3_authority_invariants": "mechanical T3/T4 redaction-equivalence; tier table re-verified against 18D verdicts",
+    "V4_human_gates": "acceptance gates at PC1, PC2, and any execution PR; no GATING authorization; no deployed change"
+  },
+  "out_of_scope": [
+    "22 non-contract bare survivors (incl. 11 bare controls) — corpus-wide witness question stays open",
+    "sle-C3/dsc-C1/dsc-C2 relation-level leaks — PC2 redesign gate, not R1-prime progress",
+    "any GATING activation or deployed reviewer change"
+  ],
+  "oracle_version": "117b4164e5446f50",
+  "psd_record_untouched": "eval/evidence/v21-psd-qualification-closeout-2026-09-23/RECORD.json",
+  "design_only": true
+}
