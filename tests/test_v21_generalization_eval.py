@@ -133,6 +133,17 @@ def test_fail_closed_integrity_and_verifier_identity():
     assert callable(eval_mod.evaluate_amended_pairs)
 
 
+
+def test_18d_reconciliation_gate_is_prepared_but_not_executed():
+    assert eval_mod.FROZEN_18B_REPORT_SHA == FROZEN_18B_REPORT_SHA
+    assert callable(eval_mod._reconcile_unchanged)
+    source = (REPO / "eval" / "v21_generalization_eval.py").read_text()
+    assert "expected 56 unchanged" in source
+    assert "18D reconciliation halt" in source
+    # Still amendment-only: neither verifier-running entry point is called here.
+    assert callable(eval_mod.evaluate)
+    assert callable(eval_mod.evaluate_amended_pairs)
+
 def test_amendment_document_freezes_18d_procedure():
     amendment = (HOLDOUT / "AMENDMENT.md").read_text()
     assert "reviewed holdout amendment" in amendment
@@ -140,6 +151,7 @@ def test_amendment_document_freezes_18d_procedure():
     assert "jfu-P5 / jfu-C5" in amendment
     assert "Frozen Phase-18D rerun procedure" in amendment
     assert "0/5" in amendment and "4/5" in amendment
+    assert "56 unchanged fixtures" in amendment
     assert "No relation may be changed in response to 18D behavior" \
         in amendment
     assert "bb0ebdeeb7fc80395626bf10d3" in amendment
