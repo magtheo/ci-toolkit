@@ -424,7 +424,7 @@
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
       "role": "positive",
-      "sha256": "4e9cba4b1e65f8e5b9148b8ccb66952cdff8220c7434b3386396ef89f2984a4b"
+      "sha256": "1a68a2fa54930fae0e080deba6e14482db0bfceca08dd39162b0640f3929b333"
     },
     {
       "expected_label": "ADMITS",
@@ -520,7 +520,7 @@
     "module": "eval/v21_contract_relations.py",
     "module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
   },
-  "manifest_lines_sha256": "21f6a877f02f82a80459d19fa70fad72bb7684fc5310383c26d9a4197e5632f2",
+  "manifest_lines_sha256": "4a705b878ea81a1fa591834865a51940e6053dc20cb9baee8b10b813beb332a2",
   "oracle_version": "117b4164e5446f50",
   "phase": "18A"
 }
