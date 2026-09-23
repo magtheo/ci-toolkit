@@ -31,10 +31,12 @@ def _rows():
     fixtures = {f["id"]: f
                 for f in rc.load_corpus(REPO / "eval" / "fixtures")}
     rows = []
+    source_records = 0
     for source, rel in boundary.SOURCES.items():
         records = [json.loads(line)
                    for line in (REPO / rel).read_text().splitlines()
                    if line.strip()]
+        source_records += len(records)
         for ri, rec in enumerate(records):
             fixture = fixtures[rec["fixture"]]
             for fi, finding in enumerate(
@@ -52,6 +54,10 @@ def _rows():
                     "g1": sim["g1_strict_quote"],
                     "g2": sim["g2_contract_aware"],
                 })
+    if source_records != CONTRACT["baseline"]["record_population"]:
+        raise RuntimeError(
+            "19A source population drift: expected %d records, found %d"
+            % (CONTRACT["baseline"]["record_population"], source_records))
     return rows
 
 
@@ -83,6 +89,7 @@ def test_19b_has_not_started():
 
 def test_baseline_aggregates_match_frozen_predictions():
     rows = _rows()
+    assert CONTRACT["baseline"]["record_population"] == 414
     assert len(rows) == CONTRACT["baseline"]["population"] == 276
     split = Counter(r["g2"] for r in rows)
     assert dict(split) == CONTRACT["baseline"]["aggregate"]
@@ -154,3 +161,26 @@ def test_protocol_freezes_scope_halt_and_limitation():
     assert "not a GATING-registry promotion" in protocol
     assert "bb0ebdeeb7fc80395626bf10d3" in protocol
     assert "117b4164e5446f50" in protocol
+    base = CONTRACT["baseline"]
+    psd = CONTRACT["frozen_predictions"]
+    assert f"population: **{base['population']}** blocking rows" in protocol
+    assert (
+        f"**{base['aggregate']['BLOCK_SURVIVES']} `BLOCK_SURVIVES` / "
+        f"{base['aggregate']['DOWNGRADE']} `DOWNGRADE`**"
+    ) in protocol
+    assert (
+        f"**{psd['psd_fires_on']}** rows"
+    ) in protocol
+    contract_downgrades = psd["downgraded_psd_fired_by_route"]
+    assert (
+        f"**{contract_downgrades['contract_contradiction']}** on"
+    ) in protocol
+    assert (
+        f"{contract_downgrades['external_fact']} on `external_fact`, "
+        f"{contract_downgrades['unwitnessed_behavior']} on"
+    ) in protocol
+    assert (
+        f"**predicted promotion set: exactly "
+        f"{len(psd['promotion_set'])} row**"
+    ) in protocol
+    assert "27 baseline control blockers" in protocol
