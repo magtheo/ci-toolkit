@@ -1,14 +1,14 @@
 {
   "expected_label": "REFUSES",
   "finding": {
-    "comment": "the gate slurps the JSONL into an array before taking length, so the non-emptiness test matches the documented format",
+    "comment": "the consumer slurps the JSONL into an array before any(.[]; .failed), so the gate reads the documented one-object-per-line format correctly; the unslurped-format concern does not hold.",
     "file": "scripts/plan_gate.sh"
   },
   "fixture": {
     "input": {
       "files": [
         {
-          "patch": "--- a/scripts/plan_gate.sh\n+++ b/scripts/plan_gate.sh\n@@ -5,4 +5,5 @@\n set -euo pipefail\n+jq -c '.jobs[]' <<<\"$plan\" >>\"$jobs_jsonl\"\n+test \"$(jq -s 'length > 0' <\"$jobs_jsonl\")\" = true\n+echo \"plan has jobs\"",
+          "patch": "--- a/scripts/plan_gate.sh\n+++ b/scripts/plan_gate.sh\n@@ -5,4 +5,6 @@\n set -euo pipefail\n+jq -c '.stages[]' <<<\"$plan\" >>\"$stages_jsonl\"\n+if jq -s -e 'any(.[]; .failed)' <\"$stages_jsonl\" >/dev/null; then\n+  echo \"a deployment stage failed\" >&2\n+  exit 1\n+fi",
           "path": "scripts/plan_gate.sh"
         }
       ]
@@ -17,7 +17,7 @@
   "id": "jfu-C5",
   "language": "bash",
   "probe": false,
-  "rationale": "slurped length over the array",
+  "rationale": "18C near-miss for the amended jfu-P5: identical producer, names and guard shape; only the semantic feature (slurp) differs.",
   "relation": "jsonl_format_vs_unslurped_jq",
   "role": "control"
 }

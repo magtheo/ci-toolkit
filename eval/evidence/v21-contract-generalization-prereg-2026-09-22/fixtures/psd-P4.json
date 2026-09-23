@@ -8,7 +8,7 @@
     "input": {
       "files": [
         {
-          "patch": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -6,10 +6,10 @@\n jobs:\n   lint:\n     uses: acme/shared-ci/.github/workflows/lint.yml@d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1\n   test:\n-    uses: acme/shared-ci/.github/workflows/test.yml@e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1\n+    uses: acme/shared-ci/.github/workflows/test.yml@main\n     secrets:\n       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}",
+          "patch": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -6,10 +6,10 @@\n jobs:\n   lint:\n     uses: acme/shared-ci/.github/workflows/lint.yml@d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d\n   test:\n-    uses: acme/shared-ci/.github/workflows/test.yml@e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1e\n+    uses: acme/shared-ci/.github/workflows/test.yml@main\n     secrets:\n       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}",
           "path": ".github/workflows/ci.yml"
         }
       ]
@@ -17,7 +17,7 @@
   "id": "psd-P4",
   "language": "yaml",
   "probe": false,
-  "rationale": "one of two jobs demoted",
+  "rationale": "same diff, comment and vocabulary; only the added ref differs: demotion to @main vs re-pin to a new immutable SHA. 18C amendment: all refs are now genuine 40-hex commit SHAs (18B pair was INVALID: 39/41-hex runs).",
   "relation": "pinned_sha_demoted_to_branch",
   "role": "positive"
 }
