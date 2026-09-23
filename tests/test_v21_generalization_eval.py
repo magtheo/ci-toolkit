@@ -64,7 +64,7 @@ def test_amended_psd_pair_has_genuine_40_hex_refs():
         patch = fixture["fixture"]["input"]["files"][0]["patch"]
         runs = re.findall(r"[0-9a-fA-F]{10,}", patch)
         assert runs and all(len(run) == 40 for run in runs), fid
-        assert "@main" in patch or "test.yml@" in patch
+        assert "uses: acme/shared-ci/.github/workflows/" in patch
         assert fixture["expected_label"] == (
             "ADMITS" if fid == "psd-P4" else "REFUSES")
     positive = _fixture("psd-P4")["fixture"]["input"]["files"][0]["patch"]
@@ -136,10 +136,32 @@ def test_fail_closed_integrity_and_verifier_identity():
 
 def test_18d_reconciliation_gate_is_prepared_but_not_executed():
     assert eval_mod.FROZEN_18B_REPORT_SHA == FROZEN_18B_REPORT_SHA
-    assert callable(eval_mod._reconcile_unchanged)
-    source = (REPO / "eval" / "v21_generalization_eval.py").read_text()
-    assert "expected 56 unchanged" in source
-    assert "18D reconciliation halt" in source
+    frozen = json.loads((EVALDIR / "generalization-report.json").read_text())
+    rows = [
+        {
+            "id": row["id"],
+            "admitted": row["admitted"],
+            "fired_relations": row["fired_relations"],
+        }
+        for row in frozen["fixture_rows"]
+    ]
+    amended = set(AMENDED_IDS)
+
+    result = eval_mod._reconcile_unchanged(rows, amended)
+    assert result["unchanged_fixture_count"] == 56
+    assert result["mismatches"] == []
+
+    tampered = copy.deepcopy(rows)
+    target = next(row for row in tampered if row["id"] not in amended)
+    target["admitted"] = not target["admitted"]
+    try:
+        eval_mod._reconcile_unchanged(tampered, amended)
+    except RuntimeError as exc:
+        assert "18D reconciliation halt" in str(exc)
+        assert target["id"] in str(exc)
+    else:
+        raise AssertionError("unchanged-fixture divergence did not halt")
+
     # Still amendment-only: neither verifier-running entry point is called here.
     assert callable(eval_mod.evaluate)
     assert callable(eval_mod.evaluate_amended_pairs)
