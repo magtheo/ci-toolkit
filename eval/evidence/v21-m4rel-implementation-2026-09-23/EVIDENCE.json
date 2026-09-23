@@ -124,11 +124,17 @@
   "executions_during_22C": 0,
   "first_sanctioned_use": "the separately reviewed qualification phase",
   "fixture_ids_embedded_in_this_evidence": [],
-  "note": "developed against corpus/in-sample material only; the sealed holdout was not read for detection and not executed"
+  "note": "developed against corpus/in-sample material only; the candidate was not executed on the frozen holdout during 22C. The holdout is preregistered but not blind to the implementation author: the same agent authored it before implementation, and review confirmed its positive actor lexemes are represented in ACTORS. A later PASS is preregistered validation under frozen thresholds, not proof of vocabulary-independent generalization."
  },
  "no_authority": "this implementation grants no preservation authority; a future qualification run against the frozen thresholds feeds a human-reviewed record before any adoption decision (22A QG5)",
  "oracle_untouched": {
   "oracle_version": "117b4164e5446f50",
   "frozen_verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+ },
+ "implementation_characterization": "lexically operationalized semantic candidate: decisions combine marker/actor/disclaimer/hedge vocabularies with structural checks for out-of-diff referents, in-diff substantiation, and documentation purpose; this is NOT vocabulary-independent semantic understanding",
+ "qualification_interpretation": {
+  "frozen_qg2_mechanics": "future qualification may execute the unchanged module once against the frozen 22B thresholds",
+  "scope_limit": "because holdout author and implementation author overlap, and holdout actor vocabulary is represented in the implementation vocabulary, a PASS must be reported as preregistered validation rather than blind or vocabulary-independent generalization",
+  "authority": "no automatic preservation-authority grant; QG5 human review must consider this limitation"
  }
 }
