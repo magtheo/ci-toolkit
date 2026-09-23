@@ -173,9 +173,15 @@ def evaluate():
             Counter(r["route"] for r in fired
                     if r["baseline"] == "DOWNGRADE")),
     }
-    for key, expected in predictions.items():
-        if key not in landscape:
-            continue
+    non_landscape_predictions = {
+        "promotion_set", "unchanged_rows", "accepted_limitation",
+    }
+    if set(predictions) != set(landscape) | non_landscape_predictions:
+        _halt("frozen prediction keys drift: expected %s, observed %s"
+              % (sorted(set(landscape) | non_landscape_predictions),
+                 sorted(predictions)))
+    for key, expected in landscape.items():
+        expected = predictions[key]
         if isinstance(expected, int):
             ok = expected == landscape[key]
         else:
@@ -208,12 +214,18 @@ def evaluate():
     def _key(row):
         return json.dumps(_identity(row), sort_keys=True)
 
-    changed = {k for k, r in (( _key(r), r) for r in rows)
-               if r["integrated"] != r["baseline"]}
     promoted_ids = {_key(r) for r in promoted}
-    if changed != promoted_ids:
-        _halt("collateral decision change outside the promotion rule")
-    collateral = []
+    changed = {_key(r) for r in rows
+               if r["integrated"] != r["baseline"]}
+    collateral = [
+        {"row": _identity(r), "integrated": r["integrated"]}
+        for r in rows
+        if r["integrated"] != r["baseline"]
+        and _key(r) not in promoted_ids
+    ]
+    if changed != promoted_ids or collateral:
+        _halt("collateral decision change outside the promotion rule: %s"
+              % json.dumps(collateral, sort_keys=True))
     control_or_extra = [
         {"row": _identity(r), "integrated": r["integrated"]}
         for r in promoted
