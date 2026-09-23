@@ -270,8 +270,31 @@ def test_holdout_labels_pairing_and_disjointness():
             assert declared == actual, (fid, f["path"], declared, actual)
 
 
-def test_no_implementation_exists():
-    assert not (REPO / "eval" / "v21_m4_relation.py").exists()
+def test_22c_transition_authorizes_pinned_implementation_only():
+    # 22B froze the implementation as absent and named it as a 22C+
+    # future artifact. The later phase transition must be explicit and
+    # mechanically bound before that absence guard may migrate.
+    module = REPO / "eval" / "v21_m4_relation.py"
+    evidence_dir = REPO / "eval" / "evidence" / \
+        "v21-m4rel-implementation-2026-09-23"
+    evidence = evidence_dir / "EVIDENCE.json"
+    transition_path = evidence_dir / "PHASE_TRANSITION.json"
+    assert module.exists() and evidence.exists() and transition_path.exists()
+    transition = json.loads(transition_path.read_text())
+    ev = json.loads(evidence.read_text())
+    assert transition["phase"] == "22C"
+    assert transition["parent_merge_sha"] == \
+        "9773deab9de2bebad7514bc65a39625bea8c41f9"
+    assert transition["prerequisites"]["frozen_22b_contract_sha256"] == \
+        hashlib.sha256((PREREG / "TARGETS_CONTRACT.json").read_bytes()).hexdigest()
+    assert transition["prerequisites"]["frozen_22b_future_artifact"] == \
+        "eval/v21_m4_relation.py (22C+)"
+    assert "qualification-not-authorized" in transition["status"]
+    assert ev["phase_transition"]["sha256"] == \
+        hashlib.sha256(transition_path.read_bytes()).hexdigest()
+    assert ev["candidate"]["module_sha256"] == \
+        hashlib.sha256(module.read_bytes()).hexdigest()
+    assert ev["holdout_seal"]["executions_during_22C"] == 0
     assert not list((REPO / "eval" / "evidence").glob(
         "v21-m4rel-qualification-*"))
     assert MANIFEST["authorship"][

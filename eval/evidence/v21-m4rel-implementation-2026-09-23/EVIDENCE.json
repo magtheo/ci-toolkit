@@ -1,0 +1,147 @@
+{
+ "phase": "22C",
+ "kind": "m4rel-implementation-evidence",
+ "status": "implemented-in-sample-only-no-authority-granted",
+ "candidate": {
+  "name": "m4rel",
+  "relation": "unsubstantiated_absolute_docstring_claim",
+  "implementation": "22C-impl-v1",
+  "module": "eval/v21_m4_relation.py",
+  "module_sha256": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596"
+ },
+ "frozen_contract": {
+  "path": "eval/evidence/v21-m4rel-prereg-2026-09-23/TARGETS_CONTRACT.json",
+  "sha256": "0f7e183703dd9497b9e430686194472cefff0de3d9657c19e55b73e77d74c2a0"
+ },
+ "semantic_boundary": [
+  "quantifier marker + no disclaimer/hedge in clause",
+  "clause names an out-of-diff actor absent from the change's symbols",
+  "no in-diff consumer import substantiates the claimed module",
+  "change's stated purpose is documentation (title/body)",
+  "requirement statements (must not / should) are never claims"
+ ],
+ "in_sample_results": {
+  "corpus_fixtures": 36,
+  "fixtures_fired": [
+   "M4"
+  ],
+  "targets": {
+   "covered": 2,
+   "total": 2,
+   "gate": "2/2 required",
+   "ids": [
+    [
+     "stage-a-max",
+     66,
+     0
+    ],
+    [
+     "b1-low",
+     44,
+     0
+    ]
+   ]
+  },
+  "controls": {
+   "fired": 0,
+   "total": 77,
+   "gate": "0 required"
+  },
+  "extras": {
+   "claim_linked": 0,
+   "file_match_only": 4,
+   "total": 34,
+   "disposition": "no extra blocker is claim-linked; the 4 same-file M4 extras are reported as file-match-only diagnostics; zero-preservation adoption gate remains"
+  },
+  "family_context_non_targets": {
+   "covered": 5,
+   "total": 5,
+   "disposition": "recorded and permitted per frozen contract; neither affects qualification"
+  },
+  "fired_fixture_details": {
+   "M4": [
+    {
+     "file": "apps/worker/exceptions.py",
+     "line": 3,
+     "actors": [
+      "orchestrator"
+     ],
+     "claim_clause": "All retry decisions flow through ProcessingError.retryable: the orchestrator consults this flag and no other signal when deciding whether to re-queue a failed job."
+    }
+   ]
+  }
+ },
+ "dev_units": {
+  "count": 7,
+  "all_ok": true,
+  "results": [
+   {
+    "case": "requirement_statement_not_exclusivity",
+    "expect": "no-fire",
+    "fired": false,
+    "ok": true
+   },
+   {
+    "case": "generic_in_diff_absolute_no_actor",
+    "expect": "no-fire",
+    "fired": false,
+    "ok": true
+   },
+   {
+    "case": "self_scoped_disclaimer_with_actor",
+    "expect": "no-fire",
+    "fired": false,
+    "ok": true
+   },
+   {
+    "case": "hedged_actor_claim",
+    "expect": "no-fire",
+    "fired": false,
+    "ok": true
+   },
+   {
+    "case": "substantiated_by_in_diff_consumer",
+    "expect": "no-fire",
+    "fired": false,
+    "ok": true
+   },
+   {
+    "case": "unsupported_actor_claim_fires",
+    "expect": "fires",
+    "fired": true,
+    "ok": true
+   },
+   {
+    "case": "no_documentation_purpose",
+    "expect": "no-fire",
+    "fired": false,
+    "ok": true
+   }
+  ]
+ },
+ "holdout_seal": {
+  "dir": "eval/evidence/v21-m4rel-holdout-2026-09-23",
+  "executions_during_22C": 0,
+  "first_sanctioned_use": "the separately reviewed qualification phase",
+  "fixture_ids_embedded_in_this_evidence": [],
+  "note": "developed against corpus/in-sample material only; the candidate was not executed on the frozen holdout during 22C. The holdout is preregistered but not blind to the implementation author: the same agent authored it before implementation, and review confirmed its positive actor lexemes are represented in ACTORS. A later PASS is preregistered validation under frozen thresholds, not proof of vocabulary-independent generalization."
+ },
+ "no_authority": "this implementation grants no preservation authority; a future qualification run against the frozen thresholds feeds a human-reviewed record before any adoption decision (22A QG5)",
+ "oracle_untouched": {
+  "oracle_version": "117b4164e5446f50",
+  "frozen_verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+ },
+ "implementation_characterization": "lexically operationalized semantic candidate: decisions combine marker/actor/disclaimer/hedge vocabularies with structural checks for out-of-diff referents, in-diff substantiation, and documentation purpose; this is NOT vocabulary-independent semantic understanding",
+ "qualification_interpretation": {
+  "frozen_qg2_mechanics": "future qualification may execute the unchanged module once against the frozen 22B thresholds",
+  "scope_limit": "because holdout author and implementation author overlap, and holdout actor vocabulary is represented in the implementation vocabulary, a PASS must be reported as preregistered validation rather than blind or vocabulary-independent generalization",
+  "authority": "no automatic preservation-authority grant; QG5 human review must consider this limitation"
+ },
+ "coverage_linkage": "same-file plus shared 6-token claim window for normal claims; if either side is shorter than six tokens, use the longest shared window down to a 3-token minimum. This avoids an impossible-coverage cliff for short detected claims while preserving 6-gram precision for normal claims.",
+ "phase_transition": {
+  "path": "eval/evidence/v21-m4rel-implementation-2026-09-23/PHASE_TRANSITION.json",
+  "sha256": "ad3539f97c22e0a545f5e2cd76fa7295a1096774d56ec5974fa7b1d84df3b8b0",
+  "parent_merge_sha": "9773deab9de2bebad7514bc65a39625bea8c41f9",
+  "boundary": "implementation only; qualification execution and preservation authority remain unauthorized"
+ }
+}
