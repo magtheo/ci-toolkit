@@ -1,15 +1,10 @@
-"""Phase-18C amendment checks.
+"""Phase-18D evaluation checks.
 
-The two 18B INVALID pairs were corrected by reviewed amendment.
-18C executes NO verifier against the holdout: this module never calls
-`evaluate()` or `evaluate_amended_pairs()` — those are 18D. It pins:
-
-- the frozen Phase-18B report (historical record) by SHA-256 and
-  summary verdicts;
-- the corrected state of the amended fixtures, structurally;
-- the amended manifest (amendment record, refreshed hashes) and the
-  frozen Phase-17 verifier identity, via the evaluator's fail-closed
-  integrity checks (which never execute relations).
+Executes the frozen 18C rerun procedure: the published 18D report is
+bound EXACTLY to live `evaluate()` output (the only module that may
+call the frozen Phase-17 verifier on the holdout), the reconciliation
+halt gate is proven against the SHA-pinned 18B observations, and the
+historical 18B record stays frozen by hash.
 """
 import copy
 import hashlib
@@ -29,11 +24,75 @@ EVALDIR = REPO / "eval" / "evidence" / \
     "v21-contract-generalization-eval-2026-09-22"
 FROZEN_18B_REPORT_SHA = ("a56235b59bd104f9a6d868fad67d6ea1fe65f01a4987d"
                          "f02e257031e05587eec")
+FROZEN_18D_REPORT_SHA = ("0a2bb7fa64be61a4c6b1f4b00b63c53a758fe1fed5d2"
+                         "1fd169d067011af8dc26")
 AMENDED_IDS = ("psd-P4", "psd-C4", "jfu-P5", "jfu-C5")
 
 
 def _fixture(fid):
     return json.loads((HOLDOUT / "fixtures" / (fid + ".json")).read_text())
+
+
+def test_published_18d_report_matches_evaluator_exactly():
+    raw = (EVALDIR / "generalization-report-18d.json").read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == FROZEN_18D_REPORT_SHA
+    published = json.loads(raw)
+    live = eval_mod.evaluate()
+    assert published == live
+
+
+def test_18d_verdicts_and_reconciliation():
+    report = json.loads(
+        (EVALDIR / "generalization-report-18d.json").read_text())
+    assert report["phase"] == "18D"
+    verdicts = {name: rec["verdict"]
+                for name, rec in report["per_relation"].items()}
+    assert verdicts == {
+        "pinned_sha_demoted_to_branch": "GENERALIZATION_PASS",
+        "preserved_claim_vs_dropped_call_result": "GENERALIZATION_FAIL",
+        "consume_before_validate_ordering": "GENERALIZATION_FAIL",
+        "secret_logged_by_echo": "GENERALIZATION_FAIL",
+        "doc_self_contradiction": "GENERALIZATION_FAIL",
+        "jsonl_format_vs_unslurped_jq": "GENERALIZATION_FAIL",
+    }
+    psd = report["per_relation"]["pinned_sha_demoted_to_branch"]
+    assert psd["positives_admitted"] == 5 and psd["controls_admitted"] == 0
+    jfu = report["per_relation"]["jsonl_format_vs_unslurped_jq"]
+    assert jfu["positives_admitted"] == 3 and jfu["controls_admitted"] == 0
+    assert jfu["failed_positive_ids"] == ["jfu-P2", "jfu-P5"]
+    aggregate = report["aggregate"]
+    assert aggregate["positives_admitted"] == 17
+    assert aggregate["controls_admitted"] == 3
+    assert aggregate["relations_pass"] == 1
+    assert aggregate["relations_fail"] == 5
+    assert aggregate["all_pass"] is False
+    assert aggregate["blanket_promotion_eligible"] is False
+    reconciliation = report["reconciliation"]
+    assert reconciliation["frozen_18b_report_sha256"] == \
+        FROZEN_18B_REPORT_SHA
+    assert reconciliation["unchanged_fixture_count"] == 56
+    assert reconciliation["mismatches"] == []
+
+
+def test_18d_amended_pair_observations():
+    report = json.loads(
+        (EVALDIR / "generalization-report-18d.json").read_text())
+    rows = {r["id"]: r for r in report["fixture_rows"]}
+    observed = {
+        "psd-P4": (True, ["pinned_sha_demoted_to_branch"]),
+        "psd-C4": (False, []),
+        "jfu-P5": (False, []),
+        "jfu-C5": (False, []),
+    }
+    for fid, (admitted, fired) in observed.items():
+        row = rows[fid]
+        assert row["amended"] is True
+        assert row["admitted"] is admitted
+        assert row["fired_relations"] == fired
+    step1 = eval_mod.evaluate_amended_pairs()
+    assert [(r["id"], r["admitted"]) for r in step1] == [
+        ("jfu-C5", False), ("jfu-P5", False),
+        ("psd-C4", False), ("psd-P4", True)]
 
 
 def test_frozen_18b_report_is_unchanged():
@@ -135,14 +194,9 @@ def test_fail_closed_integrity_and_verifier_identity():
             "psd-C4": [40, 40, 40],
         }
     assert amendments["jfu-P5"]["proof"]["array_filter_present"] is True
-    # 18B evaluator entry points exist but are NOT executed in 18C
-    assert callable(eval_mod.evaluate)
-    assert callable(eval_mod.evaluate_amended_pairs)
 
 
-
-def test_18d_reconciliation_gate_is_prepared_but_not_executed():
-    assert eval_mod.FROZEN_18B_REPORT_SHA == FROZEN_18B_REPORT_SHA
+def test_18d_reconciliation_gate_halts_on_divergence():
     frozen = json.loads((EVALDIR / "generalization-report.json").read_text())
     rows = [
         {
@@ -169,18 +223,27 @@ def test_18d_reconciliation_gate_is_prepared_but_not_executed():
     else:
         raise AssertionError("unchanged-fixture divergence did not halt")
 
-    # Still amendment-only: neither verifier-running entry point is called here.
-    assert callable(eval_mod.evaluate)
-    assert callable(eval_mod.evaluate_amended_pairs)
 
-def test_amendment_document_freezes_18d_procedure():
+def test_amendment_preregistration_record_remains_pinned():
     amendment = (HOLDOUT / "AMENDMENT.md").read_text()
-    assert "reviewed holdout amendment" in amendment
-    assert "psd-P4 / psd-C4" in amendment
-    assert "jfu-P5 / jfu-C5" in amendment
     assert "Frozen Phase-18D rerun procedure" in amendment
-    assert "0/5" in amendment and "4/5" in amendment
     assert "56 unchanged fixtures" in amendment
+    assert "control leakage must be 0/5" in amendment
+    assert "positive\n   recall ≥ 4/5" in amendment
     assert "No relation may be changed in response to 18D behavior" \
         in amendment
     assert "bb0ebdeeb7fc80395626bf10d3" in amendment
+    assert "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b" in amendment
+
+
+def test_results_18d_document_freezes_scope_and_humility():
+    results = (EVALDIR / "RESULTS-18D.md").read_text()
+    assert "GENERALIZATION PASS" in results
+    assert "1 PASS, 5 FAIL" in results
+    assert "56 unchanged fixtures" in results
+    assert "Zero mismatches" in results
+    assert "17/30 positives admitted, 3/30 controls admitted" in results
+    assert "affirmative-`if` guard form" in results
+    assert "no relation may be changed in response to" in results
+    assert "no blanket promotion" in results
+    assert "byte-for-byte" in results
