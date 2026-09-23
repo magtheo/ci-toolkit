@@ -7,6 +7,7 @@
     "relation_name": "unsubstantiated_absolute_docstring_claim",
     "module_to_be": "eval/v21_m4_relation.py",
     "family": "unsubstantiated absolute docstring claim",
+    "semantics_note": "the absolute/exclusive vocabulary in fire_condition is illustrative, NOT the detector: detection is semantic per fire_condition (out-of-diff referent + unsubstantiated by the change + documentation is the stated purpose); keyword-only matching is insufficient and non-conformant",
     "fire_condition": "an in-diff docstring/comment makes an absolute or exclusive claim (always/never/all/only/none/no other/every/exactly-N/guarantees) about the behavior of code NOT present in the diff, where nothing in the change substantiates the claim and documenting that out-of-diff contract is the change's stated purpose",
     "must_not_fire": [
       "self-scoped or disclaiming docstrings that assert nothing about out-of-diff behavior (the C4 pattern: 'this module does not define how consumers ...')",
@@ -26,6 +27,19 @@
       ["true_positive_detection", "M4", "b1-low", 44, 0]
     ],
     "qualification_requirement": "fires on 100% of P_M4 (2/2)",
+    "finding_pins": {
+      "pin_method": "sha256 over canonical JSON of {comment, file, line} (sort_keys=True) of finding 0 of the record",
+      "stage-a-max_r66_f0": {
+        "file": "apps/worker/exceptions.py",
+        "line": 4,
+        "sha256": "05b725d6c1d14f34714a83d93526aaa332eb2199b94232c23caaac459be15a40"
+      },
+      "b1-low_r44_f0": {
+        "file": "apps/worker/exceptions.py",
+        "line": 3,
+        "sha256": "0fadd074f3f54dd658a18d37e3fb7b6ba4a3f2dba7f5c8a1519806cd5c16e483"
+      }
+    },
     "disjoint_ownership": "m4rel is the only slate candidate whose targets include P_M4 rows; no dsc-prime/sle-prime/pcd-prime/cbv-prime/jfu-prime/m10-prime claim may overlap these ids"
   },
   "family_context_non_targets": {

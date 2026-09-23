@@ -114,6 +114,32 @@ def test_targets_and_disjoint_ownership():
         "this preregistration freezes")
 
 
+def test_target_finding_pins():
+    rows = _rows()
+    for source, ri, key in [("stage-a-max", 66, "stage-a-max_r66_f0"),
+                            ("b1-low", 44, "b1-low_r44_f0")]:
+        r = next(x for x in rows if x["fixture"] == "M4"
+                 and x["source"] == source and x["ri"] == ri)
+        pin = CONTRACT["targets"]["finding_pins"][key]
+        assert pin["file"] == "apps/worker/exceptions.py"
+        raw = (REPO / boundary.SOURCES[source]).read_text()
+        rec = json.loads(raw.splitlines()[ri])
+        f = rec["result"]["findings"][0]
+        assert f["file"] == pin["file"] and f["line"] == pin["line"]
+        digest = hashlib.sha256(json.dumps(
+            {"comment": f["comment"], "file": f["file"],
+             "line": f["line"]}, sort_keys=True).encode()).hexdigest()
+        assert digest == pin["sha256"], key
+
+
+def test_semantics_note_keyword_caveat():
+    note = CONTRACT["candidate"]["semantics_note"]
+    assert "illustrative, NOT the detector" in note
+    assert "keyword-only matching is insufficient" in note
+    assert CONTRACT["candidate"]["fire_condition"].startswith(
+        "an in-diff docstring")
+
+
 def test_family_context_non_targets():
     rows = _rows()
     fam = sorted(

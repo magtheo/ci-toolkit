@@ -15,7 +15,11 @@ in-diff docstring or comment makes an absolute/exclusive claim
 (always / never / all / only / none / no other / every / exactly-N /
 guarantees) about the behavior of code **not present in the diff**,
 where nothing in the change substantiates the claim and documenting
-that out-of-diff contract is the change's stated purpose. Module to
+that out-of-diff contract is the change's stated purpose. The word
+list is **illustrative, not the detector**: the definition is
+semantic (out-of-diff referent + unsubstantiated + documentation
+purpose); keyword-only matching is insufficient and non-conformant.
+Module to
 be: `eval/v21_m4_relation.py` (does not exist yet). Relation name:
 `unsubstantiated_absolute_docstring_claim`.
 
@@ -34,9 +38,11 @@ oracle-role, source-record, or record-index branching**.
 ## Targets and disjoint ownership (frozen)
 
 Declared targets = **P-M4 exactly**: stage-a-max r66 f0 and b1-low
-r44 f0 (the two bare contract-route M4 true positives). Qualification
-requires **2/2 fired**. m4rel is the only slate candidate whose
-targets include these ids; no successor may claim them.
+r44 f0 (the two bare contract-route M4 true positives), each with its
+finding text/file/line **hash-pinned** (`finding_pins` in
+`TARGETS_CONTRACT.json`). Qualification requires **2/2 fired**. m4rel
+is the only slate candidate whose targets include these ids; no
+successor may claim them.
 
 The other five M4 true positives (b1-low r29 unwitnessed survivor,
 b1-low r14, b1-high r14/r29/r44) are **family-context non-targets**:
