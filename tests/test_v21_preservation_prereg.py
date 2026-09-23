@@ -90,7 +90,20 @@ def test_authority_separation():
 
 
 def test_no_candidate_exists_yet():
-    assert not (REPO / "eval" / "v21_m4_relation.py").exists()
+    # 22A froze this guard pre-candidate. Phase 22C (human-directed)
+    # authorizes the m4rel implementation: it may exist ONLY with its
+    # sha256 pinned in the published 22C evidence. Qualification
+    # artifacts still must not exist.
+    module = REPO / "eval" / "v21_m4_relation.py"
+    assert module.exists()
+    evidence = REPO / "eval" / "evidence" / \
+        "v21-m4rel-implementation-2026-09-23" / "EVIDENCE.json"
+    assert evidence.exists()
+    import hashlib
+    import json
+    ev = json.loads(evidence.read_text())
+    assert ev["candidate"]["module_sha256"] == \
+        hashlib.sha256(module.read_bytes()).hexdigest()
     assert not list((REPO / "eval" / "evidence").glob(
         "v21-m4-relation-*"))
     assert not list((REPO / "eval" / "evidence").glob(

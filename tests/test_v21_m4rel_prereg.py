@@ -271,7 +271,20 @@ def test_holdout_labels_pairing_and_disjointness():
 
 
 def test_no_implementation_exists():
-    assert not (REPO / "eval" / "v21_m4_relation.py").exists()
+    # Frozen at 22B: no implementation existed at preregistration.
+    # Phase 22C (human-directed) authorizes the implementation; it
+    # may exist ONLY with its sha256 pinned in the published 22C
+    # evidence. The qualification run has not happened: its evidence
+    # dirs still must not exist.
+    module = REPO / "eval" / "v21_m4_relation.py"
+    assert module.exists()
+    evidence = REPO / "eval" / "evidence" / \
+        "v21-m4rel-implementation-2026-09-23" / "EVIDENCE.json"
+    assert evidence.exists()
+    ev = json.loads(evidence.read_text())
+    assert ev["candidate"]["module_sha256"] == \
+        hashlib.sha256(module.read_bytes()).hexdigest()
+    assert ev["holdout_seal"]["executions_during_22C"] == 0
     assert not list((REPO / "eval" / "evidence").glob(
         "v21-m4rel-qualification-*"))
     assert MANIFEST["authorship"][
