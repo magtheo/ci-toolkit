@@ -12,7 +12,7 @@
     {
      "path": "queue/markers.py",
      "status": "added",
-     "patch": "--- /dev/null\n+++ b/queue/markers.py\n@@ -0,0 +1,10 @@\n+\"\"\"Redelivery marker contract.\n+\n+The queue consumer always re-queues messages carrying this marker\n+and inspects nothing else when deciding redelivery.\n+\"\"\"\n+\n+class PoisonMarker:\n+    def __init__(self, reason):\n+        self.reason = reason\n"
+     "patch": "--- /dev/null\n+++ b/queue/markers.py\n@@ -0,0 +1,9 @@\n+\"\"\"Redelivery marker contract.\n+\n+The queue consumer always re-queues messages carrying this marker\n+and inspects nothing else when deciding redelivery.\n+\"\"\"\n+\n+class PoisonMarker:\n+    def __init__(self, reason):\n+        self.reason = reason\n"
     }
    ]
   }
