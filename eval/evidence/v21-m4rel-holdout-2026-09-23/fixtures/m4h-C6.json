@@ -1,0 +1,26 @@
+{
+ "expected_label": "REFUSES",
+ "finding": {
+  "comment": "The docstring's restart policy cannot be verified from this diff.",
+  "file": "ops/restart.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "ops: document worker restart policy contract",
+   "body": "Documents the RestartPolicy metadata class.",
+   "files": [
+    {
+     "path": "ops/restart.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/ops/restart.py\n@@ -0,0 +1,9 @@\n+\"\"\"Worker restart metadata.\n+\n+The restart policy itself, including how failures are counted,\n+is defined by the supervisor and is outside this module.\n+\"\"\"\n+\n+class RestartPolicy:\n+    def __init__(self, max_attempts=3):\n+        self.max_attempts = max_attempts\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-C6",
+ "language": "python",
+ "probe": false,
+ "rationale": "self-scoped disclaimer; the class carries a default but the docstring asserts no supervisory behavior",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "control"
+}

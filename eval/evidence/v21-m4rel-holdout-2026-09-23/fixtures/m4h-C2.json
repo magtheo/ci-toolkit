@@ -1,0 +1,26 @@
+{
+ "expected_label": "REFUSES",
+ "finding": {
+  "comment": "The docstring's claim about where the collector reads its interval cannot be verified from this diff.",
+  "file": "telemetry/sampling.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "telemetry: document sampling interval source",
+   "body": "Documents the sampling interval field.",
+   "files": [
+    {
+     "path": "telemetry/sampling.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/telemetry/sampling.py\n@@ -0,0 +1,11 @@\n+\"\"\"Sampling policy metadata.\n+\n+In the default deployment the collector typically reads the\n+sampling interval from this field; deployments that override it\n+configure the collector directly, which is out of scope for this\n+module.\n+\"\"\"\n+\n+class SamplingPolicy:\n+    def __init__(self, interval_seconds):\n+        self.interval_seconds = interval_seconds\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-C2",
+ "language": "python",
+ "probe": false,
+ "rationale": "hedged default-path statement plus explicit out-of-scope note; asserts no exclusive guarantee",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "control"
+}

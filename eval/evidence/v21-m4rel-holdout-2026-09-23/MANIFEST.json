@@ -1,0 +1,150 @@
+{
+ "amendments": [],
+ "authorship": {
+  "authored_before_implementation": true,
+  "authored_by": "coding agent (phase 22B preregistration); no candidate module existed at authoring time",
+  "disjointness_from_corpus": "scenario domains, file paths, class names, and claim wording are new; the canonical M4 corpus claim does not appear in any holdout fixture (mechanically asserted in tests/test_v21_m4rel_prereg.py)",
+  "residual_risk": "holdout author and future candidate author are the same agent; authorship-before-implementation and human review of this PR are the mitigations, and the human may amend fixtures in this merge review before freeze (post-merge changes require an AMENDMENT.md entry with hash refresh, per the 18C rule)"
+ },
+ "candidate": "m4rel",
+ "counts": {
+  "controls": 6,
+  "pairs": 6,
+  "positives": 6,
+  "relation": 1,
+  "total": 12
+ },
+ "created": "2026-09-23",
+ "fixtures": [
+  {
+   "expected_label": "REFUSES",
+   "id": "m4h-C1",
+   "pair": "m4h-P1",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "control",
+   "sha256": "ff9827dfc4377323dbbbe13f7bb7b2eac5d4d1d4bd0cf52c6dafe223ccc00c8c"
+  },
+  {
+   "expected_label": "REFUSES",
+   "id": "m4h-C2",
+   "pair": "m4h-P2",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "control",
+   "sha256": "0f9b32304672029b5653441b2857d42ad53a1ac5d0d6bc24399f394041aa8af0"
+  },
+  {
+   "expected_label": "REFUSES",
+   "id": "m4h-C3",
+   "pair": "m4h-P3",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "control",
+   "sha256": "59cadfff69c355631f911bf203c726930e3cde6ba9dfb5fe475bab98d9ac417c"
+  },
+  {
+   "expected_label": "REFUSES",
+   "id": "m4h-C4",
+   "pair": "m4h-P4",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "control",
+   "sha256": "246122c3e5f7e94313dcd6c1e2453ef3c9a666fc989df0d0ea02383b297d45cb"
+  },
+  {
+   "expected_label": "REFUSES",
+   "id": "m4h-C5",
+   "pair": "m4h-P5",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "control",
+   "sha256": "8eeec6e24c2e027517692a3427f832b974843359d01d29124686d94057fe4ec4"
+  },
+  {
+   "expected_label": "REFUSES",
+   "id": "m4h-C6",
+   "pair": "m4h-P6",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "control",
+   "sha256": "3269638216ea62c7d56e96fbbbbb99dd67ba388a04c5ebf6083ad786a1705779"
+  },
+  {
+   "expected_label": "ADMITS",
+   "id": "m4h-P1",
+   "pair": "m4h-C1",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "positive",
+   "sha256": "77b828b2c00a508fe4c37d41fd0802fe9a9c3eb85c6e0638087c7b70504afabb"
+  },
+  {
+   "expected_label": "ADMITS",
+   "id": "m4h-P2",
+   "pair": "m4h-C2",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "positive",
+   "sha256": "bccc33bd1023726298da503900808bade922dd830cabec518730a7d4aee46578"
+  },
+  {
+   "expected_label": "ADMITS",
+   "id": "m4h-P3",
+   "pair": "m4h-C3",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "positive",
+   "sha256": "e0322406878bd506ddcba98b92faab8081040ed1ce9220396456f3949e948564"
+  },
+  {
+   "expected_label": "ADMITS",
+   "id": "m4h-P4",
+   "pair": "m4h-C4",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "positive",
+   "sha256": "3cd06df0baf54e42f2f7b785c23c578b05d9092c3ab3e6cb408c1bcdf1e93e77"
+  },
+  {
+   "expected_label": "ADMITS",
+   "id": "m4h-P5",
+   "pair": "m4h-C5",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "positive",
+   "sha256": "3d8f3f609db865028ef83c6331ff2c790d65f28900fc2dde3dd6a30e4f403e23"
+  },
+  {
+   "expected_label": "ADMITS",
+   "id": "m4h-P6",
+   "pair": "m4h-C6",
+   "probe": false,
+   "relation": "unsubstantiated_absolute_docstring_claim",
+   "role": "positive",
+   "sha256": "5aeb2646854f1cdcee4e5f266d6ea4a2de2e245464b00f6f77dac5e89ef940c8"
+  }
+ ],
+ "frozen_verifier": {
+  "merge_sha": "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b",
+  "module": "eval/v21_contract_relations.py",
+  "module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+ },
+ "labels_meaning": {
+  "ADMITS": "candidate must fire (positive)",
+  "REFUSES": "candidate must not fire (control)"
+ },
+ "manifest_lines_sha256": "0e17f4e65e502376c01470ec79f3cff733fcadffe7372f39af13ea45c71e2691",
+ "oracle_version": "117b4164e5446f50",
+ "oracle_note": "recorded as harness provenance only; this holdout lives in the evidence layer, adds no eval/fixtures corpus entries, and does not change oracle semantics",
+ "phase": "22B",
+ "thresholds": {
+  "controls_allowed_fired": 0,
+  "existing_holdout_controls_allowed_fired": 0,
+  "existing_holdout_controls_total": 30,
+  "positives_fired_min": 6,
+  "positives_total": 6,
+  "tuning_rule": "thresholds and labels frozen before first candidate execution against this holdout; no tuning after seeing output",
+  "threshold_frozen_before_first_execution": true
+ }
+}

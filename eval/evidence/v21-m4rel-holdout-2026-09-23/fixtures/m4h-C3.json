@@ -1,0 +1,31 @@
+{
+ "expected_label": "REFUSES",
+ "finding": {
+  "comment": "The absolute claim is substantiated by this change: CLI_ENTRYPOINTS enumerates the registered entrypoints shown here, and each resolves the workspace root through WorkspaceRoot.resolve() with no alternate mechanism.",
+  "file": "cli/paths.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "cli: unify workspace-root resolution",
+   "body": "Switches cli/main.py to the shared resolver so every entrypoint resolves the workspace root through one mechanism.",
+   "files": [
+    {
+     "path": "cli/paths.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/cli/paths.py\n@@ -0,0 +1,10 @@\n+\"\"\"Workspace-root resolution contract.\n+\n+Every entrypoint registered in CLI_ENTRYPOINTS resolves the workspace\n+root through this resolver and no other mechanism.\n+\"\"\"\n+\n+class WorkspaceRoot:\n+    @staticmethod\n+    def resolve():\n+        raise NotImplementedError\n"
+    },
+    {
+     "path": "cli/main.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/cli/main.py\n@@ -0,0 +1,11 @@\n+from cli.paths import WorkspaceRoot\n+\n+\n+def main():\n+    return WorkspaceRoot.resolve()\n+\n+\n+def admin():\n+    return WorkspaceRoot.resolve()\n+\n+CLI_ENTRYPOINTS = (main, admin)\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-C3",
+ "language": "python",
+ "probe": false,
+ "rationale": "absolute/exclusive claim with an in-diff enumerated referent: CLI_ENTRYPOINTS is added in this change and every registered function shown calls the resolver",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "control"
+}
