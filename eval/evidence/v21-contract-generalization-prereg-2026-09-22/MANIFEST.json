@@ -12,7 +12,7 @@
       "pairs": [
         {
           "correction": "all refs replaced with genuine 40-hex SHAs; pin-demotion vs re-pin semantics unchanged",
-          "defect": "authored refs were 39/41-hex runs, not 40-hex commit SHAs (18B fixture_defects proof: lengths [41, 39] / [41, 39, 39])",
+          "defect": "authored refs were not consistently 40-hex commit SHAs; frozen 18B fixture_defects mechanically recorded psd-P4 removed-ref length [39], and reviewed 18C pre-evaluation inspection additionally found non-40-hex refs in both pair members",
           "pair": "psd-P4/psd-C4"
         },
         {
