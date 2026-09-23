@@ -245,5 +245,21 @@ def _substantiation_fixture():
     return fixture
 
 
+def test_short_claim_row_linkage_has_no_six_gram_cliff():
+    fixture = _dev_fixture(
+        "jobs/policy.py", "jobs: document scheduling contract",
+        "Documents scheduling behavior.",
+        '"""Scheduling contract.\n\nScheduler always owns ordering.\n"""\n'
+        "class Policy:\n    pass\n")
+    fires = m4.detect(fixture)
+    assert len(fires) == 1
+    assert len(m4._norm_tokens(fires[0]["claim_clause"])) < 6
+    finding = {
+        "file": "jobs/policy.py",
+        "comment": "Scheduler always owns ordering; this is not shown elsewhere.",
+    }
+    assert m4.covers(finding, fixture) is True
+
+
 def test_substantiation_two_files():
     assert m4.detect(_substantiation_fixture()) == []
