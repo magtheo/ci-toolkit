@@ -8,10 +8,13 @@ the defect explicitly." Authorization: human merge review of PR #95
 
 ## Amended pairs (exactly two; nothing else touched)
 
-1. **psd-P4 / psd-C4** — defect: authored refs were 39- and 41-hex
-   runs, not 40-hex commit SHAs (18B `fixture_defects` proof:
-   lengths `[41, 39]` and `[41, 39, 39]`). Correction: every ref in
-   both fixtures replaced with a genuine 40-hex SHA; the intended
+1. **psd-P4 / psd-C4** — defect: authored refs were not consistently
+   40-hex commit SHAs. The frozen 18B `fixture_defects` artifact
+   mechanically records P4's removed ref at length `[39]`. During the
+   reviewed 18C pre-evaluation amendment inspection, the original pair
+   was additionally checked directly and showed non-40-hex runs in
+   both members. Correction: every ref in both fixtures replaced with
+   a genuine 40-hex SHA; the intended
    pin→mutable-branch vs re-pin semantic distinction is unchanged.
 2. **jfu-P5 / jfu-C5** — defect: the positive tested `jq 'length > 0'`
    over JSONL, outside the frozen relation definition (unslurped
@@ -46,8 +49,8 @@ or during 18D.
 1. **Amended-pair evaluation**: run the frozen verifier on exactly
    the four amended fixtures (psd-P4, psd-C4, jfu-P5, jfu-C5).
 2. **Full reconciliation run**: one full deterministic evaluation of
-   all 60 fixtures must reproduce the 18B valid observations exactly
-   on the 52 unchanged fixtures (per-fixture admitted flags and
+   all 60 fixtures must reproduce the 18B observations exactly
+   on the 56 unchanged fixtures (per-fixture admitted flags and
    fired-relation sets). Any divergence is a halt condition — recorded
    as INVALID/halt, never reconciled silently.
 3. **Combination**: per relation, the final scored population is all
