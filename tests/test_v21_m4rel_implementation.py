@@ -132,7 +132,11 @@ def test_evidence_matches_live():
     assert res["family_context_non_targets"]["covered"] == 5
     assert res["family_context_non_targets"]["total"] == 5
     assert EVIDENCE["dev_units"]["all_ok"] is True
-    assert len(EVIDENCE["dev_units"]["results"]) == 7
+    expected = {
+        r["case"]: {k: r[k] for k in ("expect", "fired", "ok")}
+        for r in EVIDENCE["dev_units"]["results"]
+    }
+    assert expected == _live_dev_results()
 
 
 def test_holdout_seal():
@@ -150,32 +154,43 @@ def test_holdout_seal():
 
 
 DEV_UNITS = [
-    ("core/validate.py", "utils: document validation contract",
+    ("requirement_statement_not_exclusivity",
+     "core/validate.py", "utils: document validation contract",
      "Documents the validator contract.",
      '"""Validation contract.\n\nThe validator must not be silently '
      'skipped when a rule is disabled.\n"""\ndef validate(x):\n'
      "    return x\n", False),
-    ("core/parse.py", "parser: document error contract",
+    ("generic_in_diff_absolute_no_actor",
+     "core/parse.py", "parser: document error contract",
      "Documents the error contract.",
      '"""Parser error contract.\n\nAll parse failures are raised as '
      'ParseError; none are swallowed.\n"""\nclass ParseError('
      "Exception):\n    pass\n", False),
-    ("core/flags.py", "core: document retry metadata",
+    ("self_scoped_disclaimer_with_actor",
+     "core/flags.py", "core: document retry metadata",
      "Documents the RetryFlag metadata.",
      '"""Retry metadata.\n\nRetry decisions belong to the scheduler '
      'and are outside this module; this flag carries no behavioral '
      'contract.\n"""\nclass RetryFlag:\n    pass\n', False),
-    ("index/hints.py", "index: document refresh ordering",
+    ("hedged_actor_claim",
+     "index/hints.py", "index: document refresh ordering",
      "Documents the RefreshHint field.",
      '"""Refresh hints.\n\nThe indexer typically reads this hint '
      'first; ordering behavior is configured in the indexer '
      'itself.\n"""\nclass RefreshHint:\n    pass\n', False),
-    ("index/route.py", "index: document shard routing contract",
+    ("unsupported_actor_claim_fires",
+     "index/route.py", "index: document shard routing contract",
      "Documents how shard routing consumes ShardRoute.",
      '"""Shard routing contract.\n\nThe indexer always consults this '
      'route when placing shards and uses no other placement '
      'signal.\n"""\nclass ShardRoute:\n    def __init__(self, key):\n'
      "        self.key = key\n", True),
+    ("no_documentation_purpose",
+     "queue/policy.py", "queue: change redelivery routing",
+     "Updates queue policy behavior.",
+     '"""Queue routing contract.\n\nThe dispatcher always consults this '
+     'policy and uses no other redelivery signal.\n"""\n'
+     "class QueuePolicy:\n    pass\n", False),
 ]
 
 
@@ -190,13 +205,30 @@ def _dev_fixture(path, title, body, patch):
                                  "patch": unified}]}}
 
 
-def test_dev_near_miss_units():
-    for path, title, body, patch, expect in DEV_UNITS:
+def _live_dev_results():
+    out = {}
+    for case, path, title, body, patch, expect in DEV_UNITS:
         fires = m4.detect(_dev_fixture(path, title, body, patch))
-        assert bool(fires) is expect, (path, expect, fires)
+        fired = bool(fires)
+        out[case] = {
+            "expect": "fires" if expect else "no-fire",
+            "fired": fired,
+            "ok": fired is expect,
+        }
+    substantiated = _substantiation_fixture()
+    fired = bool(m4.detect(substantiated))
+    out["substantiated_by_in_diff_consumer"] = {
+        "expect": "no-fire", "fired": fired, "ok": not fired}
+    return out
 
 
-def test_substantiation_two_files():
+def test_dev_near_miss_units():
+    live = _live_dev_results()
+    assert len(live) == 7
+    assert all(r["ok"] for r in live.values())
+
+
+def _substantiation_fixture():
     fixture = _dev_fixture(
         "index/select.py", "index: unify shard selection",
         "Switches the runner to the shared selector so every shard "
@@ -210,4 +242,8 @@ def test_substantiation_two_files():
                  "+from index.select import ShardSelector\n+\n+\n"
                  "+def run(shard):\n+    return ShardSelector().pick("
                  "shard)\n"})
-    assert m4.detect(fixture) == []
+    return fixture
+
+
+def test_substantiation_two_files():
+    assert m4.detect(_substantiation_fixture()) == []
