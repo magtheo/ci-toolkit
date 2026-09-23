@@ -1,0 +1,80 @@
+{
+  "phase": "22A",
+  "kind": "preservation-authority-qualification-preregistration",
+  "status": "preregistration-only-no-candidate-no-execution",
+  "authorities": {
+    "admission": {
+      "definition": "evidence sustaining a NEW block",
+      "current_holders": ["pinned_sha_demoted_to_branch"],
+      "measured_path": "holdout PASS 18D (5/5 positives, 0/5 controls); integration 19A/19B (1 promotion, 275 unchanged, 0 control promotions)"
+    },
+    "preservation": {
+      "definition": "evidence keeping an EXISTING block alive under a bare-scope downgrade rule",
+      "current_holders": [],
+      "grant_scope": "exemption of candidate-firing rows from future bare-scope downgrade rules ONLY; never creates a block; never admits; never gates; never touches deployed behavior"
+    }
+  },
+  "affected_populations": {
+    "P_RELCARRIED": {
+      "rows": 24,
+      "description": "contract-route g2-survivor TPs carried only by T3/T4 firings",
+      "per_relation": {
+        "doc_self_contradiction": 9,
+        "preserved_claim_vs_dropped_call_result": 7,
+        "consume_before_validate_ordering": 5,
+        "jsonl_format_vs_unslurped_jq": 2,
+        "doc_contract_prefix_unanchored_match": 1
+      }
+    },
+    "P_M4": {
+      "rows": 2,
+      "ids": [["true_positive_detection", "M4", "stage-a-max", 66, 0], ["true_positive_detection", "M4", "b1-low", 44, 0]],
+      "note": "M4 b1-low r29 is a survivor on the unwitnessed route: NOT in this population, untouched by bare rules"
+    },
+    "P_DSC_P4": {"id": "dsc-P4", "note": "holdout positive, bare contract route"},
+    "anti_targets": {
+      "bare_controls_corpus_wide": 26,
+      "bare_controls_non_contract": 11,
+      "rule": "any candidate firing on any control row fails outright (QG1)"
+    }
+  },
+  "qualification_gates": {
+    "QG1_corpus_pair_discipline": "fires on 100% of declared target positives; ZERO control rows corpus-wide; any control firing = FAILED, auto-excluded (Phase-17 binding rule)",
+    "QG2_holdout": "zero holdout-control firings (dsc-prime/sle-prime must not fire on dsc-C1/C2 or sle-C3); positive firings recorded and scoped; holdout-known design = remediation validation, not out-of-sample discovery, recorded as such",
+    "QG3_independence": "new evidence: not a re-label/export/wrapper of any T3/T4 relation or frozen-module function; new module; frozen module bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57 byte-frozen",
+    "QG4_standing_guards": "frozen five; M10 still FAILED; C10 standing near-miss; oracle 117b4164e5446f50",
+    "QG5_human_acceptance": "qualification record published, human-reviewed, merged before any adoption PR; agents never grant authority"
+  },
+  "candidate_slate": [
+    {"order": 1, "name": "m4rel", "family": "unsubstantiated absolute docstring claim", "targets": "P_M4", "family_context": "7 M4 true positives corpus; 3 g2-survivors; adjacency: 4 M4 positive-extra scope-violation rows are non-targets, extra firings recorded + scope-reviewed, not auto-FAIL"},
+    {"order": 2, "name": "dsc-prime", "family": "doc-self-contradiction remediation", "targets": "9 P-RELCARRIED dsc rows + holdout dsc-P4", "must_not_fire": ["dsc-C1", "dsc-C2"], "carries": "PC2", "caveat": "in-sample per QG2"},
+    {"order": 3, "name": "sle-prime", "family": "secret-logged remediation", "must_not_fire": ["sle-C3"], "scope_recorded_at_own_prereg": true},
+    {"order": 4, "name": "pcd-prime", "targets": "7 P-RELCARRIED pcd rows"},
+    {"order": 5, "name": "cbv-prime", "targets": "5 P-RELCARRIED cbv rows"},
+    {"order": 6, "name": "jfu-prime", "targets": "2 P-RELCARRIED jfu rows"},
+    {"order": 7, "name": "m10-prime", "targets": "1 P-RELCARRIED m10-family row", "must_clear": "C10 standing near-miss", "priority": "lowest"}
+  ],
+  "failure_handling": "gate failure is recorded as evidence and the candidate is auto-excluded; never tuned post hoc against the same gates",
+  "cost_ledger": "two M4 losses and the dsc-P4 holdout loss remain unresolved until qualifying candidates exist AND a separately reviewed adoption preregistration is approved; psd qualification preserved untouched",
+  "non_goals": [
+    "no reduction-rule adoption",
+    "no downgrade execution",
+    "no GATING activation",
+    "no deployed reviewer change",
+    "no edits to frozen Phase-17 module, fixtures, routes, parser, or oracle",
+    "21A/21B records stay frozen as exploratory evidence"
+  ],
+  "future_phase_artifacts": [
+    "eval/v21_m4_relation.py",
+    "eval/evidence/v21-m4-relation-*",
+    "eval/evidence/v21-preservation-qualification-*"
+  ],
+  "pins": {
+    "oracle_version": "117b4164e5446f50",
+    "frozen_verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57",
+    "18d_report_sha256": "0a2bb7fa64be61a4c6b1f4b00b63c53a758fe1fed5d21fd169d067011af8dc26",
+    "21a_contract_sha256": "f5ac9aa602dc7823ccf5947c7649ef3e6d03f69428f303b10fe8f01acbc3bc33",
+    "21b_policy_design_json": "eval/evidence/v21-witness-policy-design-2026-09-23/POLICY_DESIGN.json"
+  },
+  "preregistered_before_any_candidate_exists": true
+}
