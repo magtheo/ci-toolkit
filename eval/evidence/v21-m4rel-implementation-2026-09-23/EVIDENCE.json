@@ -137,5 +137,11 @@
   "scope_limit": "because holdout author and implementation author overlap, and holdout actor vocabulary is represented in the implementation vocabulary, a PASS must be reported as preregistered validation rather than blind or vocabulary-independent generalization",
   "authority": "no automatic preservation-authority grant; QG5 human review must consider this limitation"
  },
- "coverage_linkage": "same-file plus shared 6-token claim window for normal claims; if either side is shorter than six tokens, use the longest shared window down to a 3-token minimum. This avoids an impossible-coverage cliff for short detected claims while preserving 6-gram precision for normal claims."
+ "coverage_linkage": "same-file plus shared 6-token claim window for normal claims; if either side is shorter than six tokens, use the longest shared window down to a 3-token minimum. This avoids an impossible-coverage cliff for short detected claims while preserving 6-gram precision for normal claims.",
+ "phase_transition": {
+  "path": "eval/evidence/v21-m4rel-implementation-2026-09-23/PHASE_TRANSITION.json",
+  "sha256": "ad3539f97c22e0a545f5e2cd76fa7295a1096774d56ec5974fa7b1d84df3b8b0",
+  "parent_merge_sha": "9773deab9de2bebad7514bc65a39625bea8c41f9",
+  "boundary": "implementation only; qualification execution and preservation authority remain unauthorized"
+ }
 }
