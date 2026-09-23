@@ -18,9 +18,11 @@ are byte-untouched.**
   docstring/comment text). Returns a blocking finding per claimed
   file with the quoted clause and its out-of-diff referents.
 - `covers(finding, fixture)` — row-level coverage mapping used by the
-  frozen gates: same file AND the row's comment shares a 6-gram window
-  with the detected claim clause (the row must be *about the detected
-  claim*, not merely on the same file). `file_matches()` reports the
+  frozen gates: same file AND the row's comment shares a 6-token window with the
+  detected claim clause for normal claims. If either side is shorter
+  than six tokens, linkage falls back only as far as necessary, with
+  a 3-token minimum. The row must still be *about the detected claim*,
+  not merely on the same file. `file_matches()` reports the
   looser same-file diagnostic separately; it is never gate input.
 
 ## The frozen semantic boundary, lexically operationalized
