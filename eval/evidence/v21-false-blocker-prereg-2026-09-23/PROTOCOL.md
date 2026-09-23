@@ -2,7 +2,8 @@
 
 **Status: preregistration only. No reduction evaluator exists; no run
 has been performed. The rule family and every cost ledger below are
-frozen; 21B executes the human-approved variant verbatim.**
+frozen. Neither variant has been approved for 21B execution. A new,
+reviewed authorization is required.**
 
 ## Problem statement (frozen)
 
@@ -11,14 +12,15 @@ The v2.1 blocking boundary admits **34 false blockers** that survive
 `control_blocker` rows and **7** on `positive_extra_blocker` rows
 (M12/M13 extras). All 34 survive `g1_strict_quote` as well — the
 gates never consult the route/predicate/relation layer that Phases
-15–17 built and the holdout qualified.
+15–17 built. The unseen holdout qualified **only psd**; the other five
+Phase-17 pair-surviving relations FAILED generalization.
 
 Measured separability surface over the 145 g2-survivors (276-row
 frozen corpus):
 
 | survivor class | TP | control | extra |
 |---|---:|---:|---:|
-| qualified-relation-verified (six) | 34 | 0 | 0 |
+| Phase-17 pair-surviving relations (psd bucket excluded; five failed holdout) | 34 | 0 | 0 |
 | psd-relation-verified | 5 | 0 | 0 |
 | FAILED-relation-verified (M10 family) | 9 | 1 (C10, external route) | 0 |
 | witnessed (closed-world predicate, no relation) | 50 | 0 | 2 |
@@ -42,8 +44,12 @@ route downgrades to `DOWNGRADE` unless the row carries a witness:
 - **R1-loose**: witness = any closed-world predicate **or** any
   Phase-17 relation firing (including the FAILED M10-family
   relation).
-- **R1-strict**: witness = any closed-world predicate **or** a
-  qualified six-relation firing (FAILED relation does not count).
+- **R1-strict**: witness = any closed-world predicate **or** a firing
+  from the six Phase-17 pair-surviving relations (the FAILED M10
+  relation does not count). **This is not a qualified witness set:**
+  five of those six FAILED the Phase-18D unseen holdout; only psd
+  qualified. Both variants are exploratory measurements, not safe
+  blocker-authority designs.
 
 No other row changes. R1 never touches non-survivors, non-contract
 routes, or the psd promotion row (psd-relation-verified → witnessed).
@@ -75,25 +81,39 @@ address them; they remain the dsc/sle redesign problem.
 
 **Untouched by both variants**: the psd promotion row
 (stage-a-max r28, psd-witnessed), C10 (external route, standing
-near-miss evidence), all 44 non-contract bare survivors (26
-non-contract controls stay — the corpus-wide witness question is
-explicitly NOT resolved by this experiment), and every
-non-survivor row.
+near-miss evidence), all **22 non-contract bare survivors** (including
+**11 non-contract bare controls**), and every non-survivor row. There
+are **44 bare survivors and 26 bare controls corpus-wide**, not on
+non-contract routes alone; the corpus-wide witness question is
+explicitly NOT resolved by this experiment.
 
-## Decision points (human adjudication at this PR's review)
+## Decision points (review disposition: no 21B authorization)
 
-- **D1 — variant**: loose (keeps M10 TP; FAILED relation counts as
-  witness) vs strict (drops M10 TP; cleaner witness semantics).
-- **D2 — M4 cost**: accept the 2 named M4 TP downgrades, or defer
-  R1 until an M4 relation exists (its own preregistered cycle).
-- **D3 — holdout cost**: accept the dsc-P4 downgrade (the dsc family
-  already FAILED generalization), or scope the reduction's claimed
-  validity to the corpus oracle with dsc-P4 recorded as a known,
-  accepted cost.
+- **D1 — variant: neither approved for blocker authority.** R1-loose
+  allows a known FAILED relation to serve as a witness; R1-strict
+  merely excludes M10 while retaining five other holdout-FAILED
+  relations and losing an additional M10 TP without reducing any
+  observed false blockers. Both exact ledgers remain frozen as
+  exploratory evidence, not an approved execution rule.
+- **D2 — M4 cost: defer.** The two named M4 TPs are oracle-matching
+  cross-file-verifiability/caveat findings not covered by an in-diff
+  relation. Do not count their loss as harmless; a future protocol
+  must explicitly address them or transparently request acceptance.
+- **D3 — dsc-P4 holdout cost: not accepted for generalization.**
+  P4 is a directly contradictory in-diff document positive; R1 drops
+  it. Corpus-only scope cannot erase the observed holdout loss.
+  Preserve P4 as evidence and require a newly reviewed rule/holdout
+  before broader claims.
+
+**No variant selected; do not execute 21B under this preregistration.**
+A future reviewed preregistration may design a narrower witness policy
+or explicitly accept costs; never treat this exploratory ledger as
+promotion or GATING authorization.
 
 ## 21B execution contract
 
-The approved variant runs mechanically and must: reproduce its frozen
+Only after explicit, separately reviewed authorization, an approved
+variant could run mechanically and must: reproduce its frozen
 ledger **exactly** (same rows, same roles); leave every untouched
 decision byte-identical; hold all standing guards (frozen five, M10
 FAILED, C10 near-miss, oracle `117b4164e5446f50`); leave the psd
@@ -110,8 +130,10 @@ silently reconciled.
 
 ## Scope and humility
 
-R1 is a measurement experiment on the frozen corpus boundary. It
-changes no deployed reviewer behavior and authorizes nothing. The
-corpus-wide witness question (26 non-contract bare controls vs 13
-bare TPs), the sle/dsc false-positive redesign, the M4 relation, and
-any route extension all remain separate future preregistrations.
+R1 is an exploratory measurement on the frozen corpus boundary. It
+changes no deployed reviewer behavior and authorizes nothing, including
+21B execution. The corpus-wide witness question (**26 bare controls
+and 13 bare TPs in total**, of which 11 controls and 11 TPs are on
+non-contract routes), the sle/dsc false-positive redesign, the M4
+relation, and any route extension all require separate future
+preregistrations.
