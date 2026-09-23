@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""Phase 18B — first out-of-sample evaluation of the six frozen
+"""Phase 18B/18D — out-of-sample evaluation of the six frozen
 Phase-17 contract relations on the preregistered holdout.
 
-Implements exactly the operationalization and thresholds frozen in
-eval/evidence/v21-contract-generalization-prereg-2026-09-22/PROTOCOL.md:
+18B ran this evaluator against the original holdout and its frozen
+report is published verbatim under
+eval/evidence/v21-contract-generalization-eval-2026-09-22/ (0 PASS,
+4 FAIL, 2 INVALID). The two INVALID pairs were corrected by the
+reviewed 18C amendment (see AMENDMENT.md in the holdout directory);
+this evaluator now carries the amended state:
 
-- per relation: admit-count over its 5 positives and 5 controls;
-  GENERALIZATION PASS iff >=4/5 positives and 0/5 controls;
-- standing regression guards (C11, C10/M10, M3, M13, C12, M12,
-  oracle) via the existing frozen replays;
-- fail-closed on any drift of verifier identity, fixture hashes, or
-  manifest integrity.
+- `_amendments()` fail-closed asserts the CORRECTED fixture state;
+- `evaluate_amended_pairs()` runs the frozen verifier on exactly the
+  four amended fixtures (18D step 1);
+- `evaluate()` performs the full reconciliation run (18D step 2):
+  all 60 fixtures, no exclusions, thresholds unchanged.
 
 The subject module is called, never modified. Fixture files are read,
 never written.
@@ -36,6 +39,11 @@ FROZEN_MODULE_SHA = ("bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0a"
                      "b7e719c43c1b5754b1b57")
 ORACLE = "117b4164e5446f50"
 THRESHOLD_TP = 4
+FROZEN_18B_REPORT = ROOT / "eval" / "evidence" / \
+    "v21-contract-generalization-eval-2026-09-22" / \
+    "generalization-report.json"
+FROZEN_18B_REPORT_SHA = ("a56235b59bd104f9a6d868fad67d6ea1fe65f01a4987d"
+                         "f02e257031e05587eec")
 
 RELATIONS = (
     "pinned_sha_demoted_to_branch",
@@ -105,73 +113,145 @@ def _regression_guards():
     return guards
 
 
-def _fixture_defects(rows):
-    """Preregistered INVALID path.
-
-    A discovered fixture/oracle defect invalidates the whole authored
-    pair. Invalid pairs are excluded from scoring and no relation-level
-    PASS/FAIL verdict is assigned until a reviewed amendment and rerun.
-    """
-    by_id = {r["id"]: r for r in rows}
-    defects = {}
-
-    # psd-P4: the positive intended to remove a pinned 40-hex SHA was
-    # authored with a 39-hex run instead.
+def _fixture_patch(fixture_id):
     fixture = json.loads(
-        (HOLDOUT / "fixtures" / "psd-P4.json").read_text())
-    patch = [f for f in fixture["fixture"]["input"]["files"]
-             if f["path"] == fixture["finding"]["file"]][0]["patch"]
-    removed = "\n".join(line[1:] for line in patch.splitlines()
-                        if line.startswith("-"))
-    runs = [run for run in re.findall(r"[0-9a-fA-F]{10,}", removed)]
-    lengths = [len(run) for run in runs]
-    if lengths != [39]:
-        raise RuntimeError("psd-P4 defect proof drift: %s" % lengths)
-    defects["psd-P4"] = {
-        "defect": "authored pinned ref is not a 40-hex commit SHA",
-        "proof": {"hex_runs_in_removed_lines": runs,
-                  "lengths": lengths},
-        "pair_fixture_ids": ["psd-P4", "psd-C4"],
-        "disposition": "INVALID pair per PROTOCOL.md; both P4/C4 are "
-                       "excluded from scoring pending reviewed amendment "
-                       "and rerun",
-    }
+        (HOLDOUT / "fixtures" / (fixture_id + ".json")).read_text())
+    matches = [f for f in fixture["fixture"]["input"]["files"]
+               if f["path"] == fixture["finding"]["file"]]
+    if len(matches) != 1:
+        raise RuntimeError(
+            "%s expected exactly one cited-file patch, found %d"
+            % (fixture_id, len(matches)))
+    return fixture, matches[0]["patch"]
 
-    # jfu-P5: 18A authoring basis and the frozen relation definition
-    # require an unslurped array consumer (.[]). P5 instead tests jq
-    # 'length > 0', a different single-document assumption.
-    fixture = json.loads(
-        (HOLDOUT / "fixtures" / "jfu-P5.json").read_text())
-    patch = [f for f in fixture["fixture"]["input"]["files"]
-             if f["path"] == fixture["finding"]["file"]][0]["patch"]
-    has_array_filter = ".[]" in patch
-    if has_array_filter:
-        raise RuntimeError("jfu-P5 scope-defect proof drift: .[] appeared")
-    defects["jfu-P5"] = {
-        "defect": "fixture is outside frozen relation scope: no .[] "
-                  "array-filter consumer",
-        "proof": {
-            "requires_unslurped_array_consumer": True,
-            "array_filter_present": has_array_filter,
-            "fixture_rationale": fixture["rationale"],
+
+def _amendments():
+    """18C amendment state (fail-closed): the two 18B INVALID pairs
+    were corrected by the reviewed amendment; proofs assert the
+    CORRECTED state. Re-evaluation of the amended pairs is reserved
+    for 18D."""
+    psd_lengths = {}
+    for fixture_id in ("psd-P4", "psd-C4"):
+        _, patch = _fixture_patch(fixture_id)
+        runs = re.findall(r"[0-9a-fA-F]{10,}", patch)
+        lengths = [len(run) for run in runs]
+        if not lengths or any(length != 40 for length in lengths):
+            raise RuntimeError(
+                "%s amendment proof drift: expected only 40-hex refs, got %s"
+                % (fixture_id, lengths))
+        psd_lengths[fixture_id] = lengths
+    _, jfu_patch = _fixture_patch("jfu-P5")
+    if ".[]" not in jfu_patch:
+        raise RuntimeError("jfu-P5 amendment proof drift: no .[] consumer")
+    if not re.search(r"jq\s+-\w*c[^\n]*>>\"\$?[a-z_]\w*\"", jfu_patch):
+        raise RuntimeError("jfu-P5 amendment proof drift: no JSONL "
+                           "producer")
+    return {
+        "psd-P4": {
+            "original_defect": "authored pinned ref was a 39-hex run, "
+                               "not a 40-hex commit SHA",
+            "proof": {
+                "all_hex_ref_lengths_by_fixture": psd_lengths,
+                "all_refs_are_40_hex": True,
+            },
+            "pair_fixture_ids": ["psd-P4", "psd-C4"],
+            "disposition": "AMENDED by reviewed 18C amendment; all refs "
+                           "are genuine 40-hex SHAs; pair re-enters "
+                           "scoring in 18D",
         },
-        "pair_fixture_ids": ["jfu-P5", "jfu-C5"],
-        "disposition": "INVALID pair per PROTOCOL.md; both P5/C5 are "
-                       "excluded from scoring pending reviewed amendment "
-                       "and rerun",
+        "jfu-P5": {
+            "original_defect": "positive tested jq 'length > 0' over "
+                               "JSONL, outside the frozen unslurped-array "
+                               "relation definition",
+            "proof": {"array_filter_present": True,
+                      "jsonl_producer_present": True},
+            "pair_fixture_ids": ["jfu-P5", "jfu-C5"],
+            "disposition": "AMENDED by reviewed 18C amendment; frozen-"
+                           "definition positive in place; pair re-enters "
+                           "scoring in 18D",
+        },
     }
 
-    for defect in defects.values():
-        for fixture_id in defect["pair_fixture_ids"]:
-            if fixture_id not in by_id:
-                raise RuntimeError("invalid-pair member missing: %s"
-                                   % fixture_id)
-    return defects
+
+def evaluate_amended_pairs():
+    """18D step 1: frozen-verifier results for exactly the four
+    amended fixtures (psd-P4, psd-C4, jfu-P5, jfu-C5)."""
+    manifest = json.loads((HOLDOUT / "MANIFEST.json").read_text())
+    _fail_closed(manifest)
+    amended = sorted({fixture_id
+                      for record in _amendments().values()
+                      for fixture_id in record["pair_fixture_ids"]})
+    rows = []
+    for entry in sorted(manifest["fixtures"], key=lambda e: e["id"]):
+        if entry["id"] not in amended:
+            continue
+        fixture = json.loads(
+            (HOLDOUT / "fixtures" / (entry["id"] + ".json")).read_text())
+        fired = sorted(frozen.relation_names(fixture["finding"],
+                                             fixture["fixture"]))
+        rows.append({
+            "id": entry["id"],
+            "relation": entry["relation"],
+            "role": entry["role"],
+            "expected_label": entry["expected_label"],
+            "fired_relations": fired,
+            "admitted": entry["relation"] in fired,
+        })
+    return rows
+
+
+def _reconcile_unchanged(rows, amended_ids):
+    """18D halt gate: all 56 unchanged fixtures must exactly reproduce
+    the frozen 18B admitted flag and fired-relation set."""
+    raw = FROZEN_18B_REPORT.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest != FROZEN_18B_REPORT_SHA:
+        raise RuntimeError("frozen 18B report hash drift")
+    prior = json.loads(raw)
+    prior_rows = {r["id"]: r for r in prior["fixture_rows"]}
+    current = {r["id"]: r for r in rows}
+    unchanged = sorted(set(current) - set(amended_ids))
+    if len(unchanged) != 56:
+        raise RuntimeError(
+            "18D reconciliation population drift: expected 56 unchanged "
+            "fixtures, found %d" % len(unchanged))
+    if set(prior_rows) != set(current):
+        raise RuntimeError("18D reconciliation fixture-id set drift")
+    mismatches = []
+    for fixture_id in unchanged:
+        old = prior_rows[fixture_id]
+        new = current[fixture_id]
+        if (old["admitted"] != new["admitted"]
+                or old["fired_relations"] != new["fired_relations"]):
+            mismatches.append({
+                "id": fixture_id,
+                "prior_admitted": old["admitted"],
+                "current_admitted": new["admitted"],
+                "prior_fired_relations": old["fired_relations"],
+                "current_fired_relations": new["fired_relations"],
+            })
+    if mismatches:
+        raise RuntimeError(
+            "18D reconciliation halt: unchanged fixture divergence: %s"
+            % json.dumps(mismatches, sort_keys=True))
+    return {
+        "frozen_18b_report_sha256": digest,
+        "unchanged_fixture_count": len(unchanged),
+        "mismatches": [],
+    }
 
 
 def evaluate():
+    """18D step 2: full reconciliation run over all 60 amended-state
+    fixtures. By determinism the 56 unchanged fixtures must reproduce
+    the 18B observations exactly; 18D pins that reconciliation
+    before publishing final verdicts."""
     manifest = json.loads((HOLDOUT / "MANIFEST.json").read_text())
     _fail_closed(manifest)
+    amendments = _amendments()
+    amended_ids = {fixture_id
+                   for record in amendments.values()
+                   for fixture_id in record["pair_fixture_ids"]}
     rows = []
     for entry in sorted(manifest["fixtures"], key=lambda e: e["id"]):
         fixture = json.loads(
@@ -186,40 +266,28 @@ def evaluate():
             "expected_label": entry["expected_label"],
             "fired_relations": fired,
             "admitted": entry["relation"] in fired,
+            "amended": entry["id"] in amended_ids,
         })
-    defects = _fixture_defects(rows)
-    invalid_ids = {
-        fixture_id
-        for defect in defects.values()
-        for fixture_id in defect["pair_fixture_ids"]
-    }
-    for row in rows:
-        row["invalid"] = row["id"] in invalid_ids
+
+    reconciliation = _reconcile_unchanged(rows, amended_ids)
 
     per_relation = {}
     for relation in RELATIONS:
-        all_positives = [r for r in rows if r["relation"] == relation
-                         and r["role"] == "positive"]
-        all_controls = [r for r in rows if r["relation"] == relation
-                        and r["role"] == "control"]
-        positives = [r for r in all_positives if not r["invalid"]]
-        controls = [r for r in all_controls if not r["invalid"]]
-        invalid_fixture_ids = [r["id"] for r in all_positives + all_controls
-                               if r["invalid"]]
+        positives = [r for r in rows if r["relation"] == relation
+                     and r["role"] == "positive"]
+        controls = [r for r in rows if r["relation"] == relation
+                    and r["role"] == "control"]
+        if len(positives) != 5 or len(controls) != 5:
+            raise RuntimeError("unexpected scored population for %s"
+                               % relation)
         tp = sum(r["admitted"] for r in positives)
         leak = sum(r["admitted"] for r in controls)
         failed_positive_ids = [r["id"] for r in positives
                                if not r["admitted"]]
         leaked_control_ids = [r["id"] for r in controls if r["admitted"]]
-        if invalid_fixture_ids:
-            verdict = "INVALID_PENDING_AMENDMENT"
-        else:
-            if len(positives) != 5 or len(controls) != 5:
-                raise RuntimeError("unexpected scored population for %s"
-                                   % relation)
-            verdict = ("GENERALIZATION_PASS"
-                       if tp >= THRESHOLD_TP and leak == 0
-                       else "GENERALIZATION_FAIL")
+        verdict = ("GENERALIZATION_PASS"
+                   if tp >= THRESHOLD_TP and leak == 0
+                   else "GENERALIZATION_FAIL")
         per_relation[relation] = {
             "positives_admitted": tp,
             "positives_total": len(positives),
@@ -227,20 +295,20 @@ def evaluate():
             "controls_total": len(controls),
             "failed_positive_ids": failed_positive_ids,
             "leaked_control_ids": leaked_control_ids,
-            "invalid_fixture_ids": invalid_fixture_ids,
             "verdict": verdict,
         }
     guards = _regression_guards()
     total_tp = sum(v["positives_admitted"] for v in per_relation.values())
-    total_positive = sum(v["positives_total"] for v in per_relation.values())
     total_leak = sum(v["controls_admitted"]
                      for v in per_relation.values())
-    total_controls = sum(v["controls_total"] for v in per_relation.values())
     return {
-        "phase": "18B",
+        "phase": "18D",
         "protocol":
             "eval/evidence/v21-contract-generalization-prereg-2026-09-22"
             "/PROTOCOL.md",
+        "amendment":
+            "eval/evidence/v21-contract-generalization-prereg-2026-09-22"
+            "/AMENDMENT.md",
         "frozen_verifier": {
             "merge_sha": FROZEN_MERGE_SHA,
             "module_sha256": FROZEN_MODULE_SHA,
@@ -250,28 +318,22 @@ def evaluate():
         "per_relation": per_relation,
         "aggregate": {
             "positives_admitted": total_tp,
-            "positives_total": total_positive,
+            "positives_total": sum(
+                v["positives_total"] for v in per_relation.values()),
             "controls_admitted": total_leak,
-            "controls_total": total_controls,
-            "raw_observed_positives_admitted": sum(
-                r["admitted"] for r in rows if r["role"] == "positive"),
-            "raw_observed_positives_total": 30,
-            "raw_observed_controls_admitted": sum(
-                r["admitted"] for r in rows if r["role"] == "control"),
-            "raw_observed_controls_total": 30,
+            "controls_total": sum(
+                v["controls_total"] for v in per_relation.values()),
             "relations_pass": sum(1 for v in per_relation.values()
                                   if v["verdict"] == "GENERALIZATION_PASS"),
             "relations_fail": sum(1 for v in per_relation.values()
                                   if v["verdict"] == "GENERALIZATION_FAIL"),
-            "relations_invalid": sum(
-                1 for v in per_relation.values()
-                if v["verdict"] == "INVALID_PENDING_AMENDMENT"),
             "all_pass": all(v["verdict"] == "GENERALIZATION_PASS"
                             for v in per_relation.values()),
             "blanket_promotion_eligible": False,
         },
         "standing_regression_guards": guards,
-        "fixture_defects": defects,
+        "amendments": amendments,
+        "reconciliation": reconciliation,
     }
 
 

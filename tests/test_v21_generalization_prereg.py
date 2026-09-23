@@ -24,8 +24,8 @@ RELATIONS = (
 FROZEN_MERGE_SHA = "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b"
 FROZEN_MODULE_SHA = ("bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0a"
                      "b7e719c43c1b5754b1b57")
-FROZEN_MANIFEST_SHA = ("5abe1c29c1c34818f4208dbdb684044879493341a16"
-                       "beba035675c311a596b09")
+FROZEN_MANIFEST_SHA = ("a9445d91b7b98242c036d7c5b2594a71846a62abd1c0"
+                       "8aa1f662129459257591")
 SHORT = {
     "pinned_sha_demoted_to_branch": "psd",
     "preserved_claim_vs_dropped_call_result": "pcd",

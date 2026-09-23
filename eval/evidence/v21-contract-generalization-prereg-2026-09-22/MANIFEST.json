@@ -1,4 +1,30 @@
 {
+  "amendments": [
+    {
+      "amendment": "18C",
+      "authorized_by": "human merge review of PR #95 (final 18B interpretation: 0 PASS, 4 FAIL, 2 INVALID)",
+      "hashes_refreshed": [
+        "jfu-C5",
+        "jfu-P5",
+        "psd-C4",
+        "psd-P4"
+      ],
+      "pairs": [
+        {
+          "correction": "all refs replaced with genuine 40-hex SHAs; pin-demotion vs re-pin semantics unchanged",
+          "defect": "authored refs were not consistently 40-hex commit SHAs; frozen 18B fixture_defects mechanically recorded psd-P4 removed-ref length [39], and reviewed 18C pre-evaluation inspection additionally found non-40-hex refs in both pair members",
+          "pair": "psd-P4/psd-C4"
+        },
+        {
+          "correction": "P5 replaced with a frozen-definition positive (JSONL producer + unslurped any(.[]; .failed) consumer); C5 updated to its slurped semantic near-miss",
+          "defect": "positive tested jq 'length > 0' over JSONL, outside the frozen unslurped-array (.[]) relation definition",
+          "pair": "jfu-P5/jfu-C5"
+        }
+      ],
+      "rule": "18A PROTOCOL.md amendment clause: reviewed amendment naming fixture and defect",
+      "verifier_execution": "none in 18C; amendment pair evaluation is reserved for 18D"
+    }
+  ],
   "counts": {
     "controls": 30,
     "pairs_per_relation": 5,
@@ -206,7 +232,7 @@
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
       "role": "control",
-      "sha256": "253892fd03e2da0add4622fdcbfd18017fe4cc95598428bd8586f506522de5f6"
+      "sha256": "83a631a6f78fee9ff14388c2398ea2b690b182470f9cc4a71923c26892e979fd"
     },
     {
       "expected_label": "ADMITS",
@@ -246,7 +272,7 @@
       "probe": false,
       "relation": "jsonl_format_vs_unslurped_jq",
       "role": "positive",
-      "sha256": "a16a9b164ef6d0445811211a3b188000857ef1943605e07d7b2f919fc30cdf93"
+      "sha256": "dd06782d2cc799e51f4b7d10c284a6cf9ec3fc2d9af1fd13180e96c4f0d0f32f"
     },
     {
       "expected_label": "REFUSES",
@@ -358,7 +384,7 @@
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
       "role": "control",
-      "sha256": "f0beccd58843051eb73a79576266352a60a4bb157203a348c05c812ed81e4aaa"
+      "sha256": "d8b5ffee20eca647d7e1222be81e9a5cfeee5bde82974177b07f58662945278b"
     },
     {
       "expected_label": "REFUSES",
@@ -398,7 +424,7 @@
       "probe": false,
       "relation": "pinned_sha_demoted_to_branch",
       "role": "positive",
-      "sha256": "ba1e44ac681a2235d3d88f7b8df17a362afabf9c9e0dcb8c7e362d8b50ef55af"
+      "sha256": "1a68a2fa54930fae0e080deba6e14482db0bfceca08dd39162b0640f3929b333"
     },
     {
       "expected_label": "ADMITS",
@@ -494,7 +520,7 @@
     "module": "eval/v21_contract_relations.py",
     "module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
   },
-  "manifest_lines_sha256": "5a89e9069791062620481a55090ced324f3507a57cd5d8b0f2b1f47dfef41788",
+  "manifest_lines_sha256": "4a705b878ea81a1fa591834865a51940e6053dc20cb9baee8b10b813beb332a2",
   "oracle_version": "117b4164e5446f50",
   "phase": "18A"
 }
