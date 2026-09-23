@@ -1,0 +1,101 @@
+{
+  "record": "psd-contract-route-qualification-closeout",
+  "phase": "20",
+  "date": "2026-09-23",
+  "status": "EVIDENCE_BACKED_ELIGIBLE__CONTRACT_ROUTE_ONLY",
+  "subject": {
+    "relation": "pinned_sha_demoted_to_branch",
+    "verifier_module": "eval/v21_contract_relations.py",
+    "verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57",
+    "verifier_merge_sha": "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b"
+  },
+  "oracle_version": "117b4164e5446f50",
+  "eligibility": {
+    "route": "contract_contradiction",
+    "decision_value": "BLOCK_EVIDENCE_BACKED",
+    "rule": "route == 'contract_contradiction' AND 'pinned_sha_demoted_to_branch' in relation_names(finding, fixture) AND baseline == 'DOWNGRADE'",
+    "measured_effect": "1 promotion over 276 blocking rows; 275 decisions unchanged; 0 collateral changes; 0 new control or extra-blocker promotions"
+  },
+  "evidence_chain": [
+    {
+      "phase": "17",
+      "what": "relation frozen with binding pair discipline; one of six surviving relations; doc_contract_prefix_unanchored_match FAILED (M10) and excluded",
+      "pr": 93,
+      "merge_sha": "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b"
+    },
+    {
+      "phase": "18A",
+      "what": "60-fixture unseen holdout preregistered (6 relations x 5 pairs); manifest integrity frozen",
+      "pr": 94,
+      "merge_sha": "600f3a6e739053bdc5b06fd54c480c71dc572eca",
+      "artifacts": {
+        "holdout_manifest_sha256": "a9445d91b7b98242c036d7c5b2594a71846a62abd1c08aa1f662129459257591",
+        "manifest_lines_sha256": "4a705b878ea81a1fa591834865a51940e6053dc20cb9baee8b10b813beb332a2"
+      }
+    },
+    {
+      "phase": "18B",
+      "what": "first out-of-sample evaluation: 0 PASS, 4 FAIL, 2 INVALID_PENDING_AMENDMENT; psd pair INVALID (39-hex authored ref); historical record frozen",
+      "pr": 95,
+      "merge_sha": "76e076f9a0b91df6ddafa3f3daca8fc940546424",
+      "artifacts": {
+        "generalization_report_18b_sha256": "a56235b59bd104f9a6d868fad67d6ea1fe65f01a4987df02e257031e05587eec"
+      }
+    },
+    {
+      "phase": "18C",
+      "what": "reviewed amendment-only correction of psd-P4/psd-C4 and jfu-P5/jfu-C5; no verifier execution",
+      "pr": 96,
+      "merge_sha": "15cbdd114baa7f03c50d1ab6e0bdfac2f1c65c0e"
+    },
+    {
+      "phase": "18D",
+      "what": "amended-pair evaluation + 56/56 exact reconciliation: psd GENERALIZATION PASS 5/5 positives, 0/5 controls; jfu FAIL",
+      "pr": 97,
+      "merge_sha": "59656caeac9c00f4e5710f9db0821e7794224039",
+      "artifacts": {
+        "generalization_report_18d_sha256": "0a2bb7fa64be61a4c6b1f4b00b63c53a758fe1fed5d21fd169d067011af8dc26"
+      }
+    },
+    {
+      "phase": "19A",
+      "what": "integration preregistration: contract-route-only rule, frozen predictions (exactly 1 promotion), halt conditions; 18 other-route psd matches accepted to stay downgraded",
+      "pr": 98,
+      "merge_sha": "00f8237ff0bfe5daef8535314df046b0038ac65b",
+      "artifacts": {
+        "integration_contract_sha256": "8af1e06c4cd44bbf1a20d93081e0dabf2c6f3d60ecd45d6037a13598ce935784"
+      }
+    },
+    {
+      "phase": "19B",
+      "what": "frozen integration executed: SUCCESS with zero halts; published report bound to evaluator output",
+      "pr": 99,
+      "merge_sha": "04db3e10c53ab053e2d1a4a4304f06c487ff75b4",
+      "artifacts": {
+        "psd_promotion_report_sha256": "9f0c15ec4ec8935e16ed6e2b1503b39c62e69f4ea0926dcb698941f067134906"
+      }
+    }
+  ],
+  "non_claims": [
+    "NOT a GATING activation or authorization",
+    "NOT a deployed reviewer change; this is an offline qualification result on the feature branch",
+    "does NOT promote the broader relation registry (five other relations remain non-gating)",
+    "does NOT resolve the baseline's 27 surviving control blockers",
+    "does NOT extend evidence-backed blocking to non-contract routes (18 psd-matching findings remain downgraded by design)",
+    "NOT a correctness claim about any subject (humility rule); scoped to oracle 117b4164e5446f50"
+  ],
+  "invalidation_conditions": [
+    "verifier module hash drifts from bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57",
+    "oracle_version drifts from 117b4164e5446f50",
+    "any referenced artifact hash drifts from this record",
+    "doc_contract_prefix_unanchored_match ceases to be FAILED",
+    "any standing regression guard (C11/M13/C12/M12 refused; M3 witnessed; C10 near-miss) fails"
+  ],
+  "future_work_excluded_from_this_record": [
+    "pcd/cbv recall failures: only via new preregistered generalization cycles",
+    "sle/dsc semantic false-positive failures: redesign from first principles",
+    "jfu affirmative-if guard-polarity coverage: new preregistered pair/holdout cycle",
+    "psd extension beyond contract_contradiction: own preregistered evaluation"
+  ],
+  "deployment_contract_note": "PENDING ACTIVATION until the umbrella feature/reviewer-eval-baseline merge; pin-to-qualification-record binding on the qualifications branch is not exercised by this record."
+}
