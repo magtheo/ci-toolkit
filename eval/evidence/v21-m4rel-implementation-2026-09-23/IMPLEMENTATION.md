@@ -88,6 +88,19 @@ vocabulary. A future PASS is therefore preregistered validation under
 the frozen scope—not proof of vocabulary-independent or fully blind
 generalization. QG5 human review remains responsible for that limit.
 
+## Phase transition and guard migration
+
+The preimplementation absence guards from 22A/22B are not silently
+inverted by this PR. Their migration is bound to
+`PHASE_TRANSITION.json`, which pins the merged #104 parent
+(`9773deab…`), the frozen 22B contract, and the preregistered
+`eval/v21_m4_relation.py (22C+)` future artifact. The transition
+authorizes implementation/evidence/tests only; qualification execution,
+preservation authority, reduction adoption, GATING, and edits to frozen
+22B evidence remain explicitly forbidden. The migrated guards require
+this transition record, its hash in `EVIDENCE.json`, the exact candidate
+module hash, and continued absence of qualification artifacts.
+
 ## Non-goals (unchanged)
 
 No preservation-authority grant, no adoption preregistration, no
