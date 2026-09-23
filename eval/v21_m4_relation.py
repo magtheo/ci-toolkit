@@ -223,19 +223,33 @@ def _grams(tokens, n=6):
             for i in range(len(tokens) - n + 1)}
 
 
+def _claim_linked(claim, comment):
+    """Require a shared six-token window for normal claims.
+
+    For a genuinely short detected claim/comment, fall back only as far
+    as needed (minimum three tokens) so short exact quotations do not
+    become impossible to cover. Long claims keep the original 6-gram
+    precision.
+    """
+    claim_tokens = _norm_tokens(claim)
+    comment_tokens = _norm_tokens(comment)
+    n = min(6, len(claim_tokens), len(comment_tokens))
+    if n < 3:
+        return False
+    return bool(_grams(claim_tokens, n) & _grams(comment_tokens, n))
+
+
 def covers(finding, fixture):
     """Row-level coverage: does this candidate's detection cover the
     blocking row (finding produced on this fixture)?"""
     fires = detect(fixture)
     if not fires:
         return False
-    cmt_grams = _grams(_norm_tokens(finding.get("comment", "")))
-    if not cmt_grams:
-        return False
+    comment = finding.get("comment", "")
     for f in fires:
         if f["file"] != finding.get("file"):
             continue
-        if _grams(_norm_tokens(f["claim_clause"])) & cmt_grams:
+        if _claim_linked(f["claim_clause"], comment):
             return True
     return False
 
