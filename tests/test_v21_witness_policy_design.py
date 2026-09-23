@@ -67,7 +67,13 @@ def _rows():
 def test_design_is_design_only():
     assert POLICY["status"] == "design-only-no-adoption-no-execution"
     assert POLICY["design_only"] is True
-    assert POLICY["rule_r1_prime"]["relation_blind"] is True
+    # the blocking review finding is encoded in the design itself:
+    # R1-prime is relation-dependent and NOT adoptable
+    assert POLICY["rule_r1_prime"]["relation_blind"] is False
+    assert POLICY["rule_r1_prime"]["adoptable"] is False
+    assert POLICY["rule_r1_prime"]["status"] == \
+        "exploratory-relation-dependent-measurement"
+    assert POLICY["adoption_paths"]["none_taken_by_this_design"] is True
     assert POLICY["oracle_version"] == rc.oracle_version()
     assert not (REPO / "eval" / "v21_false_blocker.py").exists()
     assert not (REPO / "eval" / "v21_witness_policy.py").exists()
@@ -141,31 +147,68 @@ def test_r1_prime_fall_set_equals_21a_common_core():
         not in bare_fall
 
 
-def test_quantified_trap_reproduced():
+def test_relation_dependence_is_measured_not_asserted():
+    """The replacement for the withdrawn redaction-equivalence
+    claim: the T3/T4 redaction delta is mechanically computed and
+    must match the design's admitted dependence exactly."""
     surv = [r for r in _rows() if r["g2"] == "BLOCK_SURVIVES"]
-    psd = {"pinned_sha_demoted_to_branch"}
-    falls = [r for r in surv
-             if r["route"] == "contract_contradiction"
-             and not r["preds"] and not (r["rels"] & psd)]
-    trap = POLICY["quantified_trap_avoided"]
-    assert len(falls) == trap["falls"] == 46
-    tp_lost = sum(1 for r in falls
-                  if r["role"] == "true_positive_detection")
-    assert tp_lost == trap["true_positives_lost"] == 26
-    via_failed = sum(1 for r in falls if r["rels"] - psd)
-    assert via_failed == trap["lost_via_failed_relation_firings"] == 24
+    bare = sorted(
+        (r["role"], r["fixture"], r["source"], r["ri"], r["fi"])
+        for r in surv
+        if r["route"] == "contract_contradiction"
+        and not r["preds"] and not r["rels"])
+    redacted = [r for r in surv
+                if r["route"] == "contract_contradiction"
+                and not r["preds"]
+                and not (r["rels"] & {"pinned_sha_demoted_to_branch"})]
+    dep = POLICY["relation_dependence"]
+    assert dep["admitted"] is True
+    assert dep["invariant_cannot_hold"]
+    assert len(bare) == dep["original_fall_set"] == 22
+    assert len(redacted) == dep["redacted_fall_set"] == 46
+    delta = [r for r in redacted
+             if (r["role"], r["fixture"], r["source"], r["ri"],
+                 r["fi"]) not in set(bare)]
+    assert len(delta) == dep["additional_rows"] == 24
+    assert all(r["role"] == "true_positive_detection" for r in delta)
+    # breakdown: 23 from the five Phase-18D failures + 1 M10-family
+    m10_name = "doc_contract_prefix_unanchored_match"
+    five_fail = [r for r in delta
+                 if r["rels"] - {m10_name,
+                                 "pinned_sha_demoted_to_branch"}]
+    m10_rows = [r for r in delta if r["rels"] == {m10_name}]
+    assert len(five_fail) == dep["breakdown"][
+        "five_phase18d_failures"] == 23
+    assert len(m10_rows) == dep["breakdown"]["m10_family"] == 1
+    per_relation = Counter(
+        sorted(r["rels"] - {"pinned_sha_demoted_to_branch"})[0]
+        for r in five_fail)
+    assert dict(per_relation) == dep["per_relation_five_phase18d_failures"]
+    # independence impossibility on current validated evidence:
+    # none of the 24 rows carries a T1 predicate or a T2 psd firing
+    for r in delta:
+        assert not r["preds"]
+        assert "pinned_sha_demoted_to_branch" not in r["rels"]
 
 
-def test_proposal_states_costs_preconditions_and_invariant():
+def test_proposal_admits_dependence_and_states_paths():
     proposal = (DESIGN / "PROPOSAL.md").read_text()
     for phrase in ("DESIGN ONLY",
                    "advisory only", "never decision-bearing",
-                   "Authority invariant",
-                   "byte-identical whether T3/T4 firings are present "
-                   "or redacted",
-                   "46 rows, 26 of them true positives",
-                   "PC1", "PC2", "V1", "V2", "V3", "V4",
+                   "evidence-presence-dependent by construction",
+                   "cannot", "relation-dependent, not relation-blind",
                    "not adoptable",
-                       "22 non-contract bare survivors",
-                       "witness question remains open"):
+                   "23 from the five Phase-18D failures",
+                   "1 M10-family row",
+                       "evidence predicate is derivable",
+                   "PA1", "PA2", "PA3",
+                   "preservation authority",
+                   "PC1", "PC2", "V1", "V2", "V3", "V4",
+                   "22 non-contract bare survivors",
+                   "witness question remains open"):
         assert phrase in proposal, phrase
+    # the withdrawn claim must be gone
+    for withdrawn in ("Authority invariant", "byte-identical whether "
+                      "T3/T4 firings are present or redacted",
+                      "hence bare scoping"):
+        assert withdrawn not in proposal, withdrawn

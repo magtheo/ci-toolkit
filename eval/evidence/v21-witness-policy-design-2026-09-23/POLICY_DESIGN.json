@@ -5,13 +5,16 @@
   "responds_to": "Phase-21A review disposition: neither variant approved, D2 deferred, D3 not accepted, 21B (execution) not authorized",
   "rule_r1_prime": {
     "statement": "A g2_contract_aware BLOCK_SURVIVES on the contract_contradiction route with no evidence of any kind (no T1 predicate, no relation firing of any tier) downgrades to DOWNGRADE",
-    "relation_blind": true,
-    "bare_scoped": true,
+    "relation_blind": false,
+    "adoptable": false,
+    "status": "exploratory-relation-dependent-measurement",
+    "relation_dependence_admitted": "bare-ness is defined by evidence presence, so the rule's decisions depend on which evidence sources fire; it is NOT invariant under T3/T4 redaction",
     "fall_set": {
       "rows": 22,
       "by_role": {"control_blocker": 15, "positive_extra_blocker": 5, "true_positive_detection": 2},
       "equals_21a_intersection": true,
-      "m10_rec55_out_of_scope": "not bare: carries a T4 firing; kept without endorsing the FAILED relation"
+      "evidence_status": "valid historical measurement; NOT an execution rule",
+      "m10_rec55_out_of_scope": "not bare: carries a T4 firing; kept by that firing, which is decision-bearing dependence on the FAILED M10 relation"
     }
   },
   "witness_tiers": {
@@ -24,13 +27,30 @@
     },
     "T4_m10_family": {"authority": "regression-evidence-only", "relation": "doc_contract_prefix_unanchored_match", "basis": "FAILED 17; C10 standing near-miss"}
   },
-  "authority_invariant": "R1-prime output is byte-identical whether T3/T4 firings are present or redacted; R1-prime never consults relations on non-bare rows",
-  "quantified_trap_avoided": {
-    "counterfactual": "psd-only + predicate witness applied across all contract-route survivors",
-    "falls": 46,
-    "true_positives_lost": 26,
-    "lost_via_failed_relation_firings": 24,
-    "conclusion": "relation-consulting witness policies on non-bare rows grant FAILED authority or destroy recall; hence bare scoping"
+  "relation_dependence": {
+    "admitted": true,
+    "invariant_cannot_hold": "redacting T3/T4 firings turns non-bare rows into bare rows and changes decisions; a bare-scope downgrade rule is evidence-presence-dependent by construction",
+    "redacted_fall_set": 46,
+    "original_fall_set": 22,
+    "additional_rows": 24,
+    "additional_true_positives": 24,
+    "breakdown": {
+      "five_phase18d_failures": 23,
+      "m10_family": 1
+    },
+    "per_relation_five_phase18d_failures": {
+      "doc_self_contradiction": 9,
+      "preserved_claim_vs_dropped_call_result": 7,
+      "consume_before_validate_ordering": 5,
+      "jsonl_format_vs_unslurped_jq": 2
+    },
+    "independence_impossibility_on_current_evidence": "none of the 24 rows carries a T1 predicate or a T2 psd firing (by construction of the redaction set); no validated evidence source can preserve them, so an independent preservation predicate is not derivable without new qualification cycles"
+  },
+  "adoption_paths": {
+    "PA1": "individually qualify relations (or successor predicates) for PRESERVATION authority through preregistered holdout cycles — a new authority type distinct from Phase-19 admission authority",
+    "PA2": "develop genuinely independent preservation evidence for the affected rows; same qualification burden; not derivable from existing validated evidence",
+    "PA3": "explicit human grant of relation-dependent preservation authority for specific tiers with recorded rationale (21A review declined; remains the human's call)",
+    "none_taken_by_this_design": true
   },
   "corrected_population_language": {
     "bare_survivors_corpus_wide": 44,
@@ -55,10 +75,10 @@
     }
   },
   "validation_plan": {
-    "V1_corpus": "exact bare fall-set reproduction; untouched decisions byte-identical; guards held; psd chain artifacts hash-unchanged",
-    "V2_holdout": "fully predicted: 3 g2-survivors, dsc-C4/dsc-P2 kept, dsc-P4 witnessed post-PC2, zero positive falls; divergence halts",
-    "V3_authority_invariants": "mechanical T3/T4 redaction-equivalence; tier table re-verified against 18D verdicts",
-    "V4_human_gates": "acceptance gates at PC1, PC2, and any execution PR; no GATING authorization; no deployed change"
+    "V1_corpus": "any future adoptable variant: exact fall-set reproduction; untouched decisions byte-identical; guards held; psd chain artifacts hash-unchanged",
+    "V2_holdout": "fully predicted behavior; divergence halts",
+    "V3_relation_dependence_accounting": "the redaction delta (22 -> 46; 23 five-failure + 1 M10-family) is mechanically measured and test-pinned; any future preservation-authority claim must carry its own qualified-evidence proof, not a redaction assertion",
+    "V4_human_gates": "acceptance gates at PC1, PC2, any preservation-authority qualification, and any execution PR; no GATING authorization; no deployed change"
   },
   "out_of_scope": [
     "22 non-contract bare survivors (incl. 11 bare controls) — corpus-wide witness question stays open",

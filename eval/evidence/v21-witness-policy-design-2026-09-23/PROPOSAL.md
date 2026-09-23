@@ -29,11 +29,18 @@ recall costs, and validation plan have been reviewed and approved.**
 Applying witness authority across ALL contract-route survivors with a
 psd-only + predicate witness set — the naive "only psd is qualified"
 reading — would fall **46 rows, 26 of them true positives**
-(including 24 rows carried by the five FAILED relations' firings:
-dsc 9, pcd 7, cbv 5, jfu 2, M10-family 1). A policy that consults
-relations on non-bare rows must either grant FAILED relations
-authority (rejected by review) or destroy recall (26 TPs). Therefore
-the revised rule **never consults any relation on non-bare rows.**
+(24 relation-only rows: **23 from the five Phase-18D failures** —
+dsc 9, pcd 7, cbv 5, jfu 2 — **plus 1 M10-family row**).
+
+**Correction admitted (review finding):** the originally proposed
+"bare scoping" does NOT escape this trap, because bare-ness is itself
+defined by evidence presence. A bare-scope downgrade rule is
+**evidence-presence-dependent by construction**: redacting T3/T4
+firings turns non-bare rows into bare rows and expands the fall set
+22 → 46. The redaction-equivalence invariant therefore **cannot
+hold**, and R1′ is **relation-dependent, not relation-blind**. The
+22-row ledger stands as an exploratory measurement only; R1′ is
+**not adoptable** as specified.
 
 ## Witness tiers (design)
 
@@ -50,7 +57,7 @@ T2-witnessed and untouched; the psd qualification record
 remains frozen; T2 authority is exactly what 19A/19B measured — no
 more, no less.
 
-## Revised rule: R1′ (bare-scoped, relation-blind)
+## Revised rule: R1′ (bare-scoped, explicitly relation-dependent)
 
 > A `g2_contract_aware` `BLOCK_SURVIVES` on the `contract_contradiction`
 > route with **no evidence of any kind** — no T1 predicate, no
@@ -58,15 +65,36 @@ more, no less.
 
 R1′ is the **intersection of both 21A variants**: the same 22-row
 fall set (15 controls: C12/C13/C16/C2/C3/C4/C8; 5 extras: M12/M13;
-2 TPs: M4 ×2), with the loose/strict M10 divergence outside its scope
-entirely (M10 rec55 carries a T4 firing — not bare — so R1′ keeps
-it, without consulting or endorsing the FAILED relation).
+2 TPs: M4 ×2), with the loose/strict M10 divergence outside its fall
+set (M10 rec55 carries a T4 firing — not bare — and is **kept by
+that firing**, which is decision-bearing dependence on the FAILED
+M10 relation; the design no longer calls this an endorsement, it
+calls it what it is).
 
-**Authority invariant (the design's core):** R1′'s output is
-byte-identical whether T3/T4 firings are present or redacted — R1′
-gains nothing from failed relations and grants them nothing. Rows
-with relation firings keep their blocks via the existing gates
-(status quo), not via any new authority.
+**The dependence, quantified (mechanically measured, test-pinned):**
+redacting all T3/T4 firings expands the fall set **22 → 46**: the
+24 additional rows are 23 carried by the five Phase-18D failures
+(dsc 9, pcd 7, cbv 5, jfu 2) and 1 by the M10 family. None of the
+24 carries a T1 predicate or a T2 psd firing — so **no independent
+evidence predicate is derivable from existing validated evidence**;
+preserving them requires newly qualified evidence or an explicit
+human authority grant.
+
+## Adoption paths (none taken by this design)
+
+- **PA1** — qualify relations (or successor predicates) for
+  **preservation authority** through preregistered holdout cycles: a
+  new authority type, distinct from the Phase-19 admission authority.
+- **PA2** — develop genuinely independent preservation evidence for
+  the affected rows; same qualification burden; not derivable from
+  current validated evidence (the 24 rows are predicate-less and
+  psd-less by construction).
+- **PA3** — an explicit human grant of relation-dependent
+  preservation for specific tiers with recorded rationale; the 21A
+  review declined this, and it remains the human's call.
+- Until one of PA1/PA2/PA3 is chosen AND the PC1/PC2 cost paths
+  below are resolved, **R1′ is non-adoptable** and the 22-row ledger
+  remains exploratory.
 
 Frozen scope limits: the 22 non-contract bare survivors (11 bare
 controls among them) are explicitly **out of scope**; the corpus-wide
@@ -97,9 +125,12 @@ witness question remains open and requires its own preregistration.
 - **V2 — holdout run**: fully predicted behavior (3 g2-survivors;
   dsc-C4/dsc-P2 kept; dsc-P4 witnessed post-PC2 → zero positive
   falls); any divergence halts.
-- **V3 — authority invariants**: mechanical T3/T4 redaction-
-  equivalence (V3 is what distinguishes this design from both 21A
-  variants); tier table re-verified against the 18D report verdicts.
+- **V3 — relation-dependence accounting**: the redaction delta
+  (22 → 46; 23 five-failure + 1 M10-family) is mechanically measured
+  and test-pinned. The prose-only redaction-equivalence assertion is
+  withdrawn: the invariant cannot hold for bare-scope rules. Any
+  future preservation-authority claim must carry its own
+  qualified-evidence proof, never a redaction assertion.
 - **V4 — human acceptance gates** at PC1, PC2, and any execution PR;
   no GATING authorization, no deployed reviewer change, oracle-scoped
   humility throughout.
