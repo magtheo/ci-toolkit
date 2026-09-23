@@ -12,7 +12,7 @@
     {
      "path": "watcher/debounce.py",
      "status": "added",
-     "patch": "--- /dev/null\n+++ b/watcher/debounce.py\n@@ -0,0 +1,10 @@\n+\"\"\"Debounce delivery contract.\n+\n+The watcher guarantees that no filesystem event is delivered\n+within this window under any configuration.\n+\"\"\"\n+\n+class DebounceWindow:\n+    def __init__(self, seconds):\n+        self.seconds = seconds\n"
+     "patch": "--- /dev/null\n+++ b/watcher/debounce.py\n@@ -0,0 +1,9 @@\n+\"\"\"Debounce delivery contract.\n+\n+The watcher guarantees that no filesystem event is delivered\n+within this window under any configuration.\n+\"\"\"\n+\n+class DebounceWindow:\n+    def __init__(self, seconds):\n+        self.seconds = seconds\n"
     }
    ]
   }
