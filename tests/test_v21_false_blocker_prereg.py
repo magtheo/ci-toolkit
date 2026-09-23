@@ -25,7 +25,7 @@ PREREG = REPO / "eval" / "evidence" / \
     "v21-false-blocker-prereg-2026-09-23"
 CONTRACT = json.loads(
     (PREREG / "REDUCTION_CONTRACT.json").read_text())
-QUALIFIED = {"pinned_sha_demoted_to_branch",
+PHASE17_SIX = {"pinned_sha_demoted_to_branch",
              "preserved_claim_vs_dropped_call_result",
              "consume_before_validate_ordering",
              "secret_logged_by_echo",
@@ -68,7 +68,9 @@ def _survivors():
 
 def test_contract_pins_and_scope():
     assert CONTRACT["phase"] == "21A"
-    assert CONTRACT["status"] == "preregistration-only"
+    assert CONTRACT["status"] == "preregistration-frozen__execution-not-approved"
+    assert CONTRACT["execution_contract_21b"]["authorization"].startswith(
+        "NOT_APPROVED")
     assert CONTRACT["preregistered_before_any_21b_run"] is True
     assert CONTRACT["problem"]["population"] == 276
     assert CONTRACT["problem"]["g2_survivors"] == 145
@@ -79,9 +81,17 @@ def test_contract_pins_and_scope():
     assert len(CONTRACT["decision_points"]) == 3
     assert CONTRACT["oracle_version"] == rc.oracle_version()
     module_names = set(frozen.RELATIONS)
-    assert module_names - QUALIFIED == \
+    assert module_names - PHASE17_SIX == \
         {"doc_contract_prefix_unanchored_match"}
-    assert module_names | QUALIFIED == module_names
+    assert module_names | PHASE17_SIX == module_names
+    assert CONTRACT["problem"]["witness_qualification_note"].startswith(
+        "Phase-17 six survived in-sample")
+    assert CONTRACT["problem"]["bare_population"] == {
+        "corpus_wide": {"survivors": 44, "controls": 26,
+                        "TP": 13, "extras": 5},
+        "non_contract": {"survivors": 22, "controls": 11,
+                         "TP": 11, "extras": 0},
+    }
 
 
 def test_21b_has_not_started():
@@ -95,7 +105,7 @@ def test_survivor_surface_matches_frozen_table():
         rels = set(r["rels"])
         if "pinned_sha_demoted_to_branch" in rels:
             key = "psd_relation_verified"
-        elif rels & QUALIFIED:
+        elif rels & PHASE17_SIX:
             key = "relation_verified_six"
         elif "doc_contract_prefix_unanchored_match" in rels:
             key = "failed_relation_verified_m10_family"
@@ -146,7 +156,7 @@ def test_strict_delta_is_exactly_the_m10_row():
     strict = [r for r in _survivors()
               if r["route"] == "contract_contradiction"
               and not r["preds"]
-              and not (set(r["rels"]) & QUALIFIED)
+              and not (set(r["rels"]) & PHASE17_SIX)
               and tuple((r["role"], r["fixture"], r["source"],
                          r["ri"])) not in loose_ids]
     assert len(strict) == 1
@@ -195,9 +205,10 @@ def test_protocol_freezes_decision_points_and_halt_language():
     protocol = (PREREG / "PROTOCOL.md").read_text()
     for phrase in ("preregistration only",
                    "D1 — variant", "D2 — M4 cost",
-                   "D3 — holdout cost",
+                   "D3 — dsc-P4 holdout cost",
                    "reproduce its frozen", "halt",
-                       "silently reconciled",
+                   "silently reconciled",
                    "explicitly NOT resolved by this experiment",
-                   "psd promotion row"):
+                   "psd promotion row", "No variant selected",
+                   "five of those six FAILED", "22 non-contract bare"):
         assert phrase in protocol, phrase
