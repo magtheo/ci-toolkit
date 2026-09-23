@@ -12,7 +12,7 @@
     {
      "path": "queue/markers.py",
      "status": "added",
-     "patch": "--- /dev/null\n+++ b/queue/markers.py\n@@ -0,0 +1,10 @@\n+\"\"\"Redelivery marker metadata.\n+\n+Redelivery decisions, and the inputs they weigh, belong to the\n+queue consumer and are outside this module.\n+\"\"\"\n+\n+class PoisonMarker:\n+    def __init__(self, reason):\n+        self.reason = reason\n"
+     "patch": "--- /dev/null\n+++ b/queue/markers.py\n@@ -0,0 +1,9 @@\n+\"\"\"Redelivery marker metadata.\n+\n+Redelivery decisions, and the inputs they weigh, belong to the\n+queue consumer and are outside this module.\n+\"\"\"\n+\n+class PoisonMarker:\n+    def __init__(self, reason):\n+        self.reason = reason\n"
     }
    ]
   }
