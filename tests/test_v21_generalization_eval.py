@@ -224,6 +224,18 @@ def test_18d_reconciliation_gate_halts_on_divergence():
         raise AssertionError("unchanged-fixture divergence did not halt")
 
 
+def test_amendment_preregistration_record_remains_pinned():
+    amendment = (HOLDOUT / "AMENDMENT.md").read_text()
+    assert "Frozen Phase-18D rerun procedure" in amendment
+    assert "56 unchanged fixtures" in amendment
+    assert "control leakage must be 0/5" in amendment
+    assert "positive\n   recall ≥ 4/5" in amendment
+    assert "No relation may be changed in response to 18D behavior" \
+        in amendment
+    assert "bb0ebdeeb7fc80395626bf10d3" in amendment
+    assert "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b" in amendment
+
+
 def test_results_18d_document_freezes_scope_and_humility():
     results = (EVALDIR / "RESULTS-18D.md").read_text()
     assert "GENERALIZATION PASS" in results
@@ -231,7 +243,7 @@ def test_results_18d_document_freezes_scope_and_humility():
     assert "56 unchanged fixtures" in results
     assert "Zero mismatches" in results
     assert "17/30 positives admitted, 3/30 controls admitted" in results
-    assert "guard polarity" in results
+    assert "affirmative-`if` guard form" in results
     assert "no relation may be changed in response to" in results
     assert "no blanket promotion" in results
     assert "byte-for-byte" in results
