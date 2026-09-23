@@ -59,6 +59,15 @@ def test_module_identity_and_pins():
     assert EVIDENCE["candidate"]["module_sha256"] == hashlib.sha256(
         (REPO / "eval" / "v21_m4_relation.py")
         .read_bytes()).hexdigest()
+    transition_path = EVID / "PHASE_TRANSITION.json"
+    transition = json.loads(transition_path.read_text())
+    assert EVIDENCE["phase_transition"]["sha256"] == hashlib.sha256(
+        transition_path.read_bytes()).hexdigest()
+    assert transition["parent_merge_sha"] == \
+        "9773deab9de2bebad7514bc65a39625bea8c41f9"
+    assert "qualification-not-authorized" in transition["status"]
+    assert transition["authority_boundary"].startswith(
+        "This transition authorizes implementation only")
     assert EVIDENCE["frozen_contract"]["sha256"] == hashlib.sha256(
         (REPO / "eval" / "evidence" /
          "v21-m4rel-prereg-2026-09-23" /
