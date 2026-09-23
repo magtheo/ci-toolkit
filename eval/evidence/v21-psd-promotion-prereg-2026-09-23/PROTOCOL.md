@@ -71,6 +71,11 @@ backed blocking to other routes is future preregistered work, not a
 deviation. The preregistered outcome values boundary containment over
 recall.
 
+The new-control discipline applies to **new promotions only**.
+The baseline still contains 27 baseline control blockers that survive
+`g2_contract_aware`. A one-row psd success neither repairs those
+historical false blockers nor authorizes GATING activation.
+
 ## 19B invariants (all mechanical, all halt on violation)
 
 1. Population exactly 276; sources exactly `boundary.SOURCES`;
