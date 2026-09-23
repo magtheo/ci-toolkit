@@ -5,7 +5,9 @@
   "authorities": {
     "admission": {
       "definition": "evidence sustaining a NEW block",
-      "current_holders": ["pinned_sha_demoted_to_branch"],
+      "current_holders": [
+        "pinned_sha_demoted_to_branch"
+      ],
       "measured_path": "holdout PASS 18D (5/5 positives, 0/5 controls); integration 19A/19B (1 promotion, 275 unchanged, 0 control promotions)"
     },
     "preservation": {
@@ -28,31 +30,96 @@
     },
     "P_M4": {
       "rows": 2,
-      "ids": [["true_positive_detection", "M4", "stage-a-max", 66, 0], ["true_positive_detection", "M4", "b1-low", 44, 0]],
+      "ids": [
+        [
+          "true_positive_detection",
+          "M4",
+          "stage-a-max",
+          66,
+          0
+        ],
+        [
+          "true_positive_detection",
+          "M4",
+          "b1-low",
+          44,
+          0
+        ]
+      ],
       "note": "M4 b1-low r29 is a survivor on the unwitnessed route: NOT in this population, untouched by bare rules"
     },
-    "P_DSC_P4": {"id": "dsc-P4", "note": "holdout positive, bare contract route"},
+    "P_DSC_P4": {
+      "id": "dsc-P4",
+      "note": "holdout positive, bare contract route"
+    },
     "anti_targets": {
+      "control_blockers_all_corpus": 77,
       "bare_controls_corpus_wide": 26,
       "bare_controls_non_contract": 11,
-      "rule": "any candidate firing on any control row fails outright (QG1)"
+      "positive_extra_blockers_all_corpus": 34,
+      "positive_extra_blockers_g2_survivors": 7,
+      "rule": "QG1: any candidate firing on any of 77 controls fails; all 34 extras are non-targets and firings recorded; any proposed adoption preserving a positive-extra-blocker fails preservation-safety review; never use hidden oracle role online."
     }
   },
   "qualification_gates": {
-    "QG1_corpus_pair_discipline": "fires on 100% of declared target positives; ZERO control rows corpus-wide; any control firing = FAILED, auto-excluded (Phase-17 binding rule)",
-    "QG2_holdout": "zero holdout-control firings (dsc-prime/sle-prime must not fire on dsc-C1/C2 or sle-C3); positive firings recorded and scoped; holdout-known design = remediation validation, not out-of-sample discovery, recorded as such",
-    "QG3_independence": "new evidence: not a re-label/export/wrapper of any T3/T4 relation or frozen-module function; new module; frozen module bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57 byte-frozen",
+    "QG1_corpus_pair_discipline": "candidate-specific prereg freezes exact targets and pairs before build; 100% declared targets and ZERO all-77 control firings (fail closed). Record all 34 extra-blocker firings; no auto-FAIL for firing on extras but zero extra-blocker preservation is an adoption-safety gate. Do not use hidden oracle labels as runtime policy.",
+    "QG2_holdout": "zero of 30 existing holdout controls; known dsc-P4/C1/C2 tests are REMEDIATION validation not unseen. Generalized preservation needs a fresh independently authored semantic near-miss holdout with labels, hashes, thresholds frozen before first run and no post-hoc tuning; otherwise non-adoptable remediation-only.",
+    "QG3_independence": "separate new module/entry point, no delegation/re-export/wrapper of T3/T4 or frozen module; hash bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57 frozen. Structural checks alone do not prove independent semantics; examine source provenance and adversarial near-miss behavior.",
     "QG4_standing_guards": "frozen five; M10 still FAILED; C10 standing near-miss; oracle 117b4164e5446f50",
-    "QG5_human_acceptance": "qualification record published, human-reviewed, merged before any adoption PR; agents never grant authority"
+    "QG5_human_acceptance": "qualification record merged and human-reviewed before separate adoption PR; explicit human preservation grant scoped to evidence, route, claim and exemption; no self-grant by a passing candidate or an agent."
   },
   "candidate_slate": [
-    {"order": 1, "name": "m4rel", "family": "unsubstantiated absolute docstring claim", "targets": "P_M4", "family_context": "7 M4 true positives corpus; 3 g2-survivors; adjacency: 4 M4 positive-extra scope-violation rows are non-targets, extra firings recorded + scope-reviewed, not auto-FAIL"},
-    {"order": 2, "name": "dsc-prime", "family": "doc-self-contradiction remediation", "targets": "9 P-RELCARRIED dsc rows + holdout dsc-P4", "must_not_fire": ["dsc-C1", "dsc-C2"], "carries": "PC2", "caveat": "in-sample per QG2"},
-    {"order": 3, "name": "sle-prime", "family": "secret-logged remediation", "must_not_fire": ["sle-C3"], "scope_recorded_at_own_prereg": true},
-    {"order": 4, "name": "pcd-prime", "targets": "7 P-RELCARRIED pcd rows"},
-    {"order": 5, "name": "cbv-prime", "targets": "5 P-RELCARRIED cbv rows"},
-    {"order": 6, "name": "jfu-prime", "targets": "2 P-RELCARRIED jfu rows"},
-    {"order": 7, "name": "m10-prime", "targets": "1 P-RELCARRIED m10-family row", "must_clear": "C10 standing near-miss", "priority": "lowest"}
+    {
+      "order": 1,
+      "name": "m4rel",
+      "family": "unsubstantiated absolute docstring claim",
+      "targets": "P_M4",
+      "family_context": "7 M4 true positives corpus; 3 g2-survivors; adjacency: 4 M4 positive-extra scope-violation rows are non-targets, extra firings recorded + scope-reviewed, not auto-FAIL; adoption must prove zero extra-blocker preservation"
+    },
+    {
+      "order": 2,
+      "name": "dsc-prime",
+      "family": "doc-self-contradiction remediation",
+      "targets": "9 P-RELCARRIED dsc rows + holdout dsc-P4",
+      "must_not_fire": [
+        "dsc-C1",
+        "dsc-C2"
+      ],
+      "carries": "PC2",
+      "caveat": "in-sample per QG2"
+    },
+    {
+      "order": 3,
+      "name": "sle-prime",
+      "family": "secret-logged remediation",
+      "must_not_fire": [
+        "sle-C3"
+      ],
+      "scope_recorded_at_own_prereg": true,
+      "targets": "UNSPECIFIED; zero sle-attributed P_RELCARRIED rows; must freeze explicit disjoint targets and near misses in separate candidate preregistration or withdraw"
+    },
+    {
+      "order": 4,
+      "name": "pcd-prime",
+      "targets": "7 P-RELCARRIED pcd rows"
+    },
+    {
+      "order": 5,
+      "name": "cbv-prime",
+      "targets": "5 P-RELCARRIED cbv rows"
+    },
+    {
+      "order": 6,
+      "name": "jfu-prime",
+      "targets": "2 P-RELCARRIED jfu rows"
+    },
+    {
+      "order": 7,
+      "name": "m10-prime",
+      "targets": "1 P-RELCARRIED m10-family row",
+      "must_clear": "C10 standing near-miss",
+      "priority": "lowest"
+    }
   ],
   "failure_handling": "gate failure is recorded as evidence and the candidate is auto-excluded; never tuned post hoc against the same gates",
   "cost_ledger": "two M4 losses and the dsc-P4 holdout loss remain unresolved until qualifying candidates exist AND a separately reviewed adoption preregistration is approved; psd qualification preserved untouched",
@@ -76,5 +143,6 @@
     "21a_contract_sha256": "f5ac9aa602dc7823ccf5947c7649ef3e6d03f69428f303b10fe8f01acbc3bc33",
     "21b_policy_design_json": "eval/evidence/v21-witness-policy-design-2026-09-23/POLICY_DESIGN.json"
   },
-  "preregistered_before_any_candidate_exists": true
+  "preregistered_before_any_candidate_exists": true,
+  "candidate_specific_preregistration_required": "before candidate implementation/evaluation: freeze exact target ids and disjoint ownership, paired near misses, existing controls, fresh independent holdout/thresholds, extra-blocker effect and no oracle-role runtime branching"
 }
