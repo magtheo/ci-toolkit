@@ -1,7 +1,7 @@
 {
   "expected_label": "ADMITS",
   "finding": {
-    "comment": "The test job's reusable workflow is demoted to a mutable branch while lint stays pinned; a push to shared-ci main runs arbitrary test-side code with CODECOV_TOKEN access \u2014 the supply-chain pin is inconsistently undone.",
+    "comment": "The test job's reusable workflow is demoted to a mutable branch while lint stays pinned; a push to shared-ci main runs arbitrary test-side code with CODECOV_TOKEN access — the supply-chain pin is inconsistently undone.",
     "file": ".github/workflows/ci.yml"
   },
   "fixture": {
@@ -17,7 +17,7 @@
   "id": "psd-P4",
   "language": "yaml",
   "probe": false,
-  "rationale": "same diff, comment and vocabulary; only the added ref differs: demotion to @main vs re-pin to a new immutable SHA. 18C amendment: all refs are now genuine 40-hex commit SHAs (18B pair was INVALID: 39/41-hex runs).",
+  "rationale": "same diff, comment and vocabulary; only the added ref differs: demotion to @main vs re-pin to a new immutable SHA. 18C amendment: the frozen 18B artifact mechanically proved psd-P4's removed ref was 39 hex chars; reviewed pre-evaluation inspection then confirmed the pair contained additional non-40-hex refs. All amended refs are genuine 40-hex SHAs.",
   "relation": "pinned_sha_demoted_to_branch",
   "role": "positive"
 }
