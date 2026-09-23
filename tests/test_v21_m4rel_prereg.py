@@ -236,8 +236,8 @@ def test_holdout_labels_pairing_and_disjointness():
         assert fixtures["m4h-C%d" % i]["rationale"]
         p, c = fixtures["m4h-P%d" % i], fixtures["m4h-C%d" % i]
         assert p["role"] == "positive" and c["role"] == "control"
-        assert MANIFEST["thresholds"]["controls_allowed_fired"] == 0
-        assert MANIFEST["thresholds"]["positives_fired_min"] == 6
+    assert MANIFEST["thresholds"]["controls_allowed_fired"] == 0
+    assert MANIFEST["thresholds"]["positives_fired_min"] == 6
     # disjointness: the canonical M4 claim text appears nowhere
     for j in fixtures.values():
         blob = json.dumps(j)
@@ -246,10 +246,28 @@ def test_holdout_labels_pairing_and_disjointness():
     paths = {fixtures["m4h-P%d" % i]["finding"]["file"]
              for i in range(1, 7)}
     assert len(paths) == 6
-    # C3 carries the in-diff substantiation (two files)
-    c3 = fixtures["m4h-C3"]["fixture"]["input"]["files"]
+    # C3 is the hardest near miss: an absolute/exclusive claim with
+    # an in-diff enumerated referent and all registered consumers shown.
+    c3_fixture = fixtures["m4h-C3"]
+    assert "substantiated by this change" in c3_fixture["finding"]["comment"]
+    assert "cannot be verified" not in c3_fixture["finding"]["comment"]
+    c3 = c3_fixture["fixture"]["input"]["files"]
     assert len(c3) == 2 and any(
         f["path"] == "cli/main.py" for f in c3)
+    assert "CLI_ENTRYPOINTS = (main, admin)" in next(
+        f["patch"] for f in c3 if f["path"] == "cli/main.py")
+    # All frozen evidence patches must carry truthful hunk lengths.
+    for fid, fixture in fixtures.items():
+        for f in fixture["fixture"]["input"]["files"]:
+            patch_lines = f["patch"].splitlines()
+            header = next(line for line in patch_lines if line.startswith("@@"))
+            match = re.search(r"\+\d+,(\d+)", header)
+            assert match, (fid, f["path"], header)
+            declared = int(match.group(1))
+            actual = sum(
+                1 for line in patch_lines
+                if line.startswith("+") and not line.startswith("+++"))
+            assert declared == actual, (fid, f["path"], declared, actual)
 
 
 def test_no_implementation_exists():
