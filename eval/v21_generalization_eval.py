@@ -116,8 +116,13 @@ def _regression_guards():
 def _fixture_patch(fixture_id):
     fixture = json.loads(
         (HOLDOUT / "fixtures" / (fixture_id + ".json")).read_text())
-    return fixture, [f for f in fixture["fixture"]["input"]["files"]
-                     if f["path"] == fixture["finding"]["file"]][0]["patch"]
+    matches = [f for f in fixture["fixture"]["input"]["files"]
+               if f["path"] == fixture["finding"]["file"]]
+    if len(matches) != 1:
+        raise RuntimeError(
+            "%s expected exactly one cited-file patch, found %d"
+            % (fixture_id, len(matches)))
+    return fixture, matches[0]["patch"]
 
 
 def _amendments():
