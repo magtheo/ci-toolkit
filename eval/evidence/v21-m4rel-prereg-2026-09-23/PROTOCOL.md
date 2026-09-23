@@ -97,8 +97,9 @@ implementation exists**, in the 18A probe-record schema:
   disclaimer.
 - **m4h-P2/C2** — collector sampling interval; control = hedged
   default-path statement.
-- **m4h-P3/C3** — workspace-root resolver; control = **same absolute
-  wording substantiated in-diff** by the change's own consumer
+- **m4h-P3/C3** — workspace-root resolver; control = **absolute/exclusive
+  wording with an in-diff enumerated referent and substantiation**:
+  `CLI_ENTRYPOINTS` and every registered consumer are shown in the change
   (hardest near miss).
 - **m4h-P4/C4** — queue redelivery marker; control = self-scoped.
 - **m4h-P5/C5** — watcher debounce; control = advisory framing with
@@ -109,8 +110,8 @@ Labels: positives `ADMITS` (6/6 must fire), controls `REFUSES` (0/6
 may fire). Scenario domains, paths, class names, and claim wording
 are new; the canonical M4 corpus claim appears in no holdout fixture
 (mechanically asserted). Manifest pins: full-file
-`7b82ed00806a431a795d0e7eace92940cb82c3e88b5d988b07efbd8b9f34df3f`,
-lines `2e1eb0d9892878d1afcdb9c93e00f301073d45b3eda3f7bc57051eea44544d45`.
+`f9b06194f058d4de81534abeb286470f5c2aabe117267f7e5329b16e10dde127`,
+lines `0e17f4e65e502376c01470ec79f3cff733fcadffe7372f39af13ea45c71e2691`.
 
 **Independence and its limit**: the holdout was authored before any
 implementation exists (nothing to overfit), and this PR's human
