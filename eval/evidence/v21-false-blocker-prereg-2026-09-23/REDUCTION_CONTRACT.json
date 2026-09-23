@@ -1,30 +1,76 @@
 {
   "phase": "21A",
   "kind": "false-blocker-reduction-preregistration",
-  "status": "preregistration-only",
+  "status": "preregistration-frozen__execution-not-approved",
   "problem": {
     "false_blockers_surviving_g2": 34,
-    "by_role": {"control_blocker": 27, "positive_extra_blocker": 7},
+    "by_role": {
+      "control_blocker": 27,
+      "positive_extra_blocker": 7
+    },
     "all_survive_g1": true,
     "survivor_surface": {
-      "relation_verified_six": {"TP": 34, "control": 0, "extra": 0},
-      "witnessed_predicate_only": {"TP": 50, "control": 0, "extra": 2},
-      "psd_relation_verified": {"TP": 5, "control": 0, "extra": 0},
-      "bare_contract_route": {"TP": 2, "control": 15, "extra": 5},
-      "bare_external_fact_route": {"TP": 10, "control": 4, "extra": 0},
-      "bare_unwitnessed_route": {"TP": 1, "control": 7, "extra": 0},
-      "failed_relation_verified_m10_family": {"TP": 9, "control": 1, "extra": 0}
+      "relation_verified_six": {
+        "TP": 34,
+        "control": 0,
+        "extra": 0
+      },
+      "witnessed_predicate_only": {
+        "TP": 50,
+        "control": 0,
+        "extra": 2
+      },
+      "psd_relation_verified": {
+        "TP": 5,
+        "control": 0,
+        "extra": 0
+      },
+      "bare_contract_route": {
+        "TP": 2,
+        "control": 15,
+        "extra": 5
+      },
+      "bare_external_fact_route": {
+        "TP": 10,
+        "control": 4,
+        "extra": 0
+      },
+      "bare_unwitnessed_route": {
+        "TP": 1,
+        "control": 7,
+        "extra": 0
+      },
+      "failed_relation_verified_m10_family": {
+        "TP": 9,
+        "control": 1,
+        "extra": 0
+      }
     },
     "population": 276,
-    "g2_survivors": 145
+    "g2_survivors": 145,
+    "witness_qualification_note": "Phase-17 six survived in-sample pair discipline, but only psd passed Phase-18D unseen generalization; the other five FAILED. The 34-TP relation bucket excludes psd (counted separately); it is not a qualified witness set.",
+    "bare_population": {
+      "corpus_wide": {
+        "survivors": 44,
+        "controls": 26,
+        "TP": 13,
+        "extras": 5
+      },
+      "non_contract": {
+        "survivors": 22,
+        "controls": 11,
+        "TP": 11,
+        "extras": 0
+      }
+    }
   },
   "rule_family": {
     "name": "R1 witness-required contract-route blocking",
     "applies_to": "g2_contract_aware == BLOCK_SURVIVES AND route == contract_contradiction",
     "effect": "downgrade to DOWNGRADE unless witnessed",
     "variants": {
-      "loose": "witness = any closed-world predicate OR any Phase-17 relation firing (incl. FAILED M10-family)",
-      "strict": "witness = any closed-world predicate OR a qualified six-relation firing"
+      "loose": "witness = any closed-world predicate OR any Phase-17 relation firing (incl. FAILED M10-family); exploratory ONLY (not approved for blocker authority)",
+      "strict": "witness = any closed-world predicate OR any Phase-17 pair-surviving relation firing (six including psd; excludes FAILED M10). Five of these six FAILED Phase-18D generalization; NOT a qualified witness set."
     },
     "never_touches": [
       "non-survivor rows",
@@ -36,54 +82,227 @@
   "frozen_ledgers": {
     "loose": {
       "falls": 22,
-      "by_role": {"control_blocker": 15, "positive_extra_blocker": 5, "true_positive_detection": 2},
+      "by_role": {
+        "control_blocker": 15,
+        "positive_extra_blocker": 5,
+        "true_positive_detection": 2
+      },
       "falls_by_id": [
-        ["control_blocker", "C12", "b1-high", 31, 0],
-        ["control_blocker", "C12", "b1-low", 16, 0],
-        ["control_blocker", "C12", "stage-a-max", 75, 0],
-        ["control_blocker", "C13", "b1-high", 32, 0],
-        ["control_blocker", "C13", "stage-a-high", 4, 0],
-        ["control_blocker", "C13", "stage-a-max", 40, 0],
-        ["control_blocker", "C16", "stage-a-max", 7, 0],
-        ["control_blocker", "C16", "stage-a-max", 43, 0],
-        ["control_blocker", "C2", "stage-a-max", 46, 0],
-        ["control_blocker", "C3", "b1-high", 6, 0],
-        ["control_blocker", "C3", "b1-low", 6, 0],
-        ["control_blocker", "C3", "stage-a-max", 47, 0],
-        ["control_blocker", "C3", "stage-a-max", 83, 1],
-        ["control_blocker", "C4", "stage-a-high", 48, 0],
-        ["control_blocker", "C8", "stage-a-high", 16, 0],
-        ["positive_extra_blocker", "M12", "stage-a-max", 21, 1],
-        ["positive_extra_blocker", "M13", "stage-a-high", 22, 0],
-        ["positive_extra_blocker", "M13", "stage-a-high", 58, 0],
-        ["positive_extra_blocker", "M13", "stage-a-max", 22, 0],
-        ["positive_extra_blocker", "M13", "stage-a-max", 58, 0],
-        ["true_positive_detection", "M4", "b1-low", 44, 0],
-        ["true_positive_detection", "M4", "stage-a-max", 66, 0]
+        [
+          "control_blocker",
+          "C12",
+          "b1-high",
+          31,
+          0
+        ],
+        [
+          "control_blocker",
+          "C12",
+          "b1-low",
+          16,
+          0
+        ],
+        [
+          "control_blocker",
+          "C12",
+          "stage-a-max",
+          75,
+          0
+        ],
+        [
+          "control_blocker",
+          "C13",
+          "b1-high",
+          32,
+          0
+        ],
+        [
+          "control_blocker",
+          "C13",
+          "stage-a-high",
+          4,
+          0
+        ],
+        [
+          "control_blocker",
+          "C13",
+          "stage-a-max",
+          40,
+          0
+        ],
+        [
+          "control_blocker",
+          "C16",
+          "stage-a-max",
+          7,
+          0
+        ],
+        [
+          "control_blocker",
+          "C16",
+          "stage-a-max",
+          43,
+          0
+        ],
+        [
+          "control_blocker",
+          "C2",
+          "stage-a-max",
+          46,
+          0
+        ],
+        [
+          "control_blocker",
+          "C3",
+          "b1-high",
+          6,
+          0
+        ],
+        [
+          "control_blocker",
+          "C3",
+          "b1-low",
+          6,
+          0
+        ],
+        [
+          "control_blocker",
+          "C3",
+          "stage-a-max",
+          47,
+          0
+        ],
+        [
+          "control_blocker",
+          "C3",
+          "stage-a-max",
+          83,
+          1
+        ],
+        [
+          "control_blocker",
+          "C4",
+          "stage-a-high",
+          48,
+          0
+        ],
+        [
+          "control_blocker",
+          "C8",
+          "stage-a-high",
+          16,
+          0
+        ],
+        [
+          "positive_extra_blocker",
+          "M12",
+          "stage-a-max",
+          21,
+          1
+        ],
+        [
+          "positive_extra_blocker",
+          "M13",
+          "stage-a-high",
+          22,
+          0
+        ],
+        [
+          "positive_extra_blocker",
+          "M13",
+          "stage-a-high",
+          58,
+          0
+        ],
+        [
+          "positive_extra_blocker",
+          "M13",
+          "stage-a-max",
+          22,
+          0
+        ],
+        [
+          "positive_extra_blocker",
+          "M13",
+          "stage-a-max",
+          58,
+          0
+        ],
+        [
+          "true_positive_detection",
+          "M4",
+          "b1-low",
+          44,
+          0
+        ],
+        [
+          "true_positive_detection",
+          "M4",
+          "stage-a-max",
+          66,
+          0
+        ]
       ],
-      "survivors_after": {"total": 123, "TP": 109, "control": 12, "extra": 2}
+      "survivors_after": {
+        "total": 123,
+        "TP": 109,
+        "control": 12,
+        "extra": 2
+      }
     },
     "strict": {
       "falls": 23,
-      "extra_fall_vs_loose": [["true_positive_detection", "M10", "stage-a-max", 55, 0]],
-      "survivors_after": {"total": 122, "TP": 108, "control": 12, "extra": 2}
+      "extra_fall_vs_loose": [
+        [
+          "true_positive_detection",
+          "M10",
+          "stage-a-max",
+          55,
+          0
+        ]
+      ],
+      "survivors_after": {
+        "total": 122,
+        "TP": 108,
+        "control": 12,
+        "extra": 2
+      }
     },
     "holdout": {
       "g2_survivors": 3,
       "survivors_by_id": [
-        ["dsc-C4", "REFUSES", "kept", "unwitnessed route"],
-        ["dsc-P2", "ADMITS", "kept", "unwitnessed route, dsc-witnessed"],
-        ["dsc-P4", "ADMITS", "falls", "contract route, bare"]
+        [
+          "dsc-C4",
+          "REFUSES",
+          "kept",
+          "unwitnessed route"
+        ],
+        [
+          "dsc-P2",
+          "ADMITS",
+          "kept",
+          "unwitnessed route, dsc-witnessed"
+        ],
+        [
+          "dsc-P4",
+          "ADMITS",
+          "falls",
+          "contract route, bare"
+        ]
       ],
       "falls": 1,
       "identical_across_variants": true,
-      "relation_level_leaks_untouched": ["sle-C3", "dsc-C1", "dsc-C2"]
+      "relation_level_leaks_untouched": [
+        "sle-C3",
+        "dsc-C1",
+        "dsc-C2"
+      ]
     }
   },
   "decision_points": {
-    "D1_variant": "loose (keep M10 TP) vs strict (drop M10 TP)",
-    "D2_m4_cost": "accept 2 named M4 TP downgrades, or defer R1 until an M4 relation exists",
-    "D3_holdout_cost": "accept dsc-P4 downgrade, or scope validity to the corpus oracle with dsc-P4 recorded as accepted cost"
+    "D1_variant": "NEITHER APPROVED: loose allows FAILED M10, strict retains five holdout-FAILED relations and drops an additional TP; future reviewed witness policy needed.",
+    "D2_m4_cost": "DEFER: 2 M4 oracle TP downgrades are unaccepted recall cost; a new protocol must address or explicitly authorize them.",
+    "D3_holdout_cost": "NOT ACCEPTED for generalization: dsc-P4 direct in-diff contradiction lost on unseen holdout; corpus-only scope cannot erase observation."
   },
   "execution_contract_21b": {
     "must_reproduce": "approved variant ledger exactly (same rows, same roles)",
@@ -93,13 +312,14 @@
       "psd promotion row kept (stage-a-max r28)",
       "historical artifacts hash-unchanged: 18B a56235b5..., 18D 0a2bb7fa..., 19B 9f0c15ec..., 19A contract 8af1e06c..., 20 closeout RECORD"
     ],
-    "halt": "any divergence halts; resolvable only by reviewed amendment; never silently reconciled"
+    "halt": "any divergence halts; resolvable only by reviewed amendment; never silently reconciled",
+    "authorization": "NOT_APPROVED: do not create evaluator or execute 21B absent separately reviewed rule/preregistration and explicit D1-D3 resolution."
   },
   "phase_21b_artifacts": {
     "results": "eval/evidence/v21-false-blocker-eval-2026-09-23/RESULTS.md",
     "report": "eval/evidence/v21-false-blocker-eval-2026-09-23/reduction-report.json"
   },
-  "scope_and_humility": "measurement experiment on the frozen corpus boundary; no deployed reviewer change; corpus-wide witness question, sle/dsc redesign, M4 relation, and route extension remain separate future preregistrations",
+  "scope_and_humility": "exploratory historical corpus measurement only; no deployed change, 21B execution, or GATING authority; only psd passed holdout. Bare controls: 26 total, 11 non-contract.",
   "oracle_version": "117b4164e5446f50",
   "preregistered_before_any_21b_run": true
 }
