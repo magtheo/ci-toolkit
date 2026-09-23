@@ -130,13 +130,16 @@ def _amendments():
     were corrected by the reviewed amendment; proofs assert the
     CORRECTED state. Re-evaluation of the amended pairs is reserved
     for 18D."""
-    _, psd_patch = _fixture_patch("psd-P4")
-    removed = "\n".join(line[1:] for line in psd_patch.splitlines()
-                        if line.startswith("-"))
-    runs = [run for run in re.findall(r"[0-9a-fA-F]{10,}", removed)]
-    lengths = [len(run) for run in runs]
-    if lengths != [40]:
-        raise RuntimeError("psd-P4 amendment proof drift: %s" % lengths)
+    psd_lengths = {}
+    for fixture_id in ("psd-P4", "psd-C4"):
+        _, patch = _fixture_patch(fixture_id)
+        runs = re.findall(r"[0-9a-fA-F]{10,}", patch)
+        lengths = [len(run) for run in runs]
+        if not lengths or any(length != 40 for length in lengths):
+            raise RuntimeError(
+                "%s amendment proof drift: expected only 40-hex refs, got %s"
+                % (fixture_id, lengths))
+        psd_lengths[fixture_id] = lengths
     _, jfu_patch = _fixture_patch("jfu-P5")
     if ".[]" not in jfu_patch:
         raise RuntimeError("jfu-P5 amendment proof drift: no .[] consumer")
@@ -147,8 +150,10 @@ def _amendments():
         "psd-P4": {
             "original_defect": "authored pinned ref was a 39-hex run, "
                                "not a 40-hex commit SHA",
-            "proof": {"hex_runs_in_removed_lines": runs,
-                      "lengths": lengths},
+            "proof": {
+                "all_hex_ref_lengths_by_fixture": psd_lengths,
+                "all_refs_are_40_hex": True,
+            },
             "pair_fixture_ids": ["psd-P4", "psd-C4"],
             "disposition": "AMENDED by reviewed 18C amendment; all refs "
                            "are genuine 40-hex SHAs; pair re-enters "
