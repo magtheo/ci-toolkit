@@ -151,21 +151,24 @@ def test_loose_ledger_matches_frozen_prediction():
 
 
 def test_strict_delta_is_exactly_the_m10_row():
-    loose_ids = {tuple(x[:4]) for x in
+    loose_ids = {tuple(x) for x in
                  CONTRACT["frozen_ledgers"]["loose"]["falls_by_id"]}
     strict = [r for r in _survivors()
               if r["route"] == "contract_contradiction"
               and not r["preds"]
               and not (set(r["rels"]) & PHASE17_SIX)
-              and tuple((r["role"], r["fixture"], r["source"],
-                         r["ri"])) not in loose_ids]
-    assert len(strict) == 1
-    row = strict[0]
-    want = CONTRACT["frozen_ledgers"]["strict"][
-        "extra_fall_vs_loose"][0]
-    assert (row["role"], row["fixture"], row["source"], row["ri"]) \
-        == tuple(want[:4])
-    assert row["rels"] == ["doc_contract_prefix_unanchored_match"]
+              and (r["role"], r["fixture"], r["source"], r["ri"],
+                   r["fi"]) not in loose_ids]
+    strict_ids = sorted(
+        (r["role"], r["fixture"], r["source"], r["ri"], r["fi"])
+        for r in strict)
+    want = CONTRACT["frozen_ledgers"]["strict"]["extra_fall_vs_loose"]
+    assert strict_ids == sorted(tuple(x) for x in want)
+    assert len(strict_ids) == 1
+    assert strict[0]["rels"] == ["doc_contract_prefix_unanchored_match"]
+    after = CONTRACT["frozen_ledgers"]["strict"]["survivors_after"]
+    assert len(_survivors()) - len(loose_ids) - len(strict_ids) == \
+        after["total"] == 122
 
 
 def test_holdout_ledger_matches_frozen_prediction():
@@ -184,21 +187,33 @@ def test_holdout_ledger_matches_frozen_prediction():
         if sim["g2_contract_aware"] == "BLOCK_SURVIVES":
             survivors[entry["id"]] = entry
     assert len(survivors) == ledger["g2_survivors"] == 3
-    for fid, label, verdict, _note in ledger["survivors_by_id"]:
-        assert fid in survivors
+    assert set(survivors) == {
+        x[0] for x in ledger["survivors_by_id"]}
+    observed_falls = []
+    for fid, label, expected_verdict, _note in ledger["survivors_by_id"]:
         assert survivors[fid]["expected_label"] == label
-    falls = [fid for fid, label, verdict, _ in
-             ledger["survivors_by_id"] if verdict == "falls"]
-    assert falls == ["dsc-P4"]
-    for fid in falls:
         f = json.loads((REPO / "eval" / "evidence" /
                         "v21-contract-generalization-prereg-2026-09-22"
                         / "fixtures" / (fid + ".json")).read_text())
-        sim = boundary.simulate_finding(f["finding"], f["fixture"])
-        assert rr.route_of(f["finding"], f["fixture"], sim) == \
-            "contract_contradiction"
-        assert not v21.predicate_names(f["finding"], f["fixture"])
-        assert not frozen.relation_names(f["finding"], f["fixture"])
+        finding, fixture = f["finding"], f["fixture"]
+        sim = boundary.simulate_finding(finding, fixture)
+        route = rr.route_of(finding, fixture, sim)
+        preds = v21.predicate_names(finding, fixture)
+        rels = frozen.relation_names(finding, fixture)
+        if fid == "dsc-P4":
+            assert route == "contract_contradiction"
+            assert not preds and not rels
+        else:
+            assert route == "unwitnessed_behavior"
+            if fid == "dsc-P2":
+                assert "doc_self_contradiction" in rels
+        for eligible_rels in (set(frozen.RELATIONS), PHASE17_SIX):
+            falls = (route == "contract_contradiction" and not preds
+                     and not (set(rels) & eligible_rels))
+            assert ("falls" if falls else "kept") == expected_verdict
+        if expected_verdict == "falls":
+            observed_falls.append(fid)
+    assert observed_falls == ["dsc-P4"]
 
 
 def test_protocol_freezes_decision_points_and_halt_language():
