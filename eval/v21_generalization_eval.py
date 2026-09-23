@@ -238,8 +238,8 @@ def _reconcile_unchanged(rows, amended_ids):
 
 def evaluate():
     """18D step 2: full reconciliation run over all 60 amended-state
-    fixtures. By determinism the 52 unchanged fixtures must reproduce
-    the 18B valid observations exactly; 18D pins that reconciliation
+    fixtures. By determinism the 56 unchanged fixtures must reproduce
+    the 18B observations exactly; 18D pins that reconciliation
     before publishing final verdicts."""
     manifest = json.loads((HOLDOUT / "MANIFEST.json").read_text())
     _fail_closed(manifest)
@@ -313,9 +313,11 @@ def evaluate():
         "per_relation": per_relation,
         "aggregate": {
             "positives_admitted": total_tp,
-            "positives_total": 30,
+            "positives_total": sum(
+                v["positives_total"] for v in per_relation.values()),
             "controls_admitted": total_leak,
-            "controls_total": 30,
+            "controls_total": sum(
+                v["controls_total"] for v in per_relation.values()),
             "relations_pass": sum(1 for v in per_relation.values()
                                   if v["verdict"] == "GENERALIZATION_PASS"),
             "relations_fail": sum(1 for v in per_relation.values()
