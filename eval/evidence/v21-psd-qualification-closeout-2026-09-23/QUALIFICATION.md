@@ -10,9 +10,11 @@ directory). Every hash in this record is mechanically verified by
 
 ## Subject
 
-- Relation: `pinned_sha_demoted_to_branch` — a reusable-workflow or
-  action reference changed from a pinned full 40-hex commit SHA to a
-  mutable ref (`@main`, a branch, a tag).
+- Relation: `pinned_sha_demoted_to_branch` — a cited-file
+  change from a pinned full 40-hex commit SHA to the specific mutable
+  forms recognized by the frozen verifier (`@main`, `@master`, or
+  `ref: main/master`). This record does **not** establish coverage of
+  arbitrary branch names or tags.
 - Frozen verifier: `eval/v21_contract_relations.py`
   (sha256 `bb0ebdee…`, merged at `0631b095…` in PR #93). Called,
   never modified, across every phase below.
