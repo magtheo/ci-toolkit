@@ -1,0 +1,95 @@
+{
+  "phase": "19A",
+  "kind": "promotion-preregistration",
+  "question": "Can pinned_sha_demoted_to_branch be integrated into the v2.1 blocking boundary without changing any other claim route's behavior?",
+  "subject": {
+    "relation": "pinned_sha_demoted_to_branch",
+    "basis": "Phase 18D GENERALIZATION PASS: 5/5 positives, 0/5 controls (PR #97)",
+    "verifier_module": "eval/v21_contract_relations.py",
+    "verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57",
+    "verifier_merge_sha": "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b"
+  },
+  "scope": {
+    "route": "contract_contradiction",
+    "other_routes_untouched": true,
+    "relations_promoted": ["pinned_sha_demoted_to_branch"],
+    "relations_explicitly_not_promoted": [
+      "preserved_claim_vs_dropped_call_result",
+      "consume_before_validate_ordering",
+      "secret_logged_by_echo",
+      "doc_self_contradiction",
+      "jsonl_format_vs_unslurped_jq"
+    ]
+  },
+  "baseline": {
+    "decision_source": "eval/evidence_boundary_sim.py::simulate_finding",
+    "gate": "g2_contract_aware",
+    "population": 276,
+    "record_population": 414,
+    "aggregate": {"BLOCK_SURVIVES": 145, "DOWNGRADE": 131},
+    "by_role": {
+      "true_positive_detection": {"BLOCK_SURVIVES": 111, "DOWNGRADE": 54},
+      "control_blocker": {"BLOCK_SURVIVES": 27, "DOWNGRADE": 50},
+      "positive_extra_blocker": {"BLOCK_SURVIVES": 7, "DOWNGRADE": 27}
+    },
+    "contract_route": {"BLOCK_SURVIVES": 77, "DOWNGRADE": 48}
+  },
+  "promotion_rule": {
+    "promoted_value": "BLOCK_EVIDENCE_BACKED",
+    "condition": "route == 'contract_contradiction' AND 'pinned_sha_demoted_to_branch' in relation_names(finding, fixture) AND baseline == 'DOWNGRADE'",
+    "role_blind": true,
+    "everything_else": "byte-identical to baseline"
+  },
+  "frozen_predictions": {
+    "psd_fires_on": 24,
+    "psd_fired_roles": {"true_positive_detection": 24, "control_blocker": 0, "positive_extra_blocker": 0},
+    "psd_fired_fixtures": {"M2": 24},
+    "psd_fired_baseline_split": {"BLOCK_SURVIVES": 5, "DOWNGRADE": 19},
+    "downgraded_psd_fired_by_route": {
+      "contract_contradiction": 1,
+      "external_fact": 12,
+      "unwitnessed_behavior": 6
+    },
+    "promotion_set": [
+      {
+        "source": "stage-a-max",
+        "record_index": 28,
+        "finding_index": 0,
+        "fixture": "M2",
+        "finding_file": ".github/workflows/ai-review.yml",
+        "route": "contract_contradiction",
+        "role": "true_positive_detection",
+        "g1_strict_quote": "DOWNGRADE",
+        "g2_contract_aware": "DOWNGRADE"
+      }
+    ],
+    "unchanged_rows": 275,
+    "accepted_limitation": "18 psd-fired downgrades on non-contract routes remain DOWNGRADE by design; extending evidence-backed blocking to other routes is future preregistered work."
+  },
+  "invariants": [
+    "population exactly 276 from boundary.SOURCES; oracle 117b4164e5446f50",
+    "verifier identity fail-closed against the pinned module and merge SHAs",
+    "zero-collateral: all 275 non-promoted rows keep their baseline decision exactly",
+    "zero BLOCK_EVIDENCE_BACKED on control_blocker and positive_extra_blocker rows",
+    "promotion set equals frozen_predictions.promotion_set exactly",
+    "frozen five guards: C11/M13/C12/M12 refused, M3 witnessed",
+    "M10 relation still FAILED with C10 standing near-miss",
+    "18B/18D artifacts byte-for-byte unchanged"
+  ],
+  "halt_conditions": [
+    "population drift",
+    "verifier-identity drift",
+    "any collateral decision change",
+    "any control or extra promotion",
+    "promotion-set divergence from frozen predictions",
+    "standing-guard violation"
+  ],
+  "phase_19b_artifacts": {
+    "results": "eval/evidence/v21-psd-promotion-eval-2026-09-23/RESULTS.md",
+    "report": "eval/evidence/v21-psd-promotion-eval-2026-09-23/psd-promotion-report.json",
+    "binding": "published report bound by tests to live evaluator output exactly"
+  },
+  "success_meaning": "psd eligible as the first evidence-backed blocker on the contract route for this oracle only; not a correctness claim; not a GATING-registry promotion",
+  "oracle_version": "117b4164e5446f50",
+  "preregistered_before_any_19b_run": true
+}
