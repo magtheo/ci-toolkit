@@ -1,0 +1,26 @@
+{
+ "expected_label": "ADMITS",
+ "finding": {
+  "comment": "The docstring asserts an exclusive scheduling guarantee: the scheduler always consults this priority and uses no other ordering signal. The scheduler is not part of this change, and nothing here substantiates the exclusivity claim. Since documenting this contract is the PR's stated purpose, the unverifiable absolute claim is the defect.",
+  "file": "jobs/priority.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "scheduler: document job priority contract",
+   "body": "Documents how job ordering consumes JobPriority.",
+   "files": [
+    {
+     "path": "jobs/priority.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/jobs/priority.py\n@@ -0,0 +1,10 @@\n+\"\"\"Job ordering contract.\n+\n+The scheduler always consults this priority when ordering jobs and\n+uses no other ordering signal.\n+\"\"\"\n+\n+class JobPriority:\n+    def __init__(self, rank):\n+        self.rank = rank\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-P1",
+ "language": "python",
+ "probe": false,
+ "rationale": "absolute exclusive claim ('always ... no other ordering signal') about an out-of-diff scheduler; PR purpose is documenting that contract; class unused in diff",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "positive"
+}

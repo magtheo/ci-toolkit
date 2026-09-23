@@ -1,0 +1,31 @@
+{
+ "expected_label": "REFUSES",
+ "finding": {
+  "comment": "Every entrypoint resolves the workspace root through this resolver and no other mechanism, but the change shows only one entrypoint, so the universal claim cannot be verified.",
+  "file": "cli/paths.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "cli: unify workspace-root resolution",
+   "body": "Switches cli/main.py to the shared resolver so every entrypoint resolves the workspace root through one mechanism.",
+   "files": [
+    {
+     "path": "cli/paths.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/cli/paths.py\n@@ -0,0 +1,12 @@\n+\"\"\"Workspace-root resolution contract.\n+\n+Every entrypoint resolves the workspace root through this\n+resolver and no other mechanism.\n+\"\"\"\n+\n+class WorkspaceRoot:\n+    @staticmethod\n+    def resolve():\n+        raise NotImplementedError\n"
+    },
+    {
+     "path": "cli/main.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/cli/main.py\n@@ -0,0 +1,7 @@\n+from cli.paths import WorkspaceRoot\n+\n+\n+def main():\n+    root = WorkspaceRoot.resolve()\n+    print(root)\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-C3",
+ "language": "python",
+ "probe": false,
+ "rationale": "same absolute wording as P3, but the change's own purpose is the unification and the shown entrypoint uses the resolver exclusively: the claim is substantiated in-diff",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "control"
+}

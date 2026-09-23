@@ -1,0 +1,26 @@
+{
+ "expected_label": "ADMITS",
+ "finding": {
+  "comment": "The docstring asserts an exclusive redelivery guarantee: the queue consumer always re-queues messages carrying this marker and inspects nothing else when deciding redelivery. The consumer is not part of this change and nothing here substantiates the exclusivity claim. Since documenting this contract is the PR's stated purpose, the unverifiable absolute claim is the defect.",
+  "file": "queue/markers.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "queue: document redelivery marker contract",
+   "body": "Documents how redelivery treats PoisonMarker.",
+   "files": [
+    {
+     "path": "queue/markers.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/queue/markers.py\n@@ -0,0 +1,10 @@\n+\"\"\"Redelivery marker contract.\n+\n+The queue consumer always re-queues messages carrying this marker\n+and inspects nothing else when deciding redelivery.\n+\"\"\"\n+\n+class PoisonMarker:\n+    def __init__(self, reason):\n+        self.reason = reason\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-P4",
+ "language": "python",
+ "probe": false,
+ "rationale": "absolute exclusive claim ('always ... inspects nothing else') about an out-of-diff consumer",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "positive"
+}

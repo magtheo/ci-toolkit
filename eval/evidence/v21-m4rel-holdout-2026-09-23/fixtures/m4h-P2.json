@@ -1,0 +1,26 @@
+{
+ "expected_label": "ADMITS",
+ "finding": {
+  "comment": "The docstring asserts an exclusive sourcing guarantee: the collector daemon reads the sampling interval from this field and from no other source of truth. The daemon is not part of this change and nothing here substantiates the exclusivity claim. Since documenting this contract is the PR's stated purpose, the unverifiable absolute claim is the defect.",
+  "file": "telemetry/sampling.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "telemetry: document sampling interval source",
+   "body": "Documents where the collector reads its sampling interval.",
+   "files": [
+    {
+     "path": "telemetry/sampling.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/telemetry/sampling.py\n@@ -0,0 +1,10 @@\n+\"\"\"Sampling policy contract.\n+\n+The collector daemon reads the sampling interval from this field\n+and from no other source of truth.\n+\"\"\"\n+\n+class SamplingPolicy:\n+    def __init__(self, interval_seconds):\n+        self.interval_seconds = interval_seconds\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-P2",
+ "language": "python",
+ "probe": false,
+ "rationale": "absolute exclusive claim ('no other source of truth') about an out-of-diff daemon",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "positive"
+}

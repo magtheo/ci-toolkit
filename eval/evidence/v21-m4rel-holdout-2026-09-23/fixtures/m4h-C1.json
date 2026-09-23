@@ -1,0 +1,26 @@
+{
+ "expected_label": "REFUSES",
+ "finding": {
+  "comment": "The docstring makes a scheduling guarantee that cannot be verified from this diff: ordering decisions belong to the scheduler.",
+  "file": "jobs/priority.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "scheduler: document job priority contract",
+   "body": "Documents the JobPriority flag.",
+   "files": [
+    {
+     "path": "jobs/priority.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/jobs/priority.py\n@@ -0,0 +1,10 @@\n+\"\"\"Job priority metadata.\n+\n+This module defines the flag only; ordering decisions, and which\n+signals they combine, belong to the scheduler and are outside this\n+change.\n+\"\"\"\n+\n+class JobPriority:\n+    def __init__(self, rank):\n+        self.rank = rank\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-C1",
+ "language": "python",
+ "probe": false,
+ "rationale": "self-scoped disclaimer: asserts nothing about scheduler behavior, only locates the decision outside this module (C4-style)",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "control"
+}

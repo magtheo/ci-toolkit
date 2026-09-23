@@ -1,0 +1,26 @@
+{
+ "expected_label": "ADMITS",
+ "finding": {
+  "comment": "The docstring asserts an exclusive restart guarantee: the supervisor restarts every failed worker exactly three times and consults no other restart signal. The supervisor is not part of this change and nothing here substantiates the exclusivity claim. Since documenting this contract is the PR's stated purpose, the unverifiable absolute claim is the defect.",
+  "file": "ops/restart.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "ops: document worker restart policy contract",
+   "body": "Documents how the supervisor consumes RestartPolicy.",
+   "files": [
+    {
+     "path": "ops/restart.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/ops/restart.py\n@@ -0,0 +1,10 @@\n+\"\"\"Worker restart policy contract.\n+\n+The supervisor restarts every failed worker exactly three times\n+and consults no other restart signal.\n+\"\"\"\n+\n+class RestartPolicy:\n+    def __init__(self, max_attempts=3):\n+        self.max_attempts = max_attempts\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-P6",
+ "language": "python",
+ "probe": false,
+ "rationale": "absolute exclusive claim ('exactly three times ... no other restart signal') about an out-of-diff supervisor",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "positive"
+}

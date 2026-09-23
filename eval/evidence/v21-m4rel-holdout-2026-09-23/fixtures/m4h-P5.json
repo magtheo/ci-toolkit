@@ -1,0 +1,26 @@
+{
+ "expected_label": "ADMITS",
+ "finding": {
+  "comment": "The docstring asserts an unconditional delivery guarantee: the watcher guarantees that no filesystem event is delivered within this window under any configuration. The watcher is not part of this change and nothing here substantiates an unconditional claim. Since documenting this contract is the PR's stated purpose, the unverifiable absolute claim is the defect.",
+  "file": "watcher/debounce.py"
+ },
+ "fixture": {
+  "input": {
+   "title": "watcher: document debounce delivery contract",
+   "body": "Documents the DebounceWindow delivery guarantee.",
+   "files": [
+    {
+     "path": "watcher/debounce.py",
+     "status": "added",
+     "patch": "--- /dev/null\n+++ b/watcher/debounce.py\n@@ -0,0 +1,10 @@\n+\"\"\"Debounce delivery contract.\n+\n+The watcher guarantees that no filesystem event is delivered\n+within this window under any configuration.\n+\"\"\"\n+\n+class DebounceWindow:\n+    def __init__(self, seconds):\n+        self.seconds = seconds\n"
+    }
+   ]
+  }
+ },
+ "id": "m4h-P5",
+ "language": "python",
+ "probe": false,
+ "rationale": "unconditional guarantee ('under any configuration') about an out-of-diff watcher",
+ "relation": "unsubstantiated_absolute_docstring_claim",
+ "role": "positive"
+}

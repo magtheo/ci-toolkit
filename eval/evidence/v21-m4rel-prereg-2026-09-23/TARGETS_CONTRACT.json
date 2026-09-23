@@ -1,0 +1,131 @@
+{
+  "phase": "22B",
+  "kind": "m4rel-candidate-preregistration",
+  "status": "prereg-only-no-implementation-no-execution",
+  "candidate": {
+    "name": "m4rel",
+    "relation_name": "unsubstantiated_absolute_docstring_claim",
+    "module_to_be": "eval/v21_m4_relation.py",
+    "family": "unsubstantiated absolute docstring claim",
+    "fire_condition": "an in-diff docstring/comment makes an absolute or exclusive claim (always/never/all/only/none/no other/every/exactly-N/guarantees) about the behavior of code NOT present in the diff, where nothing in the change substantiates the claim and documenting that out-of-diff contract is the change's stated purpose",
+    "must_not_fire": [
+      "self-scoped or disclaiming docstrings that assert nothing about out-of-diff behavior (the C4 pattern: 'this module does not define how consumers ...')",
+      "hedged or default-path statements (typically/usually/advisory/may/defaults)",
+      "claims about in-diff code, including claims the change's own hunks substantiate (the m4h-C3 pattern)",
+      "PR title/description vs diff scope mismatches with no docstring absolute claim (the C4-row and M4-extra pattern)",
+      "claims about external well-known semantics or platform behavior (C13/C2/C16 patterns)",
+      "docstring-promises-vs-in-diff-code contradictions (the C12 pattern — that is dsc territory, not m4rel)"
+    ],
+    "runtime_constraints": "no oracle-role, source-record, or record-index branching at runtime; the candidate sees only PR content like any production consumer"
+  },
+  "authority_separation": "this preregistration freezes detection scope and validation material ONLY; a pass does not self-grant preservation authority (QG5/22A)",
+  "targets": {
+    "population": "P_M4",
+    "ids": [
+      ["true_positive_detection", "M4", "stage-a-max", 66, 0],
+      ["true_positive_detection", "M4", "b1-low", 44, 0]
+    ],
+    "qualification_requirement": "fires on 100% of P_M4 (2/2)",
+    "disjoint_ownership": "m4rel is the only slate candidate whose targets include P_M4 rows; no dsc-prime/sle-prime/pcd-prime/cbv-prime/jfu-prime/m10-prime claim may overlap these ids"
+  },
+  "family_context_non_targets": {
+    "note": "same-family M4 true positives outside P_M4: candidate firings on them are permitted and recorded; non-firings are permitted and recorded; neither affects qualification",
+    "rows": [
+      ["true_positive_detection", "M4", "b1-low", 29, 0],
+      ["true_positive_detection", "M4", "b1-low", 14, 0],
+      ["true_positive_detection", "M4", "b1-high", 14, 0],
+      ["true_positive_detection", "M4", "b1-high", 29, 0],
+      ["true_positive_detection", "M4", "b1-high", 44, 0]
+    ]
+  },
+  "near_miss_control_rows": {
+    "binding_rule": "QG1: zero firings on ALL 77 corpus control-blocker rows; the enumerated subset below is the design-adjacent set this candidate's near-miss behavior is reviewed against",
+    "enumerated_ids": [
+      ["C4", "stage-a-high", 48, 0],
+      ["C4", "stage-a-high", 84, 0],
+      ["C4", "stage-a-max", 48, 0],
+      ["C12", "stage-a-low", 3, 0],
+      ["C12", "stage-a-low", 3, 1],
+      ["C12", "stage-a-low", 75, 0],
+      ["C12", "stage-a-high", 3, 0],
+      ["C12", "stage-a-high", 39, 0],
+      ["C12", "stage-a-high", 39, 1],
+      ["C12", "stage-a-max", 3, 0],
+      ["C12", "b1-low", 1, 0],
+      ["C12", "b1-low", 16, 0],
+      ["C12", "b1-low", 31, 0],
+      ["C12", "b1-high", 1, 0],
+      ["C12", "b1-high", 16, 0],
+      ["C12", "b1-high", 31, 0],
+      ["C8", "stage-a-high", 16, 0],
+      ["C3", "b1-high", 6, 0],
+      ["C3", "b1-high", 36, 0],
+      ["C13", "stage-a-low", 4, 0],
+      ["C13", "stage-a-max", 40, 0],
+      ["C13", "b1-high", 32, 0],
+      ["C2", "stage-a-max", 46, 0],
+      ["C16", "stage-a-low", 79, 0],
+      ["C16", "stage-a-max", 43, 0]
+    ],
+    "enumeration_method": "blocking control rows whose finding comment mentions docstring/comment/claim/document/assert/guarantee/promise/absolute vocabulary (frozen regex pinned in tests)"
+  },
+  "extra_blocker_handling": {
+    "m4_extra_rows": [
+      ["positive_extra_blocker", "M4", "stage-a-high", 30, 0],
+      ["positive_extra_blocker", "M4", "stage-a-high", 102, 0],
+      ["positive_extra_blocker", "M4", "stage-a-max", 30, 0],
+      ["positive_extra_blocker", "M4", "stage-a-max", 102, 0]
+    ],
+    "corpus_wide": "all 34 positive-extra-blocker rows are non-targets; every candidate firing on an extra row is recorded in the qualification record; no auto-FAIL at qualification, but any proposed adoption preserving an extra blocker fails the preservation-safety gate (22A QG1)"
+  },
+  "validation_material": {
+    "existing_holdout": "18A holdout (60 fixtures): zero of 30 controls fired; m4rel is not a remediation candidate so no existing-holdout positive expectations are claimed",
+    "fresh_holdout": {
+      "dir": "eval/evidence/v21-m4rel-holdout-2026-09-23",
+      "pairs": 6,
+      "fixtures": 12,
+      "labels": {"positives_must_fire": 6, "controls_must_not_fire": 6},
+      "control_flavors": {
+        "m4h-C1": "self-scoped disclaimer",
+        "m4h-C2": "hedged default-path statement",
+        "m4h-C3": "same absolute wording, substantiated in-diff by the change's own consumer",
+        "m4h-C4": "self-scoped disclaimer",
+        "m4h-C5": "advisory framing with explicit deferral",
+        "m4h-C6": "self-scoped disclaimer"
+      },
+      "manifest_sha256": "7b82ed00806a431a795d0e7eace92940cb82c3e88b5d988b07efbd8b9f34df3f",
+      "manifest_lines_sha256": "2e1eb0d9892878d1afcdb9c93e00f301073d45b3eda3f7bc57051eea44544d45",
+      "independence": "authored before any candidate implementation exists (authorship block in MANIFEST.json); human review of the 22B PR is the freeze point; post-merge fixture changes require an AMENDMENT.md entry with hash refresh (18C rule)",
+      "threshold_frozen_before_first_execution": true
+    }
+  },
+  "qualification_binding": {
+    "QG1": "2/2 targets fired; 0/77 controls fired (fail closed); all extra firings recorded",
+    "QG2": "0/30 existing-holdout controls; 6/6 fresh-holdout positives; 0/6 fresh-holdout controls; no post-hoc tuning",
+    "QG3": "new module eval/v21_m4_relation.py; no delegation to eval/v21_contract_relations.py or any T3/T4 relation; frozen module stays byte-identical",
+    "QG4": "frozen five; M10 still FAILED; C10 standing near-miss; oracle 117b4164e5446f50",
+    "QG5": "qualification record human-reviewed and merged before any adoption PR; no self-grant"
+  },
+  "failure_handling": "any gate failure is recorded as evidence and m4rel is auto-excluded; never tuned post hoc against the same gates; the two PC1 M4 losses then remain open costs",
+  "non_goals": [
+    "no candidate implementation in this phase",
+    "no evaluation run in this phase",
+    "no preservation-authority grant",
+    "no adoption preregistration",
+    "no reduction-rule adoption, downgrade execution, or GATING activation",
+    "no edits to frozen Phase-17 module, fixtures, routes, parser, or oracle",
+    "no eval/fixtures additions (the holdout lives in the evidence layer)"
+  ],
+  "future_phase_artifacts": [
+    "eval/v21_m4_relation.py (22C+)",
+    "eval/evidence/v21-m4rel-qualification-*/ (qualification record, later phase)"
+  ],
+  "pins": {
+    "oracle_version": "117b4164e5446f50",
+    "frozen_verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57",
+    "22a_qualification_contract_sha256": "e3d763168389acf6cec09e29343a05e5b39a6431823b780410801032722f2989",
+    "18d_report_sha256": "0a2bb7fa64be61a4c6b1f4b00b63c53a758fe1fed5d21fd169d067011af8dc26",
+    "21a_contract_sha256": "f5ac9aa602dc7823ccf5947c7649ef3e6d03f69428f303b10fe8f01acbc3bc33",
+    "18a_holdout_manifest_sha256": "a9445d91b7b98242c036d7c5b2594a71846a62abd1c08aa1f662129459257591"
+  }
+}
