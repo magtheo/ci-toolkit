@@ -236,7 +236,7 @@ def test_protocol_freezes_framework_language():
     for phrase in ("preregistration only",
                    "No evidence currently",
                    "never creates a block",
-                   "remediation validation, not",
+                   "remediation validation, NOT",
                    "auto-excluded",
                    "never tuned",
                    "Agents never",
