@@ -89,19 +89,26 @@ def test_authority_separation():
     assert "never admits" in auth["preservation"]["grant_scope"]
 
 
-def test_no_candidate_exists_yet():
-    # 22A froze this guard pre-candidate. Phase 22C (human-directed)
-    # authorizes the m4rel implementation: it may exist ONLY with its
-    # sha256 pinned in the published 22C evidence. Qualification
-    # artifacts still must not exist.
+def test_22c_candidate_transition_requires_frozen_authorization():
+    # 22A's pre-candidate absence guard may migrate only through the
+    # explicit 22C transition bound to the already-merged 22B contract.
     module = REPO / "eval" / "v21_m4_relation.py"
-    assert module.exists()
-    evidence = REPO / "eval" / "evidence" / \
-        "v21-m4rel-implementation-2026-09-23" / "EVIDENCE.json"
-    assert evidence.exists()
-    import hashlib
-    import json
+    evidence_dir = REPO / "eval" / "evidence" / \
+        "v21-m4rel-implementation-2026-09-23"
+    evidence = evidence_dir / "EVIDENCE.json"
+    transition_path = evidence_dir / "PHASE_TRANSITION.json"
+    assert module.exists() and evidence.exists() and transition_path.exists()
+    transition = json.loads(transition_path.read_text())
     ev = json.loads(evidence.read_text())
+    assert transition["parent_merge_sha"] == \
+        "9773deab9de2bebad7514bc65a39625bea8c41f9"
+    assert transition["prerequisites"]["phase_22a_merge_sha"] == \
+        "8d3966ca79bc49626a4f7303b72ddefe21ff527f"
+    assert transition["prerequisites"]["frozen_22b_future_artifact"] == \
+        "eval/v21_m4_relation.py (22C+)"
+    assert "qualification-not-authorized" in transition["status"]
+    assert ev["phase_transition"]["sha256"] == \
+        hashlib.sha256(transition_path.read_bytes()).hexdigest()
     assert ev["candidate"]["module_sha256"] == \
         hashlib.sha256(module.read_bytes()).hexdigest()
     assert not list((REPO / "eval" / "evidence").glob(
