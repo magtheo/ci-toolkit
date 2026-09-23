@@ -82,9 +82,20 @@ def test_contract_pins_match_live_reality():
     assert len(CONTRACT["halt_conditions"]) == 6
 
 
-def test_19b_has_not_started():
-    assert not EVAL_19B.exists()
-    assert not (REPO / "eval" / "v21_psd_promotion.py").exists()
+def test_19b_artifacts_exist_and_bind_to_prereg():
+    """19A absence guard, superseded per reviewed transition: 19B has
+    landed, so the artifacts must exist and bind to this prereg."""
+    assert (REPO / "eval" / "v21_psd_promotion.py").exists()
+    assert (EVAL_19B / "RESULTS-19B.md").exists()
+    report = json.loads(
+        (EVAL_19B / "psd-promotion-report.json").read_text())
+    assert report["phase"] == "19B"
+    contract_sha = hashlib.sha256(
+        (PREREG / "INTEGRATION_CONTRACT.json").read_bytes()).hexdigest()
+    assert report["prereg"]["contract_sha256"] == contract_sha
+    # the executed rule is the preregistered rule
+    import eval.v21_psd_promotion as pp
+    assert report == pp.evaluate()
 
 
 def test_baseline_aggregates_match_frozen_predictions():

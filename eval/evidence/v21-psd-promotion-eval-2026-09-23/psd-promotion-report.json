@@ -1,0 +1,77 @@
+{
+  "baseline_aggregate": {
+    "BLOCK_SURVIVES": 145,
+    "DOWNGRADE": 131
+  },
+  "collateral_changes": [],
+  "control_or_extra_promotions": [],
+  "frozen_verifier": {
+    "merge_sha": "0631b0956f795ab1ee6d13f68b0c1cebe8a6d23b",
+    "module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+  },
+  "historical_artifacts_unchanged": {
+    "generalization-report-18d.json": "0a2bb7fa64be61a4c6b1f4b00b63c53a758fe1fed5d21fd169d067011af8dc26",
+    "generalization-report.json": "a56235b59bd104f9a6d868fad67d6ea1fe65f01a4987df02e257031e05587eec"
+  },
+  "integrated_aggregate": {
+    "BLOCK_EVIDENCE_BACKED": 1,
+    "BLOCK_SURVIVES": 145,
+    "DOWNGRADE": 130
+  },
+  "landscape_observed": {
+    "downgraded_psd_fired_by_route": {
+      "contract_contradiction": 1,
+      "external_fact": 12,
+      "unwitnessed_behavior": 6
+    },
+    "psd_fired_baseline_split": {
+      "BLOCK_SURVIVES": 5,
+      "DOWNGRADE": 19
+    },
+    "psd_fired_fixtures": {
+      "M2": 24
+    },
+    "psd_fired_roles": {
+      "true_positive_detection": 24
+    },
+    "psd_fires_on": 24
+  },
+  "meaning": "psd is eligible as the first evidence-backed blocker on the contract_contradiction route for this oracle only. This does NOT authorize GATING activation, does not promote the broader registry, and does not address the baseline's 27 surviving control blockers. The 18 psd-matching downgrades outside the contract route remain downgraded by design (route boundary preserved).",
+  "oracle_version": "117b4164e5446f50",
+  "phase": "19B",
+  "population": 276,
+  "prereg": {
+    "contract": "eval/evidence/v21-psd-promotion-prereg-2026-09-23/INTEGRATION_CONTRACT.json",
+    "contract_sha256": "8af1e06c4cd44bbf1a20d93081e0dabf2c6f3d60ecd45d6037a13598ce935784",
+    "protocol": "eval/evidence/v21-psd-promotion-prereg-2026-09-23/PROTOCOL.md"
+  },
+  "promotion_set": [
+    {
+      "baseline": "DOWNGRADE",
+      "finding_index": 0,
+      "fired_relations": [
+        "pinned_sha_demoted_to_branch"
+      ],
+      "fixture": "M2",
+      "g1_strict_quote": "DOWNGRADE",
+      "integrated": "BLOCK_EVIDENCE_BACKED",
+      "record_index": 28,
+      "role": "true_positive_detection",
+      "route": "contract_contradiction",
+      "source": "stage-a-max"
+    }
+  ],
+  "rule": "route == 'contract_contradiction' AND 'pinned_sha_demoted_to_branch' in relation_names(finding, fixture) AND baseline == 'DOWNGRADE'",
+  "standing_regression_guards": {
+    "C10_standing_near_miss": true,
+    "C11_refused": true,
+    "C12_refused": true,
+    "M10_relation_still_FAILED": true,
+    "M12_refused": true,
+    "M13_refused": true,
+    "M3_admitted_via_existing_witness": true,
+    "oracle": "117b4164e5446f50"
+  },
+  "success": true,
+  "unchanged_rows": 275
+}
