@@ -81,7 +81,9 @@ def test_amended_jfu_pair_matches_frozen_definition():
     for fid, patch, label in (("jfu-P5", pos_patch, "ADMITS"),
                               ("jfu-C5", ctl_patch, "REFUSES")):
         assert re.search(r"jq\s+-\w*c[^\n]*>>\"\$?stages_jsonl\"", patch), fid
-        assert ".[]" in patch, fid
+        assert re.search(
+            r"jq\s+(?:-s\s+)?-e\s+'any\(\.\[\]; \.failed\)'",
+            patch), fid
         assert 'stages_jsonl' in patch, fid
         assert _fixture(fid)["expected_label"] == label
     # the pair differs only in the semantic feature: slurp
@@ -126,7 +128,12 @@ def test_fail_closed_integrity_and_verifier_identity():
     # the corrected-state proofs hold
     amendments = eval_mod._amendments()
     assert set(amendments) == {"psd-P4", "jfu-P5"}
-    assert amendments["psd-P4"]["proof"]["lengths"] == [40]
+    assert amendments["psd-P4"]["proof"]["all_refs_are_40_hex"] is True
+    assert amendments["psd-P4"]["proof"][
+        "all_hex_ref_lengths_by_fixture"] == {
+            "psd-P4": [40, 40],
+            "psd-C4": [40, 40, 40],
+        }
     assert amendments["jfu-P5"]["proof"]["array_filter_present"] is True
     # 18B evaluator entry points exist but are NOT executed in 18C
     assert callable(eval_mod.evaluate)
