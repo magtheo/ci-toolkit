@@ -12,7 +12,7 @@
     {
      "path": "ops/restart.py",
      "status": "added",
-     "patch": "--- /dev/null\n+++ b/ops/restart.py\n@@ -0,0 +1,10 @@\n+\"\"\"Worker restart policy contract.\n+\n+The supervisor restarts every failed worker exactly three times\n+and consults no other restart signal.\n+\"\"\"\n+\n+class RestartPolicy:\n+    def __init__(self, max_attempts=3):\n+        self.max_attempts = max_attempts\n"
+     "patch": "--- /dev/null\n+++ b/ops/restart.py\n@@ -0,0 +1,9 @@\n+\"\"\"Worker restart policy contract.\n+\n+The supervisor restarts every failed worker exactly three times\n+and consults no other restart signal.\n+\"\"\"\n+\n+class RestartPolicy:\n+    def __init__(self, max_attempts=3):\n+        self.max_attempts = max_attempts\n"
     }
    ]
   }
