@@ -23,8 +23,20 @@
   "targets": {
     "population": "P_M4",
     "ids": [
-      ["true_positive_detection", "M4", "stage-a-max", 66, 0],
-      ["true_positive_detection", "M4", "b1-low", 44, 0]
+      [
+        "true_positive_detection",
+        "M4",
+        "stage-a-max",
+        66,
+        0
+      ],
+      [
+        "true_positive_detection",
+        "M4",
+        "b1-low",
+        44,
+        0
+      ]
     ],
     "qualification_requirement": "fires on 100% of P_M4 (2/2)",
     "finding_pins": {
@@ -45,50 +57,229 @@
   "family_context_non_targets": {
     "note": "same-family M4 true positives outside P_M4: candidate firings on them are permitted and recorded; non-firings are permitted and recorded; neither affects qualification",
     "rows": [
-      ["true_positive_detection", "M4", "b1-low", 29, 0],
-      ["true_positive_detection", "M4", "b1-low", 14, 0],
-      ["true_positive_detection", "M4", "b1-high", 14, 0],
-      ["true_positive_detection", "M4", "b1-high", 29, 0],
-      ["true_positive_detection", "M4", "b1-high", 44, 0]
+      [
+        "true_positive_detection",
+        "M4",
+        "b1-low",
+        29,
+        0
+      ],
+      [
+        "true_positive_detection",
+        "M4",
+        "b1-low",
+        14,
+        0
+      ],
+      [
+        "true_positive_detection",
+        "M4",
+        "b1-high",
+        14,
+        0
+      ],
+      [
+        "true_positive_detection",
+        "M4",
+        "b1-high",
+        29,
+        0
+      ],
+      [
+        "true_positive_detection",
+        "M4",
+        "b1-high",
+        44,
+        0
+      ]
     ]
   },
   "near_miss_control_rows": {
     "binding_rule": "QG1: zero firings on ALL 77 corpus control-blocker rows; the enumerated subset below is the design-adjacent set this candidate's near-miss behavior is reviewed against",
     "enumerated_ids": [
-      ["C4", "stage-a-high", 48, 0],
-      ["C4", "stage-a-high", 84, 0],
-      ["C4", "stage-a-max", 48, 0],
-      ["C12", "stage-a-low", 3, 0],
-      ["C12", "stage-a-low", 3, 1],
-      ["C12", "stage-a-low", 75, 0],
-      ["C12", "stage-a-high", 3, 0],
-      ["C12", "stage-a-high", 39, 0],
-      ["C12", "stage-a-high", 39, 1],
-      ["C12", "stage-a-max", 3, 0],
-      ["C12", "b1-low", 1, 0],
-      ["C12", "b1-low", 16, 0],
-      ["C12", "b1-low", 31, 0],
-      ["C12", "b1-high", 1, 0],
-      ["C12", "b1-high", 16, 0],
-      ["C12", "b1-high", 31, 0],
-      ["C8", "stage-a-high", 16, 0],
-      ["C3", "b1-high", 6, 0],
-      ["C3", "b1-high", 36, 0],
-      ["C13", "stage-a-low", 4, 0],
-      ["C13", "stage-a-max", 40, 0],
-      ["C13", "b1-high", 32, 0],
-      ["C2", "stage-a-max", 46, 0],
-      ["C16", "stage-a-low", 79, 0],
-      ["C16", "stage-a-max", 43, 0]
+      [
+        "C4",
+        "stage-a-high",
+        48,
+        0
+      ],
+      [
+        "C4",
+        "stage-a-high",
+        84,
+        0
+      ],
+      [
+        "C4",
+        "stage-a-max",
+        48,
+        0
+      ],
+      [
+        "C12",
+        "stage-a-low",
+        3,
+        0
+      ],
+      [
+        "C12",
+        "stage-a-low",
+        3,
+        1
+      ],
+      [
+        "C12",
+        "stage-a-low",
+        75,
+        0
+      ],
+      [
+        "C12",
+        "stage-a-high",
+        3,
+        0
+      ],
+      [
+        "C12",
+        "stage-a-high",
+        39,
+        0
+      ],
+      [
+        "C12",
+        "stage-a-high",
+        39,
+        1
+      ],
+      [
+        "C12",
+        "stage-a-max",
+        3,
+        0
+      ],
+      [
+        "C12",
+        "b1-low",
+        1,
+        0
+      ],
+      [
+        "C12",
+        "b1-low",
+        16,
+        0
+      ],
+      [
+        "C12",
+        "b1-low",
+        31,
+        0
+      ],
+      [
+        "C12",
+        "b1-high",
+        1,
+        0
+      ],
+      [
+        "C12",
+        "b1-high",
+        16,
+        0
+      ],
+      [
+        "C12",
+        "b1-high",
+        31,
+        0
+      ],
+      [
+        "C8",
+        "stage-a-high",
+        16,
+        0
+      ],
+      [
+        "C3",
+        "b1-high",
+        6,
+        0
+      ],
+      [
+        "C3",
+        "b1-high",
+        36,
+        0
+      ],
+      [
+        "C13",
+        "stage-a-low",
+        4,
+        0
+      ],
+      [
+        "C13",
+        "stage-a-max",
+        40,
+        0
+      ],
+      [
+        "C13",
+        "b1-high",
+        32,
+        0
+      ],
+      [
+        "C2",
+        "stage-a-max",
+        46,
+        0
+      ],
+      [
+        "C16",
+        "stage-a-low",
+        79,
+        0
+      ],
+      [
+        "C16",
+        "stage-a-max",
+        43,
+        0
+      ]
     ],
     "enumeration_method": "blocking control rows whose finding comment mentions docstring/comment/claim/document/assert/guarantee/promise/absolute vocabulary (frozen regex pinned in tests)"
   },
   "extra_blocker_handling": {
     "m4_extra_rows": [
-      ["positive_extra_blocker", "M4", "stage-a-high", 30, 0],
-      ["positive_extra_blocker", "M4", "stage-a-high", 102, 0],
-      ["positive_extra_blocker", "M4", "stage-a-max", 30, 0],
-      ["positive_extra_blocker", "M4", "stage-a-max", 102, 0]
+      [
+        "positive_extra_blocker",
+        "M4",
+        "stage-a-high",
+        30,
+        0
+      ],
+      [
+        "positive_extra_blocker",
+        "M4",
+        "stage-a-high",
+        102,
+        0
+      ],
+      [
+        "positive_extra_blocker",
+        "M4",
+        "stage-a-max",
+        30,
+        0
+      ],
+      [
+        "positive_extra_blocker",
+        "M4",
+        "stage-a-max",
+        102,
+        0
+      ]
     ],
     "corpus_wide": "all 34 positive-extra-blocker rows are non-targets; every candidate firing on an extra row is recorded in the qualification record; no auto-FAIL at qualification, but any proposed adoption preserving an extra blocker fails the preservation-safety gate (22A QG1)"
   },
@@ -98,17 +289,20 @@
       "dir": "eval/evidence/v21-m4rel-holdout-2026-09-23",
       "pairs": 6,
       "fixtures": 12,
-      "labels": {"positives_must_fire": 6, "controls_must_not_fire": 6},
+      "labels": {
+        "positives_must_fire": 6,
+        "controls_must_not_fire": 6
+      },
       "control_flavors": {
         "m4h-C1": "self-scoped disclaimer",
         "m4h-C2": "hedged default-path statement",
-        "m4h-C3": "same absolute wording, substantiated in-diff by the change's own consumer",
+        "m4h-C3": "absolute/exclusive wording with an in-diff enumerated referent (CLI_ENTRYPOINTS) and all registered consumers shown using the resolver",
         "m4h-C4": "self-scoped disclaimer",
         "m4h-C5": "advisory framing with explicit deferral",
         "m4h-C6": "self-scoped disclaimer"
       },
-      "manifest_sha256": "7b82ed00806a431a795d0e7eace92940cb82c3e88b5d988b07efbd8b9f34df3f",
-      "manifest_lines_sha256": "2e1eb0d9892878d1afcdb9c93e00f301073d45b3eda3f7bc57051eea44544d45",
+      "manifest_sha256": "f9b06194f058d4de81534abeb286470f5c2aabe117267f7e5329b16e10dde127",
+      "manifest_lines_sha256": "0e17f4e65e502376c01470ec79f3cff733fcadffe7372f39af13ea45c71e2691",
       "independence": "authored before any candidate implementation exists (authorship block in MANIFEST.json); human review of the 22B PR is the freeze point; post-merge fixture changes require an AMENDMENT.md entry with hash refresh (18C rule)",
       "threshold_frozen_before_first_execution": true
     }
