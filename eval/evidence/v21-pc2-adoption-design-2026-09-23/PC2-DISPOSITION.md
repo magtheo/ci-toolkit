@@ -165,6 +165,10 @@ scope) at the adoption preregistration review. Until then:
 
 - the adoption design treats holdout-extension effects as
   counterfactuals only;
+- even after selecting PC2, the separate V2 policy decision about
+  decision-bearing *presence* of failed-relation/M10 firings across
+  the 24 relation-carried TPs remains subject to explicit human
+  disposition. This is not a preservation-authority grant;
 - no execution, no reduction implementation, no new holdout run, and
   no authority change occurs;
 - the 21B rule holds: *until PC2 is dispositioned, the dsc-P4 loss
