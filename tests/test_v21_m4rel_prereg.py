@@ -295,8 +295,21 @@ def test_22c_transition_authorizes_pinned_implementation_only():
     assert ev["candidate"]["module_sha256"] == \
         hashlib.sha256(module.read_bytes()).hexdigest()
     assert ev["holdout_seal"]["executions_during_22C"] == 0
+    # 22D (human-directed) authorized qualification execution via its
+    # own transition record; the absence guard migrates against it.
+    # Adoption/authority remain unauthorized there.
+    qual = REPO / "eval" / "evidence" / \
+        "v21-m4rel-qualification-2026-09-23"
+    qual_transition = qual / "PHASE_TRANSITION.json"
+    assert qual_transition.exists()
+    qt = json.loads(qual_transition.read_text())
+    assert "qualification-execution-authorized" in qt["status"]
+    assert "adoption-not-authorized" in qt["status"]
+    assert "no-authority-grant" in qt["status"]
+    assert qt["parent_merge_sha"] == \
+        "b518333175948896892e263a3880982ba96ea17e"
     assert not list((REPO / "eval" / "evidence").glob(
-        "v21-m4rel-qualification-*"))
+        "v21-m4rel-adoption-*"))
     assert MANIFEST["authorship"][
         "authored_before_implementation"] is True
     assert MANIFEST["thresholds"][

@@ -1,0 +1,23 @@
+{
+  "phase": "22D",
+  "kind": "phase-transition-record",
+  "status": "qualification-execution-authorized__adoption-not-authorized__no-authority-grant",
+  "parent_merge_sha": "b518333175948896892e263a3880982ba96ea17e",
+  "prerequisites": {
+    "phase_22a_merge_sha": "8d3966ca79bc49626a4f7303b72ddefe21ff527f",
+    "phase_22b_merge_sha": "9773deab9de2bebad7514bc65a39625bea8c41f9",
+    "phase_22c_merge_sha": "b518333175948896892e263a3880982ba96ea17e",
+    "frozen_22b_contract_path": "eval/evidence/v21-m4rel-prereg-2026-09-23/TARGETS_CONTRACT.json",
+    "frozen_22b_contract_sha256": "0f7e183703dd9497b9e430686194472cefff0de3d9657c19e55b73e77d74c2a0",
+    "frozen_22c_module_sha256": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596",
+    "frozen_22c_transition": "eval/evidence/v21-m4rel-implementation-2026-09-23/PHASE_TRANSITION.json",
+    "frozen_22c_transition_sha256": "ad3539f97c22e0a545f5e2cd76fa7295a1096774d56ec5974fa7b1d84df3b8b0",
+    "frozen_22b_holdout_manifest_sha256": "f9b06194f058d4de81534abeb286470f5c2aabe117267f7e5329b16e10dde127"
+  },
+  "authorization_basis": {
+    "operator_directive": "Phase 22D qualification: perform the first and only sanctioned execution of the frozen m4rel implementation against the frozen qualification material; pin the merged 22C module hash first; 2/2 targets, 0/77 controls, extras recorded with zero preservation, 0/30 existing holdout controls, execute the frozen 22B holdout exactly once at 6/6 positives and 0/6 controls, hold standing guards, publish fixture-level evidence and exact evaluator output, make no detector changes after observing the holdout, and stop for human review. Even a full PASS does not automatically grant preservation authority.",
+    "single_execution_rule": "the frozen 22B holdout is executed for the sanctioned qualification observation; any later deterministic re-execution must be on byte-identical detector code with mechanically verified identical fixture-level outputs, logged with reasons, and disclosed",
+    "interpretation_boundary": "a PASS is preregistered validation against the frozen holdout, NOT vocabulary-independent generalization (the holdout author is the implementation author)"
+  },
+  "boundary": "qualification execution and record publication only; preservation authority, adoption, GATING activation, and any deployed change remain unauthorized and human-decided"
+}
