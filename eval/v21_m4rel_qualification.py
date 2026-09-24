@@ -51,6 +51,9 @@ PINS = {
         "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57",
 }
 
+PUBLISHED_REPORT_SHA256 = ("fec590e9f822880a4e82aaa281f1ad6c0942559"
+                           "eaa55dbc64c6ddab08a11934c")
+
 FROZEN_GUARDS = {
     "oracle": "117b4164e5446f50",
     "C11_refused": True,
@@ -110,18 +113,67 @@ def _execution_log():
 
 
 def _append_execution_log(prior, verdict, reason, report_path):
+    """Preserve a separate, byte-identical raw snapshot for a first run.
+
+    Published evidence must never be appended to or overwritten. The
+    committed historical run-4 log entry points to its raw snapshot,
+    NOT to the later review-annotated qualification-report.json.
+    """
+    if prior:
+        raise Halt("qualification already observed; re-execution prohibited")
     log_path = OUT / "execution-log.jsonl"
+    snapshot = OUT / "qualification-report.execution-1.json"
+    if log_path.exists() or snapshot.exists():
+        raise Halt("qualification artifacts already exist; refusing overwrite")
+    snapshot.write_bytes(report_path.read_bytes())
     entry = {
-        "run_index": len(prior) + 1,
+        "run_index": 1,
         "reconstructed": False,
         "detector_sha256":
             _sha(REPO / "eval" / "v21_m4_relation.py"),
         "verdict": verdict,
         "reason": reason,
-        "report_sha256": _sha(report_path),
+        "report_sha256": _sha(snapshot),
     }
-    with log_path.open("a") as fh:
+    with log_path.open("x") as fh:
         fh.write(json.dumps(entry) + "\n")
+
+
+def verify_published_report():
+    """Read-only verification of the already-published qualification.
+
+    Never call detect(), re-run the holdout, rewrite the report, or
+    append to the historical execution log.
+    """
+    report_path = OUT / "qualification-report.json"
+    if not report_path.exists() or _sha(report_path) != \
+            PUBLISHED_REPORT_SHA256:
+        raise Halt("published qualification report SHA mismatch")
+    pins = verify_pins()
+    report = json.loads(report_path.read_text())
+    if report["pins"] != pins:
+        raise Halt("published qualification pins differ from frozen sources")
+    entries = _execution_log()
+    if [e["run_index"] for e in entries] != [1, 2, 3, 4]:
+        raise Halt("published qualification execution count drift")
+    if report["execution"]["fresh_holdout_sanctioned_observation"] != 1 \
+            or report["execution"][
+                "fresh_holdout_deterministic_reexecutions"] != 3:
+        raise Halt("published qualification execution summary drift")
+    transition_path = OUT / "PHASE_TRANSITION.json"
+    transition = json.loads(transition_path.read_text())
+    if transition["parent_merge_sha"] != \
+            "b518333175948896892e263a3880982ba96ea17e" or \
+            "qualification-execution-authorized" not in \
+            transition["status"] or \
+            "no-authority-grant" not in transition["status"] or \
+            "adoption-not-authorized" not in transition["status"] or \
+            report["phase_transition"]["sha256"] != \
+            _sha(transition_path):
+        raise Halt("published qualification transition mismatch")
+    if report["verdict"] != "SUCCESS":
+        raise Halt("published qualification verdict mismatch")
+    return report
 
 
 def verify_pins():
@@ -369,6 +421,14 @@ def _correction_provenance(pins, fresh):
 
 
 def evaluate():
+    # A published result is evidence, not a request to execute the
+    # holdout again. Return only after read-only integrity verification.
+    report_path = OUT / "qualification-report.json"
+    if report_path.exists():
+        return verify_published_report()
+    if (OUT / "execution-log.jsonl").exists() or \
+            (OUT / "qualification-report.execution-1.json").exists():
+        raise Halt("partial historical qualification exists; refuse replay")
     pins = verify_pins()
     prior_runs = _execution_log()
     transition_path = OUT / "PHASE_TRANSITION.json"
@@ -430,8 +490,12 @@ def evaluate():
                           "frozen qualification material",
             "fresh_holdout_sanctioned_observation": 1,
             "fresh_holdout_deterministic_reexecutions":
-                len(prior_runs),
-            "reexecution_policy": "three logged evaluator-only re-executions on pinned detector bytes; fixture-level identity mechanically verified for preserved execution 1 vs final run, NOT independently for unretained runs 2–3",
+                max(len(prior_runs) - 1, 0),
+            "reexecution_policy": (
+                "%d logged evaluator-only re-executions on pinned "
+                "detector bytes; retained first/final identity verified "
+                "only when both raw reports exist"
+                % max(len(prior_runs) - 1, 0)),
             "no_detector_changes_after_observation": True,
             "module_sha256_at_execution":
                 pins["module_sha256_22c"],
