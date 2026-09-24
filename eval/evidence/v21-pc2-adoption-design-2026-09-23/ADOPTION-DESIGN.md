@@ -4,7 +4,8 @@
 policy variants, authority boundaries, integration points,
 prohibitions, and the acceptance gates a *future* adoption
 preregistration must satisfy. It implements nothing, executes
-nothing, and assumes no approval. The `m4rel` grant is treated
+nothing, and assumes no approval. PC2 and the separate 24-row
+failed-firing-presence policy decision both remain open. The `m4rel` grant is treated
 exactly as its record scopes it; **no grant registry or runtime
 authority table is created by this phase.**
 
@@ -79,9 +80,16 @@ on the `contract_contradiction` route. Aggregate effects are in
   rows, exclusions intact (no admission, no block creation, no
   extra preservation, no route expansion, no GATING, no deployment).
 - **The five 18D-failed relations and the failed M10 relation** have
-  no authority of any kind. No adoption variant may read their
-  firings as witnessing, preservation, or admission evidence; V3
-  exists to show what pretending otherwise costs.
+  no qualified preservation or admission authority. V2 nevertheless
+  reads their firing **presence** to decide whether a row is bare:
+  that is decision-bearing evidence-presence dependence, not a
+  qualified preservation witness. The 24 relation-carried TPs
+  (including M10) remain blocked under V2 for this reason alone.
+  The distinction must be explicitly approved or replaced with
+  independent qualified evidence before V2 adoption; no implicit
+  tier promotion, grant, or redaction-invariance claim is permitted.
+  V3 shows the 24-TP cost when failed firings are not used even for
+  bare-ness.
 - **Human risk acceptance** (PC2 Path A, if chosen) is scope
   language only. It never becomes evidence, never enters a grant
   registry, and never appears as a runtime input.
@@ -110,7 +118,14 @@ on the `contract_contradiction` route. Aggregate effects are in
   fields, or known holdout membership as runtime policy inputs.
 - No oracle-label (`ADMITS`/`REFUSES`) reads outside offline
   evaluation.
-- No decision-bearing use of failed-relation or M10-family firings.
+- No use of failed-relation or M10 firings as **qualified
+  admission/preservation witnesses**. V2 still makes their *presence*
+  decision-bearing through the bare-ness predicate: this historical
+  dependence must be specifically dispositioned by a human before
+  adoption, never hidden behind an advisory-only tier label.
+  A policy prohibiting ALL decision-bearing failed-firing use cannot
+  adopt V2 as written; it must choose qualified independent evidence
+  or explicitly confront the 24-TP V3 loss.
 - No widening of `m4rel.covers`, its claim boundary, or its route
   scope; no reuse of the grant's semantics for other candidates
   without their own qualification + grant.
@@ -124,7 +139,13 @@ on the `contract_contradiction` route. Aggregate effects are in
 2. **No new admission authority; psd unchanged:** psd referenced
    only as-is; its chain artifacts hash-unchanged.
 3. **No preservation authority from failed relations or M10:**
-   mechanically asserted over all populations.
+   mechanically asserted over all populations. Separately, resolve
+   the V2 failed-firing-presence dependence for all 24 relation-carried
+   true positives: explicitly accept the narrow evidence-presence
+   semantics as a *policy* decision without mislabeling it a witness
+   grant, or require independently qualified preservation evidence
+   before changing those decisions. An R1′-style redaction-invariance
+   claim fails this gate.
 4. **Preservation of the two qualified M4 rows:** the grant-eligible
    set re-derived and asserted = {b1-low r44 f0, stage-a-max r66 f0}.
 5. **Zero extra-blocker preservation and no new control blockers** on
@@ -163,6 +184,12 @@ design approval → execution authorization → measured evidence →
 decision.
 
 ## What this phase does NOT do
+
+A merge of this design does not select PC2 or resolve the 24-row
+failed-firing-presence dependence, and it does not accept either
+recall/authority trade-off. Both require a separate, explicitly
+reviewed policy disposition before any adoption preregistration
+can be approved.
 
 No R1′ or successor implementation, no reduction execution, no new
 holdout execution (the 21B V2 prediction stays frozen), no change to
