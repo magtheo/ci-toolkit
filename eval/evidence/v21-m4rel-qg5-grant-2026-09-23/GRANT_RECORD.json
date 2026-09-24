@@ -1,0 +1,101 @@
+{
+  "phase": "22E",
+  "kind": "qg5-preservation-grant-record",
+  "candidate": "m4rel",
+  "status": "proposed-grant--effective-only-upon-human-merge-acceptance-of-the-22E-PR",
+  "governance": "This record was authored by the coding agent from the operator's stated QG5 disposition. Per the 22A framework (QG5) and standing rules, agents never grant authority: the grant is PROPOSED here and becomes effective only through the human merge acceptance of the 22E pull request. A passing test, a merged qualification record, or this document alone is not an authorization.",
+  "grant_scope": {
+    "authority_type": "preservation only",
+    "candidate": "exact frozen m4rel implementation",
+    "candidate_module": "eval/v21_m4_relation.py",
+    "candidate_sha256": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596",
+    "eligible_decision": "an existing blocking row with g2_contract_aware == BLOCK_SURVIVES",
+    "route": "contract_contradiction only",
+    "evidence_requirement": "m4rel.covers(finding, fixture) — claim-linked, not merely same-file",
+    "role_condition": "true_positive_detection only (belt and suspenders: covers() already excludes extras mechanically)",
+    "effect": "exempt an eligible existing block from a future, separately approved bare-scope downgrade",
+    "historical_effect": "preserve the two named M4 true positives",
+    "exclusions": [
+      "no admission",
+      "no block creation",
+      "no extra-blocker preservation",
+      "no route expansion",
+      "no GATING activation",
+      "no deployed change"
+    ]
+  },
+  "scope_interpretation": "The grant is NOT an unrestricted exemption for every future m4rel detection. Its reusable semantics are the frozen claim boundary plus the existing-block/contract-route/claim-linked conditions; its measured corpus effect is exactly the two M4 rows. Any broader claim of generalization requires additional independent validation.",
+  "evidence_pins": {
+    "original_run4_report": {
+      "path": "eval/evidence/v21-m4rel-qualification-2026-09-23/qualification-report.execution-4.json",
+      "sha256": "a4ebaabac2dea4c662541f433aeb580bd91d301e45dde576ce3688eb4a422c1f",
+      "note": "the evaluator's original run-4 output (SUCCESS), unchanged"
+    },
+    "review_annotated_published_report": {
+      "path": "eval/evidence/v21-m4rel-qualification-2026-09-23/qualification-report.json",
+      "sha256": "fec590e9f822880a4e82aaa281f1ad6c0942559eaa55dbc64c6ddab08a11934c",
+      "note": "the human-reviewed, annotated published report (SUCCESS)"
+    },
+    "preserved_first_run_halt": {
+      "path": "eval/evidence/v21-m4rel-qualification-2026-09-23/qualification-report.execution-1.json",
+      "sha256": "b368b5a4dcb7dbd9113e60cfbd514c8e17447722e60ca8748beae85620a13aa2",
+      "note": "immutable first-execution HALT (evaluator aggregation defect, not a candidate failure)"
+    },
+    "pr106_merge_sha": "9a962c08dc90947ecdf5b6c3f67d212cf82915a2",
+    "pr106_final_reviewed_head": "90fd9293b3299bdb0c0c21047e9760c08ccc7321",
+    "22d_phase_transition": {
+      "path": "eval/evidence/v21-m4rel-qualification-2026-09-23/PHASE_TRANSITION.json",
+      "sha256": "b3eb2a4c8d9fe2a3353ec00cb423cc051abc96dda886412e227c7678b8f1a628"
+    },
+    "22b_contract_sha256": "0f7e183703dd9497b9e430686194472cefff0de3d9657c19e55b73e77d74c2a0",
+    "oracle_version": "117b4164e5446f50",
+    "frozen_verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+  },
+  "retained_limitations": [
+    "preregistered validation against the frozen holdout, NOT vocabulary-independent generalization (holdout authored before implementation but not blind to the implementation author)",
+    "cross-execution identity is mechanically proved between the preserved first and final reports only; intermediate runs 2 and 3 are not independently verifiable from committed artifacts and rest on the disclosed execution log",
+    "the first HALT was an evaluator aggregation defect, not an observed candidate failure",
+    "existing-holdout control gate is structurally easy (probe records carry no title/body); the substantive control-safety signal is the 0/77 corpus gate",
+    "extras file-match diagnostics (4 same-file rows) are recorded but claim-linkage is the gate"
+  ],
+  "mechanical_effect_on_frozen_corpus": {
+    "total_blocking_rows": 276,
+    "grant_eligible_rows": [
+      ["true_positive_detection", "M4", "stage-a-max", 66, 0],
+      ["true_positive_detection", "M4", "b1-low", 44, 0]
+    ],
+    "grant_eligible_count": 2,
+    "controls_preserved": 0,
+    "extras_preserved": 0,
+    "role_filter_redundant": "eligible set is identical with and without the role filter (covers() claim-linkage already excludes all 34 extras)",
+    "bare_contract_survivor_disposition": {
+      "bare_contract_survivors": {"control_blocker": 15, "positive_extra_blocker": 5, "true_positive_detection": 2},
+      "preserved_by_grant": {"true_positive_detection": 2},
+      "falls_under_bare_plus_grant": {"control_blocker": 15, "positive_extra_blocker": 5},
+      "note": "the 20 remaining falls are the intended benefit of any future bare-scope reduction: they are false blockers; their removal requires the separately reviewed adoption design"
+    },
+    "survivors_untouched": 123,
+    "relation_carried_tps_unaddressed": 24
+  },
+  "pc2_dsc_p4": {
+    "status": "UNRESOLVED",
+    "statement": "the holdout dsc-P4 positive would still be downgraded by any bare-scope rule extended to the holdout; neither the m4rel grant nor the existing FAILED dsc relation provides an exemption for it",
+    "resolution_paths_for_adoption_design": [
+      "accept the cost explicitly in the adoption preregistration",
+      "qualify a dsc-prime remediation under the 22A gates first (slate order 2), then extend the policy",
+      "decline bare-rule extension to holdout material"
+    ]
+  },
+  "adoption_prep": {
+    "status": "adoption design NOT started; blocked until PC2 disposition is explicitly reviewed",
+    "r1_prime": "remains non-adoptable; this grant does not adopt it",
+    "combined_policy_ledger": "the mechanical_effect block is the seed ledger: -20 false blockers (15 C + 5 E), -0 true positives, 0 controls or extras preserved, 24 relation-carried TPs untouched by the policy as scoped (21B relation-dependence problem remains for any policy that strips failed-relation evidence)",
+    "unchanged_invariants": [
+      "psd admission scope untouched",
+      "no baseline decision changes",
+      "no GATING activation",
+      "no deployed change",
+      "failed relations and M10 gain no authority from this grant"
+    ]
+  }
+}
