@@ -231,6 +231,8 @@ def test_holdout_observed_facts_match_frozen_reports():
          "2026-09-22/generalization-report-18d.json").read_text())
     hold = LEDGER["observed_facts"]["holdout_18a_18d"]
     assert hold["aggregate_18a"] == r18a["aggregate"]
+    assert hold["aggregate_18a"]["controls_total"] == 28
+    assert hold["aggregate_18a"]["raw_observed_controls_total"] == 30
     p4 = [r for r in r18a["fixture_rows"]
           if r["id"] == "dsc-P4"][0]
     assert hold["dsc_P4_row_18a"] == p4
@@ -266,6 +268,8 @@ def test_pc2_disposition_document():
                    "burned", "disguised holdout exception",
                    "Exact authorization required",
                    "UNRESOLVED by design",
+                   "28 filtered observed controls",
+                   "30 **raw** existing-holdout",
                    "dsc-C1/C2", "GENERALIZATION_FAIL"):
         assert phrase in md, phrase
     assert "| A — accept cost |" in md and \
