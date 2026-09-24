@@ -90,7 +90,6 @@ def test_corpus_populations_rederived_and_identical():
     assert len(rows) == 276
     surv = [r for r in rows if r["g2"] == "BLOCK_SURVIVES"]
     assert len(surv) == 145
-    bare = {r["role"]: [] for r in []}
     bare_rows = [r for r in surv
                  if r["route"] == "contract_contradiction"
                  and not r["preds"] and not r["rels"]]
@@ -106,12 +105,9 @@ def test_corpus_populations_rederived_and_identical():
                 and r["covers"]]
     of = LEDGER["observed_facts"]["corpus"]
     assert {_key(r) for r in bare_rows} == {
-        _key(dict(r, role=r["role"]))
-        for r in of["bare_contract_survivors"]["rows"]} if False \
-        else {_key(r) for r in bare_rows} == {
-            (x["source"], x["record_index"], x["finding_index"],
-             x["role"], x["fixture"])
-            for x in of["bare_contract_survivors"]["rows"]}
+        (x["source"], x["record_index"], x["finding_index"],
+         x["role"], x["fixture"])
+        for x in of["bare_contract_survivors"]["rows"]}
     assert len(bare_rows) == len(
         of["bare_contract_survivors"]["rows"]) == 22
     assert of["bare_contract_survivors"][
@@ -310,20 +306,22 @@ def test_adoption_design_document():
 
 
 def test_generator_is_deterministic_source():
+    # Crucially, capture the committed artifact BEFORE re-derivation.
+    # --check is read-only; the test cannot silently heal corrupt data.
     import subprocess
+    path = DESIGN_DIR / "COMBINED-LEDGER.json"
+    original = path.read_bytes()
+    original_sha = hashlib.sha256(original).hexdigest()
     out = subprocess.run(
-        [sys.executable, str(GEN)], capture_output=True, text=True,
-        cwd=str(REPO))
+        [sys.executable, str(GEN), "--check"],
+        capture_output=True, text=True, cwd=str(REPO))
     assert out.returncode == 0, out.stderr
-    regenerated = (DESIGN_DIR / "COMBINED-LEDGER.json").read_text()
-    assert regenerated == json.dumps(
-        json.loads(regenerated), indent=2) + "\n"
-    after = hashlib.sha256(
-        (DESIGN_DIR / "COMBINED-LEDGER.json").read_bytes()).hexdigest()
-    assert out.returncode == 0
-    # rerunning produced a byte-identical ledger
-    subprocess.run([sys.executable, str(GEN)], check=True,
-                   capture_output=True, cwd=str(REPO))
-    assert hashlib.sha256(
-        (DESIGN_DIR / "COMBINED-LEDGER.json").read_bytes()).hexdigest() \
-        == after
+    assert "no files changed" in out.stdout
+    assert path.read_bytes() == original
+    out2 = subprocess.run(
+        [sys.executable, str(GEN), "--check"],
+        capture_output=True, text=True, cwd=str(REPO))
+    assert out2.returncode == 0, out2.stderr
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == original_sha
+    assert original == (json.dumps(
+        json.loads(original), indent=2) + "\n").encode()
