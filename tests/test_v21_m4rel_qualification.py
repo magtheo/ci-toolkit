@@ -138,6 +138,13 @@ def test_execution_log_discipline():
     for index in (2, 3):
         assert not (QUAL / (
             "qualification-report.execution-%d.json" % index)).exists()
+    assert _sha(QUAL / "qualification-report.execution-4.json") == \
+        log[-1]["report_sha256"]
+    original4 = json.loads(
+        (QUAL / "qualification-report.execution-4.json").read_text())
+    assert original4["gates"] == REPORT["gates"]
+    assert original4["evaluator_correction"][
+        "fixture_level_outputs_identical"] is True
     assert qual_eval._execution_log() == log
     assert log[-1]["reconstructed"] is False
     assert log[-1]["report_sha256"] == \
@@ -165,7 +172,9 @@ def test_report_file_pins():
            (QUAL / "execution-log.jsonl").read_text().splitlines()
            if line.strip()]
     assert log[-1]["report_sha256"] == _sha(
-        QUAL / "qualification-report.json")
+        QUAL / "qualification-report.execution-4.json")
+    assert REPORT["evaluator_correction"]["provenance_limit"].startswith(
+        "execution-log.jsonl entries 1 and 2")
     assert REPORT["pins"]["22b_contract_sha256"] == _sha(
         REPO / "eval" / "evidence" /
         "v21-m4rel-prereg-2026-09-23" / "TARGETS_CONTRACT.json")
