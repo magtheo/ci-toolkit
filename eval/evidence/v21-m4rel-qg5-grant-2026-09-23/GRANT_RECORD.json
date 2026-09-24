@@ -12,7 +12,7 @@
     "eligible_decision": "an existing blocking row with g2_contract_aware == BLOCK_SURVIVES",
     "route": "contract_contradiction only",
     "evidence_requirement": "m4rel.covers(finding, fixture) — claim-linked, not merely same-file",
-    "role_condition": "true_positive_detection only (belt and suspenders: covers() already excludes extras mechanically)",
+    "role_condition": "NO runtime oracle-role condition: true_positive_detection is a frozen evaluation label only. Corpus tests show the eligible set is identical with/without this label; future adoption must independently establish zero control/extra preservation without oracle labels.",
     "effect": "exempt an eligible existing block from a future, separately approved bare-scope downgrade",
     "historical_effect": "preserve the two named M4 true positives",
     "exclusions": [
@@ -24,7 +24,7 @@
       "no deployed change"
     ]
   },
-  "scope_interpretation": "The grant is NOT an unrestricted exemption for every future m4rel detection. Its reusable semantics are the frozen claim boundary plus the existing-block/contract-route/claim-linked conditions; its measured corpus effect is exactly the two M4 rows. Any broader claim of generalization requires additional independent validation.",
+  "scope_interpretation": "The grant is NOT an unrestricted exemption for every future m4rel detection. Its reusable semantics are the frozen claim boundary plus the existing-block/contract-route/claim-linked conditions; its measured corpus effect is exactly the two M4 rows. Any broader claim of generalization requires additional independent validation. The production decision cannot consult hidden oracle role labels; the observed zero control/extra preservation is a frozen-corpus measurement, NOT a guarantee for future unseen findings. Any future adoption must separately verify its zero-extra/zero-control safety under the exact combined policy.",
   "evidence_pins": {
     "original_run4_report": {
       "path": "eval/evidence/v21-m4rel-qualification-2026-09-23/qualification-report.execution-4.json",
@@ -61,17 +61,38 @@
   "mechanical_effect_on_frozen_corpus": {
     "total_blocking_rows": 276,
     "grant_eligible_rows": [
-      ["true_positive_detection", "M4", "stage-a-max", 66, 0],
-      ["true_positive_detection", "M4", "b1-low", 44, 0]
+      [
+        "true_positive_detection",
+        "M4",
+        "stage-a-max",
+        66,
+        0
+      ],
+      [
+        "true_positive_detection",
+        "M4",
+        "b1-low",
+        44,
+        0
+      ]
     ],
     "grant_eligible_count": 2,
     "controls_preserved": 0,
     "extras_preserved": 0,
     "role_filter_redundant": "eligible set is identical with and without the role filter (covers() claim-linkage already excludes all 34 extras)",
     "bare_contract_survivor_disposition": {
-      "bare_contract_survivors": {"control_blocker": 15, "positive_extra_blocker": 5, "true_positive_detection": 2},
-      "preserved_by_grant": {"true_positive_detection": 2},
-      "falls_under_bare_plus_grant": {"control_blocker": 15, "positive_extra_blocker": 5},
+      "bare_contract_survivors": {
+        "control_blocker": 15,
+        "positive_extra_blocker": 5,
+        "true_positive_detection": 2
+      },
+      "preserved_by_grant": {
+        "true_positive_detection": 2
+      },
+      "falls_under_bare_plus_grant": {
+        "control_blocker": 15,
+        "positive_extra_blocker": 5
+      },
       "note": "the 20 remaining falls are the intended benefit of any future bare-scope reduction: they are false blockers; their removal requires the separately reviewed adoption design"
     },
     "survivors_untouched": 123,
@@ -95,7 +116,8 @@
       "no baseline decision changes",
       "no GATING activation",
       "no deployed change",
-      "failed relations and M10 gain no authority from this grant"
+      "failed relations and M10 gain no authority from this grant",
+      "no runtime oracle-role branching; zero control/extra preservation must be demonstrated for the future combined policy"
     ]
   }
 }
