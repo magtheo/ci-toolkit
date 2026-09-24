@@ -151,6 +151,26 @@ def test_execution_log_discipline():
         "a4ebaabac2dea4c662541f433aeb580bd91d301e45dde576ce3688eb4a422c1f"
 
 
+def test_published_evaluator_is_read_only(monkeypatch):
+    report_path = QUAL / "qualification-report.json"
+    raw1 = QUAL / "qualification-report.execution-1.json"
+    raw4 = QUAL / "qualification-report.execution-4.json"
+    log_path = QUAL / "execution-log.jsonl"
+    before = {str(p): _sha(p)
+              for p in (report_path, raw1, raw4, log_path)}
+
+    def forbidden_detection(_fixture):
+        raise AssertionError("published qualification must not re-execute")
+
+    monkeypatch.setattr(m4, "detect", forbidden_detection)
+    assert qual_eval.evaluate() == REPORT
+    after = {str(p): _sha(p) for p in
+             (report_path, raw1, raw4, log_path)}
+    assert after == before
+    assert [e["run_index"] for e in qual_eval._execution_log()] == [1, 2, 3, 4]
+
+
+
 def test_fixture_level_matches_manifest():
     g5 = REPORT["gates"]["G5_fresh_holdout_single_execution"]
     by_id = {f["id"]: f for f in g5["fixtures"]}
