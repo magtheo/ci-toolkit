@@ -25,8 +25,9 @@
   its execution.
 - The 22B holdout was executed once as the sanctioned observation,
   then re-executed three times according to `execution-log.jsonl`.
-  The detector hash is the same throughout the logged runs. **Only
-  execution 1 and the final report are retained:** their 12
+  The detector hash is the same throughout the logged runs. **Original
+  execution 1 and execution 4 reports are both retained**, with a
+  separately hash-pinned review-annotated final report. Their 12
   fixture-level outputs are mechanically verified identical. Runs 2–3
   are logged but their report bytes were not preserved, so their
   fixture-level identities **cannot be independently verified** from
@@ -43,12 +44,22 @@ correctly-refused controls. The first raw report is preserved
 unmodified as `qualification-report.execution-1.json`
 (sha256 `b368b5a4dcb7dbd9113e60cfbd514c8e17447722e60ca8748beae85620a13aa2`,
 verdict HALT). The official report embeds a cross-check for
-the retained **first versus final** fixture outputs and pins the
+the retained **first versus run-4 versus reviewed-final** fixture
+outputs and pins the
 detector bytes. It does **not** independently establish intermediate
 run-2/run-3 outputs. The
 detector (`eval/v21_m4_relation.py`,
 sha256 `1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596`)
 never changed.
+
+The original run-4 report is preserved separately as
+`qualification-report.execution-4.json`
+(sha256 `a4ebaabac2dea4c662541f433aeb580bd91d301e45dde576ce3688eb4a422c1f`),
+which is the digest recorded in the run-4 execution log. The
+review-annotated `qualification-report.json` is a distinct artifact;
+its only substantive amendment is the explicit scope of the
+cross-execution provenance claim. The preserved raw reports and
+their fixture-level results have not been edited.
 
 ## Gates
 
