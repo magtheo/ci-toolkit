@@ -5,7 +5,9 @@ and frozen modules, assembles observed facts (frozen evaluation
 records), counterfactual effects, and authorized effects into
 COMBINED-LEDGER.json. Run from repo root:
 
-    python3 eval/evidence/v21-pc2-adoption-design-2026-09-23/generate_ledger.py
+    python3 eval/evidence/v21-pc2-adoption-design-2026-09-23/generate_ledger.py --check
+    # Only for an explicitly reviewed regeneration of the ledger:
+    python3 eval/evidence/v21-pc2-adoption-design-2026-09-23/generate_ledger.py --write
 """
 import hashlib
 import json
@@ -484,12 +486,28 @@ def build():
             "psd admission scope is referenced as unchanged only",
         ],
     }
-    (OUT / "COMBINED-LEDGER.json").write_text(
-        json.dumps(ledger, indent=2, sort_keys=False) + "\n")
-    print("ledger written;",
-          "bare", len(bare), "relcar", len(relcar),
-          "eligible", len(eligible))
+    # Building a ledger is pure: never rewrite a checked-in evidence
+    # artifact during tests or verification. Writing needs explicit
+    # --write and must not be done after the record is accepted/frozen.
+    return json.dumps(ledger, indent=2, sort_keys=False) + "\n"
+
+
+def main(argv):
+    if argv not in (["--check"], ["--write"]):
+        raise SystemExit("usage: generate_ledger.py --check|--write")
+    content = build()
+    path = OUT / "COMBINED-LEDGER.json"
+    if argv == ["--check"]:
+        if not path.exists() or path.read_bytes() != content.encode():
+            print("HALT: committed ledger differs from frozen derivation",
+                  file=sys.stderr)
+            return 1
+        print("ledger matches derived bytes; no files changed")
+        return 0
+    path.write_text(content)
+    print("ledger written explicitly; review and freeze its new SHA")
+    return 0
 
 
 if __name__ == "__main__":
-    build()
+    sys.exit(main(sys.argv[1:]))
