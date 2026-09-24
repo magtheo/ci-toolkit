@@ -51,8 +51,11 @@ one of the paths below is taken.
   qualification-failed relations or not-yet-existing successors.
   The cost is not "one fixture"; it is the class it anchors.
 - **Safety implications:** no control or extra is endangered by the
-  acceptance itself (0/77 corpus controls, 0/30 existing-holdout
-  controls are untouched by preservation questions). The risk is
+  acceptance itself. The corpus gate has 0/77 control firings; the
+  prior 22D structural gate recorded 0/30 **raw** existing-holdout
+  control fixtures. These are not the same denominator as 18A's
+  **28 filtered observed controls** (from 30 raw controls). No new
+  23A holdout execution or 0/28 safety finding is implied. The risk is
   concentrated entirely in recall, and it is permanent until
   revisited: acceptance is recorded in the adoption preregistration
   and binds the combined policy.
