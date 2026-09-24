@@ -77,18 +77,33 @@ def _fresh_fixture_digest(fixtures):
 
 
 def _execution_log():
-    """Prior runs from the execution log; identity is enforced across
-    every entry: same detector bytes, same fixture-level outputs."""
+    """Verify retained report pins and detector identity before replay.
+
+    Runs 2–3 are documented in the reconstructed/live log but their
+    report bytes were not retained, so their fixture-level outputs
+    cannot be independently checked against committed artifacts.
+    Only execution 1 vs. the final report has a byte-backed comparison.
+    """
     log_path = OUT / "execution-log.jsonl"
     if not log_path.exists():
         return []
     entries = [json.loads(line) for line
                in log_path.read_text().splitlines() if line.strip()]
     detector = _sha(REPO / "eval" / "v21_m4_relation.py")
+    if [e["run_index"] for e in entries] != list(
+            range(1, len(entries) + 1)):
+        raise Halt("execution log: nonconsecutive run indices")
     for e in entries:
         if e["detector_sha256"] != detector:
             raise Halt("execution log: detector bytes changed "
                        "between executions (run %s)" % e["run_index"])
+    if entries:
+        first = OUT / "qualification-report.execution-1.json"
+        if not first.exists() or _sha(first) != entries[0]["report_sha256"]:
+            raise Halt("execution log: preserved run-1 report hash mismatch")
+        final = OUT / "qualification-report.json"
+        if final.exists() and _sha(final) != entries[-1]["report_sha256"]:
+            raise Halt("execution log: latest retained report hash mismatch")
     return entries
 
 
@@ -346,6 +361,7 @@ def _correction_provenance(pins, fresh):
         "first_execution_report_sha256": _sha(first_path),
         "first_execution_verdict": first["verdict"],
         "fixture_level_outputs_identical": fixtures_identical,
+        "fixture_comparison_scope": "preserved execution 1 vs current run only; intermediate run-2/run-3 reports are not retained and their fixture identity is not independently verifiable",
         "detector_bytes_identical": detector_identical,
     }
 
@@ -385,6 +401,8 @@ def evaluate():
     verdict = "SUCCESS" if all(
         g["ok"] for g in gates.values()) else "HALT"
     if prior_runs:
+        # This verifies retained run 1 against the present result, NOT
+        # unretained run 2 or run 3 (only log attestations exist).
         first_fresh = json.loads(
             (OUT / "qualification-report.execution-1.json")
             .read_text())["gates"][
@@ -411,11 +429,7 @@ def evaluate():
             "fresh_holdout_sanctioned_observation": 1,
             "fresh_holdout_deterministic_reexecutions":
                 len(prior_runs),
-            "reexecution_policy": "evaluator-only fixes; detector "
-                                  "byte-identical; fixture-level "
-                                  "outputs mechanically verified "
-                                  "identical (see execution-log."
-                                  "jsonl and evaluator_correction)",
+            "reexecution_policy": "three logged evaluator-only re-executions on pinned detector bytes; fixture-level identity mechanically verified for preserved execution 1 vs final run, NOT independently for unretained runs 2–3",
             "no_detector_changes_after_observation": True,
             "module_sha256_at_execution":
                 pins["module_sha256_22c"],
