@@ -189,9 +189,16 @@ def test_pc2_unresolved_and_adoption_blocked():
     assert "blocked until PC2" in prep["status"]
     assert prep["r1_prime"] == \
         "remains non-adoptable; this grant does not adopt it"
-    for inv in prep["unchanged_invariants"]:
-        pass
-    assert len(prep["unchanged_invariants"]) == 5
+    assert set(prep["unchanged_invariants"]) == {
+        "psd admission scope untouched",
+        "no baseline decision changes",
+        "no GATING activation",
+        "no deployed change",
+        "failed relations and M10 gain no authority from this grant",
+        "no runtime oracle-role branching; zero control/extra preservation must be demonstrated for the future combined policy",
+    }
+    assert "NO runtime oracle-role condition" in RECORD[
+        "grant_scope"]["role_condition"]
 
 
 def test_grant_md_consistent():
