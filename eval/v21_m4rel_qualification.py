@@ -82,7 +82,8 @@ def _execution_log():
     Runs 2–3 are documented in the reconstructed/live log but their
     report bytes were not retained, so their fixture-level outputs
     cannot be independently checked against committed artifacts.
-    Only execution 1 vs. the final report has a byte-backed comparison.
+    Only execution 1 vs. preserved run 4 (and its reviewed annotation)
+    has a byte-backed comparison.
     """
     log_path = OUT / "execution-log.jsonl"
     if not log_path.exists():
@@ -101,9 +102,10 @@ def _execution_log():
         first = OUT / "qualification-report.execution-1.json"
         if not first.exists() or _sha(first) != entries[0]["report_sha256"]:
             raise Halt("execution log: preserved run-1 report hash mismatch")
-        final = OUT / "qualification-report.json"
-        if final.exists() and _sha(final) != entries[-1]["report_sha256"]:
-            raise Halt("execution log: latest retained report hash mismatch")
+        last = OUT / ("qualification-report.execution-%d.json"
+                      % entries[-1]["run_index"])
+        if not last.exists() or _sha(last) != entries[-1]["report_sha256"]:
+            raise Halt("execution log: preserved last-run report hash mismatch")
     return entries
 
 
