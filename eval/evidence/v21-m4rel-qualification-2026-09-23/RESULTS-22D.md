@@ -6,8 +6,8 @@
 > vocabulary-independent generalization: the holdout was authored
 > before implementation but is not blind to the implementation author
 > (all six positive actor terms appear in the detector's ACTORS
-> vocabulary). A PASS produces a qualification record only — **no
-> preservation authority is granted**; adoption is a separate,
+> vocabulary). A PASS produces a qualification record only —
+> **no preservation authority is granted**; adoption is a separate,
 > human-decided QG5 step.
 
 ## Execution discipline
