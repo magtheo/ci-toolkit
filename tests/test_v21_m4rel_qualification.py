@@ -18,6 +18,7 @@ sys.path.insert(0, str(REPO))
 import eval.evidence_boundary_sim as boundary  # noqa: E402
 import eval.run_corpus as rc  # noqa: E402
 import eval.v21_m4_relation as m4  # noqa: E402
+import eval.v21_m4rel_qualification as qual_eval  # noqa: E402
 import eval.v21_replay as v21  # noqa: E402
 import eval.v21_routes_replay as rr  # noqa: E402
 
@@ -77,6 +78,22 @@ def test_detector_byte_identity_across_executions():
     assert correction["found_after_first_execution"] is True
     assert correction["detector_bytes_identical"] is True
     assert correction["fixture_level_outputs_identical"] is True
+    assert "execution 1 vs final run only" in correction[
+        "fixture_comparison_scope"]
+    assert "report bytes are unavailable" in correction["provenance_limit"]
+    first_g5 = EXEC1["gates"]["G5_fresh_holdout_single_execution"]
+    final_g5 = REPORT["gates"]["G5_fresh_holdout_single_execution"]
+    assert first_g5["fixtures"] == final_g5["fixtures"]
+    assert first_g5["ok"] is False and final_g5["ok"] is True
+    assert first_g5["positives_fired"] == final_g5["positives_fired"] == 6
+    assert first_g5["controls_fired"] == final_g5["controls_fired"] == 0
+    assert all(x["ok"] is True for x in first_g5["fixtures"])
+    for name in ("G1_corpus_targets", "G2_corpus_controls",
+                 "G3_extras", "G4_existing_holdout_controls",
+                 "G6_standing_guards"):
+        assert EXEC1["gates"][name] == REPORT["gates"][name]
+    assert "NOT independently for unretained runs 2" in REPORT[
+        "execution"]["reexecution_policy"]
     assert correction["first_execution_verdict"] == "HALT"
     assert correction["first_execution_report_sha256"] == EXEC1_SHA
     assert _sha(QUAL /
@@ -114,6 +131,14 @@ def test_execution_log_discipline():
     assert all(e["detector_sha256"] == MODULE_SHA for e in log)
     assert log[0]["reconstructed"] is True
     assert log[0]["report_sha256"] == EXEC1_SHA
+    assert _sha(QUAL / "qualification-report.execution-1.json") == \
+        log[0]["report_sha256"]
+    assert [e["reconstructed"] for e in log] == [
+        True, True, False, False]
+    for index in (2, 3):
+        assert not (QUAL / (
+            "qualification-report.execution-%d.json" % index)).exists()
+    assert qual_eval._execution_log() == log
     assert log[-1]["reconstructed"] is False
     assert log[-1]["report_sha256"] == \
         "a4ebaabac2dea4c662541f433aeb580bd91d301e45dde576ce3688eb4a422c1f"
@@ -135,7 +160,12 @@ def test_fixture_level_matches_manifest():
 
 def test_report_file_pins():
     assert _sha(QUAL / "qualification-report.json") == \
-        "a4ebaabac2dea4c662541f433aeb580bd91d301e45dde576ce3688eb4a422c1f"
+        "fec590e9f822880a4e82aaa281f1ad6c0942559eaa55dbc64c6ddab08a11934c"
+    log = [json.loads(line) for line in
+           (QUAL / "execution-log.jsonl").read_text().splitlines()
+           if line.strip()]
+    assert log[-1]["report_sha256"] == _sha(
+        QUAL / "qualification-report.json")
     assert REPORT["pins"]["22b_contract_sha256"] == _sha(
         REPO / "eval" / "evidence" /
         "v21-m4rel-prereg-2026-09-23" / "TARGETS_CONTRACT.json")
@@ -168,7 +198,8 @@ def test_interpretation_language():
                    "no preservation authority is granted",
                    "Evaluator correction",
                    "b368b5a4",
-                   "a4ebaaba",
+                   "fec590e9",
+                   "cannot be independently verified",
                    "STOPPED for human review"):
         assert phrase in results, phrase
 
