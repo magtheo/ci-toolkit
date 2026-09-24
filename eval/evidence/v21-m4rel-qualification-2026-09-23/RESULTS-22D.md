@@ -24,12 +24,15 @@
   detection ran**; fresh-holdout manifest integrity verified before
   its execution.
 - The 22B holdout was executed once as the sanctioned observation,
-  then re-executed three times, deterministically, on **byte-identical
-  detector code with mechanically verified identical fixture-level
-  outputs** (execution-log.jsonl): run 2 after an evaluator-only
-  aggregation fix, run 3 after interpretation-wording and
-  transition-binding fixes, run 4 after an execution-counter fix.
-  All evaluator-only; **no detector change followed observation**.
+  then re-executed three times according to `execution-log.jsonl`.
+  The detector hash is the same throughout the logged runs. **Only
+  execution 1 and the final report are retained:** their 12
+  fixture-level outputs are mechanically verified identical. Runs 2–3
+  are logged but their report bytes were not preserved, so their
+  fixture-level identities **cannot be independently verified** from
+  this repository. Log entries 1–2 were retrospectively reconstructed;
+  the log alone is not tamper-evident proof of execution order.
+  No detector change is recorded after observation.
 
 ## Evaluator correction (disclosed, mechanically cross-checked)
 
@@ -39,8 +42,10 @@ the G5 aggregation had inverted the control-correctness predicate
 correctly-refused controls. The first raw report is preserved
 unmodified as `qualification-report.execution-1.json`
 (sha256 `b368b5a4dcb7dbd9113e60cfbd514c8e17447722e60ca8748beae85620a13aa2`,
-verdict HALT). The official report embeds a cross-check: fixture
-outputs and detector bytes identical across executions. The
+verdict HALT). The official report embeds a cross-check for
+the retained **first versus final** fixture outputs and pins the
+detector bytes. It does **not** independently establish intermediate
+run-2/run-3 outputs. The
 detector (`eval/v21_m4_relation.py`,
 sha256 `1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596`)
 never changed.
@@ -76,7 +81,7 @@ never changed.
 Full machine-readable detail (every pin, every gate, per-fixture
 claim clauses and actors, extras and family ids):
 `qualification-report.json`
-(sha256 `a4ebaabac2dea4c662541f433aeb580bd91d301e45dde576ce3688eb4a422c1f`).
+(sha256 `fec590e9f822880a4e82aaa281f1ad6c0942559eaa55dbc64c6ddab08a11934c`).
 
 ## What this record is
 
