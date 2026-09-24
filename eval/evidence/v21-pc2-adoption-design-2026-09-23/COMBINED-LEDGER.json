@@ -1,0 +1,2697 @@
+{
+  "phase": "23A",
+  "kind": "combined-policy-ledger",
+  "status": "design-only__no-execution__no-adoption__pc2-unresolved",
+  "oracle_version": "117b4164e5446f50",
+  "result_kinds": {
+    "observed_fact": "derived mechanically from frozen evaluation records and frozen modules at generation time; re-derivable",
+    "counterfactual_effect": "outcome a proposed rule WOULD produce; not executed as policy",
+    "authorized_effect": "outcome permitted by an accepted authority grant; nothing here executes the grant"
+  },
+  "provenance": {
+    "parent_pr107_merge_sha": "71f78a19ab6297c89186552dbe03efd5a587c3d9",
+    "input_sha256": {
+      "eval/evidence/v21-false-blocker-prereg-2026-09-23/REDUCTION_CONTRACT.json": "f5ac9aa602dc7823ccf5947c7649ef3e6d03f69428f303b10fe8f01acbc3bc33",
+      "eval/evidence/v21-false-blocker-prereg-2026-09-23/PROTOCOL.md": "a700f0182018badcb9bacba2ac1c945b9b8c19237b10cf029d4599f177454361",
+      "eval/evidence/v21-witness-policy-design-2026-09-23/POLICY_DESIGN.json": "6bd0d7415c2cda8933b0be081c6b4e5831037a0aafa75c43afd9bcdc2b34888b",
+      "eval/evidence/v21-witness-policy-design-2026-09-23/PROPOSAL.md": "c7975c8affe542eb6355a42cf6cbaba96d3c6487138cb84a4ebcab9f252fcbb8",
+      "eval/evidence/v21-preservation-authority-prereg-2026-09-23/QUALIFICATION_CONTRACT.json": "e3d763168389acf6cec09e29343a05e5b39a6431823b780410801032722f2989",
+      "eval/evidence/v21-preservation-authority-prereg-2026-09-23/PROTOCOL.md": "109b7c60507eb4d99e74684dbdc4828a8ef49b0ee9ad3a6cf3b51e42167b316c",
+      "eval/evidence/v21-m4rel-prereg-2026-09-23/TARGETS_CONTRACT.json": "0f7e183703dd9497b9e430686194472cefff0de3d9657c19e55b73e77d74c2a0",
+      "eval/evidence/v21-m4rel-prereg-2026-09-23/PROTOCOL.md": "6b9f7dc3b22ee8c4030e0eae816a1e1f8db576d8a367bc33882b591caab81a25",
+      "eval/evidence/v21-m4rel-implementation-2026-09-23/EVIDENCE.json": "66c6c83283bd76ac98f931ee4486f860db9ff5fb2020dfda97b42f7ccb79e8ea",
+      "eval/evidence/v21-m4rel-qualification-2026-09-23/qualification-report.json": "fec590e9f822880a4e82aaa281f1ad6c0942559eaa55dbc64c6ddab08a11934c",
+      "eval/evidence/v21-m4rel-qualification-2026-09-23/qualification-report.execution-4.json": "a4ebaabac2dea4c662541f433aeb580bd91d301e45dde576ce3688eb4a422c1f",
+      "eval/evidence/v21-m4rel-qualification-2026-09-23/qualification-report.execution-1.json": "b368b5a4dcb7dbd9113e60cfbd514c8e17447722e60ca8748beae85620a13aa2",
+      "eval/evidence/v21-m4rel-qualification-2026-09-23/execution-log.jsonl": "62edc406ddde58fa7d483746eba8c37231b03f0d744a699fe432da85a25d9822",
+      "eval/evidence/v21-m4rel-qualification-2026-09-23/PHASE_TRANSITION.json": "b3eb2a4c8d9fe2a3353ec00cb423cc051abc96dda886412e227c7678b8f1a628",
+      "eval/evidence/v21-m4rel-qg5-grant-2026-09-23/GRANT_RECORD.json": "97d1815ab69be925de6f0bd353f3cbe17ba185152bed94e67a8fcb0103f4466e",
+      "eval/evidence/v21-m4rel-qg5-grant-2026-09-23/GRANT.md": "27bd44d30f0efa6958ca903c82a3da7645c95d266a4d412511aa854e7ee63e1c",
+      "eval/evidence/v21-contract-generalization-prereg-2026-09-22/MANIFEST.json": "a9445d91b7b98242c036d7c5b2594a71846a62abd1c08aa1f662129459257591",
+      "eval/evidence/v21-contract-generalization-eval-2026-09-22/generalization-report.json": "a56235b59bd104f9a6d868fad67d6ea1fe65f01a4987df02e257031e05587eec",
+      "eval/evidence/v21-contract-generalization-eval-2026-09-22/generalization-report-18d.json": "0a2bb7fa64be61a4c6b1f4b00b63c53a758fe1fed5d21fd169d067011af8dc26",
+      "eval/v21_m4_relation.py": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596",
+      "eval/v21_contract_relations.py": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+    },
+    "generation": "mechanically re-derived from frozen records via boundary simulation, frozen relation verifier, and the frozen m4rel detector; no summary number is copied"
+  },
+  "observed_facts": {
+    "corpus": {
+      "population": 276,
+      "g2_survivors": 145,
+      "bare_contract_survivors": {
+        "count": 22,
+        "definition": "g2 BLOCK_SURVIVES, route contract_contradiction, no predicate firing, no relation firing of any tier",
+        "identical_to_21a_loose_fall_set": true,
+        "rows": [
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-high",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-high",
+            "record_index": 31,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "b1-high",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-low",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-low",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "b1-low",
+            "record_index": 44,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-high",
+            "record_index": 4,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C8",
+            "source": "stage-a-high",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C4",
+            "source": "stage-a-high",
+            "record_index": 48,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 7,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M12",
+            "source": "stage-a-max",
+            "record_index": 21,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-max",
+            "record_index": 40,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 43,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C2",
+            "source": "stage-a-max",
+            "record_index": 46,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 47,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "stage-a-max",
+            "record_index": 66,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "stage-a-max",
+            "record_index": 75,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 83,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          }
+        ]
+      },
+      "grant_eligible_rows": {
+        "count": 2,
+        "rows": [
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "b1-low",
+            "record_index": 44,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "stage-a-max",
+            "record_index": 66,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          }
+        ]
+      },
+      "relation_carried_tps": {
+        "count": 24,
+        "definition": "frozen 22B population: g2 BLOCK_SURVIVES TPs on the contract route with no predicate and at least one non-psd relation firing",
+        "no_t1_or_t2_evidence_by_construction": true,
+        "buckets": {
+          "failed_five:consume_before_validate_ordering": 5,
+          "failed_five:doc_self_contradiction": 9,
+          "failed_five:jsonl_format_vs_unslurped_jq": 2,
+          "failed_five:preserved_claim_vs_dropped_call_result": 7,
+          "m10_family": 1
+        },
+        "rows": [
+          {
+            "role": "true_positive_detection",
+            "fixture": "M17",
+            "source": "stage-a-high",
+            "record_index": 26,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 33,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:preserved_claim_vs_dropped_call_result"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-high",
+            "record_index": 34,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:consume_before_validate_ordering"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M17",
+            "source": "stage-a-high",
+            "record_index": 62,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 69,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:preserved_claim_vs_dropped_call_result"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-high",
+            "record_index": 70,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:consume_before_validate_ordering"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 99,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M6",
+            "source": "stage-a-high",
+            "record_index": 104,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "jsonl_format_vs_unslurped_jq"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:jsonl_format_vs_unslurped_jq"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 105,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:preserved_claim_vs_dropped_call_result"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-low",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-low",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-max",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M6",
+            "source": "stage-a-max",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "jsonl_format_vs_unslurped_jq"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:jsonl_format_vs_unslurped_jq"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 33,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:preserved_claim_vs_dropped_call_result"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 33,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:preserved_claim_vs_dropped_call_result"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 34,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:consume_before_validate_ordering"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M10",
+            "source": "stage-a-max",
+            "record_index": 55,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_contract_prefix_unanchored_match"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "m10_family"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-max",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:doc_self_contradiction"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 69,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:preserved_claim_vs_dropped_call_result"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 70,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:consume_before_validate_ordering"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 105,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:preserved_claim_vs_dropped_call_result"
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 106,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false,
+            "relation_bucket": "failed_five:consume_before_validate_ordering"
+          }
+        ]
+      },
+      "other_survivors": 99
+    },
+    "holdout_18a_18d": {
+      "status": "observed facts from frozen reports",
+      "aggregate_18a": {
+        "positives_admitted": 16,
+        "positives_total": 28,
+        "controls_admitted": 3,
+        "controls_total": 28,
+        "raw_observed_positives_admitted": 16,
+        "raw_observed_positives_total": 30,
+        "raw_observed_controls_admitted": 3,
+        "raw_observed_controls_total": 30,
+        "relations_pass": 0,
+        "relations_fail": 4,
+        "relations_invalid": 2,
+        "all_pass": false,
+        "blanket_promotion_eligible": false
+      },
+      "dsc_P4_row_18a": {
+        "admitted": false,
+        "expected_label": "ADMITS",
+        "fired_relations": [],
+        "id": "dsc-P4",
+        "probe": false,
+        "relation": "doc_self_contradiction",
+        "role": "positive",
+        "invalid": false
+      },
+      "dsc_18d": {
+        "controls_admitted": 2,
+        "controls_total": 5,
+        "failed_positive_ids": [
+          "dsc-P3",
+          "dsc-P4",
+          "dsc-P5"
+        ],
+        "leaked_control_ids": [
+          "dsc-C1",
+          "dsc-C2"
+        ],
+        "positives_admitted": 2,
+        "positives_total": 5,
+        "verdict": "GENERALIZATION_FAIL"
+      },
+      "note": "dsc-P4 is a holdout positive whose oracle probe was not admitted in 18A and on which the dsc relation did not fire; 18D failed the dsc family (missed P3/P4/P5; leaked C1/C2)"
+    },
+    "holdout_21b_prediction_V2": {
+      "status": "frozen prediction from the 21B design; never executed; executing it requires an execution authorization",
+      "predicted_g2_survivors": 3,
+      "predicted_kept": [
+        "dsc-C4",
+        "dsc-P2"
+      ],
+      "predicted_bare_contract_route_positive": [
+        "dsc-P4"
+      ]
+    }
+  },
+  "counterfactual_effects": {
+    "corpus_variants": {
+      "V0_baseline_g2_unchanged": {
+        "semantics": "no reduction applied",
+        "falls": [],
+        "preserved_by_grant": [],
+        "counts": {
+          "true_positive_losses": 0,
+          "controls_downgraded": 0,
+          "extras_downgraded": 0,
+          "true_positives_preserved_by_grant": 0,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 145
+        }
+      },
+      "V1_bare_scope_alone": {
+        "semantics": "downgrade contract-route g2 survivors with no evidence of any kind; m4rel grant NOT applied",
+        "status": "exploratory measurement; not adoptable (would sacrifice the two grant-protected M4 rows)",
+        "falls": [
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-high",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-high",
+            "record_index": 31,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "b1-high",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-low",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-low",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "b1-low",
+            "record_index": 44,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-high",
+            "record_index": 4,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C8",
+            "source": "stage-a-high",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C4",
+            "source": "stage-a-high",
+            "record_index": 48,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 7,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M12",
+            "source": "stage-a-max",
+            "record_index": 21,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-max",
+            "record_index": 40,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 43,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C2",
+            "source": "stage-a-max",
+            "record_index": 46,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 47,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "stage-a-max",
+            "record_index": 66,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "stage-a-max",
+            "record_index": 75,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 83,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          }
+        ],
+        "preserved_by_grant": [],
+        "counts": {
+          "true_positive_losses": 2,
+          "controls_downgraded": 15,
+          "extras_downgraded": 5,
+          "true_positives_preserved_by_grant": 0,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 123
+        }
+      },
+      "V2_bare_scope_plus_m4rel_grant": {
+        "semantics": "V1 with the accepted m4rel preservation grant applied to eligible existing blocks",
+        "status": "the authorized combination on paper; adoption still requires the Phase-23A gates and explicit authorizations",
+        "falls": [
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-high",
+            "record_index": 4,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C8",
+            "source": "stage-a-high",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C4",
+            "source": "stage-a-high",
+            "record_index": 48,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 7,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M12",
+            "source": "stage-a-max",
+            "record_index": 21,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-max",
+            "record_index": 40,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 43,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C2",
+            "source": "stage-a-max",
+            "record_index": 46,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 47,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "stage-a-max",
+            "record_index": 75,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 83,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-low",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-low",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-high",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-high",
+            "record_index": 31,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "b1-high",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          }
+        ],
+        "preserved_by_grant": [
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "b1-low",
+            "record_index": 44,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "stage-a-max",
+            "record_index": 66,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          }
+        ],
+        "counts": {
+          "true_positive_losses": 0,
+          "controls_downgraded": 15,
+          "extras_downgraded": 5,
+          "true_positives_preserved_by_grant": 2,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 123
+        },
+        "relation_carried_tps": {
+          "outcome": "all 24 unchanged",
+          "no_new_authority": true,
+          "caveat": "the rule is evidence-presence-dependent: rows are not bare because failed-relation firings exist; their preservation is NOT granted authority and must not acquire it implicitly; the rejected 21B redaction-equivalence claim is not resurrected; if a future policy redacts failed-relation firings the V3 delta becomes binding"
+        }
+      },
+      "V3_qualified_evidence_only": {
+        "semantics": "witness = qualified evidence only (T1 predicates or T2 psd); failed-relation firings do not witness (redaction-accounting variant)",
+        "status": "warning variant; NOT proposed; shown because any future policy must state its evidence semantics precisely",
+        "falls": [
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-high",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-high",
+            "record_index": 31,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "b1-high",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-low",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-low",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "b1-low",
+            "record_index": 44,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-high",
+            "record_index": 4,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C8",
+            "source": "stage-a-high",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M17",
+            "source": "stage-a-high",
+            "record_index": 26,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 33,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-high",
+            "record_index": 34,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C4",
+            "source": "stage-a-high",
+            "record_index": 48,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M17",
+            "source": "stage-a-high",
+            "record_index": 62,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 69,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-high",
+            "record_index": 70,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 99,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M6",
+            "source": "stage-a-high",
+            "record_index": 104,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "jsonl_format_vs_unslurped_jq"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 105,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-low",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-low",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 7,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M12",
+            "source": "stage-a-max",
+            "record_index": 21,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-max",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M6",
+            "source": "stage-a-max",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "jsonl_format_vs_unslurped_jq"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 33,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 33,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 34,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-max",
+            "record_index": 40,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 43,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C2",
+            "source": "stage-a-max",
+            "record_index": 46,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 47,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M10",
+            "source": "stage-a-max",
+            "record_index": 55,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_contract_prefix_unanchored_match"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-max",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "stage-a-max",
+            "record_index": 66,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 69,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 70,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "stage-a-max",
+            "record_index": 75,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 83,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 105,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 106,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          }
+        ],
+        "preserved_by_grant": [],
+        "counts": {
+          "true_positive_losses": 26,
+          "controls_downgraded": 15,
+          "extras_downgraded": 5,
+          "true_positives_preserved_by_grant": 0,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 99
+        }
+      },
+      "V3_plus_grant": {
+        "semantics": "V3 with the m4rel grant applied",
+        "falls": [
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-high",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-high",
+            "record_index": 31,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "b1-high",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "b1-low",
+            "record_index": 6,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "b1-low",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-high",
+            "record_index": 4,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C8",
+            "source": "stage-a-high",
+            "record_index": 16,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M17",
+            "source": "stage-a-high",
+            "record_index": 26,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 33,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-high",
+            "record_index": 34,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C4",
+            "source": "stage-a-high",
+            "record_index": 48,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-high",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M17",
+            "source": "stage-a-high",
+            "record_index": 62,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 69,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-high",
+            "record_index": 70,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-high",
+            "record_index": 99,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M6",
+            "source": "stage-a-high",
+            "record_index": 104,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "jsonl_format_vs_unslurped_jq"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-high",
+            "record_index": 105,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-low",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-low",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 7,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M12",
+            "source": "stage-a-max",
+            "record_index": 21,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 22,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-max",
+            "record_index": 27,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M6",
+            "source": "stage-a-max",
+            "record_index": 32,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "jsonl_format_vs_unslurped_jq"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 33,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 33,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 34,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C13",
+            "source": "stage-a-max",
+            "record_index": 40,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C16",
+            "source": "stage-a-max",
+            "record_index": 43,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C2",
+            "source": "stage-a-max",
+            "record_index": 46,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 47,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M10",
+            "source": "stage-a-max",
+            "record_index": 55,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_contract_prefix_unanchored_match"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "positive_extra_blocker",
+            "fixture": "M13",
+            "source": "stage-a-max",
+            "record_index": 58,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M18",
+            "source": "stage-a-max",
+            "record_index": 63,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "doc_self_contradiction"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 69,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 70,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C12",
+            "source": "stage-a-max",
+            "record_index": 75,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "control_blocker",
+            "fixture": "C3",
+            "source": "stage-a-max",
+            "record_index": 83,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M7",
+            "source": "stage-a-max",
+            "record_index": 105,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "preserved_claim_vs_dropped_call_result"
+            ],
+            "m4rel_covers": false
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M8",
+            "source": "stage-a-max",
+            "record_index": 106,
+            "finding_index": 1,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [
+              "consume_before_validate_ordering"
+            ],
+            "m4rel_covers": false
+          }
+        ],
+        "preserved_by_grant": [
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "b1-low",
+            "record_index": 44,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          },
+          {
+            "role": "true_positive_detection",
+            "fixture": "M4",
+            "source": "stage-a-max",
+            "record_index": 66,
+            "finding_index": 0,
+            "route": "contract_contradiction",
+            "baseline_g2": "BLOCK_SURVIVES",
+            "predicates": [],
+            "relations": [],
+            "m4rel_covers": true
+          }
+        ],
+        "counts": {
+          "true_positive_losses": 24,
+          "controls_downgraded": 15,
+          "extras_downgraded": 5,
+          "true_positives_preserved_by_grant": 2,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 99
+        }
+      }
+    },
+    "holdout_variants_pc2": {
+      "status": "all holdout extension effects are counterfactuals over the frozen 21B V2 prediction and 18A/18D facts; none is executed here",
+      "EXT_A_accept_cost": {
+        "pc2_path": "A",
+        "effect": "dsc-P4's future detected block downgrades: 1 true-positive loss on holdout material",
+        "requires": "explicit human risk acceptance recorded in the adoption preregistration; an acceptance of scope is NOT a qualified preservation witness and creates no authority",
+        "counts": {
+          "true_positive_losses": 1,
+          "controls_downgraded": 0,
+          "extras_downgraded": 0,
+          "true_positives_preserved_by_grant": 0,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 2
+        }
+      },
+      "EXT_B_qualify_dsc_prime_first": {
+        "pc2_path": "B",
+        "effect": "holdout fall set 0 (dsc-P4 witnessed by a qualified dsc-prime through its own preregistered cycle)",
+        "requires": "full 22A-framework qualification: remediation of dsc-C1/C2 control leaks and the P3/P4/P5 misses, candidate-specific preregistration with fresh independent holdout, pair discipline, measured qualification (N=5, >=4/5, paired control clean), then a separate preservation-authority decision; dsc-P4 itself is burned as a target and may not serve as one",
+        "counts": {
+          "true_positive_losses": 0,
+          "controls_downgraded": 0,
+          "extras_downgraded": 0,
+          "true_positives_preserved_by_grant": 0,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 3
+        },
+        "contingent": "only if the dsc-prime cycle PASSES and authority is granted"
+      },
+      "EXT_C_scope_boundary": {
+        "pc2_path": "C",
+        "effect": "the reduction's applicability boundary excludes holdout-context decisions, so dsc-P4 is untouched within scope",
+        "legitimacy_conditions": [
+          "no fixture IDs, oracle roles, hidden labels, or known holdout membership may be runtime policy inputs",
+          "a provenance/rollout boundary (e.g. records produced by the qualification corpus pipeline) is an operational rollout scope only; it DEFERS PC2 and must be labeled as deferment, never as generalization",
+          "a structural boundary that happens to exclude dsc-P4 would be a disguised holdout exception and is rejected"
+        ],
+        "counts": {
+          "true_positive_losses": 0,
+          "controls_downgraded": 0,
+          "extras_downgraded": 0,
+          "true_positives_preserved_by_grant": 0,
+          "controls_erroneously_preserved": 0,
+          "extras_erroneously_preserved": 0,
+          "unchanged_survivors": 3
+        }
+      }
+    }
+  },
+  "authorized_effects": {
+    "m4rel_preservation_grant": {
+      "record": "eval/evidence/v21-m4rel-qg5-grant-2026-09-23/GRANT_RECORD.json",
+      "sha256": "97d1815ab69be925de6f0bd353f3cbe17ba185152bed94e67a8fcb0103f4466e",
+      "scope": "preservation only; existing g2 BLOCK_SURVIVES on contract_contradiction with claim-linked m4rel.covers; effect = exemption from a future separately approved bare-scope downgrade",
+      "measured_corpus_eligible_rows": [
+        {
+          "role": "true_positive_detection",
+          "fixture": "M4",
+          "source": "b1-low",
+          "record_index": 44,
+          "finding_index": 0,
+          "route": "contract_contradiction",
+          "baseline_g2": "BLOCK_SURVIVES",
+          "predicates": [],
+          "relations": [],
+          "m4rel_covers": true
+        },
+        {
+          "role": "true_positive_detection",
+          "fixture": "M4",
+          "source": "stage-a-max",
+          "record_index": 66,
+          "finding_index": 0,
+          "route": "contract_contradiction",
+          "baseline_g2": "BLOCK_SURVIVES",
+          "predicates": [],
+          "relations": [],
+          "m4rel_covers": true
+        }
+      ],
+      "controls_preserved": 0,
+      "extras_preserved": 0,
+      "exclusions": [
+        "no admission",
+        "no block creation",
+        "no extra-blocker preservation",
+        "no route expansion",
+        "no GATING activation",
+        "no deployed change"
+      ]
+    },
+    "psd_admission_authority": {
+      "status": "unchanged; previously qualified, contract-route admission; no expansion"
+    },
+    "failed_relations_and_m10": {
+      "status": "no preservation authority; firings must not acquire authority implicitly"
+    }
+  },
+  "authority_boundary_assertions": [
+    "grant eligibility is exactly the two named M4 rows on the frozen corpus",
+    "zero control rows and zero extra rows are preserved by any variant",
+    "no relation-carried row appears in any authorized effect",
+    "failed relations and the M10 family appear in no authorized effect",
+    "psd admission scope is referenced as unchanged only"
+  ]
+}
