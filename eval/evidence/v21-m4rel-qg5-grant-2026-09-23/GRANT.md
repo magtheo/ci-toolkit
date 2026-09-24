@@ -25,6 +25,10 @@ m4rel detection: its reusable semantics are the frozen claim boundary
 plus the existing-block / contract-route / claim-linked conditions;
 its measured corpus effect is exactly the two M4 rows. Any broader
 generalization claim requires additional independent validation.
+The `true_positive_detection` role is a **frozen evaluation label,
+never a runtime decision input**. The observed zero control/extra
+preservation is corpus-scoped; a future combined-policy adoption must
+separately demonstrate those safety conditions without oracle labels.
 
 ## Evidence pins (distinguished)
 
