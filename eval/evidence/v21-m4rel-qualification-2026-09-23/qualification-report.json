@@ -12,7 +12,7 @@
   "sanctioned": "first and only sanctioned execution of the frozen m4rel candidate against the frozen qualification material",
   "fresh_holdout_sanctioned_observation": 1,
   "fresh_holdout_deterministic_reexecutions": 3,
-  "reexecution_policy": "evaluator-only fixes; detector byte-identical; fixture-level outputs mechanically verified identical (see execution-log.jsonl and evaluator_correction)",
+  "reexecution_policy": "three logged evaluator-only re-executions on pinned detector bytes; fixture-level identity mechanically verified for preserved execution 1 vs final run, NOT independently for unretained runs 2–3",
   "no_detector_changes_after_observation": true,
   "module_sha256_at_execution": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596",
   "order": "pins verified before any detection; fresh holdout manifest integrity verified before its single execution"
@@ -20,12 +20,14 @@
  "evaluator_correction": {
   "found_after_first_execution": true,
   "defect": "G5 aggregation inverted the control-correctness predicate (c_ok == 0 instead of c_ok == len(controls)); fixture-level results were complete and correct in the first report",
-  "detector_changes": "none \u2014 eval/v21_m4_relation.py byte-identical (sha re-verified)",
+  "detector_changes": "none — eval/v21_m4_relation.py byte-identical (sha re-verified)",
   "first_execution_report": "qualification-report.execution-1.json",
   "first_execution_report_sha256": "b368b5a4dcb7dbd9113e60cfbd514c8e17447722e60ca8748beae85620a13aa2",
   "first_execution_verdict": "HALT",
   "fixture_level_outputs_identical": true,
-  "detector_bytes_identical": true
+  "detector_bytes_identical": true,
+  "fixture_comparison_scope": "preserved execution 1 vs final run only; intermediate run-2/run-3 reports are not retained and their fixture identity is not independently verifiable",
+  "provenance_limit": "execution-log.jsonl entries 1 and 2 are retrospectively reconstructed; run-2/run-3 report hashes are recorded but report bytes are unavailable. Neither the log nor the pinned module alone proves their fixture-level outputs."
  },
  "pins": {
   "module_sha256_22c": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596",
@@ -102,187 +104,187 @@
    "total": 30,
    "fired_ids": [],
    "ok": true,
-   "caveat": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate",
+   "caveat": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate",
    "fixtures": [
     {
      "id": "cbv-C1",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "cbv-C2",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "cbv-C3",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "cbv-C4",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "cbv-C5",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "dsc-C1",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "dsc-C2",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "dsc-C3",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "dsc-C4",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "dsc-C5",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "jfu-C1",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "jfu-C2",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "jfu-C3",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "jfu-C4",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "jfu-C5",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "pcd-C1",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "pcd-C2",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "pcd-C3",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "pcd-C4",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "pcd-C5",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "psd-C1",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "psd-C2",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "psd-C3",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "psd-C4",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "psd-C5",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "sle-C1",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "sle-C2",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "sle-C3",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "sle-C4",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     },
     {
      "id": "sle-C5",
      "expected_label": "REFUSES",
      "fired": false,
-     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records — the substantive control-safety signal is the 0/77 corpus gate"
     }
    ]
   },
