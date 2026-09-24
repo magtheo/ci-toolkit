@@ -94,6 +94,19 @@ claim clauses and actors, extras and family ids):
 `qualification-report.json`
 (sha256 `fec590e9f822880a4e82aaa281f1ad6c0942559eaa55dbc64c6ddab08a11934c`).
 
+## Published-record immutability
+
+The evaluator's completed lifecycle is **read-only**. Once
+`qualification-report.json` exists, `evaluate()` checks its exact
+SHA256, frozen source pins, the preserved first/run-4 report hashes,
+execution-log sequence, and the 22D transition, then returns the
+published report **without calling the candidate or touching the
+holdout**. It must not overwrite the report or append a fifth run.
+The regression test pins all four artifacts before/after
+`evaluate()` and makes any call to `detect()` an immediate failure.
+The original execution log continues to reference the preserved
+raw run-4 bytes, not the separately reviewed report annotation.
+
 ## What this record is
 
 The QG5 input for the human adoption decision: m4rel is
