@@ -1,0 +1,502 @@
+{
+ "phase": "22D",
+ "kind": "m4rel-qualification-report",
+ "verdict": "SUCCESS",
+ "phase_transition": {
+  "path": "eval/evidence/v21-m4rel-qualification-2026-09-23/PHASE_TRANSITION.json",
+  "sha256": "b3eb2a4c8d9fe2a3353ec00cb423cc051abc96dda886412e227c7678b8f1a628",
+  "parent_merge_sha": "b518333175948896892e263a3880982ba96ea17e",
+  "boundary": "qualification execution and record publication only; preservation authority, adoption, GATING activation, and any deployed change remain unauthorized and human-decided"
+ },
+ "execution": {
+  "sanctioned": "first and only sanctioned execution of the frozen m4rel candidate against the frozen qualification material",
+  "fresh_holdout_sanctioned_observation": 1,
+  "fresh_holdout_deterministic_reexecutions": 3,
+  "reexecution_policy": "evaluator-only fixes; detector byte-identical; fixture-level outputs mechanically verified identical (see execution-log.jsonl and evaluator_correction)",
+  "no_detector_changes_after_observation": true,
+  "module_sha256_at_execution": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596",
+  "order": "pins verified before any detection; fresh holdout manifest integrity verified before its single execution"
+ },
+ "evaluator_correction": {
+  "found_after_first_execution": true,
+  "defect": "G5 aggregation inverted the control-correctness predicate (c_ok == 0 instead of c_ok == len(controls)); fixture-level results were complete and correct in the first report",
+  "detector_changes": "none \u2014 eval/v21_m4_relation.py byte-identical (sha re-verified)",
+  "first_execution_report": "qualification-report.execution-1.json",
+  "first_execution_report_sha256": "b368b5a4dcb7dbd9113e60cfbd514c8e17447722e60ca8748beae85620a13aa2",
+  "first_execution_verdict": "HALT",
+  "fixture_level_outputs_identical": true,
+  "detector_bytes_identical": true
+ },
+ "pins": {
+  "module_sha256_22c": "1a01d8ff6f15fd050eb290da4f20a2d99dacb59ea183b0dc6b803c6004139596",
+  "22b_contract_sha256": "0f7e183703dd9497b9e430686194472cefff0de3d9657c19e55b73e77d74c2a0",
+  "22b_holdout_manifest_sha256": "f9b06194f058d4de81534abeb286470f5c2aabe117267f7e5329b16e10dde127",
+  "18a_holdout_manifest_sha256": "a9445d91b7b98242c036d7c5b2594a71846a62abd1c08aa1f662129459257591",
+  "18d_report_sha256": "0a2bb7fa64be61a4c6b1f4b00b63c53a758fe1fed5d21fd169d067011af8dc26",
+  "oracle_version": "117b4164e5446f50",
+  "frozen_verifier_module_sha256": "bb0ebdeeb7fc80395626bf10d3e9ad1a730936ccf0ab7e719c43c1b5754b1b57"
+ },
+ "gates": {
+  "G1_corpus_targets": {
+   "required": "2/2",
+   "covered": 2,
+   "total": 2,
+   "ids": [
+    [
+     "stage-a-max",
+     66,
+     0
+    ],
+    [
+     "b1-low",
+     44,
+     0
+    ]
+   ],
+   "ok": true
+  },
+  "G2_corpus_controls": {
+   "required": "0 fired",
+   "fired": 0,
+   "total": 77,
+   "fired_ids": [],
+   "ok": true
+  },
+  "G3_extras": {
+   "required": "all recorded; zero claim-linked (zero preservation)",
+   "claim_linked": 0,
+   "file_match_only": 4,
+   "total": 34,
+   "claim_linked_ids": [],
+   "file_match_only_ids": [
+    [
+     "M4",
+     "stage-a-high",
+     30,
+     0
+    ],
+    [
+     "M4",
+     "stage-a-high",
+     102,
+     0
+    ],
+    [
+     "M4",
+     "stage-a-max",
+     30,
+     0
+    ],
+    [
+     "M4",
+     "stage-a-max",
+     102,
+     0
+    ]
+   ],
+   "ok": true
+  },
+  "G4_existing_holdout_controls": {
+   "required": "0 fired of 30 existing holdout controls",
+   "fired": 0,
+   "total": 30,
+   "fired_ids": [],
+   "ok": true,
+   "caveat": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate",
+   "fixtures": [
+    {
+     "id": "cbv-C1",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "cbv-C2",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "cbv-C3",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "cbv-C4",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "cbv-C5",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "dsc-C1",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "dsc-C2",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "dsc-C3",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "dsc-C4",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "dsc-C5",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "jfu-C1",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "jfu-C2",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "jfu-C3",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "jfu-C4",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "jfu-C5",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "pcd-C1",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "pcd-C2",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "pcd-C3",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "pcd-C4",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "pcd-C5",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "psd-C1",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "psd-C2",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "psd-C3",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "psd-C4",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "psd-C5",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "sle-C1",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "sle-C2",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "sle-C3",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "sle-C4",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    },
+    {
+     "id": "sle-C5",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "note": "probe record carries no PR title/body; the documentation-purpose condition makes a fire impossible on these records \u2014 the substantive control-safety signal is the 0/77 corpus gate"
+    }
+   ]
+  },
+  "G5_fresh_holdout_single_execution": {
+   "required": "6/6 positives fire; 0/6 controls fire",
+   "positives_fired": 6,
+   "positives_total": 6,
+   "controls_fired": 0,
+   "controls_total": 6,
+   "ok": true,
+   "note": "preregistered validation against the frozen holdout; NOT vocabulary-independent generalization (holdout authored pre-implementation but not blind to the implementation author)",
+   "fixtures": [
+    {
+     "id": "m4h-C1",
+     "role": "control",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "ok": true,
+     "files": [],
+     "actors": [],
+     "claim_clauses": []
+    },
+    {
+     "id": "m4h-C2",
+     "role": "control",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "ok": true,
+     "files": [],
+     "actors": [],
+     "claim_clauses": []
+    },
+    {
+     "id": "m4h-C3",
+     "role": "control",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "ok": true,
+     "files": [],
+     "actors": [],
+     "claim_clauses": []
+    },
+    {
+     "id": "m4h-C4",
+     "role": "control",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "ok": true,
+     "files": [],
+     "actors": [],
+     "claim_clauses": []
+    },
+    {
+     "id": "m4h-C5",
+     "role": "control",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "ok": true,
+     "files": [],
+     "actors": [],
+     "claim_clauses": []
+    },
+    {
+     "id": "m4h-C6",
+     "role": "control",
+     "expected_label": "REFUSES",
+     "fired": false,
+     "ok": true,
+     "files": [],
+     "actors": [],
+     "claim_clauses": []
+    },
+    {
+     "id": "m4h-P1",
+     "role": "positive",
+     "expected_label": "ADMITS",
+     "fired": true,
+     "ok": true,
+     "files": [
+      "jobs/priority.py"
+     ],
+     "actors": [
+      [
+       "scheduler"
+      ]
+     ],
+     "claim_clauses": [
+      "The scheduler always consults this priority when ordering jobs and uses no other ordering signal."
+     ]
+    },
+    {
+     "id": "m4h-P2",
+     "role": "positive",
+     "expected_label": "ADMITS",
+     "fired": true,
+     "ok": true,
+     "files": [
+      "telemetry/sampling.py"
+     ],
+     "actors": [
+      [
+       "collector",
+       "daemon"
+      ]
+     ],
+     "claim_clauses": [
+      "The collector daemon reads the sampling interval from this field and from no other source of truth."
+     ]
+    },
+    {
+     "id": "m4h-P3",
+     "role": "positive",
+     "expected_label": "ADMITS",
+     "fired": true,
+     "ok": true,
+     "files": [
+      "cli/paths.py"
+     ],
+     "actors": [
+      [
+       "entrypoint"
+      ]
+     ],
+     "claim_clauses": [
+      "Every entrypoint resolves the workspace root through this resolver and no other mechanism."
+     ]
+    },
+    {
+     "id": "m4h-P4",
+     "role": "positive",
+     "expected_label": "ADMITS",
+     "fired": true,
+     "ok": true,
+     "files": [
+      "queue/markers.py"
+     ],
+     "actors": [
+      [
+       "consumer",
+       "queue"
+      ]
+     ],
+     "claim_clauses": [
+      "The queue consumer always re-queues messages carrying this marker and inspects nothing else when deciding redelivery."
+     ]
+    },
+    {
+     "id": "m4h-P5",
+     "role": "positive",
+     "expected_label": "ADMITS",
+     "fired": true,
+     "ok": true,
+     "files": [
+      "watcher/debounce.py"
+     ],
+     "actors": [
+      [
+       "watcher"
+      ]
+     ],
+     "claim_clauses": [
+      "The watcher guarantees that no filesystem event is delivered within this window under any configuration."
+     ]
+    },
+    {
+     "id": "m4h-P6",
+     "role": "positive",
+     "expected_label": "ADMITS",
+     "fired": true,
+     "ok": true,
+     "files": [
+      "ops/restart.py"
+     ],
+     "actors": [
+      [
+       "supervisor",
+       "worker"
+      ]
+     ],
+     "claim_clauses": [
+      "The supervisor restarts every failed worker exactly three times and consults no other restart signal."
+     ]
+    }
+   ]
+  },
+  "G6_standing_guards": {
+   "required": {
+    "oracle": "117b4164e5446f50",
+    "C11_refused": true,
+    "M3_admitted_via_existing_witness": true,
+    "M13_refused": true,
+    "C12_refused": true,
+    "M12_refused": true,
+    "M10_relation_still_FAILED": true,
+    "C10_standing_near_miss": true
+   },
+   "actual": {
+    "oracle": "117b4164e5446f50",
+    "C11_refused": true,
+    "M3_admitted_via_existing_witness": true,
+    "M13_refused": true,
+    "C12_refused": true,
+    "M12_refused": true,
+    "M10_relation_still_FAILED": true,
+    "C10_standing_near_miss": true
+   },
+   "ok": true
+  }
+ },
+ "interpretation": {
+  "pass_meaning": "preregistered validation against the frozen holdout and corpus gates",
+  "pass_does_not_mean": "NOT vocabulary-independent generalization; the holdout was authored before implementation but is not blind to the implementation author (all six positive actor terms appear in the detector's ACTORS vocabulary)",
+  "authority": "no preservation authority granted; this record is the QG5 input for a separate human adoption decision"
+ },
+ "failure_handling": "any gate failure records evidence and auto-excludes the candidate; never tuned post hoc against these gates",
+ "oracle_version": "117b4164e5446f50"
+}
