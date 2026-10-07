@@ -11,7 +11,7 @@ contracts, operations, and fleet management).
 semantic capability. Platform maturity work belongs in
 `MATURITY_ROADMAP.md`; do not duplicate the same backlog in both.
 
-Last reviewed: 2026-09-11
+Last reviewed: 2026-10-07
 
 
 ## Philosophy
@@ -53,21 +53,40 @@ measured miss
 Ad-hoc rubric stuffing ("check GitHub APIs", "look for races") is the
 anti-pattern this roadmap exists to prevent.
 
-## Current position (2026-08-30)
+## Current position (2026-10-07)
+
+This section is a pointer, not the live record: the measured state
+lives on `feature/reviewer-eval-baseline` (`eval/state-log.md`, the
+plan's Track 1 sub-plan, draft PR #10) and reaches `main` with the
+umbrella merge. Read the plan from the feature branch, not `main`.
 
 - eval-baseline plan Phases 1–3 complete (engine contract, corpus +
-  measured baseline, qualification infrastructure); Phase 4 (M5) next.
-- Measured baseline: local defect detection decent; discrimination
-  weak (5/8 controls false-blocked); cross-file (M4) 0/3;
-  state/lifecycle (M8) unproven via pair integrity.
+  measured baseline, qualification infrastructure).
+- Phase 4 (M5) was attempted and **rolled back** (plan Deviation 2):
+  detection was induced but the paired control false-blocked in every
+  formulation. M5 remains KNOWN_GAP; **Track 1 (discrimination) is
+  the active stage**, resequenced ahead of the M5 retry.
+- Track 1 as of 2026-09-18 (PR #10): T1.1 complete (taxonomy +
+  36-fixture corpus); T1.2 incomplete (sensitivity floors frozen,
+  binding reference never earned); T1.3 capability gate **not
+  passed** — four measured mechanisms rejected and reverted.
+- Since then work continued on `feature/glm-profile-qualification`
+  (stacked on the eval-baseline branch; no PR yet): GLM profile
+  qualification, then a v2/v21 reviewer-contract line. Its plan
+  (`plans/glm-profile-qualification.md`) documents phases 01–06 only;
+  a PC2 policy decision is recorded there as open. None of it is
+  reflected in this roadmap's tracks yet.
+- Measured baseline (2026-08-30): local defect detection decent;
+  discrimination weak (5/8 controls false-blocked); cross-file (M4)
+  weak; state/lifecycle (M8) unproven via pair integrity.
 - Deployment contract PENDING ACTIVATION (see plan Deviation 1).
 
 ## Capability tracks
 
 | # | Capability | Evidence | State |
 |---|------------|----------|-------|
-| 1 | Discrimination / false-blocker reduction | baseline controls; #14 self-review FPs | dominant weakness; first priority |
-| 2 | Same-diff consistency | M5 / miss #5 | planned — eval-baseline Phases 4–5 |
+| 1 | Discrimination / false-blocker reduction | baseline controls; #14 self-review FPs; Phase-4 probe | **ACTIVE** — Track 1 on the eval-baseline feature branch; capability gate not passed |
+| 2 | Same-diff consistency | M5 / miss #5 | blocked by Track 1 (Phase 4 rolled back, Deviation 2) |
 | 3 | Targeted trusted-base context retrieval | M4 (0/3) | identified; design needed |
 | 4 | Cross-file contract reasoning | M4 (0/3), shared w/ track 3 | identified |
 | 5 | State / lifecycle / concurrency reasoning | M8; publisher bug (human-caught) | identified; fixture family needed |
@@ -75,9 +94,10 @@ anti-pattern this roadmap exists to prevent.
 | 7 | Architectural invariant reasoning | states.json-not-in-oracle_version (human-caught) | identified |
 | 8 | Acceptance / process truth | Phase-3/#10 circularity; #15 CLEAR-miss (both human-caught) | identified |
 
-Tracks 2, then 1, are sequenced (Phases 4–5, then discrimination).
-Tracks 3–8 start after the eval-baseline plan completes; ordering
-thereafter is chosen from measured evidence, not this table's number.
+Track 1 is sequenced ahead of Track 2 (Phases 4–5 resume under
+Track 1's outcome). Tracks 3–8 start after the eval-baseline plan
+completes; ordering thereafter is chosen from measured evidence, not
+this table's number.
 
 ---
 
