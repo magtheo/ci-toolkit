@@ -164,14 +164,41 @@ Explicitly:
 3. Optional overrides: `with: runner: <label>` (single runner label
    string — there is no automatic fallback; see
    [Self-hosted runners](#self-hosted-runner-requirements)),
-   `with: model: <openrouter-id>` (thin exposure of the default
-   model; no routing or fallback logic), and a repo-local
+   `with: model: <openrouter-id>` (default
+   `anthropic/claude-haiku-4.5`; the slug also selects a reviewed
+   request profile — see [Model profiles](#model-profiles); no
+   routing or fallback logic), and a repo-local
    `.ai-review-rubric.md` to replace the bundled rubric (resolved
    from the PR **base** ref — it is trusted policy, so it must come
    from reviewed code, never from the branch under review).
 
    `toolkit_ref` is **not** optional: it is mandatory and must be the
    same full SHA used in `uses:`.
+
+### Model profiles
+
+The `model` slug selects a **reviewed profile** from
+[`model_profiles.json`](model_profiles.json). Profiles are reviewed
+configuration, not runtime discovery: the file is versioned in this
+repo and travels with the pinned `toolkit_ref`, so a profile changes
+only through a reviewed toolkit commit. A profile fixes the request
+shape — completion token budget, reasoning-effort control, structured
+(JSON-schema) output, and whether one budget-escalation retry is
+allowed.
+
+- **Unknown slugs resolve to `default`**: 2000 max tokens, no
+  reasoning control, no structured output, no escalation — the legacy
+  request, unchanged.
+- **`z-ai/glm-5.3-flash`** is currently the only non-default profile:
+  low reasoning effort, 8000-token budget, structured output (the
+  request tells OpenRouter to route only to providers that support the
+  requested parameters), and one retry at double the budget when
+  generation stops at `finish_reason: length`. It is marked
+  **provisional** in `model_profiles.json` — effort and budget have not
+  yet been selected through measured qualification. Running it is
+  transport validation, not a quality claim.
+- Reasoning effort is never changed during a review; escalation
+  changes only the token budget, at most once.
 
 ### Pin governance (incident 2026-08-31 — evidence-based)
 
@@ -249,10 +276,40 @@ Deterministic classification (the parser, never the model):
    Clear);
 5. parser failure can never yield Clear.
 
-Infrastructure failures (network, API) surface as a **red failed
-job** — never a fabricated assessment. Details, praise, and metadata
-(model, commit, assessment) sit behind `<details>` progressive
-disclosure.
+### Inconclusive reason codes
+
+Every **Inconclusive** review carries a machine-readable
+`Reason code:` line in its *Technical details* block, so operational
+failures are distinguishable without exposing the model's reasoning
+trace. The parser owns the verdict; the transport only observes
+whether generation produced a usable response.
+
+| Reason code | Set by | Meaning |
+|---|---|---|
+| `STRUCTURED_OUTPUT_INVALID` | parser | output missing, unparseable, or structurally invalid (unknown assessment, malformed findings, invalid severity) |
+| `SEMANTIC_CONTRADICTION` | parser | structurally valid, but labelled `ISSUES_FOUND` with no validated blocking finding |
+| `OUTPUT_BUDGET_EXHAUSTED` | transport | generation stopped at `finish_reason: length` with no usable review — no final content, or truncated output that failed validation (shown as `OUTPUT_BUDGET_EXHAUSTED (parser reason: STRUCTURED_OUTPUT_INVALID; finish_reason: length)`) |
+| `NO_FINAL_CONTENT` | transport | the call succeeded (HTTP 200) but returned no final content, and not because of the budget |
+| `UPSTREAM_ERROR` | transport | the provider refused generation (`content_filter`), or the response envelope was malformed (no `choices`) |
+
+None of these changes a verdict: Inconclusive is never Clear.
+
+### Failure modes
+
+Two different things can go wrong, and they look different:
+
+- **Infrastructure failure → red failed job.** Network errors, or an
+  HTTP error from OpenRouter after retries (429/500/502/503/504 are
+  retried; any other non-200 fails immediately), a failed
+  budget-escalation call, or an unexpected status from the rubric
+  override probe (anything but 200/404). No review is posted and no
+  assessment is fabricated.
+- **Generation failure → Inconclusive with a reason code.** The call
+  itself succeeded but yielded no usable review (see the table above).
+  A review is posted; it is not Clear.
+
+Details, praise, and metadata (model, commit, assessment) sit behind
+`<details>` progressive disclosure.
 
 ## Limitations
 
@@ -269,7 +326,10 @@ disclosure.
   PRs produce no review.
 - **Path-filtered PRs produce no AI review at all** (caller
   `paths-ignore`) — skipping is invisible by design.
-- **Infrastructure failure yields a red job**, not an assessment.
+- **Infrastructure failure yields a red job**, not an assessment. (A
+  call that succeeds but produces no usable review is **Inconclusive**
+  with a reason code instead — see
+  [Failure modes](#failure-modes).)
 
 ## Roadmap freshness guard
 
@@ -324,6 +384,10 @@ has landed).
   retries network errors, 429, and selected transient 5xx responses
   (500/502/503/504) with backoff; explicit error reporting with HTTP
   codes;
+- reviewed model profiles and an envelope-aware transport
+  (`transport.py`, `model_profiles.json`): terminal generation states
+  are classified deterministically and surfaced as reason-coded
+  Inconclusive reviews (unit-tested in `tests/test_transport.py`);
 - changed-file list capped (`AI_REVIEW_MAX_FILES`, default 200);
 - payload construction extracted to `parse_review.py` with an
   invariant test suite (`tests/`, run by `.github/workflows/tests.yml`):
