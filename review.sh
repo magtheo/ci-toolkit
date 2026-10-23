@@ -61,6 +61,54 @@ curl_gh() { curl -sS -f --connect-timeout 10 --max-time 60 \
   -H @"$HDR_DIR/gh" \
   -H "Accept: application/vnd.github+json" "$@"; }
 
+# ---- head-staleness guard (fix/review-head-staleness-guard) ---------------
+# The changed-files endpoint is UNPINNED: GET /pulls/{n}/files serves the
+# CURRENT head, so a push completing mid-run could silently mix a stale
+# head identity with a newer diff. Two fail-closed re-checks (after file
+# acquisition, immediately before posting) narrow that window to a small,
+# bounded one; they CANNOT make the snapshot atomic — a push completing
+# after the final check is undetectable. Any downstream consumer of the
+# posted review must validate review.commit_id against the exact current
+# head SHA.
+#
+# Exit codes (distinct from 0 posted / 1 hard failure):
+#   4 = head moved during the run (re-check succeeded; SHAs differ) —
+#       abort at the guard; the next run reviews the new head;
+#   5 = the staleness re-check itself failed (network/HTTP/bad payload)
+#       — fail CLOSED: an unverifiable snapshot is treated as possibly
+#       stale, never reviewed as if fresh.
+#
+# Residual, documented, accepted: base_sha is captured once and the
+# rubric is fetched from that reviewed base revision; base-branch
+# movement mid-run at most yields policy from the run-start base —
+# never PR-head content (policy, not data; reviewed commit either way).
+verify_head_unchanged() {
+    local stage="$1"
+    local current=""
+    local rc=0
+    set +e
+    current=$(curl_gh "$REPO_API/pulls/$PR_NUMBER" \
+                | jq -r '.head.sha // empty')
+    rc=$?
+    set -e
+    if [ "$rc" -ne 0 ] || [ -z "$current" ]; then
+        echo "FAIL CLOSED: head-staleness re-check ($stage) could not read" \
+            "the current PR head (curl rc $rc) — an unverifiable snapshot is" \
+            "treated as possibly stale; refusing to continue. Rerun to review." \
+            | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}" >&2
+        exit 5
+    fi
+    if [ "$current" != "$head_sha" ]; then
+        echo "HEAD MOVED during review ($stage): reviewed snapshot" \
+            "${head_sha:0:12}, current head ${current:0:12} — aborting" \
+            "without posting. The next run reviews the new head. Any" \
+            "downstream decision must validate the review head against" \
+            "the exact current SHA." \
+            | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}" >&2
+        exit 4
+    fi
+}
+
 pr=$(curl_gh "$REPO_API/pulls/$PR_NUMBER")
 
 if [ "$(jq -r '.head.repo.fork // false' <<<"$pr")" = "true" ]; then
@@ -92,6 +140,10 @@ if [ "$n_files" -gt "$MAX_FILES" ]; then
   head -n "$MAX_FILES" "$files_jsonl" >"$files_jsonl.trunc" && mv "$files_jsonl.trunc" "$files_jsonl"
   files_note=$'\n'"[file list capped at $MAX_FILES of $n_files changed files]"
 fi
+
+# Guard 1 of 2 (head-staleness): file acquisition is complete and this
+# is the last cheap point to abort before spending anything.
+verify_head_unchanged "after file acquisition"
 
 changed_list=$(jq -sr '[.[].filename] | join("\n")' <"$files_jsonl")
 diff_text=$(jq -sr '[.[] | select(.patch != null)
@@ -267,6 +319,11 @@ else
 fi
 
 # ---- post exactly one COMMENT review -------------------------------------
+# Guard 2 of 2 (head-staleness): no review is knowingly posted against a
+# moved head; commit_id below is therefore the exact current head at
+# post time (within the documented, bounded residual window).
+verify_head_unchanged "before posting"
+
 posted=$(curl_gh -X POST "$REPO_API/pulls/$PR_NUMBER/reviews" \
   -H "Content-Type: application/json" -d @review.json)
 
