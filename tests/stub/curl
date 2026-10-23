@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+"""Fake curl for behavioral tests of review.sh (tests/stub harness).
+
+Scenario-driven: STUB_DIR/routes.json holds an ORDERED list of
+{"match": <url-substring>, "responses": [<entry>, ...]} routes; the
+Nth invocation of a route consumes the Nth entry, the last entry
+repeats when exhausted (this is how head movement between calls is
+simulated). An entry is either a fixture filename (relative to
+STUB_DIR; JSON file served with status 200), an integer status, or
+{"__status__": <int>, "body": {...}}.
+
+Every invocation appends "METHOD URL" to STUB_DIR/calls.log; POST
+bodies (-d @file) are copied to STUB_DIR/posts/<n>-<method>.json;
+per-route counters live in STUB_DIR/state.json.
+
+Supported flags (exactly what review.sh uses): -sS, -f, -i,
+--connect-timeout, --max-time, -H (ignored — credentials), -o FILE,
+-w FMT (prints the status code), -X POST, -d/@file, --data-binary.
+With -f and status >= 400: no body output, exit 22 (curl semantics).
+Unknown URLs fail loudly (exit 1) so tests never silently pass on an
+unrouted call.
+"""
+import json
+import os
+import sys
+
+
+def main():
+    args = sys.argv[1:]
+    stub = os.environ["STUB_DIR"]
+
+    urls = [a for a in args if "://" in a]
+    if len(urls) != 1:
+        sys.stderr.write("stub curl: expected exactly one URL\n")
+        return 1
+    url = urls[0]
+
+    method = "GET"
+    if "-X" in args and args[args.index("-X") + 1] == "POST":
+        method = "POST"
+    elif "-d" in args or "--data-binary" in args:
+        method = "POST"  # curl defaults to POST when a body is given
+
+    out_file = None
+    if "-o" in args:
+        out_file = args[args.index("-o") + 1]
+    want_code = "-w" in args
+    fail_on_http_error = "-f" in args
+
+    data_src = None
+    for flag in ("-d", "--data-binary"):
+        if flag in args:
+            v = args[args.index(flag) + 1]
+            if v.startswith("@"):
+                data_src = v[1:]
+            break
+
+    with open(os.path.join(stub, "calls.log"), "a") as fh:
+        fh.write("{0} {1}\n".format(method, url))
+
+    if data_src and os.path.exists(data_src):
+        posts = os.path.join(stub, "posts")
+        os.makedirs(posts, exist_ok=True)
+        n = len(os.listdir(posts))
+        with open(data_src, "rb") as src, \
+                open(os.path.join(posts,
+                                  "{0}-{1}.json".format(n, method)),
+                     "wb") as dst:
+            dst.write(src.read())
+
+    with open(os.path.join(stub, "routes.json")) as fh:
+        routes = json.load(fh)
+    state_path = os.path.join(stub, "state.json")
+    state = {}
+    if os.path.exists(state_path):
+        with open(state_path) as fh:
+            state = json.load(fh)
+
+    for idx, route in enumerate(routes):
+        if route["match"] not in url:
+            continue
+        key = str(idx)
+        n = state.get(key, 0)
+        state[key] = n + 1
+        with open(state_path, "w") as fh:
+            json.dump(state, fh)
+        entries = route["responses"]
+        entry = entries[min(n, len(entries) - 1)]
+
+        if isinstance(entry, int):
+            status, body = entry, {}
+        elif isinstance(entry, dict) and "__status__" in entry:
+            status = entry["__status__"]
+            body = entry.get("body", {})
+        else:
+            status = 200
+            path = entry if isinstance(entry, str) else None
+            if path:
+                with open(os.path.join(stub, path)) as fh:
+                    body = json.load(fh)
+            else:
+                body = entry
+
+        payload = json.dumps(body)
+        if want_code:
+            if out_file and out_file != "/dev/null" and status < 400:
+                with open(out_file, "w") as fh:
+                    fh.write(payload)
+            sys.stdout.write(str(status))
+        elif out_file and out_file != "/dev/null":
+            if status < 400 or not fail_on_http_error:
+                with open(out_file, "w") as fh:
+                    fh.write(payload)
+        else:
+            if status < 400 or not fail_on_http_error:
+                sys.stdout.write(payload)
+
+        if fail_on_http_error and status >= 400:
+            return 22
+        return 0
+
+    sys.stderr.write("stub curl: no route for {0}\n".format(url))
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
