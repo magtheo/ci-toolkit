@@ -80,7 +80,12 @@ infrastructure reuse, not shared authority.
   as an implicit branching-policy exception. Accepted implementation
   is rehomed into authorized phase branches of the active umbrella
   (and, for the `main` hotfix, a `fix/*` small-change branch), per
-  AGENTS.md.
+  AGENTS.md. **Ownership record (advisory 6, recorded before any
+  Phase-3+ branch is created): every context-aware phase in this plan
+  belongs to this plan and lands exclusively on authorized phase
+  branches of `feature/glm-profile-qualification` (Parent-linked phase
+  PRs) or, for the Phase-2 hotfix, a `fix/*` branch to `main` — no new
+  umbrella branch is created.**
 
 ## Non-goals
 
@@ -285,7 +290,9 @@ revisions".
 
 ## Phase 2 — Isolated `main` transport hotfix: head-staleness guard
 
-Status: NOT STARTED — **first implementation slice.** Small change,
+Status: IN PROGRESS (2026-10-23) — implemented on
+`fix/review-head-staleness-guard` (PR #111 → `main`), stopped at the
+human review boundary; not merged. Small change,
 deployed-surface only, no model calls added beyond two cheap GETs, no
 engine-contract change (none exists on `main`), no eval-semantics
 change, no `ReviewInput` extension.
@@ -339,6 +346,21 @@ change, no `ReviewInput` extension.
 
 - `python3 -m pytest tests/ -q` (on `main`'s suite); `bash -n
   review.sh`; PR description states the atomicity limitation verbatim.
+
+### Carry-forward advisories addressed (review round 2)
+
+1. **Base-branch movement residual race** — handled by documentation in
+   the guard itself: `base_sha` is captured once; mid-run base movement
+   at most yields the rubric from the run-start base revision
+   (reviewed policy either way, never PR-head content).
+2. **Fail-closed semantics for a failed staleness re-GET** — exit 5
+   (distinct from exit 4 "head moved"): network/HTTP/bad payload on
+   the guard GET aborts the run; an unverifiable snapshot is never
+   reviewed as if fresh. Behaviorally tested (HTTP 500 scenario).
+3. **Named stub-harness design** — `tests/stub` (scenario-driven fake
+   `curl` on `PATH`): `review.sh` runs end-to-end offline; race
+   windows are asserted from observed behavior (exit codes, calls log,
+   saved POST bodies, step summary), never by grepping the script.
 
 ## Phase 3 — Engine reconciliation prerequisites (before any context behavior)
 
