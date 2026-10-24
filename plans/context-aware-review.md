@@ -290,9 +290,14 @@ revisions".
 
 ## Phase 2 — Isolated `main` transport hotfix: head-staleness guard
 
-Status: IN PROGRESS (2026-10-23) — implemented on
-`fix/review-head-staleness-guard` (PR #111 → `main`), stopped at the
-human review boundary; not merged. Small change,
+Status: COMPLETE (2026-10-24) — reviewed at head `af7576f` (round-3
+review: ACCEPT, no blocking findings), **merged to `main` as
+`330e95f`** (PR #111). Human merge decision: directing human. The
+round-3 non-blocking advisories are carried by
+`chore/review-head-guard-review-nits` (PR #112 → `main`, opened, not
+merged): docstring/coverage truth + docs-only behavior pinned by test,
+structural review-POST identification, completed base-movement
+residual note, and a guard-2 fail-closed regression test. Small change,
 deployed-surface only, no model calls added beyond two cheap GETs, no
 engine-contract change (none exists on `main`), no eval-semantics
 change, no `ReviewInput` extension.
