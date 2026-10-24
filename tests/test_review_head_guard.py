@@ -6,15 +6,21 @@ route returns the Nth response — and asserted from OBSERVED behavior:
 exit codes, the stub's calls log, saved POST bodies, and the step
 summary. No network, no API key, no model calls.
 
-Windows (fix/review-head-staleness-guard):
+Windows and guard semantics covered:
   A — head moves during file acquisition      -> abort before the model
       call (exit 4, no OpenRouter call, no POST);
   B — head moves between the model call and the POST -> abort before
       posting (exit 4, OpenRouter called exactly once, no POST);
-  re-check failure (HTTP 500 on the guard GET) -> fail CLOSED (exit 5);
+  guard-1 re-check failure (HTTP 500) -> fail CLOSED (exit 5, nothing
+      downstream runs);
+  guard-2 re-check failure (HTTP 500) -> fail CLOSED (exit 5, model
+      call spent, no POST);
   stable head -> review posted, commit_id == the snapshot head.
-Skip paths (fork, and via fixture shape the docs-only path) remain
-exit 0 and unchanged.
+Skip paths are covered explicitly: fork PR (exit 0 unchanged),
+patch-less docs-only PR at a stable head (exit 0 unchanged), and a
+stale docs-only PR (exit 4 — the staleness guard runs BEFORE the
+docs-only skip, so the stale signal takes precedence over the silent
+skip; pinned by test).
 """
 import json
 import os
@@ -60,13 +66,13 @@ def pr_json(head_sha, fork=False):
     }
 
 
-def build_scenario(tmp_path, pr_responses):
+def build_scenario(tmp_path, pr_responses, files=FILES):
     scn = tmp_path / "stub"
     scn.mkdir()
     (scn / "pr1.json").write_text(json.dumps(pr_json(H1)))
     (scn / "pr2.json").write_text(json.dumps(pr_json(H2)))
     (scn / "prfork.json").write_text(json.dumps(pr_json(H1, fork=True)))
-    (scn / "files.json").write_text(json.dumps(FILES))
+    (scn / "files.json").write_text(json.dumps(files))
     (scn / "openrouter.json").write_text(json.dumps(OPENROUTER_OK))
     # Ordered routes: more specific substrings first, so e.g.
     # /pulls/7/files and /pulls/7/reviews never fall through to /pulls/7.
@@ -108,9 +114,21 @@ def run_review(tmp_path, scn):
     calls = (scn / "calls.log").read_text().splitlines()
     posts = list((scn / "posts").glob("*.json")) if \
         (scn / "posts").exists() else []
-    # Only the review POST body carries commit_id; the OpenRouter
-    # request body (the prompt) is saved here too and must not count.
-    posted = [p for p in posts if "commit_id" in p.read_text()]
+    # Only the review POST is the payload we assert on. Identification
+    # is structural, not a content substring: a saved body counts only
+    # when it parses as a JSON object carrying BOTH the event marker
+    # and the commit binding (the OpenRouter request body — the prompt
+    # — is also saved here and must never count).
+    posted = []
+    for p in posts:
+        try:
+            payload = json.loads(p.read_text())
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict) \
+                and payload.get("event") == "COMMENT" \
+                and "commit_id" in payload:
+            posted.append(p)
     summary_text = summary.read_text() if summary.exists() else ""
     return proc, calls, posted, summary_text
 
@@ -174,3 +192,42 @@ def test_fork_skip_unchanged(tmp_path):
     assert call_count(calls, "openrouter.ai") == 0
     assert posted == []
     assert "fork PR" in summary
+
+
+DOCS_ONLY = [{"filename": "docs/note.md", "status": "modified"}]
+
+
+def test_docs_only_skip_unchanged_at_stable_head(tmp_path):
+    # Patch-less PR at a verified current head: the pre-existing silent
+    # skip (exit 0, "no textual changes") is unchanged by the guards.
+    scn = build_scenario(tmp_path, ["pr1.json"], files=DOCS_ONLY)
+    proc, calls, posted, summary = run_review(tmp_path, scn)
+    assert proc.returncode == 0, proc.stderr
+    assert call_count(calls, "openrouter.ai") == 0
+    assert posted == []
+    assert "no textual changes" in summary
+
+
+def test_stale_docs_only_pr_aborts_as_stale(tmp_path):
+    # Guard precedence, pinned: guard 1 runs BEFORE the docs-only skip,
+    # so a head that moved mid-run aborts with exit 4 even when the PR
+    # is patch-less — an aborted-as-stale run is not a completed skip.
+    scn = build_scenario(tmp_path, ["pr1.json", "pr2.json"],
+                         files=DOCS_ONLY)
+    proc, calls, posted, summary = run_review(tmp_path, scn)
+    assert proc.returncode == 4, proc.stderr
+    assert call_count(calls, "openrouter.ai") == 0
+    assert posted == []
+    assert "HEAD MOVED" in summary
+
+
+def test_guard2_recheck_failure_fails_closed_after_model_call(tmp_path):
+    # Guard-1 re-GET succeeds (H1); the model call is spent; guard-2's
+    # re-GET returns HTTP 500 -> fail CLOSED with exit 5 and NO POST.
+    scn = build_scenario(tmp_path, ["pr1.json", "pr1.json", 500])
+    proc, calls, posted, summary = run_review(tmp_path, scn)
+    assert proc.returncode == 5, proc.stderr
+    assert call_count(calls, "openrouter.ai") == 1
+    assert posted == []
+    assert "FAIL CLOSED" in summary
+    assert "before posting" in summary

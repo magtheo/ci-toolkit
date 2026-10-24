@@ -82,6 +82,13 @@ curl_gh() { curl -sS -f --connect-timeout 10 --max-time 60 \
 # rubric is fetched from that reviewed base revision; base-branch
 # movement mid-run at most yields policy from the run-start base —
 # never PR-head content (policy, not data; reviewed commit either way).
+# Further residual, bounded the same way: a pathological base-branch
+# rewrite can also shift the three-dot merge base at an UNCHANGED head,
+# altering the diff the files endpoint serves. The head guard and the
+# documented non-atomicity bound this identically, and the posted review
+# still binds to the exact head SHA — downstream consumers validating
+# commit_id against the current head will surface any review whose
+# material is not current.
 verify_head_unchanged() {
     local stage="$1"
     local current=""
