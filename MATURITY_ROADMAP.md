@@ -366,6 +366,13 @@ Deterministic execution of an already-recorded authorization (a merge
 queue) is not part of the current model; it remains a possible future
 extension, to be introduced only as a separately reviewed policy
 change if operational evidence justifies it.
+A subsequent platform-core incident provides concrete throughput evidence:
+[PR #228](https://github.com/magtheo/platform-core/pull/228) required
+repeated CI qualification while other PRs advanced `main`. The
+[merge-coordination study](plans/merge-coordination-throughput.md)
+documents a human-operated single-merge-slot pilot, the cross-repository
+ownership boundary, and acceptance metrics. It **does not** change
+the human-executed merge rule or authorize an automated coordinator.
 
 These states must not be collapsed together. In particular:
 
