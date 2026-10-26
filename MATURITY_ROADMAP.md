@@ -9,7 +9,7 @@ the **toolkit itself**: release discipline, compatibility, deterministic CI,
 consumer contracts, operational visibility, supply-chain posture, and fleet
 management.
 
-Last reviewed: 2026-09-11
+Last reviewed: 2026-10-07
 
 ## Scope boundary
 
@@ -39,7 +39,7 @@ The target is:
 > A small toolkit whose behavior, trust boundaries, upgrades, and failures are
 > understandable and mechanically constrained across every consuming repo.
 
-## Current position (2026-08-31)
+## Current position (2026-10-07)
 
 ci-toolkit has crossed from prototype into an engineered internal component:
 
@@ -49,7 +49,15 @@ ci-toolkit has crossed from prototype into an engineered internal component:
 - security invariants in tests;
 - immutable SHA consumption for the privileged reviewer path;
 - documented runner trust classes and credential transport;
-- reviewer capability work moving toward measured qualification.
+- reviewed model profiles and an envelope-aware transport
+  (`transport.py`, `model_profiles.json`; #70): terminal generation
+  failures (no final content to parse) produce an explicit
+  reason-coded Inconclusive payload, and unknown model slugs fall back
+  to the legacy default profile;
+- reviewer capability work moving toward measured qualification — on
+  feature branches, not yet on `main` (see ROADMAP.md "Current
+  position"); the dogfood reviewer on `main` currently runs the
+  **provisional, unqualified** `z-ai/glm-5.3-flash` profile.
 
 The main maturity gaps are now around the toolkit **as a platform** rather than
 around basic reviewer safety:
@@ -171,7 +179,10 @@ mostly ignored.
 
 ci-toolkit already exposes a public interface (`workflow_call` inputs, secrets,
 runtime requirements, rubric override, review semantics), but compatibility is
-implicit.
+implicit. The surface has also grown without the README following: #70 added
+reviewed model profiles (which change request shape per `model` slug) and
+reason-coded Inconclusive output, and neither is described in the README's
+"Review output semantics" or integration sections.
 
 ### Target
 
@@ -181,8 +192,10 @@ Document **Consumer Contract v1** covering at minimum:
 - required secrets and permissions;
 - supported runner requirements / trust assumptions;
 - repo-local policy override behavior;
-- observable outcomes (`Clear`, `Issues found`, `Inconclusive`, no-review,
-  infrastructure failure);
+- observable outcomes (`Clear`, `Issues found`, `Inconclusive` with its
+  reason codes, no-review, infrastructure failure);
+- model profiles: how the `model` input selects a reviewed profile, and
+  that unknown slugs resolve to the default profile;
 - pinning rules;
 - which changes are breaking vs compatible.
 
